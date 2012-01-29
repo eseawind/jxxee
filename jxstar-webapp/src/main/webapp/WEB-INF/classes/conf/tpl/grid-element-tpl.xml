@@ -1,0 +1,116 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<elements>
+	<element name='editor_text'><![CDATA[
+		editable:true,
+		editor:new Ext.form.TextField({
+			maxLength:100, allowBlank:true
+		})
+	]]>
+	</element>
+
+	<element name='editor_number'><![CDATA[
+		align:'right',
+		editable:true,
+		editor:new Ext.form.NumberField({
+			maxLength:12, allowBlank:true
+		})
+	]]>
+	</element>
+
+	<element name='editor_combowin'><![CDATA[
+		editable:true,
+		editor:new Ext.form.TriggerField({
+			maxLength:100,
+			myeditable:false, allowBlank:true,
+			triggerClass:'x-form-search-trigger', 
+			onTriggerClick: function() {
+				if (this.menu == null) {
+					var selcfg = {config};
+					this.menu = Jxstar.createComboMenu(this);
+					JxSelect.createComboGrid(selcfg, this.menu, 'node_{funid}_editgrid');
+				}
+				this.menu.show(this.el);
+			}
+		})
+	]]>
+	</element>
+
+	<element name='editor_selectwin'><![CDATA[
+		editable:true,
+		editor:new Ext.form.TriggerField({
+			maxLength:100,
+			myeditable:false, allowBlank:true,
+			triggerClass:'x-form-search-trigger', 
+			onTriggerClick: function() {
+				var selcfg = {config};
+				JxSelect.createSelectWin(selcfg, this, 'node_{funid}_editgrid');
+			}
+		})
+	]]>
+	</element>
+
+	<element name='editor_combo'><![CDATA[
+		align:'center',
+		editable:true,
+		editor:new Ext.form.ComboBox({
+			store: new Ext.data.SimpleStore({
+				fields:['value','text'],
+				data: {name}Data
+			}),
+			emptyText: jx.star.select,
+			mode: 'local',
+			triggerAction: 'all',
+			valueField: 'value',
+			displayField: 'text',
+			editable:false, allowBlank:true,
+			value: {name}Data[0][0]
+		}),
+		renderer:function(value){
+			for (var i = 0; i < {name}Data.length; i++) {
+				if ({name}Data[i][0] == value)
+					return {name}Data[i][1];
+			}
+		}
+	]]>
+	</element>
+
+	<element name='render_combo'><![CDATA[
+		align:'center',
+		renderer:function(value){
+			for (var i = 0; i < {name}Data.length; i++) {
+				if ({name}Data[i][0] == value)
+					return {name}Data[i][1];
+			}
+		}
+	]]>
+	</element>
+
+	<element name='editor_date'><![CDATA[
+		editable:true,
+		editor:new Ext.form.DateField({
+			format: 'Y-m-d', allowBlank:true,
+			minValue: '1900-01-01'
+		}),
+		renderer:function(value) {
+			return value ? value.format('Y-m-d') : '';
+		}
+	]]>
+	</element>
+
+	<element name='render_date'><![CDATA[
+		renderer:function(value) {
+			return value ? value.format('Y-m-d') : '';
+		}
+	]]>
+	</element>
+
+	<element name='editor_checkbox'><![CDATA[
+		editable:true,
+		editor:new Ext.form.Checkbox(),
+		renderer:function(value) {
+			return value=='1' ? jx.base.yes : jx.base.no;
+		}
+	]]>
+	</element>
+
+</elements>

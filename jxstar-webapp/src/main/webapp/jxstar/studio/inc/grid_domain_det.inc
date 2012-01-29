@@ -1,0 +1,3 @@
+﻿	config.eventcfg = {
+		dataImportParam: function() {			var records = Ext.getCmp('node_event_domain_editgrid').getSelectionModel().getSelections();			if (!JxUtil.selected(records)) return;			var domainId = records[0].get('funall_domain__domain_id');			var options = {				whereSql: 'event_id not in (select event_id from funall_domain_event where domain_id = ?)',				whereValue: domainId,				whereType: 'string'			};			return options;		}
+	};
