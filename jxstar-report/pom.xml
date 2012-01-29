@@ -5,11 +5,11 @@
   <parent>
     <artifactId>jxstar</artifactId>
     <groupId>org.jxstar</groupId>
-    <version>0.1-SNAPSHOT</version>
+    <version>1.0</version>
   </parent>
   <groupId>org.jxstar</groupId>
   <artifactId>jxstar-report</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>1.0</version>
   <name>jxstar-report</name>
   
   <dependencies>
