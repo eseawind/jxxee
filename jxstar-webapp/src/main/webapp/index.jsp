@@ -76,9 +76,6 @@
 	<script type="text/javascript" src="public/core/JxExt.js"></script>
 	<script type="text/javascript" src="public/core/Jxstar.js"></script>
 	
-	<script type="text/javascript" src="project/JxPm.js"></script>
-	
-	
 	<script type="text/javascript" src="public/lib/graph/js/mxCanvas.js"></script>
 	<script type="text/javascript">Ext.fly('loading').hide();</script>
 	<div id="body_div"  class="body_div">
