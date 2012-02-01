@@ -43,7 +43,7 @@
 			region:'west',
 			border:false,
 	        id:'top_left_img',
-	        html: '<div class=\'top_bg\'><img onload=\'JxUtil.fixPNG(this);\' id=\'main_page_img\' src=\'./resources/images/top-app.png\' width=\'143\' height=\'44\'/></div>'
+	        html: '<div class=\'top_bg\'><img onload=\'JxUtil.fixPNG(this);\' id=\'main_page_img\' src=\'./resources/images/top-app.png\' style=\'cursor:pointer;\' width=\'143\' height=\'44\'/></div>'
 	    },{
 	        region:'center',
 			border:false,
