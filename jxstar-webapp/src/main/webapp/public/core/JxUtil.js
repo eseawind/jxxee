@@ -37,6 +37,23 @@ JxUtil = {};
 		},
 		
 		/**
+		 * 把功能菜单添加到权限数组中
+		 **/
+		putRightNodes: function(menuJson) {
+			for (var i = 0; i < menuJson.length; i++) {
+				var oneModule = menuJson[i];
+				for (var j = 0; j < oneModule.children.length; j++) {
+					var towModule = oneModule.children[j];
+					for (var k = 0; k < towModule.children.length; k++) {
+						var threeModule = towModule.children[k];
+						//保存授权的功能ID
+						Jxstar.rightNodes.push(threeModule.id);
+					}
+				}
+			}
+		},
+		
+		/**
 		 * 显示当前在线用户
 		 **/
 		onLineUser: function() {

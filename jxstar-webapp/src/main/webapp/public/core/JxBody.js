@@ -93,7 +93,12 @@
 		lines: false,
 		useArrows: false,
 		
-		loader: new Ext.tree.TreeLoader({dataUrl: dataUrl}),
+		loader: new Ext.tree.TreeLoader({dataUrl: dataUrl, listeners:{
+			load:function(loader, node, response){
+				var menuJson = Ext.decode(response.responseText);
+				JxUtil.putRightNodes(menuJson);
+			}
+		}}),
 		root: new Ext.tree.AsyncTreeNode({text:'main_menu_root'})
 	});
 	//打开功能
