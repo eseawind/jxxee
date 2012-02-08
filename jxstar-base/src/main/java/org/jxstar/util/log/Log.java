@@ -2,7 +2,7 @@
  * Log.java 2008-3-23
  * 
  * Copyright 2010 Guangzhou Donghong Software Technology Inc.
- * Licensed under the GNU GPL Version 3.0
+ * Licensed under the www.jxstar.org
  */
 package org.jxstar.util.log;
 

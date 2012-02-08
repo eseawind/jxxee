@@ -2,7 +2,7 @@
  * SQLParseConfig.java 2009-5-28
  * 
  * Copyright 2010 Guangzhou Donghong Software Technology Inc.
- * Licensed under the GNU GPL Version 3.0
+ * Licensed under the www.jxstar.org
  */
 package org.jxstar.util.config;
 

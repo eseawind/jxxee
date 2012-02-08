@@ -1,6 +1,6 @@
 ﻿/*!
  * Copyright 2011 Guangzhou Donghong Software Technology Inc.
- * Licensed under the GNU GPL Version 3.0
+ * Licensed under the www.jxstar.org
  */
 
 /**
