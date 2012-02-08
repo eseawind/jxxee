@@ -10,7 +10,7 @@ import org.jxstar.util.log.Log;
 import org.jxstar.util.system.SystemInitUtil;
 
 /**
- * 基础测试类
+ * 基础测试类，用于框架开发用。
  *
  * @author TonyTan
  * @version 1.0, 2009-10-5
