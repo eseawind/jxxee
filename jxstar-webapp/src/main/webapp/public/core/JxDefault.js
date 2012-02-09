@@ -26,12 +26,12 @@ JxDefault = {};
 		*/
 		getCurMonth: function(inc){
 			var d = new Date();
+			//先调整到当月的第一天，可以避免月末日期不对的问题
+			var dv = d.format('Y-m');
+			d = Date.parseDate(dv+'-01', 'Y-m-d');
 			if (inc != null) {
 				d = d.add(Date.MONTH, inc);
 			}
-			
-			var dt = d.format('Y-m');
-			d = Date.parseDate(dt+'-01', 'Y-m-d');
 			return d;
 		},
 		
