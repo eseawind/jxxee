@@ -84,7 +84,7 @@ JxSelect = {};
 						whereValue = JxUtil.parseWhereValue(whereValue, tagRecord);
 					}
 					//显示表格对象后再加载数据才稳定
-					Jxstar.loadData(selgrid, {where_sql:config.whereSql, where_value:config.whereValue, where_type:config.whereType});
+					Jxstar.loadData(selgrid, {where_sql:config.whereSql, where_value:whereValue, where_type:config.whereType});
 					
 					//添加选择数据的方法
 					selgrid.on('rowdblclick', function(grid, n, event){
