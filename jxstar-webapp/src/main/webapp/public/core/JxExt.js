@@ -228,6 +228,33 @@ Ext.form.DateField.prototype.onSelect = function(m, d){
 };
 
 /**
+ * 扩展Ext.form.DateField组件的功能。
+ * 如果是样式：Y-m，在显示日期值取的是当前日，应该取1号
+ **/
+Ext.form.DateField.prototype.parseDate = function(value) {
+	if(!value || Ext.isDate(value)){
+		return value;
+	}
+	//------------------------------add by tony.tan -----------------------
+	if (!Ext.isEmpty(value) && value.length == 7 && this.format == 'Y-m') {
+		return Date.parseDate(value+'-01', 'Y-m-d');
+	}
+
+	var v = this.safeParse(value, this.format),
+		af = this.altFormats,
+		afa = this.altFormatsArray;
+
+	if (!v && af) {
+		afa = afa || af.split("|");
+
+		for (var i = 0, len = afa.length; i < len && !v; i++) {
+			v = this.safeParse(value, afa[i]);
+		}
+	}
+	return v;
+},
+
+/**
  * 修改FormLayout的标签描述不添加':'符号。
  **/
 Ext.layout.FormLayout.prototype.labelSeparator = '';
