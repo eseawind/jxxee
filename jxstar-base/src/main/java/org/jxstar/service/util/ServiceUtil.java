@@ -112,16 +112,16 @@ public class ServiceUtil {
 	public static List<Map<String,String>> getRequestMaps(
 			RequestContext requestContext, 
 			String[] asCol) {
+		List<Map<String,String>> lsVal = FactoryUtil.newList();
 		if (asCol == null || asCol.length == 0) {
 			_log.showWarn("get asCol param is null! ");
-			return null;
+			return lsVal;
 		}
 		if (requestContext == null) {
 			_log.showWarn("get requestContext param is null! ");
-			return null;
+			return lsVal;
 		}
 		
-		List<Map<String,String>> lsVal = FactoryUtil.newList();
 		for (int i = 0; i < asCol.length; i++) {
 			String[] oneVal = requestContext.getRequestValues(asCol[i]);
 			Map<String,String> mpVal;
