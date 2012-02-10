@@ -88,7 +88,7 @@ public class TreeDataBO extends BusinessObject {
 	 */
 	private List<Map<String,String>> queryTreeDefine() {
 		StringBuilder sbsql = new StringBuilder();
-		sbsql.append("select fun_id, table_name, node_id, node_name, node_level, has_nosub, ");
+		sbsql.append("select fun_id, table_name, node_id, node_name, node_level, ");
 		sbsql.append("self_funid, right_where, prop_prefix, has_level, tree_title from fun_tree ");
 		
 		DaoParam param = _dao.createParam(sbsql.toString());
