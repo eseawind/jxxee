@@ -68,8 +68,8 @@ public class FileAction extends Action {
 		}
 		
 		//是否判断用户会话生效的标志
-		String not_valid_user = requestContext.getRequestValue("not_valid_user", "0");
-		if (not_valid_user.equals("0")) {
+		String nousercheck = requestContext.getRequestValue("nousercheck", "0");
+		if (nousercheck.equals("0")) {
 			Map<String,String> mpUser = (Map<String,String>) request.getSession().
 					getAttribute(JsParam.CURRUSER);
 			if (mpUser == null || mpUser.isEmpty()) {
