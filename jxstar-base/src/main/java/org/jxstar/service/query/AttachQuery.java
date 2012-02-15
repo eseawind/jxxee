@@ -35,7 +35,7 @@ public class AttachQuery extends BusinessObject {
 		if (keyIds == null || keyIds.length() == 0) return _returnSuccess;
 		
 		//取附件记录
-		String sql = "select data_id, attach_id, attach_name from sys_attach " +
+		String sql = "select data_id, attach_id, attach_name, content_type, fun_id from sys_attach " +
 				"where table_name = ? and data_id in " + keyIns(keyIds) + " order by data_id";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(tableName);
@@ -51,7 +51,9 @@ public class AttachQuery extends BusinessObject {
 			String json = "{row_num:"+ keyIndex.get(dataid) +", " +
 					"data_id:'"+ dataid +"', " +
 					"attach_id:'"+ mpData.get("attach_id") +"', " +
-					"attach_name:'"+ mpData.get("attach_name") +"'},";
+					"attach_name:'"+ mpData.get("attach_name") +"', " +
+					"fun_id:'"+ mpData.get("fun_id") +"', " +
+					"content_type:'"+ mpData.get("content_type") +"'},";
 			
 			sbJson.append(json);
 		}
