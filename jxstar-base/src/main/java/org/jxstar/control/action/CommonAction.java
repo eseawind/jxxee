@@ -89,6 +89,13 @@ public class CommonAction extends Action {
 			Map<String,String> mpUser = (Map<String,String>) request.getSession().
 								getAttribute(JsParam.CURRUSER);
 			if (mpUser == null || mpUser.isEmpty()) {
+				//当会话失效时，直接退出
+				if (eventCode.equals("logout")) {
+					_log.showDebug(".......session is invalidate, logout event end!!");
+					responseContext.setSuccessed(true);
+					return responseContext;
+				}
+				
 				responseContext.setMessage(JsMessage.getValue("commonaction.nologin"));
 				return responseContext;
 			} else {
