@@ -1,3 +1,14 @@
+/*!
+ * Copyright 2011 Guangzhou Donghong Software Technology Inc.
+ * Licensed under the www.jxstar.org
+ */
+ 
+/**
+ * 甘特图显示控件。
+ * 
+ * @author TonyTan
+ * @version 1.0, 2011-10-06
+ */
 Ext.ns('App');
 
 Ext.onReady(function() {
@@ -146,8 +157,6 @@ App.Gantt = {
 	}
 };
 
-// Fix onBlur bug in SpinnerField
-// http://www.sencha.com/forum/showthread.php?97878-OPEN-905-Ext.ux.form.SpinnerField-change-event-does-not-fire&p=461703
 if (!Ext.isIE && Ext.ux && Ext.ux.form && Ext.ux.form.SpinnerField && Ext.ux.form.SpinnerField.prototype.onBlur === Ext.emptyFn) {
     Ext.ux.form.SpinnerField.prototype.onBlur = Ext.ux.form.SpinnerField.superclass.onBlur;
 }   

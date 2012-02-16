@@ -1,3 +1,14 @@
+/*!
+ * Copyright 2011 Guangzhou Donghong Software Technology Inc.
+ * Licensed under the www.jxstar.org
+ */
+ 
+/**
+ * 甘特图显示控件。
+ * 
+ * @author TonyTan
+ * @version 1.0, 2011-10-06
+ */
 JxGanttPanel = Ext.extend(Sch.gantt.GanttPanel, {
     //rightLabelField : 'Responsible',
     highlightWeekends : true,
