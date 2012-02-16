@@ -1,4 +1,9 @@
-﻿/**
+﻿/*!
+ * Copyright 2011 Guangzhou Donghong Software Technology Inc.
+ * Licensed under the www.jxstar.org
+ */
+
+/**
  * 报表设计器
  * 设置选择字段显示在哪个td的设计思路是：
  * 1、定义一个公共的sel_rpttddiv对象，标志当前所在的td；

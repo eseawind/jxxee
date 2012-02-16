@@ -1,4 +1,9 @@
-﻿/**
+﻿/*!
+ * Copyright 2011 Guangzhou Donghong Software Technology Inc.
+ * Licensed under the www.jxstar.org
+ */
+
+/**
  * form表单设计器
  *
  * 注意：各种布局元素都不能加边框，firefox会给加边框的对象计算宽度是加上边框的宽度

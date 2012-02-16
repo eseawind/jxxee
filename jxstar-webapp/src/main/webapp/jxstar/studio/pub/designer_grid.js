@@ -1,4 +1,9 @@
-﻿Jxstar.currentPage = {
+﻿/*!
+ * Copyright 2011 Guangzhou Donghong Software Technology Inc.
+ * Licensed under the www.jxstar.org
+ */
+
+Jxstar.currentPage = {
 	nodeId: '',
 	target: '',
 

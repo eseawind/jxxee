@@ -1,4 +1,9 @@
-﻿/**
+﻿/*!
+ * Copyright 2011 Guangzhou Donghong Software Technology Inc.
+ * Licensed under the www.jxstar.org
+ */
+
+/**
  * 流程设计器
  **/
 Jxstar.currentPage = {
