@@ -43,10 +43,6 @@ public class MenuQuery extends BusinessObject {
 		//保存二级模块ID信息
 		Map<String,StringBuilder> towModule = FactoryUtil.newMap();
 		
-		//一级菜单是否展开
-		String exped = SystemVar.getValue("sys.menu.expanded");
-		if (!exped.equals("true")) exped = "false";
-		
 		//判断用户是否为系统管理员
 		boolean isAdmin = SysUserUtil.isAdmin(userId);
 		_log.showDebug("-----------current user role is admin=" + isAdmin);
@@ -123,6 +119,9 @@ public class MenuQuery extends BusinessObject {
 			String moduleId = mpModule.get("module_id");
 			//一级模块名称
 			String moduleName = mpModule.get("module_name");
+			//一级模块是否展开
+			String isExpanded = mpModule.get("is_expanded");
+			isExpanded = isExpanded.equals("1") ? "true" : "false";
 			
 			//取二级模块的过滤语句
 			String twoWhere = null;
@@ -141,7 +140,7 @@ public class MenuQuery extends BusinessObject {
 			//构建一级模块
 			sbJson.append("{id:'"+ moduleId +"', ");
 			sbJson.append("text:'"+ moduleName +"', ");
-			sbJson.append("leaf:false, cls:'one-menu', expanded:"+ exped +", ");
+			sbJson.append("leaf:false, cls:'one-menu', expanded:"+ isExpanded +", ");
 			sbJson.append("children: ");
 			
 			//构建二级模块
@@ -176,6 +175,9 @@ public class MenuQuery extends BusinessObject {
 			String moduleId = mpModule.get("module_id");
 			//二级模块名称
 			String moduleName = mpModule.get("module_name");
+			//二级模块是否展开
+			String isExpanded = mpModule.get("is_expanded");
+			isExpanded = isExpanded.equals("1") ? "true" : "false";
 			
 			//查询功能菜单
 			List<Map<String,String>> lsFun = null;
@@ -189,7 +191,7 @@ public class MenuQuery extends BusinessObject {
 			//构建二级模块
 			sbJson.append("{id:'"+ moduleId +"', ");
 			sbJson.append("text:'"+ moduleName +"', ");
-			sbJson.append("leaf:false, cls:'two-menu', ");
+			sbJson.append("leaf:false, cls:'two-menu', expanded:"+ isExpanded +", ");
 			sbJson.append("children: ");
 			
 			//构建功能菜单
@@ -334,7 +336,7 @@ public class MenuQuery extends BusinessObject {
 	 */
 	private List<Map<String,String>> queryTwoModule(String twoWhere) {
 		StringBuilder sbsql = new StringBuilder();
-		sbsql.append("select module_id, module_name from funall_module ");
+		sbsql.append("select module_id, module_name, is_expanded from funall_module ");
 		sbsql.append("where module_level = 2 and is_show = '1' ");
 		if (twoWhere != null && twoWhere.length() > 0) {
 			sbsql.append(" and " + twoWhere);
@@ -352,7 +354,7 @@ public class MenuQuery extends BusinessObject {
 	 */
 	private List<Map<String,String>> queryModule(String oneWhere) {
 		StringBuilder sbsql = new StringBuilder();
-		sbsql.append("select module_id, module_name from funall_module ");
+		sbsql.append("select module_id, module_name, is_expanded from funall_module ");
 		sbsql.append("where module_level = 1 and is_show = '1' ");
 		if (oneWhere != null && oneWhere.length() > 0) {
 			sbsql.append(" and " + oneWhere);
