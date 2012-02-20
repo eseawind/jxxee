@@ -260,11 +260,15 @@ public class TaskInstanceDao {
 	}
 	
 	/**
-	 * 更新分配消息状态，当前处理人的消息状态为完成，其他人的状态为注销。
+	 * 更新分配消息状态，当前处理人的消息状态为完成；
+	 * 同时更新当前审批人、审批时间、审批意见等信息，实现同节点多人审批需求；
+	 * 
+	 * 分配消息状态：0 新、1 已完成、4 已注销
+	 * 
 	 * @param task -- 任务实例
 	 * @return
 	 */
-	public boolean executeAssign(TaskInstance task) {
+	/*public boolean executeAssign(TaskInstance task) {
 		//取任务ID与处理人ID
 		String taskId = task.getTaskId();
 		String checkUserId = task.getCheckUserId();
@@ -286,6 +290,29 @@ public class TaskInstanceDao {
 		if (!_dao.update(param)) return false;
 		
 		return true;
+	}*/
+	public boolean executeAssign(TaskInstance task) {
+		StringBuilder sql = new StringBuilder("update wf_assign set ");
+			sql.append("run_state = ?,");
+			sql.append("check_userid = ?,");
+			sql.append("check_user = ?,");
+			sql.append("check_date = ?,");
+			sql.append("check_type = ?,");
+			sql.append("check_desc = ? ");
+			sql.append("where task_id = ? and assign_userid = ?");
+		
+		DaoParam param = _dao.createParam(sql.toString());
+		param.addStringValue("1");
+		param.addStringValue(task.getCheckUserId());
+		param.addStringValue(task.getCheckUserName());
+		param.addDateValue(task.getCheckDate());
+		param.addStringValue(task.getCheckType());
+		param.addStringValue(task.getCheckDesc());
+		
+		param.addStringValue(task.getTaskId());
+		param.addStringValue(task.getCheckUserId());
+		
+		return _dao.update(param);
 	}
 	
 	/**

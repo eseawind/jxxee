@@ -75,6 +75,8 @@ public class CheckWorkBO extends BusinessObject {
 		String hasNo = mpNodeAttr.get("has_no");
 		//是否可以完成
 		String hasComplete = mpNodeAttr.get("has_complete");
+		//是否多人审批节点
+		String mustAgreeNum = mpNodeAttr.get("agree_num");
 		
 		//取任务ID与过程实例ID
 		taskId = mpTask.get("task_id");
@@ -82,7 +84,8 @@ public class CheckWorkBO extends BusinessObject {
 		
 		//返回信息到前台
 		String json = "{hasNo:'"+ hasNo +"', hasComplete:'"+ hasComplete +"', " +
-					  "taskId:'"+ taskId +"', instanceId:'"+ instanceId +"'}";
+						"mustAgreeNum:'"+ mustAgreeNum +"', " +
+						"taskId:'"+ taskId +"', instanceId:'"+ instanceId +"'}";
 		setReturnData(json);
 		
 		return _returnSuccess;

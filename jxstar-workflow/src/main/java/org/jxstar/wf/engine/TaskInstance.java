@@ -13,6 +13,7 @@ import org.jxstar.util.log.Log;
 import org.jxstar.util.resource.JsMessage;
 import org.jxstar.wf.WfException;
 import org.jxstar.wf.define.Node;
+import org.jxstar.wf.define.WfDefineDao;
 import org.jxstar.wf.define.WfDefineManager;
 import org.jxstar.wf.invoke.EventAgent;
 import org.jxstar.wf.invoke.EventCode;
@@ -42,13 +43,12 @@ public class TaskInstance {
 		Map<String,String> appData = processInstance.getAppData();
 		
 		//取当前任务的有效用户
-		WfDefineManager manager = WfDefineManager.getInstance();
-		List<Map<String,String>> lsUser = manager.queryAssignUser(processId, nodeId, appData);
+		List<Map<String,String>> lsUser = AssignTaskUtil.queryAssignUser(this, appData);
 		if (lsUser.isEmpty()) {//"【{0}】过程的【{1}】节点没有找到符合条件的分配用户！"
 			throw new WfException(JsMessage.getValue("task.nouser"), processId, nodeId);
 		}
 		
-		//设置任务创建状态
+		//设置任务为创建状态
 		setRunState(StatusCode.TASK_CREATED);
 		
 		if (!_taskDao.insertTask(this)) {//"新增任务实例到数据库中失败！"
@@ -76,7 +76,12 @@ public class TaskInstance {
 		//"执行任务【{0}】"
 		_log.showDebug(JsMessage.getValue("task.do"), getTaskId());
 		
-		//设置任务创建状态
+		//如果是任务取回，则把原任务分配消息都注销，再创建一条取回分配消息
+		if (getCheckType().equals("K")) {
+			AssignTaskUtil.createBackAssign(this);
+		}
+		
+		//设置任务为执行状态
 		setRunState(StatusCode.TASK_EXECUTED);
 		
 		if (!_taskDao.executeTask(this)) {//"保存任务执行信息到数据表中出错！"
@@ -99,7 +104,10 @@ public class TaskInstance {
 		//"完成任务【{0}】"
 		_log.showDebug(JsMessage.getValue("task.end"), getTaskId());
 		
-		//设置任务创建状态
+		//如果是多人审批节点，且没有执行完所有分配，则退出等待
+		if (!AssignTaskUtil.assignComplete(this)) return;
+		
+		//设置任务为完成状态
 		setRunState(StatusCode.TASK_COMPLETED);
 		
 		if (!_taskDao.completeTask(this)) {//"保存任务完成信息到数据表中出错！"

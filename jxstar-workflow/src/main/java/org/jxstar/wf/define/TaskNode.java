@@ -9,12 +9,12 @@ package org.jxstar.wf.define;
 import java.util.List;
 import java.util.Map;
 
-
 import org.jxstar.service.util.TaskUtil;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.resource.JsMessage;
 import org.jxstar.wf.WfException;
+import org.jxstar.wf.engine.AssignTaskUtil;
 import org.jxstar.wf.engine.ProcessContext;
 import org.jxstar.wf.engine.ProcessInstance;
 import org.jxstar.wf.engine.TaskInstance;
@@ -47,7 +47,7 @@ public class TaskNode extends Node {
 	public static final String RETURN = "R";		//退回
 	public static final String RETURNEDIT = "E";	//退回编辑人
 	public static final String COMPLETE = "C";		//完成
-	
+	public static final String GETBACK = "K";		//取回
 	
 	/**
 	 * 执行任务节点，创建任务实例。
@@ -86,11 +86,17 @@ public class TaskNode extends Node {
 		TaskInstance task = context.getTaskInstance();
 		ProcessInstance process = context.getProcessInstance();
 		
+		//如果是多人审批节点，且达到通过条件，则修改checkType为Y，否则为E
+		AssignTaskUtil.taskCheckType(task);
+		
 		//取审批意见类型
 		String checkType = task.getCheckType();
 		
 		//根据审批意见类型，查找流转路径
-		if (checkType.equals(AGREE)) {//同意-- 走正常路径离开当前节点
+		if (checkType.equals(AGREE) || checkType.equals(GETBACK)) {
+			//同意-- 走正常路径离开当前节点
+			//取回-- 进入指定的退回路径
+			
 			//如果指定了节点，则直接进入该节点。应用于取回功能中。
 			//注意，暂时只能指定到简单节点中，会签节点与子过程节点没处理
 			String nextNodeId = task.getNextNodeId();
