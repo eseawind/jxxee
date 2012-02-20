@@ -104,8 +104,6 @@ public class TreeQuery extends BusinessObject {
 		String pkcol = MapUtil.getValue(mpTree, "node_id");
 		//级别列字段
 		String levelcol = MapUtil.getValue(mpTree, "node_level");
-		//是否有子节点字段
-		//String child = MapUtil.getStringVal(mpTree, "child_field");
 		
 		//select子句
 		StringBuilder treesql = new StringBuilder("select ");
@@ -254,8 +252,8 @@ public class TreeQuery extends BusinessObject {
 		StringBuilder sbsql = new StringBuilder();
 		sbsql.append("select table_name, node_id, node_name, node_other, node_level,");
 		sbsql.append("self_funid, self_where, self_order, right_funid, right_where, ");
-		sbsql.append("right_target, right_layout, prop_prefix, show_data, has_level, ");
-		sbsql.append("db_name, tree_title, child_field from fun_tree where fun_id = ?");
+		sbsql.append("right_target, right_layout, prop_prefix, has_level, ");
+		sbsql.append("db_name, tree_title from fun_tree where fun_id = ?");
 		
 		DaoParam param = _dao.createParam(sbsql.toString());
 		param.addStringValue(funcId);
