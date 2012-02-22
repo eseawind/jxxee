@@ -260,6 +260,7 @@
     <module>jxstar-function</module>
     <module>jxstar-workflow</module>
     <module>jxstar-report</module>
+    <module>jxstar-security</module>
 	<module>jxstar-webapp</module>
   </modules>
 </project>
