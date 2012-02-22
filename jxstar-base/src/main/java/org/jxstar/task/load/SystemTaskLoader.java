@@ -117,9 +117,10 @@ public class SystemTaskLoader extends SystemLoader {
 		while(itr.hasNext()) {
 			Thread thread = itr.next();
 			
-			if (thread instanceof SystemTask) {
+			String className = thread.getClass().toString();
+			if (thread instanceof SystemTask || className.indexOf("org.jxstar.") >= 0) {
 				thread.interrupt();
-				System.out.println("..............thread.hashcode is " + thread.hashCode() + "; " + thread.getClass() + " is destroy!!");
+				System.out.println("..............thread.hashcode is " + thread.hashCode() + "; " + className + " is destroy!!");
 			}
 		}
 	}
