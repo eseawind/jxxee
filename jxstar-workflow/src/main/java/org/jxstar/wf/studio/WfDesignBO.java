@@ -11,6 +11,7 @@ import java.util.Map;
 import org.jxstar.control.action.RequestContext;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.dao.util.BigFieldUtil;
+import org.jxstar.security.SafeManager;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
@@ -56,6 +57,13 @@ public class WfDesignBO extends BusinessObject {
 	public String saveDesign(RequestContext request) {
 		String userId = request.getUserInfo().get("user_id");
 		String processId = request.getRequestValue("process_id");
+		
+		//许可检测
+		int code = SafeManager.getInstance().validCode();
+		if (code > 0) {
+			setMessage(JsMessage.getValue("license.notvalid"), code);
+			return _returnFaild;
+		}
 
 		String[] nodeIds = getValues(request, "nodeIds");
 		String[] nodeTypes = getValues(request, "nodeTypes");

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.jxstar.dao.DaoParam;
 import org.jxstar.dao.DmDao;
+import org.jxstar.security.SafeManager;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.DefineDataManger;
 import org.jxstar.util.DateUtil;
@@ -66,7 +67,7 @@ public class WfProcessBO extends BusinessObject {
 	 * @param oldProcessId -- 原版过程，如果新版启用原版需要注销
 	 * @return
 	 */
-	public String enableWf(String processId, String userId, String userName, String oldProcessId) {		
+	public String enableWf(String processId, String userId, String userName, String oldProcessId) {
 		//先检查过程定义的状态，如果已经生效，则不需要修改，
 		WfDefineDao define = WfDefineDao.getInstance();
 		Map<String,String> mpProcess = define.queryProcess(processId);
@@ -80,6 +81,13 @@ public class WfProcessBO extends BusinessObject {
 				setMessage(JsMessage.getValue("wfprocessbo.hint04"));
 				return _returnFaild;
 			}
+		}
+		
+		//许可检测
+		int code = SafeManager.getInstance().checkCode();
+		if (code > 0) {
+			setMessage(JsMessage.getValue("license.notvalid"), code);
+			return _returnFaild;
 		}
 		
 		//先验证流程的合法性
