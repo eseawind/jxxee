@@ -16,13 +16,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-
 import org.jxstar.dao.transaction.TransactionException;
 import org.jxstar.dao.transaction.TransactionManager;
 import org.jxstar.report.Report;
 import org.jxstar.report.ReportException;
 import org.jxstar.report.util.ReportDao;
 import org.jxstar.report.util.ReportFactory;
+import org.jxstar.security.SafeManager;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.factory.SystemFactory;
 import org.jxstar.util.resource.JsMessage;
@@ -39,6 +39,18 @@ public class ReportAction extends Action {
 	private static TransactionManager _tranMng = null;
 	
 	public void execute(HttpServletRequest request, HttpServletResponse response) {
+		//许可检测
+		int code = SafeManager.getInstance().validCode();
+		if (code > 0) {
+			try {
+				String msg = JsMessage.getValue("license.notvalid", code);
+				response.getWriter().write(msg);
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			return;
+		}
+		
 		try {
 			//创建事务对象并开始事务
 			_tranMng = (TransactionManager) SystemFactory.createSystemObject("TransactionManager");

@@ -14,6 +14,7 @@ import org.jxstar.control.action.RequestContext;
 import org.jxstar.report.ReportException;
 import org.jxstar.report.util.ReportDao;
 import org.jxstar.report.util.XlsToHtml;
+import org.jxstar.security.SafeManager;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.util.resource.JsMessage;
 import org.jxstar.util.resource.JsParam;
@@ -32,7 +33,7 @@ public class XlsToHtmlBO extends BusinessObject {
 	 * @param reportId -- 报表ID
 	 * @return
 	 */
-	public String loadHtml(RequestContext request) {
+	public String loadHtml(RequestContext request) {	
 		String reportId = request.getRequestValue("reportId");
 		String realPath = request.getRequestValue(JsParam.REALPATH);
 		_log.showDebug("参数信息 reportId=" + reportId + "; realPath=" + realPath);
@@ -41,6 +42,14 @@ public class XlsToHtmlBO extends BusinessObject {
 			setMessage(JsMessage.getValue("xlstohtmlbo.error01"));
 			return _returnFaild;
 		}
+		
+		//许可检测
+		int code = SafeManager.getInstance().validCode();
+		if (code > 0) {
+			setMessage(JsMessage.getValue("license.notvalid"), code);
+			return _returnFaild;
+		}
+		
 		//取报表定义信息
 		Map<String,String> mpReport = ReportDao.getReport(reportId);
 		if (mpReport.isEmpty()) {//"报表定义信息为空，报表ID为【{0}】！"
