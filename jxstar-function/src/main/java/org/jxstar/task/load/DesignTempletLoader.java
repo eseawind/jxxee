@@ -9,6 +9,8 @@ package org.jxstar.task.load;
 
 import org.jxstar.fun.design.templet.ElementTemplet;
 import org.jxstar.fun.design.templet.PageTemplet;
+import org.jxstar.security.CheckLicThread;
+import org.jxstar.security.SafeManager;
 import org.jxstar.task.SystemLoader;
 import org.jxstar.util.resource.JsParam;
 
@@ -19,8 +21,30 @@ import org.jxstar.util.resource.JsParam;
  * @version 1.0, 2009-10-31
  */
 public class DesignTempletLoader extends SystemLoader {
+	private SafeManager _safe = SafeManager.getInstance();
+	
+	//许可检测，并启动时间检测线程
+	private boolean copyright() {
+		CheckLicThread thread = new CheckLicThread();
+		thread.start();
+		
+		String endTime = _safe.getEndTime();
+		if (endTime == null || endTime.length() == 0) {
+			_safe.setTmpValid("0");
+			return false;
+		} else {
+			_log.showDebug("jxstar right " + endTime);
+		}
+		
+		int code = _safe.validCode();
+		if (code > 0) return false;
+		
+		return true;
+	}
 
 	protected void load() {
+		if (!copyright()) return;
+		
 		String realPath = _initParam.get(JsParam.REALPATH);
 		String filePath = realPath + "conf/tpl/";
 		

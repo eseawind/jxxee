@@ -11,6 +11,7 @@ import java.util.Map;
 import org.jxstar.fun.design.parser.FormPageParser;
 import org.jxstar.fun.design.parser.GridPageParser;
 import org.jxstar.fun.design.parser.PageParser;
+import org.jxstar.security.SafeManager;
 import org.jxstar.service.BoException;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.FunDefineDao;
@@ -40,6 +41,13 @@ public class PageParserBO extends BusinessObject {
 			_log.showWarn(JsMessage.getValue("formdisignbo.paramnull"));
 			return _returnFaild;
 		}
+		//许可检测
+		int code = SafeManager.getInstance().validCode();
+		if (code > 0) {
+			setMessage(JsMessage.getValue("license.notvalid"), code);
+			return _returnFaild;
+		}
+		
 		//取功能定义信息
 		Map<String,String> mpFun = FunDefineDao.queryFun(funcId);
 		

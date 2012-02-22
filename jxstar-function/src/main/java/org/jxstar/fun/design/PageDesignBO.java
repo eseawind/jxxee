@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.jxstar.dao.DaoParam;
 import org.jxstar.dao.util.BigFieldUtil;
+import org.jxstar.security.SafeManager;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.DefineName;
 import org.jxstar.util.MapUtil;
@@ -64,13 +65,20 @@ public class PageDesignBO extends BusinessObject {
 	 * @param content -- 设计信息
 	 * @return
 	 */
-	public String saveDesign(String funcId, String pageType, String content) {		
+	public String saveDesign(String funcId, String pageType, String content) {
 		if (funcId == null || funcId.length() == 0) {
 			setMessage(JsMessage.getValue("pagedesign.funidisnull"));
 			return _returnFaild;
 		}
 		if (pageType == null || pageType.length() == 0) {
 			setMessage(JsMessage.getValue("pagedesign.pagetypeisnull"));
+			return _returnFaild;
+		}
+		
+		//许可检测
+		int code = SafeManager.getInstance().checkCode();
+		if (code > 0) {
+			setMessage(JsMessage.getValue("license.notvalid"), code);
 			return _returnFaild;
 		}
 		
