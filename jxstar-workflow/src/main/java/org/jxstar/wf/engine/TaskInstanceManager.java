@@ -65,6 +65,9 @@ public class TaskInstanceManager {
 		//取节点名称
 		String nodeTitle = getNodeTitle(mpNodeAttr);
 		
+		//取必须同意人数
+		String agreeNum = MapUtil.getValue(mpNodeAttr, "agree_num", "0");
+		
 		//设置任务基础信息
 		task.setProcessId(processInstance.getProcessId());
 		task.setNodeId(mpNodeAttr.get("node_id"));
@@ -76,6 +79,7 @@ public class TaskInstanceManager {
 		task.setStartDate(DateUtil.getTodaySec());
 		task.setLimitDate(limitDate);
 		task.setTaskDesc(taskDesc);
+		task.setAgreeNum(agreeNum);
 		task.setHasEmail(mpNodeAttr.get("send_email"));
 		
 		return task;
@@ -168,6 +172,7 @@ public class TaskInstanceManager {
 		task.setTaskDesc(mpTask.get("task_desc"));
 		task.setHasEmail(mpTask.get("has_email"));
 		task.setIsTimeout(mpTask.get("is_timeout"));
+		task.setAgreeNum(mpTask.get("agree_num"));
 		//设置任务执行信息
 		task.setCheckUserId(mpTask.get("check_userid"));
 		task.setCheckUserName(mpTask.get("check_name"));

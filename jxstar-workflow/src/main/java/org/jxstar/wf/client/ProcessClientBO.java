@@ -24,7 +24,6 @@ import org.jxstar.wf.engine.TaskInstance;
 import org.jxstar.wf.engine.TaskInstanceDao;
 import org.jxstar.wf.engine.Token;
 import org.jxstar.wf.engine.TokenDao;
-import org.jxstar.wf.invoke.StatusCode;
 import org.jxstar.wf.util.ProcessUtil;
 
 /**
@@ -246,14 +245,23 @@ public class ProcessClientBO extends BusinessObject {
 		//恢复任务实例对象
 		TaskInstance[] tasks = restoreTask(request);
 		
+		TokenDao tokenDao = TokenDao.getInstance();
+		TaskInstanceDao taskDao = TaskInstanceDao.getInstance();
 		ProcessInstanceManager manager = ProcessInstanceManager.getInstance();
+		
+		//取当前用户ID
+		String userId = request.getUserInfo().get("user_id");
 		
 		//创建多个上下文对象
 		ProcessContext[] retContexts = new ProcessContext[tasks.length];
 		for (int i = 0, n = tasks.length; i < n; i++) {
 			//检验任务状态是否为初始化
-			String runState = tasks[i].getRunState();
-			if (!runState.equals(StatusCode.TASK_CREATED)) {
+			//String runState = tasks[i].getRunState();
+			//if (!runState.equals(StatusCode.TASK_CREATED)) {
+			//由于多人审批节点的任务实例会执行多次，所以采用分配消息的状态来判断
+			String taskId = tasks[i].getTaskId();
+			String runState = taskDao.queryAssignState(taskId, userId);
+			if (!runState.equals("0")) {
 				//"分配任务【{0}】已执行完成，不需要处理！"
 				throw new WfException(JsMessage.getValue("processclientbo.donot"), 
 						tasks[i].getTaskId());
@@ -264,7 +272,6 @@ public class ProcessClientBO extends BusinessObject {
 			ProcessInstance instance = manager.restoreInstance(instanceId);
 			
 			//恢复过程标记对象
-			TokenDao tokenDao = TokenDao.getInstance();
 			String nodeId = tasks[i].getNodeId();
 			Token token = tokenDao.restoreToken(instanceId, nodeId);
 			
@@ -365,6 +372,7 @@ public class ProcessClientBO extends BusinessObject {
 		task.setLimitDate(MapUtil.getValue(mpTask, "limit_date"));
 		task.setEndDate(MapUtil.getValue(mpTask, "end_date"));
 		task.setTaskDesc(MapUtil.getValue(mpTask, "task_desc"));
+		task.setAgreeNum(MapUtil.getValue(mpTask, "agree_num"));
 		task.setHasEmail(MapUtil.getValue(mpTask, "has_email"));
 		task.setIsTimeout(MapUtil.getValue(mpTask, "is_timeout"));
 		//设置任务执行信息

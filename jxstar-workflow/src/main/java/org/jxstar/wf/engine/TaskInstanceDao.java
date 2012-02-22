@@ -14,6 +14,7 @@ import org.jxstar.dao.DaoParam;
 import org.jxstar.dao.DmDao;
 import org.jxstar.dao.DmDaoUtil;
 import org.jxstar.util.DateUtil;
+import org.jxstar.util.MapUtil;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.log.Log;
 import org.jxstar.util.resource.JsMessage;
@@ -90,11 +91,11 @@ public class TaskInstanceDao {
 	 * @return
 	 */
 	public Map<String,String> queryTaskByAssign(String funId, String dataId, String userId) {
-		String sql = "select "+ _field_sql +" from wf_task where run_state = ? and task_id in " +
+		String sql = "select "+ _field_sql +" from wf_task where task_id in " +
 				"(select task_id from wf_assign where run_state = '0' and " +
 				"assign_userid = ? and fun_id = ? and data_id = ?)";
 		DaoParam param = _dao.createParam(sql);
-		param.addStringValue(StatusCode.TASK_CREATED);
+		//param.addStringValue(StatusCode.TASK_CREATED); 多人审批节点任务会执行多次
 		param.addStringValue(userId);
 		param.addStringValue(funId);
 		param.addStringValue(dataId);
@@ -151,6 +152,23 @@ public class TaskInstanceDao {
 	}
 	
 	/**
+	 * 取任务分配消息的状态，用于判断当前分配消息是否执行完成。
+	 * @param taskId -- 任务实例ID
+	 * @param userId -- 当前用户ID
+	 * @return
+	 */
+	public String queryAssignState(String taskId, String userId) {
+		String sql = "select run_state from wf_assign where task_id = ? and assign_userid = ?";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(taskId);
+		param.addStringValue(userId);
+		
+		Map<String,String> mpData = _dao.queryMap(param);
+		
+		return MapUtil.getValue(mpData, "run_state", "1");
+	}
+	
+	/**
 	 * 批量更新选择的已执行任务的状态为“完成”，避免重复查询任务实例。
 	 * @param lsData -- 已执行任务数据
 	 * @return boolean
@@ -190,6 +208,7 @@ public class TaskInstanceDao {
 		mpTask.put("start_date", task.getStartDate());
 		mpTask.put("limit_date", task.getLimitDate());	//受限时间在给值的时候计算
 		mpTask.put("task_desc", task.getTaskDesc());	//任务描述解析在给值的时候计算
+		mpTask.put("agree_num", task.getAgreeNum());
 		mpTask.put("has_email", task.getHasEmail());
 		
 		mpTask.put("add_date", DateUtil.getTodaySec());
@@ -268,29 +287,6 @@ public class TaskInstanceDao {
 	 * @param task -- 任务实例
 	 * @return
 	 */
-	/*public boolean executeAssign(TaskInstance task) {
-		//取任务ID与处理人ID
-		String taskId = task.getTaskId();
-		String checkUserId = task.getCheckUserId();
-		
-		//修改消息状态为“完成”
-		String sql = "update wf_assign set run_state = ? where task_id = ? and assign_userid = ?";
-		DaoParam param = _dao.createParam(sql);
-		param.addStringValue("1");
-		param.addStringValue(taskId);
-		param.addStringValue(checkUserId);
-		if (!_dao.update(param)) return false;
-		
-		//修改其他人的消息状态为“注销”
-		sql = "update wf_assign set run_state = ? where task_id = ? and assign_userid <> ?";
-		param = _dao.createParam(sql);
-		param.addStringValue("4");
-		param.addStringValue(taskId);
-		param.addStringValue(checkUserId);
-		if (!_dao.update(param)) return false;
-		
-		return true;
-	}*/
 	public boolean executeAssign(TaskInstance task) {
 		StringBuilder sql = new StringBuilder("update wf_assign set ");
 			sql.append("run_state = ?,");
@@ -309,6 +305,21 @@ public class TaskInstanceDao {
 		param.addStringValue(task.getCheckType());
 		param.addStringValue(task.getCheckDesc());
 		
+		param.addStringValue(task.getTaskId());
+		param.addStringValue(task.getCheckUserId());
+		
+		return _dao.update(param);
+	}
+	
+	/**
+	 * 注销非当前人的分配消息
+	 * @param task
+	 * @return
+	 */
+	public boolean cancelAssign(TaskInstance task) {
+		String sql = "update wf_assign set run_state = ? where task_id = ? and assign_userid <> ?";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue("4");
 		param.addStringValue(task.getTaskId());
 		param.addStringValue(task.getCheckUserId());
 		

@@ -165,7 +165,7 @@ public class WfCheckBO extends BusinessObject {
 	 * @return
 	 */
 	private boolean hasNoNodeUser(String processId) {
-		String sql = "select count(*) as cnt from wf_nodeattr where process_id = ? and " +
+		String sql = "select count(*) as cnt from wf_nodeattr where assign_rule = 'user' and process_id = ? and " +
 				"nodeattr_id not in (select nodeattr_id from wf_user where process_id = ?)";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(processId);

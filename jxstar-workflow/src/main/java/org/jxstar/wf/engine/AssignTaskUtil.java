@@ -84,6 +84,7 @@ public class AssignTaskUtil {
 			if (object != null) {
 				AssignCustom custom = (AssignCustom) object;
 				lsUser = custom.getAssignUser(task);
+				if (lsUser == null) lsUser = FactoryUtil.newList();
 			}
 		} else {
 		//按分配用户明细检索用户
@@ -100,7 +101,7 @@ public class AssignTaskUtil {
 	 * @param task
 	 */
 	public static void taskCheckType(TaskInstance task) {
-		if (getMustAgreeNum(task.getProcessId(), task.getNodeId()) > 0) {
+		if (task.getMustAgreeNum() > 0) {
 			if (checkNodePass(task)) {//表示审批通过
 				task.setCheckType("Y");
 			} else {//表示审批不通过
@@ -115,7 +116,7 @@ public class AssignTaskUtil {
 	 * @return
 	 */
 	public static boolean assignComplete(TaskInstance task) {
-		if (getMustAgreeNum(task.getProcessId(), task.getNodeId()) > 0) {
+		if (task.getMustAgreeNum() > 0) {
 			int newAssignNum = getAssignNum(task.getTaskId(), "run_state = '0'");
 			if (newAssignNum > 0) return false;
 		}
@@ -132,7 +133,7 @@ public class AssignTaskUtil {
 		String taskId = task.getTaskId();
 		
 		//取当前节点的必须同意人数
-		int mustAgreeNum = getMustAgreeNum(task.getProcessId(), task.getNodeId());
+		int mustAgreeNum = task.getMustAgreeNum();
 		if (mustAgreeNum <= 0) return true;
 		
 		//取当前任务分配记录数
@@ -170,28 +171,5 @@ public class AssignTaskUtil {
 		param.addStringValue(taskId);
 		
 		return MapUtil.hasRecodNum(_dao.queryMap(param));
-	}
-	
-	/**
-	 * 取当前节点必须审批同意的人数
-	 * @param processId -- 过程ID
-	 * @param nodeId -- 节点ID
-	 * @return
-	 */
-	private static int getMustAgreeNum(String processId, String nodeId) {
-		String sql = "select agree_num from wf_nodeattr where process_id = ? and node_id = ?";
-		DaoParam param = _dao.createParam(sql);
-		param.addStringValue(processId);
-		param.addStringValue(nodeId);
-		
-		Map<String,String> mpData = _dao.queryMap(param);
-		if (mpData.isEmpty()) return 0;
-		
-		String agreeNum = mpData.get("agree_num");
-		int num = Integer.parseInt(agreeNum);
-		if (num < 1) num = 0;
-		if (num > 9) num = 9;
-		
-		return num;
 	}
 }

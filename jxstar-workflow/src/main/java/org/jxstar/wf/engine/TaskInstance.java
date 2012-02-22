@@ -13,8 +13,6 @@ import org.jxstar.util.log.Log;
 import org.jxstar.util.resource.JsMessage;
 import org.jxstar.wf.WfException;
 import org.jxstar.wf.define.Node;
-import org.jxstar.wf.define.WfDefineDao;
-import org.jxstar.wf.define.WfDefineManager;
 import org.jxstar.wf.invoke.EventAgent;
 import org.jxstar.wf.invoke.EventCode;
 import org.jxstar.wf.invoke.StatusCode;
@@ -91,6 +89,11 @@ public class TaskInstance {
 			throw new WfException(JsMessage.getValue("task.doerror"));
 		}
 		
+		//如果不是多人审批，则注销其他人的分配消息
+		if (getMustAgreeNum() == 0) {
+			_taskDao.cancelAssign(this);
+		}
+		
 		//触发任务执行事件
 		eventAgent.fireEvent(EventCode.TASK_EXECUTED, context);
 	}
@@ -135,6 +138,7 @@ public class TaskInstance {
 	private String 	limitDate;		//受限时间
 	private String 	endDate;		//结束时间
 	private String 	taskDesc;		//任务描述
+	private String 	agreeNum;		//必须审批同意人数
 	private String 	hasEmail;		//是否发生邮件
 	private String 	isTimeout;		//是否超时
 	private String 	checkUserName;	//处理人
@@ -146,6 +150,21 @@ public class TaskInstance {
 	private String 	nextUserId;		//指定下个人ID，是重新分配的人
 	private String 	nextUser;		//指定下个人
 	private String 	dealDesc;		//处理过程信息
+	
+	public String getAgreeNum() {
+		return agreeNum;
+	}
+	public void setAgreeNum(String agreeNum) {
+		this.agreeNum = agreeNum;
+	}
+	public int getMustAgreeNum() {
+		if (agreeNum == null) return 0;
+		int num = Integer.parseInt(agreeNum);
+		if (num < 0) num = 0;
+		if (num > 9) num = 9;
+		return num;
+	}
+	
 	public String getCheckDate() {
 		return checkDate;
 	}

@@ -16,7 +16,6 @@ import org.jxstar.util.resource.JsMessage;
 import org.jxstar.wf.define.WfDefineDao;
 import org.jxstar.wf.engine.ProcessInstanceDao;
 import org.jxstar.wf.engine.TaskInstanceDao;
-import org.jxstar.wf.invoke.StatusCode;
 
 /**
  * 审批工作界面中需要处理的内容。
@@ -54,8 +53,12 @@ public class CheckWorkBO extends BusinessObject {
 			return _returnFaild;
 		}
 		
-		String runState = mpTask.get("run_state");
-		if (!runState.equals(StatusCode.TASK_CREATED)) {
+		//String runState = mpTask.get("run_state");
+		//if (!runState.equals(StatusCode.TASK_CREATED)) {
+		taskId = mpTask.get("task_id");
+		//由于多人审批节点的任务实例会执行多次，所以采用分配消息的状态来判断
+		String runState = taskDao.queryAssignState(taskId, getUserId(request));
+		if (!runState.equals("0")) {
 			setMessage(JsMessage.getValue("checkworkbo.notask"));
 			return _returnFaild;
 		}
