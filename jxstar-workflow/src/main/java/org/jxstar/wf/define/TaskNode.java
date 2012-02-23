@@ -48,6 +48,7 @@ public class TaskNode extends Node {
 	public static final String RETURNEDIT = "E";	//退回编辑人
 	public static final String COMPLETE = "C";		//完成
 	public static final String GETBACK = "K";		//取回
+	public static final String NAGREE = "M";		//不同意、用于多人审批
 	
 	/**
 	 * 执行任务节点，创建任务实例。
@@ -85,9 +86,6 @@ public class TaskNode extends Node {
 	public void leave(ProcessContext context) throws WfException {
 		TaskInstance task = context.getTaskInstance();
 		ProcessInstance process = context.getProcessInstance();
-		
-		//如果是多人审批节点，且达到通过条件，则修改checkType为Y，否则为E
-		AssignTaskUtil.taskCheckType(task);
 		
 		//取审批意见类型
 		String checkType = task.getCheckType();

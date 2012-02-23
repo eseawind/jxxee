@@ -110,6 +110,10 @@ public class TaskInstance {
 		//如果是多人审批节点，且没有执行完所有分配，则退出等待
 		if (!AssignTaskUtil.assignComplete(this)) return;
 		
+		//如果是多人审批节点，且达到通过条件，则修改checkType为Y，否则为E
+		//由于completeTask把assign转移到历史表中，所以在转移之前处理，而不放在TaskNode.leave
+		AssignTaskUtil.taskCheckType(this);
+		
 		//设置任务为完成状态
 		setRunState(StatusCode.TASK_COMPLETED);
 		

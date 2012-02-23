@@ -14,6 +14,8 @@ import org.jxstar.dao.DaoParam;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.factory.SystemFactory;
+import org.jxstar.util.log.Log;
+import org.jxstar.util.resource.JsMessage;
 import org.jxstar.wf.define.WfDefineDao;
 import org.jxstar.wf.define.WfDefineManager;
 
@@ -27,6 +29,7 @@ import org.jxstar.wf.define.WfDefineManager;
  * @version 1.0, 2012-2-20
  */
 public class AssignTaskUtil {
+	private static Log _log = Log.getInstance();
 	private static BaseDao _dao = BaseDao.getInstance();
 	
 	/**
@@ -97,15 +100,21 @@ public class AssignTaskUtil {
 	
 	/**
 	 * 如果是多人审批节点，且达到通过条件，则修改checkType为Y，否则为E
+	 * 【如果存在退回多人审批节点的情况，则会出现达到审批同意人数，但存在不同意的情况，这个问题暂时未处理。】
+	 * 
 	 * 如果不是多人审批节点，则不处理。
 	 * @param task
 	 */
 	public static void taskCheckType(TaskInstance task) {
 		if (task.getMustAgreeNum() > 0) {
-			if (checkNodePass(task)) {//表示审批通过
+			//达到人数表示审批通过
+			if (checkNodePass(task)) {
 				task.setCheckType("Y");
-			} else {//表示审批不通过
+				_log.showDebug(JsMessage.getValue("wftaskutil.hint02", "Y"));
+			} else {
+			//否则取退回编辑人
 				task.setCheckType("E");
+				_log.showDebug(JsMessage.getValue("wftaskutil.hint03", "E"));
 			}
 		}
 	}
@@ -118,6 +127,8 @@ public class AssignTaskUtil {
 	public static boolean assignComplete(TaskInstance task) {
 		if (task.getMustAgreeNum() > 0) {
 			int newAssignNum = getAssignNum(task.getTaskId(), "run_state = '0'");
+			_log.showDebug(JsMessage.getValue("wftaskutil.hint04", newAssignNum));
+			
 			if (newAssignNum > 0) return false;
 		}
 		
@@ -140,6 +151,8 @@ public class AssignTaskUtil {
 		int assignNum = getAssignNum(taskId, "");
 		//取当前任务审批同意的记录数
 		int checkAgreeNum = getAssignNum(taskId, "run_state >= '1' and check_type = 'Y'");
+		
+		_log.showDebug(JsMessage.getValue("wftaskutil.hint01", assignNum, checkAgreeNum));
 		
 		//分配消息都审批通过，则返回真
 		if (checkAgreeNum >= assignNum) {
