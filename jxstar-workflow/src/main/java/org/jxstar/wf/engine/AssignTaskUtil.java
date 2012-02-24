@@ -78,21 +78,22 @@ public class AssignTaskUtil {
 		if (mpNodeAttr.isEmpty()) return lsUser;
 		
 		//取分配规则，暂时不支持用户组检索用户
-		String assignRule = mpNodeAttr.get("assign_rule");
+		String assignRule = MapUtil.getValue(mpNodeAttr, "assign_rule", "user");
+		String customCls = MapUtil.getValue(mpNodeAttr, "custom_class");
 		
-		if (assignRule.equals("class")) {
-		//按自定义类检索用户
-			String className = mpNodeAttr.get("custom_class");
-			Object object = SystemFactory.createObject(className);
+		if (assignRule.equals("user")) {
+			//按分配用户明细检索用户
+			WfDefineManager manager = WfDefineManager.getInstance();
+			lsUser = manager.queryAssignUser(processId, nodeId, appData);
+		} else if (assignRule.equals("sql")) {
+			lsUser = queryCustomAssign(customCls, task.getDataId());
+		} else if (assignRule.equals("class")) {
+			Object object = SystemFactory.createObject(customCls);
 			if (object != null) {
 				AssignCustom custom = (AssignCustom) object;
 				lsUser = custom.getAssignUser(task);
 				if (lsUser == null) lsUser = FactoryUtil.newList();
 			}
-		} else {
-		//按分配用户明细检索用户
-			WfDefineManager manager = WfDefineManager.getInstance();
-			lsUser = manager.queryAssignUser(processId, nodeId, appData);
 		}
 		
 		return lsUser;
@@ -133,6 +134,21 @@ public class AssignTaskUtil {
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * 根据自定义SQL查询分配用户
+	 * @param sql -- 自定义SQL
+	 * @param dataId -- 当前记录ID
+	 * @return
+	 */
+	private static List<Map<String,String>> queryCustomAssign(String sql, String dataId) {
+		List<Map<String,String>> lsUser = FactoryUtil.newList();
+		if (sql == null || sql.length() == 0) return lsUser;
+		
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(dataId);
+		return _dao.query(param);
 	}
 	
 	/**

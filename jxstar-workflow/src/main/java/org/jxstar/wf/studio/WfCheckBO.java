@@ -52,6 +52,11 @@ public class WfCheckBO extends BusinessObject {
 			return _returnFaild;
 		}
 		
+		if (hasNoCustom(processId)) {//"存在没有自定义类的节点任务属性！"
+			setMessage(JsMessage.getValue("wfcheckbo.noclass"));
+			return _returnFaild;
+		}
+		
 		if (hasNoSubProcess(processId)) {//"存在没有定义属性的子过程节点！"
 			setMessage(JsMessage.getValue("wfcheckbo.nosub"));
 			return _returnFaild;
@@ -173,6 +178,28 @@ public class WfCheckBO extends BusinessObject {
 		Map<String,String> mpCnt = _dao.queryMap(param);
 		
 		return MapUtil.hasRecord(mpCnt);
+	}
+	
+	/**
+	 * 判断是否存在没有自定义类的节点任务属性
+	 * @param processId
+	 * @return
+	 */
+	private boolean hasNoCustom(String processId) {
+		String sql = "select custom_class from wf_nodeattr where assign_rule in ('class', 'sql') and process_id = ?";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(processId);
+		param.addStringValue(processId);
+		List<Map<String,String>> lsData = _dao.query(param);
+		
+		if (lsData.isEmpty()) return false;
+		
+		for (int i = 0, n = lsData.size(); i < n; i++) {
+			String customCls = MapUtil.getValue(lsData.get(i), "custom_class");
+			if (customCls.length() == 0) return true;
+		}
+		
+		return false;
 	}
 	
 	/**
