@@ -108,8 +108,8 @@
 				<artifactId>buildnumber-maven-plugin</artifactId>
 				<version>1.0</version>
 				<configuration>
-					<useLastCommittedRevision>true</useLastCommittedRevision>
-					<getRevisionOnlyOnce>true</getRevisionOnlyOnce>
+					<useLastCommittedRevision>false</useLastCommittedRevision>
+					<getRevisionOnlyOnce>false</getRevisionOnlyOnce>
 					<timestampFormat>{0,date,yyyyMMdd-HHmmss}</timestampFormat>
 				</configuration>
 				<executions>
