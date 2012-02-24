@@ -315,7 +315,7 @@ public class ReportHtmlUtil extends ReportUtil {
     			check_date = check_date.split(" ")[0];
     		}
     		
-    		if (i == 0) {
+    		if (i == 0 && n == 1) {
     			sbdes.append(check_desc);
     		} else {
     			sbdes.append("<br>" + check_date + " " + check_user + " 【" + check_desc + "】");

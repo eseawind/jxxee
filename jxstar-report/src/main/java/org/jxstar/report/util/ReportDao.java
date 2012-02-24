@@ -268,9 +268,28 @@ public class ReportDao {
      * @return Map
 	 */
 	public static List<Map<String,String>> getCheckInfo(String funId, String dataId, String processId, String nodeId) {
-	    String sql = "select check_userid, check_user, check_date, check_desc from wf_taskhis " +
-	    		"where fun_id = ? and data_id = ? and process_id = ? and node_id = ? order by check_date";
-        DaoParam param = _dao.createParam(sql);
+		//取多人审批节点中的当前审批消息
+        List<Map<String,String>> lsData = checkInfo(funId, dataId, processId, nodeId, false);
+        //取审批历史消息
+        lsData.addAll(checkInfo(funId, dataId, processId, nodeId, true));
+        
+        return lsData;
+	}
+	private static List<Map<String,String>> checkInfo(String funId, String dataId, String processId, String nodeId, boolean isHis) {
+	    //String sql = "select check_userid, check_user, check_date, check_desc from wf_taskhis " +
+	    //		"where fun_id = ? and data_id = ? and process_id = ? and node_id = ? order by check_date";
+		String t1 = "wf_assign", t2 = "wf_task";
+		if (isHis) {
+			t1 = "wf_assignhis"; t2 = "wf_taskhis";
+		}
+		
+		StringBuilder sbsql = new StringBuilder();
+		sbsql.append("select ").append(t1).append(".check_userid, ").append(t1).append(".check_user, ").append(t1).append(".check_date, ").append(t1).append(".check_desc "); 
+		sbsql.append("from ").append(t1).append(", ").append(t2).append(" where ").append(t1).append(".task_id = ").append(t2).append(".task_id and ").append(t1).append(".run_state = '1' and "); 
+		sbsql.append(t1).append(".fun_id = ? and ").append(t1).append(".data_id = ? and ").append(t2).append(".process_id = ? and ").append(t2).append(".node_id = ? ");
+		sbsql.append("order by ").append(t1).append(".check_date");
+		
+        DaoParam param = _dao.createParam(sbsql.toString());
         param.addStringValue(funId);
         param.addStringValue(dataId);
         param.addStringValue(processId);
