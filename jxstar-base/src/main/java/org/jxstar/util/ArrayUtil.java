@@ -6,7 +6,9 @@
  */
 package org.jxstar.util;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.jxstar.util.factory.FactoryUtil;
 
@@ -19,10 +21,43 @@ import org.jxstar.util.factory.FactoryUtil;
 public class ArrayUtil {
 	
 	/**
+	 * 把List转换为Json数组，如果为空，则返回[]
+	 * @param lsData
+	 * @return
+	 */
+	public static String listToJson(List<Map<String,String>> lsData) {
+		if (lsData == null || lsData.isEmpty()) {
+			return "[]";
+		}
+		
+		StringBuilder sbJson = new StringBuilder();
+		for (int i = 0, n = lsData.size(); i < n; i++) {
+			Map<String,String> mpData = lsData.get(i);
+			if (mpData.isEmpty()) continue;
+			
+			Iterator<String> itr = mpData.keySet().iterator();
+			
+			StringBuilder sbOne = new StringBuilder("{");
+			while(itr.hasNext()) {
+				String key = itr.next();
+				String value = mpData.get(key);
+				
+				sbOne.append("'"+ key +"':'"+ value +"',");
+			}
+			String oneJson = sbOne.substring(0, sbOne.length()-1) + "},";
+			sbJson.append(oneJson);
+		}
+		String json = "[]";
+		if (sbJson.length() > 0) {
+			json = "[" + sbJson.substring(0, sbJson.length()-1) + "]";
+		}
+		
+		return json;
+	}
+	
+	/**
 	 * 把字符串数组转换成普通的字符串.
-	 * 
-	 * @param astr -
-	 *            字符串数组
+	 * @param astr - 字符串数组
 	 * @return
 	 */
 	public static String arrayToString(String[] astr) {
