@@ -75,10 +75,12 @@ public class SysUserBO extends BusinessObject {
 	 * @param userId
 	 * @return
 	 */
-	public String defaultPass(String userId) {
-		if (!updatePass(userId, "888")) {
-			setMessage(JsMessage.getValue("sysuserbo.updateerror"));
-			return _returnFaild;
+	public String defaultPass(String[] userIds) {
+		for (int i = 0, n = userIds.length; i < n; i++) {
+			if (!updatePass(userIds[i], "888")) {
+				setMessage(JsMessage.getValue("sysuserbo.updateerror"));
+				return _returnFaild;
+			}
 		}
 		
 		return _returnSuccess;
