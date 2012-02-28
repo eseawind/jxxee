@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 
+import org.jxstar.control.action.RequestContext;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.service.BoException;
 import org.jxstar.service.BusinessObject;
@@ -29,13 +30,32 @@ public class TreeQuery extends BusinessObject {
 	private static final String ROOT_ID = "10";	//根节点ID
 	
 	/**
+	 * 查询树形数据
+	 * @param request
+	 * @return
+	 */
+	public String queryTree(RequestContext request) {
+		String sWhereSql = request.getRequestValue("where_sql");
+		String sWhereType = request.getRequestValue("where_type");
+		String sWhereValue = request.getRequestValue("where_value");
+		
+		String sUserID = request.getRequestValue("user_id");
+		String sFunId = request.getRequestValue("tree_funid");
+		String sParentId = request.getRequestValue("node");
+		
+		return createJson(sUserID, sFunId, sParentId, 
+				sWhereSql, sWhereType, sWhereValue);
+	}
+	
+	/**
 	 * 查询树型数据
 	 * @param sUserID -- 当前用户ID
 	 * @param sFunId -- 当前功能ID
 	 * @param sParentId -- 父节点ID
 	 * @return
 	 */
-	public String createJson(String sUserID, String sFunId, String sParentId) {
+	public String createJson(String sUserID, String sFunId, String sParentId, 
+			String sWhereSql, String sWhereType, String sWhereValue) {
 		String sLevel = "1";
 		if (sParentId.equals(ROOT_ID)) {
 			sLevel = "1"; 
@@ -49,7 +69,8 @@ public class TreeQuery extends BusinessObject {
 			return _returnFaild;
 		}
 		
-		List<Map<String, String>> lsNode = treeData(sUserID, sFunId, sParentId, sLevel);
+		List<Map<String, String>> lsNode = treeData(sUserID, sFunId, sParentId, sLevel,
+				sWhereSql, sWhereType, sWhereValue);
 		if (lsNode == null || lsNode.isEmpty()) {
 			_log.showWarn(sParentId + " tree node is empty!");
 			return _returnFaild;
@@ -83,7 +104,8 @@ public class TreeQuery extends BusinessObject {
 	 * @return List
 	 */
 	public List<Map<String,String>> treeData(String sUserID, 
-			String sFunID, String sParentID, String sLevel) {
+			String sFunID, String sParentID, String sLevel,
+			String sWhereSql, String sWhereType, String sWhereValue) {
 		List<Map<String,String>> lsRet = FactoryUtil.newList();
 		
 		//如果父节点是根节点,则取空字符串
@@ -140,6 +162,11 @@ public class TreeQuery extends BusinessObject {
 			_log.showError(e);
 		}
 		
+		//添加扩展wheresql
+		if (sWhereSql.length() > 0) {
+			treesql.append(" and (" + sWhereSql + ")");
+		}
+		
 		//添加order子句
 		String order = MapUtil.getValue(mpTree, "self_order");
 		if (order.length() > 0) {
@@ -153,6 +180,12 @@ public class TreeQuery extends BusinessObject {
 		if (levelcol.length() > 0 && sLevel.length() > 0) {
 			param0 += ";" + sLevel;
 			param1 += ";int";
+		}
+		
+		//添加扩展参数
+		if (sWhereType.length() > 0) {
+			param0 += ";" + sWhereValue;
+			param1 += ";" + sWhereType;
 		}
 		
 		//取数据源名
@@ -210,7 +243,7 @@ public class TreeQuery extends BusinessObject {
 			if (where.length() > 0) {
 				treesql.append(" and (" + where + ") ");
 			}
-			_log.showDebug("check has child tree data sql=" + treesql.toString());
+			//_log.showDebug("check has child tree data sql=" + treesql.toString());
 			
 			//定义查询参数
 			String param0 = nodeId + "%";
@@ -222,9 +255,9 @@ public class TreeQuery extends BusinessObject {
 			
 			//取数据源名
 			String dbName = MapUtil.getValue(mpTree, "db_name");
-			_log.showDebug("check has child tree data dbname=" + dbName);
-			_log.showDebug("check has child tree data param value=" + param0);
-			_log.showDebug("check has child tree data param type=" + param1);
+			//_log.showDebug("check has child tree data dbname=" + dbName);
+			//_log.showDebug("check has child tree data param value=" + param0);
+			//_log.showDebug("check has child tree data param type=" + param1);
 			
 			DaoParam param = _dao.createParam(treesql.toString());
 			param.setDsName(dbName);
@@ -232,7 +265,7 @@ public class TreeQuery extends BusinessObject {
 			Map<String,String> mpRet = _dao.queryMap(param);
 			
 			String subNum = mpRet.get("cnt");
-			_log.showDebug("check has child tree data sub num=" + subNum);
+			//_log.showDebug("check has child tree data sub num=" + subNum);
 			//设置是否有下级
 			if (subNum.equals("0")) {
 				mpData.put("has_child", "0");
