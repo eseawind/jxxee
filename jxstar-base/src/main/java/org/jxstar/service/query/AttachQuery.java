@@ -58,7 +58,7 @@ public class AttachQuery extends BusinessObject {
 			sbJson.append(json);
 		}
 		String jsdata = "[" + sbJson.substring(0, sbJson.length()-1) + "]";
-		_log.showDebug("query attach json=" + jsdata);
+		//_log.showDebug("query attach json=" + jsdata);
 		
 		//返回查询数据
 		setReturnData(jsdata);
