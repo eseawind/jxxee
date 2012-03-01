@@ -42,7 +42,11 @@ public class ArrayUtil {
 				String key = itr.next();
 				String value = mpData.get(key);
 				
-				sbOne.append("'"+ key +"':'"+ value +"',");
+				if (value != null && (value.equals("true") || value.equals("false"))) {
+					sbOne.append("'"+ key +"':"+ value +",");
+				} else {
+					sbOne.append("'"+ key +"':'"+ value +"',");
+				}
 			}
 			String oneJson = sbOne.substring(0, sbOne.length()-1) + "},";
 			sbJson.append(oneJson);

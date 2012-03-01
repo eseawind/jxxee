@@ -53,9 +53,12 @@ public class MapUtil {
 			s = ArrayUtil.arrayToString((String[]) obj);
 		} else {
 			s = (String) obj;
+			s = s.trim();
 		}
 		
-		return s.trim();
+		if (s.length() == 0) return defval;
+		
+		return s;
 	}
 	
 	/**
