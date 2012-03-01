@@ -34,7 +34,7 @@ public class LicenseCreator {
 		lic.website = SafeUtil.decode("www.jxstar.org");
 		
 		lic.tmpStart = SafeUtil.decode("2012-02-22 16:53:02");
-		lic.tmpEnd = SafeUtil.decode("2012-07-22 16:53:02");
+		lic.tmpEnd = SafeUtil.decode("2012-08-22 16:53:02");
 		lic.tmpValid = SafeUtil.decode("1");
 		
 		lic.dogStart = SafeUtil.decode("2010-11-30 12:10:10");
