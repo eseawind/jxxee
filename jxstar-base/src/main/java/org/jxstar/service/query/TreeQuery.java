@@ -6,12 +6,13 @@
  */
 package org.jxstar.service.query;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-
 import org.jxstar.control.action.RequestContext;
 import org.jxstar.dao.DaoParam;
+import org.jxstar.dao.DmDaoUtil;
 import org.jxstar.service.BoException;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.util.SysDataUtil;
@@ -20,14 +21,18 @@ import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.resource.JsMessage;
 
 /**
- * 查询树型数据对象。
+ * 查询树型数据对象，只处理单级树。
  *
  * @author TonyTan
  * @version 1.0, 2009-11-18
+ * @deprecated 由TreeQueryExt类替代，支持多级树展现
  */
 public class TreeQuery extends BusinessObject {
 	private static final long serialVersionUID = 1L;
-	private static final String ROOT_ID = "10";	//根节点ID
+	//根节点ID
+	private static final String ROOT_ID = "10";
+	//取树定义字段
+	private static String _field_tree = DmDaoUtil.getFieldSql("fun_tree");
 	
 	/**
 	 * 查询树形数据
@@ -79,12 +84,14 @@ public class TreeQuery extends BusinessObject {
 		StringBuilder sbJson = new StringBuilder();
 		for (int i = 0, n = lsNode.size(); i < n; i++) {
 			Map<String, String> mpData = lsNode.get(i);
+			
 			//是否有子节点
 			String has = mpData.get("has_child");
 			has = has.equals("0") ? "true" : "false";
 			//节点信息
 			sbJson.append("{id:'"+mpData.get("node_id")+"', ");
 			sbJson.append("text:'"+mpData.get("node_name")+"', ");
+			sbJson.append(otherValue(mpData));
 			sbJson.append("leaf:"+has+"},");
 		}
 		String json = "[" + sbJson.substring(0, sbJson.length()-1) + "]";
@@ -120,7 +127,8 @@ public class TreeQuery extends BusinessObject {
 		
 		//取树型节点的附加显示值字段名，如果有多个字段名则以’,’分隔。
 		String othercol = MapUtil.getValue(mpTree, "node_other");
-		String[] aothercol = othercol.split(",");
+		//不检查是否有子级
+		String notcheck = MapUtil.getValue(mpTree, "not_check", "0");
 		
 		//主键字段
 		String pkcol = MapUtil.getValue(mpTree, "node_id");
@@ -131,9 +139,12 @@ public class TreeQuery extends BusinessObject {
 		StringBuilder treesql = new StringBuilder("select ");
 		treesql.append(pkcol + " as node_id, ");
 		treesql.append(MapUtil.getValue(mpTree, "node_name") + " as node_name, ");
-		for (int i = 0, n = aothercol.length; (othercol.length() > 0) && (i < n); i++) {
-			treesql.append(aothercol[i]+", ");
+		
+		//添加附加值字段
+		if (othercol.length() > 0) {
+			treesql.append(othercol + ", ");
 		}
+		
 		treesql.append(" '1' as has_child ");
 		
 		treesql.append(" from " + MapUtil.getValue(mpTree, "table_name") + " ");
@@ -200,7 +211,7 @@ public class TreeQuery extends BusinessObject {
 		lsRet = _dao.query(param);
 		
 		//处理是否有子节点
-		if (!lsRet.isEmpty()) {
+		if (!lsRet.isEmpty() && notcheck.equals("0")) {
 			lsRet = addHasChild(lsRet, mpTree, sLevel);
 		}
 			
@@ -276,6 +287,30 @@ public class TreeQuery extends BusinessObject {
 	}
 	
 	/**
+	 * 取附加字段的值
+	 * @param mpData
+	 * @return
+	 */
+	private String otherValue(Map<String, String> mpData) {
+		if (mpData.size() <= 3) return "";
+		
+		StringBuilder sb = new StringBuilder();
+		Iterator<String> itr = mpData.keySet().iterator();
+		
+		while(itr.hasNext()) {
+			String key = itr.next();
+			if (!key.equals("has_child") && 
+				!key.equals("node_id") &&
+				!key.equals("node_name")) {
+				String value = mpData.get(key);
+				
+				sb.append("'"+ key +"':'"+ value +"', ");
+			}
+		}
+		return sb.toString();
+	}
+	
+	/**
 	 * 取树型定义信息。
 	 * 
 	 * @param funcId -- 功能ID
@@ -283,10 +318,8 @@ public class TreeQuery extends BusinessObject {
 	 */
 	private Map<String,String> queryTree(String funcId) {
 		StringBuilder sbsql = new StringBuilder();
-		sbsql.append("select table_name, node_id, node_name, node_other, node_level,");
-		sbsql.append("self_funid, self_where, self_order, right_funid, right_where, ");
-		sbsql.append("right_target, right_layout, prop_prefix, has_level, ");
-		sbsql.append("db_name, tree_title from fun_tree where fun_id = ?");
+		sbsql.append("select "+ _field_tree +" from fun_tree where fun_id = ? ");
+		sbsql.append("order by tree_no");
 		
 		DaoParam param = _dao.createParam(sbsql.toString());
 		param.addStringValue(funcId);
