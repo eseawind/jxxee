@@ -22,7 +22,7 @@ public class TreeQueryExtTest extends AbstractTest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		TreeQueryExt query = new TreeQueryExt();
+		TreeQuery query = new TreeQuery();
 		
 		query.queryTree(getRequest());
 	}
