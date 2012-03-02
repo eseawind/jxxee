@@ -33,7 +33,7 @@ public class DesignTempletLoader extends SystemLoader {
 			_safe.setTmpValid("0");
 			return false;
 		} else {
-			_log.showDebug("jxstar right " + endTime);
+			_log.showDebug("jxstar load " + endTime);
 		}
 		
 		int code = _safe.validCode();
