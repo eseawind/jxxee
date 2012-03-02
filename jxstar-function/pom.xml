@@ -20,7 +20,7 @@
 	</dependency>
  	<dependency>
 		<groupId>${project.parent.groupId}</groupId>
-		<artifactId>jxstar-security</artifactId>
+		<artifactId>commons-security</artifactId>
 		<version>${project.parent.version}</version>
 	</dependency>
   </dependencies>
