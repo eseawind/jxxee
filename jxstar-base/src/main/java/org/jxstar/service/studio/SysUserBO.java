@@ -29,11 +29,13 @@ public class SysUserBO extends BusinessObject {
 	 * @param userId -- 选择的用户ID
 	 * @return
 	 */
-	public String clearDataWhere(String userId) {
-		_log.showDebug("-------清除数据权限解析SQL缓存，用户ID=" + userId);
+	public String clearDataWhere(String[] userIds) {
+		_log.showDebug("-------清除数据权限解析SQL缓存，用户ID=" + userIds.length);
 		
 		SysDataManager manager = SysDataManager.getInstance();
-		manager.clearDataWhere(userId);
+		for (int i = 0, n = userIds.length; i < n; i++) {
+			manager.clearDataWhere(userIds[i]);
+		}
 		
 		return _returnSuccess;
 	}
