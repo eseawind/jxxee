@@ -25,14 +25,14 @@ Jxstar.currentPage = function() {
 			autoScroll:true,
 			layout:'fit',
 			border:false,
-			iconCls:'tabs'
+			iconCls:'tab_grid'
 		},{
 			pagetype:'reptdes',
 			title: jx.rpt.design,	//'报表设计器',
 			autoScroll:true,
 			layout:'fit',
-			border:false,
-			iconCls:'tabs',
+			border:true,
+			iconCls:'tab_des',
 			tbar:new Ext.Toolbar({deferHeight:true, items:[{text:' '}]})
 		}]
 	});

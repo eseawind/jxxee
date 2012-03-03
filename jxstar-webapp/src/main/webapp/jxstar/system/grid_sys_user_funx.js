@@ -20,7 +20,7 @@
 	
 	config.eventcfg = {		
 		dataImportParam: function() {
-			var userId = this.grid.fkValue;			var options = {				whereSql: 'fun_id not in (select fun_id from sys_user_funx where user_id = ?)',				whereValue: userId,				whereType: 'string'			};			return options;		},				setData: function(){			var records = this.grid.getSelectionModel().getSelections();			if (!JxUtil.selectone(records)) return;			var pkcol = this.define.pkcol;			var selfunid = records[0].get(pkcol);						//过滤条件			var where_sql = 'sys_user_datax.user_funx_id = ?';			var where_type = 'string';			var where_value = selfunid;						//加载数据			var hdcall = function(grid) {				//显示数据				JxUtil.delay(500, function(){					//设置外键值					grid.fkValue = where_value;					Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type});				});			};			var srcDefine = Jxstar.findNode('sys_user_datax');			//显示数据			Jxstar.showData({				filename: srcDefine.gridpage,				title: srcDefine.nodetitle, 				pagetype: 'subgrid',				nodedefine: srcDefine,				callback: hdcall			});		}		
+			var userId = this.grid.fkValue;			var options = {				whereSql: 'fun_id not in (select fun_id from sys_user_funx where user_id = ?)',				whereValue: userId,				whereType: 'string'			};			return options;		}		
 	};
 		
 	return new Jxstar.GridNode(config);

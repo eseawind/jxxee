@@ -148,7 +148,6 @@ Ext.ns('Jxstar');
 						layout: 'fit',
 						closable: true,
 						autoScroll: true,
-						margins: '5',
 						iconCls: 'function',
 						items: [page],
 						listeners: {//下面的方法有利于释放内存对象
@@ -268,9 +267,9 @@ Ext.ns('Jxstar');
 		* 
 		* nodeId：功能ID
 		* target：功能对象显示的窗口
-		* treePanel: 指定树形控件的显示位置
-		* dataPanel: 指定数据表格的显示位置
-		* preClickFn: 点击树形节点前执行的事件，参数是树形布局控件
+		* [treePanel]: 指定树形控件的显示位置
+		* [dataPanel]: 指定数据表格的显示位置
+		* [preClickFn]: 点击树形节点前执行的事件，参数是树形布局控件
 		*/
 		createTree: function(nodeId, target, treePanel, dataPanel, preClickFn) {
 			if (nodeId == null || nodeId.length == 0) {
@@ -282,11 +281,11 @@ Ext.ns('Jxstar');
 			dataPanel = dataPanel || target.getComponent(1);
 
 			//取树形定义
-			var treeDefine = TreeData[nodeId][0];
+			/*var treeDefine = TreeData[nodeId][0];
 			if (treeDefine == null) {
 				JxHint.alert(jx.star.notree);	//'没有定义树形信息！'
 				return;
-			}
+			}*/
 
 			//查询数据URL
 			var dataUrl = Jxstar.path + '/commonAction.do?eventcode=query_tree&funid=queryevent';
@@ -298,32 +297,48 @@ Ext.ns('Jxstar');
 				tbar: tbar,
 
 				autoScroll:true,
-				rootVisible: false,
-				lines: false,
-				useArrows: false,
+				rootVisible:false,
+				lines:false,
+				useArrows:false,
 				
 				loader: new Ext.tree.TreeLoader({
-					dataUrl: dataUrl
+					dataUrl: dataUrl,
+					listeners: {
+						beforeload:function(loader, node){
+							loader.baseParams.tree_no = node.attributes.tree_no||'';
+						}
+					}
 				}),
 				
-				root: new Ext.tree.AsyncTreeNode({id:'10', iconCls:'tree_root_ext', text:treeDefine['tree_title']})
+				root: new Ext.tree.AsyncTreeNode({id:'10', iconCls:'tree_root_ext', text:jx.star.refresh})
 			});
 			
 			treePanel.add(tree);
 			treePanel.doLayout();
 			
-			//设置刷新按钮名称，缺省显示树名称
-			var btnTitle = treeDefine['tree_title'];
-			if (btnTitle == null || btnTitle.length == 0) {
-				btnTitle = jx.star.refresh;
-			}
+			//设置树根节点数据加载时添加配置信息
+			tree.on('load', function(node){
+				if (node.id == '10') {
+					var child = node.firstChild;
+					if (!child) return;
+					
+					var attr = child.attributes;
+					var title = attr.tree_title;
+					if (title.length > 0) {
+						tbar.items.get(0).setText(title);
+					}
+					
+					node.attributes.tree_no = attr.tree_no;
+					node.attributes.table_name = attr.table_name;
+					node.attributes.node_level = attr.node_level;
+					node.attributes.right_where = attr.right_where;
+				}
+			});
 			
 			//添加刷新按钮
-			tbar.add({text:btnTitle, iconCls:'eb_refresh',	//'刷新数据'
+			tbar.add({text:jx.star.refresh, iconCls:'tree_root',
 				handler:function(){
 					tree.getLoader().load(tree.getRootNode());
-					tree.getRootNode().expand();
-					
 					tree.fireEvent('click', tree.getRootNode());
 				}
 			});
@@ -335,11 +350,12 @@ Ext.ns('Jxstar');
 				if (!tabPanel.isXType('grid')) {
 					grid = tabPanel.getComponent(0).getComponent(0);
 				}
+				var root = tree.getRootNode();
 				//展开根节点，根节点不显示
-				//tree.getRootNode().expand();
+				//root.expand();
 
 				//设置树型信息
-				grid.treeParam = {parentId:'', levelCol:treeDefine['node_level']};
+				grid.treeParam = {parentId:'', levelCol:root.attributes.node_level};
 
 				//添加节点点击事件，查询树形数据
 				tree.on('click', function(node){
@@ -354,12 +370,26 @@ Ext.ns('Jxstar');
 						extWhere = preClickFn(tree, node, grid);
 					}
 					
-					var treeId = node.attributes.id;
+					var attr = node.attributes;
+					var treeId = attr.id;
 					var treeLevel = Math.floor(treeId.length/4)+1;
+					
 					//注册的树形查询条件
-					var where_sql = treeDefine['right_where'];
-					var where_value = treeId+'%';
+					var where_sql = attr.right_where;
 					var where_type = 'string';
+					//处理查询值
+					var where_value = treeId+'%';
+					//是否不含下级
+					var tools = tree.getTopToolbar().find('xtype', 'checkbox');
+					if (tools.length > 0) {
+						if (tools[0].getValue() == '1') {
+							where_value = treeId;
+						}
+					}
+					//如果过滤条件是=，则不添加%
+					if (where_sql.indexOf('=') >= 0) {
+						where_value = treeId;
+					}
 					
 					//扩展的树形查询条件
 					if (extWhere != null) {
@@ -375,12 +405,11 @@ Ext.ns('Jxstar');
 					}
 					
 					//右边表格中的表名与树形数据表是相同的，则只显示下级数据
-					var table_name = treeDefine['table_name'];
+					var table_name = attr.table_name;
 					var right_table = grid.gridNode ? grid.gridNode.define.tablename : '';
-					//var has_level = treeDefine['has_level'];
-					//if (has_level == '1') {
-					if (table_name.length > 0 && table_name == right_table) {
-						where_sql += ' and ' + treeDefine['node_level'] + ' = ?';
+					if (table_name.length > 0 && table_name == right_table && 
+					   (attr.tree_no == '1' || attr.tree_no == '')) {
+						where_sql += ' and ' + attr.node_level + ' = ?';
 						where_value += ';' + treeLevel;
 						where_type += ';int';
 					}
@@ -393,7 +422,7 @@ Ext.ns('Jxstar');
 					Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type, is_query:1});
 
 					//添加树形参数值
-					grid.treeParam = {parentId:treeId, levelCol:treeDefine['node_level']};
+					grid.treeParam = {parentId:treeId, levelCol:attr.node_level};
 				});
 				
 				//去掉相关对象的引用
@@ -412,6 +441,7 @@ Ext.ns('Jxstar');
 		* items参数：
 		* filename：显示文件类名
 		* title：窗口标题
+		* grid: 来源grid
 		* width：窗口宽度
 		* height: 窗口高度
 		* pagetype: 页面类型
@@ -447,6 +477,7 @@ Ext.ns('Jxstar');
 				//加载表单数据
 				if (cfg.store != null) {
 					var form = page.getForm();
+					form.myGrid = cfg.grid;
 					form.myStore = cfg.store;
 
 					if (cfg.record == null) {
@@ -461,7 +492,7 @@ Ext.ns('Jxstar');
 					form.fkValue = cfg.grid.fkValue;
 					
 					//显示FORM时，执行初始化事件
-					page.formNode.event.initForm();
+					page.formNode.event.initForm(true);
 				}
 			};
 			
@@ -638,7 +669,17 @@ Ext.ns('Jxstar');
 			
 			//提交后台查询请求
 			var wsql = fkName + ' = ?';
-			Jxstar.loadData(grid, {where_sql:wsql, where_value:fkval, where_type:'string'});
+			var whereParam = {where_sql:wsql, where_value:fkval, where_type:'string'};
+			
+			//扩展子功能wheresql，用fkval作为参数
+			if (grid.subWhereSql) {
+				whereParam.where_sql = grid.subWhereSql();
+			}
+			//扩展子功能whereparam
+			if (grid.subWhereParam) {
+				whereParam = grid.subWhereParam();
+			}
+			Jxstar.loadData(grid, whereParam);
 
 			//添加外键值
 			grid.fkValue = fkval;
@@ -733,7 +774,7 @@ Ext.ns('Jxstar');
 			JxUtil.viewSumData(grid);
 			
 			//处理表格记录是否有附件的标志
-			JxUtil.viewAttachData(grid);
+			JxAttach.viewAttachFlag(grid);
 		},
 		
 		/**

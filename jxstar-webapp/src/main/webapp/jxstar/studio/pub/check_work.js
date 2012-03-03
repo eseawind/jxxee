@@ -201,6 +201,7 @@ Jxstar.currentPage = {
 	* nodeAttr -- 任务节点的设置信息，包含参数：
 	*	hasNo -- 是否可以否决
 	*	hasComplete -- 是否可以完成
+	*   mustAgreeNum -- 必须审批通过人数
 	**/
 	showCheckType: function(nodeAttr) {
 		var self = this;
@@ -222,6 +223,8 @@ Jxstar.currentPage = {
 					descField.setValue(jx.wf.advnot);	//'否决，取消任务。'
 				} else if (type == 'C') {
 					descField.setValue(jx.wf.advend);	//'同意，审批通过。'
+				} else if (type == 'M') {
+					descField.setValue(jx.wf.nagree);	//'不同意'
 				}
 				
 				//只有同意才可以选择：重新分配人
@@ -250,6 +253,20 @@ Jxstar.currentPage = {
 		if (nodeAttr.hasComplete == '1') {
 			typeItems[typeItems.length] = 
 				{xtype:'radio', boxLabel:jx.wf.end, name:'checkType', inputValue:'C', listeners: ltr};//'完成'
+		}
+		
+		//如果是多人审批节点，则只有同意与不同意两个节点，M不同意用于多人节点，统计同意人数
+		if (nodeAttr.mustAgreeNum > '0') {
+			typeItems = [
+				{xtype:'radio', boxLabel:jx.wf.agree, name:'checkType', inputValue:'Y', checked:true, listeners: ltr},//'同意'
+				{xtype:'radio', boxLabel:jx.wf.nagree, name:'checkType', inputValue:'M', listeners: ltr}	//'不同意'
+			];
+			//隐藏重新分配人
+			JxUtil.delay(1000, function(){
+				var form = self.taskForm.getForm();
+				var reUser = form.findField('wf_task__next_user');	
+					reUser.hide();
+			});
 		}
 	
 		var typePanel = {
@@ -283,7 +300,7 @@ Jxstar.currentPage = {
 			self.createWindow(taskForm, page);
 			
 			//显示当前数据的所有历史审批意见，包括子过程与父过程，如果采用过程实例ID查询会非常复杂，不能兼顾子过程的历史记录
-			var whereSql = 'fun_id = ? and data_id = ?';
+			var whereSql = 'wf_taskhis.fun_id = ? and wf_taskhis.data_id = ?';
 			var whereValue = funId+ ';' +dataId;
 			var whereType = 'string;string';
 			Jxstar.loadData(page, {where_sql:whereSql, where_value:whereValue, where_type:whereType});

@@ -227,7 +227,7 @@ JxPortal = {};
 		//构建Portal对象
 		var portals = new Ext.ux.Portal({
 			region:'center',
-			border:false,
+			border:true,
 			margins:'5 5 5 0',
 			items:portalitems
 		});

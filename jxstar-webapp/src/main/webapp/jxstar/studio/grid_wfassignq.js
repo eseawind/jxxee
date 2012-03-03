@@ -1,17 +1,17 @@
 ﻿Jxstar.currentPage = function() {
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 
-	var wfrunstateData = Jxstar.findComboData('wfrunstate');
+	var wfasstateData = Jxstar.findComboData('wfasstate');
 
 	var cols = [
 	{col:{header:'分配人', width:71, sortable:true}, field:{name:'wf_assign__assign_user',type:'string'}},
 	{col:{header:'任务描述', width:307, sortable:true}, field:{name:'wf_assign__task_desc',type:'string'}},
-	{col:{header:'执行状态', width:73, sortable:true, align:'center',
+	{col:{header:'执行状态', width:86, sortable:true, align:'center',
 		editable:false,
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
 				fields:['value','text'],
-				data: wfrunstateData
+				data: wfasstateData
 			}),
 			emptyText: jx.star.select,
 			mode: 'local',
@@ -19,14 +19,14 @@
 			valueField: 'value',
 			displayField: 'text',
 			editable:false,
-			value: wfrunstateData[0][0]
+			value: wfasstateData[0][0]
 		}),
 		renderer:function(value){
-			for (var i = 0; i < wfrunstateData.length; i++) {
-				if (wfrunstateData[i][0] == value)
-					return wfrunstateData[i][1];
+			for (var i = 0; i < wfasstateData.length; i++) {
+				if (wfasstateData[i][0] == value)
+					return wfasstateData[i][1];
 			}
-		}}, field:{name:'wf_task__run_state',type:'string'}},
+		}}, field:{name:'wf_assign__run_state',type:'string'}},
 	{col:{header:'开始时间', width:113, sortable:true, renderer:function(value) {
 			return value ? value.format('Y-m-d H:i') : '';
 		}}, field:{name:'wf_assign__start_date',type:'date'}},

@@ -17,7 +17,7 @@ Jxstar.GridNode = function(config){
 	//表格定义信息
 	this.param = config.param;
 	//选择模式[check|row]
-	this.selectModel = this.param.selectModel||'check';
+	this.selectModel = this.param.selectModel||'';
 
 	//功能定义ID
 	this.nodeId = this.param.funid;
@@ -114,12 +114,12 @@ Jxstar.GridNode.prototype = {
 		
 		//这些类型的表格不需要显示checkbox
 		var noCheck = (self.pageType == 'notoolgrid') || 
-					  (self.pageType == 'combogrid') || 
-					  (self.pageType == 'settype');
+					  (self.pageType == 'combogrid');
 		
+		var sm = null;
 		//添加复选框
-		if (self.selectModel == 'check' && !noCheck) {
-			var sm = new Ext.grid.CheckboxSelectionModel();
+		if (self.selectModel == 'check' || (self.selectModel == '' && !noCheck)) {
+			sm = new Ext.grid.CheckboxSelectionModel();
 			cols[sn] = sm;
 			sn++;
 		}
@@ -266,8 +266,8 @@ Jxstar.GridNode.prototype = {
 					self.event.showSubForm();
 				} else if (self.pageType == 'import') {
 					self.event.imp();
-				} else if (self.pageType == 'settype') {
-					self.event.setType();
+				} else if (self.pageType == 'imptype') {
+					self.event.impType();
 				}
 			});
 		}
@@ -310,7 +310,7 @@ Jxstar.GridNode.prototype = {
 		});
 		
 		//设置单选模式
-		if (self.selectModel == 'row' || noCheck) {
+		if (self.selectModel == 'row' || (noCheck && self.selectModel != 'check')) {
 			grid.getSelectionModel().singleSelect = true;
 		}
 

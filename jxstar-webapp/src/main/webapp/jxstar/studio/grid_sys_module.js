@@ -21,7 +21,12 @@
 			return value=='1' ? jx.base.yes : jx.base.no;
 		}}, field:{name:'funall_module__is_show',type:'string'}},
 	{col:{header:'级别', width:100, sortable:true, hidden:true}, field:{name:'funall_module__module_level',type:'string'}},
-	{col:{header:'模块ID', width:100, sortable:true, hidden:true}, field:{name:'funall_module__module_id',type:'string'}}
+	{col:{header:'模块ID', width:100, sortable:true, hidden:true}, field:{name:'funall_module__module_id',type:'string'}},
+	{col:{header:'是否展开', width:66, sortable:true, defaultval:'0', editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.Checkbox(),
+		renderer:function(value) {
+			return value=='1' ? jx.base.yes : jx.base.no;
+		}}, field:{name:'funall_module__is_expanded',type:'string'}}
 	];
 	
 	config.param = {

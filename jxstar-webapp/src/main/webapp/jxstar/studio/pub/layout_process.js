@@ -36,8 +36,8 @@ Jxstar.currentPage = function(define) {
 			title: jx.wf.design,	//'流程设计器',
 			autoScroll:true,
 			layout:'fit',
-			border:false,
-			iconCls:'tabs',
+			border:true,
+			iconCls:'tab_des',
 			//先创建一个空按钮，保证在chrome中显示正常
 			tbar:new Ext.Toolbar({height:27, items:[{text:' '}]})
 		},{

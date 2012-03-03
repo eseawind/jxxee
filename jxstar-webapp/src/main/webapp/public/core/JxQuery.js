@@ -302,8 +302,10 @@ JxQuery = {};
 		var fieldID = pageNode.id + '_hqf';
 		var fieldData = [], mycols = pageNode.param.cols;
 		for (var i = 0, c = 0, n = mycols.length; i < n; i++){
-			var mc = mycols[i].col, mf = mycols[i].field, 
-				fn = mf.name, len = fn.length;
+			var mc = mycols[i].col, mf = mycols[i].field;
+			if (mc == null || mf == null) continue;
+			
+			var fn = mf.name, len = fn.length;
 			if (mc && mf && (fn.substring(len-2) != 'id' || !mc.hidden)) {
 				var h = mc.header; 
 				if (h.charAt(0) == '*') h = h.substr(1);

@@ -80,8 +80,8 @@
 					params += '&taskid=' + taskId + '&keyid=' + dataId;
 				}
 				
-				//缺省审批同意
-				var checkType = 'Y', checkDesc = String.format(jx.event.takedesc, JxDefault.getUserName());	//该任务被【{0}】取回！
+				//填写任务取回标志
+				var checkType = 'K', checkDesc = String.format(jx.event.takedesc, JxDefault.getUserName());	//该任务被【{0}】取回！
 				params += '&check_type='+ checkType +'&check_desc='+ encodeURIComponent(checkDesc);
 				
 				var endcall = function(data) {

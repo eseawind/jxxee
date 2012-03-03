@@ -9,6 +9,27 @@
  * @author TonyTan
  * @version 1.0, 2010-01-01
  */
+ 
+/**
+ * 在数组中插入对象
+ * index -- 指要插入的位置，从0开始，如果是负数，则从尾部开始
+ * item -- 指要插入的项目
+ **/
+Array.prototype.insert = function(index, item) {
+	if (index >= this.length) {
+		this[this.length] = item;
+		return this;
+	}
+	if (index < 0) {
+		index = this.length + index;
+	}
+	
+	for(var i = this.length-1; i >= index; i--) {
+		this[i+1] = this[i];
+	}
+	this[index] = item;
+	return this;
+};
 
 /**
  * 定期清理孤立节点
@@ -76,6 +97,13 @@ Ext.grid.GridView.prototype.getColumnStyle = function(colIndex, isHeader){
 	
 	return style;
 };
+
+//unselectable="on" add x-selectable
+Ext.grid.GridView.prototype.cellTpl = new Ext.Template(
+	'<td class="x-grid3-col x-grid3-cell x-grid3-td-{id} x-selectable {css}" style="{style}" tabIndex="0" {cellAttr}>',
+		'<div class="x-grid3-cell-inner x-grid3-col-{id}" {attr}>{value}</div>',
+	'</td>'
+);
 
 /**
  * 去掉属性表格中按属性名排序的特性

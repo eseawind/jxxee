@@ -129,8 +129,9 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 	/**
 	* public
 	* 表单初始化事件，显示每条记录都会执行
+	* ispop -- 是否弹出窗口
 	**/
-	initForm: function() {
+	initForm: function(ispop) {
 		var self = this;
 		var record = self.form.myRecord;
 		var toolBar = self.page.getTopToolbar();
@@ -140,20 +141,44 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 			//记录状态
 			var state = record.get(self.define.auditcol);
 			if (state == null || state.length == 0) state = '0';
-			//没有编辑权限
-			var noedit = (formnode.right.edit == '0');
-			//已复核记录设置表单为只读，编辑按钮不能使用
-			if (noedit || state != null) {
-				//设置只读值
-				var readOnly = noedit || (state != '0' && state != '6');
-				JxUtil.readOnlyForm(self.form, readOnly);
-				JxUtil.disableButton(toolBar, readOnly);
-				
-				//新增按钮开放可以操作
-				if (!noedit) {
-					var createBtn = JxUtil.getButton(toolBar, 'create');
-					if (createBtn) createBtn.setDisabled(false);
+			
+			//如果子表的form，则取父表的auditing值
+			var pageType = self.page.formNode.pageType;
+			if (pageType == 'subform') {
+				var parentGrid = JxUtil.getParentGrid(self.form.myGrid);
+				if (parentGrid) {
+					var records = parentGrid.getSelectionModel().getSelections();
+					if (records.length > 0) {
+						state = records[0].get(parentGrid.gridNode.define.auditcol);
+						if (state == null || state.length == 0) state = '0';
+					}
 				}
+			}
+			
+			var dealEditState = function() {
+				//没有编辑权限
+				var noedit = (formnode.right.edit == '0');
+				//已复核记录设置表单为只读，编辑按钮不能使用
+				if (noedit || state != null) {
+					//设置只读值
+					var readOnly = noedit || (state != '0' && state != '6');
+					JxUtil.readOnlyForm(self.form, readOnly);
+					JxUtil.disableButton(toolBar, readOnly);
+					
+					//新增按钮开放可以操作，如果是子功能表单，则不处理
+					if (!noedit && pageType == 'form') {
+						var createBtn = JxUtil.getButton(toolBar, 'create');
+						if (createBtn) createBtn.setDisabled(false);
+					}
+				}
+			}
+			//处理如果是弹出窗口，则需要等待工具栏加载完后再处理
+			if (ispop == true) {
+				JxUtil.delay(500, function(){
+					dealEditState();
+				});
+			} else {
+				dealEditState();
 			}
 		}
 		//清除脏标记，设置最新的原始值
@@ -362,6 +387,17 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		var params = 'funid='+ this.define.nodeid + '&keyid=' + keyid;
 			params += JxUtil.getFormValues(this.form, false);
 			params += '&pagetype=form&eventcode=' + eventcode;
+		//如果是树形结构记录保存，则必须取到树形级别字段
+		var mygrid = self.form.myGrid;
+		if (mygrid != null) {
+			//添加树型参数
+			if (mygrid.treeParam) {
+				var parentId = mygrid.treeParam.parentId;
+				var levelCol = mygrid.treeParam.levelCol;
+				params += '&parentId=' + parentId + '&levelCol=' + levelCol;
+			}
+		}
+		
 		//取所有修改了值的字段，保存时用
 		if (eventcode !== 'create') {
 			params += '&dirtyfields=' + JxUtil.getDirtyFields(this.form);
@@ -564,7 +600,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 			//发送后台请求
 			var href = Jxstar.path + "/reportAction.do?" + params;
 			
-			var tabPanel = self.page.ownerCt.ownerCt;
+			var tabPanel = self.page.findParentByType('tabpanel');
 			if (tabPanel == null || !tabPanel.isXType(Ext.TabPanel)) {
 				return;
 			}

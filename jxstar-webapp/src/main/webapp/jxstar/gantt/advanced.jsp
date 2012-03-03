@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=utf-8"%>
+<%@ page contentType="text/html; charset=UTF-8"%>
 <%
 	String contextpath = request.getContextPath();
 	String user_id = request.getParameter("user_id");
@@ -11,7 +11,7 @@
 	var DATAID = "<%=dataid%>";
 </script>
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<link rel="stylesheet" type="text/css" href="<%=contextpath%>/public/lib/ext/resources/css/ext-all.css" />
 	
 	<link rel="stylesheet" type="text/css" href="<%=contextpath%>/public/lib/ext/ux/css/Spinner.css" />

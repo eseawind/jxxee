@@ -77,7 +77,7 @@ JxUtil = {};
 		loadJxData: function() {
 			JxUtil.loadJS('/public/data/NodeDefine.js', true);
 			JxUtil.loadJS('/public/data/RuleData.js', true);
-			JxUtil.loadJS('/public/data/TreeData.js', true);
+			//JxUtil.loadJS('/public/data/TreeData.js', true);
 			JxUtil.loadJS('/public/locale/combo-lang-'+ JxLang.type +'.js', true);
 		},
 	
@@ -124,6 +124,32 @@ JxUtil = {};
 			}
 		},
 		
+		//根据子功能表格获取父功能的表格
+		getParentGrid: function(subgrid) {
+			//取到tab控件，而后取第一个页面中的表格
+			var tabPanel = subgrid.findParentByType('tabpanel');
+			if (!tabPanel || tabPanel.isXType('tabpanel') == false) return null;
+			
+			var grid = tabPanel.getComponent(0).getComponent(0);
+			if (!grid || grid.isXType('grid') == false) return null;
+			
+			return grid;
+		},
+		
+		//给树形控件添加本级选项
+		treeAddCheck: function(nodeId) {
+			var tree = Ext.getCmp('tree_' + nodeId);
+			if (!tree) return;
+			
+			var tool = tree.getTopToolbar();
+			var tools = tree.getTopToolbar().find('xtype', 'checkbox');
+			if (tools.length > 0) return;
+			
+			tool.insert(1, '->');
+			tool.insert(2, {xtype:'checkbox', boxLabel:'本级'});
+			tool.doLayout();
+		},
+		
 		//显示表格合计数据在分页工具栏中
 		viewSumData: function(grid) {
 			var sumdata = grid.getStore().reader.jsonData.data.sum;
@@ -152,80 +178,6 @@ JxUtil = {};
 				sumItem.setText(sumText);
 			}
 			bbar.doLayout();
-		},
-		
-		//表格中有附件的记录的行号背景色调整为蓝色
-		viewAttachData: function(grid) {
-			if (grid == null) return;
-			var store = grid.getStore();
-			var cnt = store.getCount();
-			if (cnt == 0) return;
-			
-			var define = grid.gridNode.define;
-			
-			//组织机构与用户的附件不显示
-			if (define.tablename == 'sys_dept' || define.tablename == 'sys_user') return;
-			
-			var pkcol = define.pkcol;
-			var pks = '';
-			for (var i = 0; i < cnt; i++) {
-				var record = store.getAt(i);
-				pks += record.get(pkcol) + ',';
-			}
-			pks = pks.substr(0, pks.length-1);
-			//alert('pks=' + pks);
-			var hdCall = function(data) {
-				if (data.length == 0) return;
-				
-				var attachs = [], mitems = [];
-				var rownum = -1;
-				for (var i = 0; i < data.length; i++) {
-					var row_num = parseInt(data[i].row_num);
-					var data_id = data[i].data_id;
-					var attach_id = data[i].attach_id;
-					var attach_name = data[i].attach_name;
-					
-					if (rownum != row_num) {
-						mitems = [];
-					}
-					
-					//添加附件菜单
-					mitems[mitems.length] = {
-								id:attach_id,
-								text:attach_name, 
-								handler:function(){
-									var params = 'funid=sys_attach&keyid='+ this.id +'&pagetype=editgrid&eventcode=down';
-									Request.fileDown(params);
-								}
-							};
-					
-					if (rownum != row_num) {
-						rownum = row_num;
-						
-						var td = grid.getView().getCell(row_num, 0);
-						//Ext.fly(td.firstChild).setStyle({'color':'#FFFFFF', 'background-color':'#0000BB', 'cursor':'pointer'});
-						Ext.fly(td.firstChild).addClass('hd_attach');
-						
-						//把菜单配置对象保存起来
-						var tdel = Ext.get(td);
-						tdel.myitems = mitems;
-						
-						tdel.on('click', function(){
-							var menu = new Ext.menu.Menu({items:[this.myitems]});
-							menu.on('hide', function(m){
-								m.myitems = null;
-								m.destroy();
-							});
-							menu.show(this);
-						});
-					}
-				}
-			};
-			
-			//从后台查询任务信息
-			var params = 'funid=queryevent&pagetype=grid&eventcode=query_attach';
-				params += '&tablename='+ define.tablename +'&keyids='+ pks;
-			Request.dataRequest(params, hdCall);
 		},
 		
 		//创建查看审批单界面中的工具栏按钮

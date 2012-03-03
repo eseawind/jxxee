@@ -92,41 +92,42 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	
 	/**
 	* public
-	* 设置数据权限类别值
+	* 导入数据权限类别值
 	**/
-	setType: function() {
-		var records = this.grid.getSelectionModel().getSelections();
-		if (!JxUtil.selectone(records)) return;
+	impType: function() {
+		var self = this;
+		var records = self.grid.getSelectionModel().getSelections();
+		if (!JxUtil.selected(records)) return;
 		
-		//可以针对用户设置通用数据权限，也可以针对用户的单个功能设置数据权限
-		var datatable = 'sys_user_data';
-		
-		//取用户数据权限表格
-		var udgrid = Ext.getCmp('node_'+datatable+'_subeditgrid');
-		if (udgrid == null) {
-			datatable = 'sys_user_datax';
-			udgrid = Ext.getCmp('node_'+datatable+'_subeditgrid');
-			if (udgrid == null) {
-				JxHint.alert(jx.event.noqxbg);	//没有找到用户数据权限设置表格！
-				return;
-			}
+		//取数据类别ID
+		var rightTypeId = self.grid.rightTypeId;
+		//取数据权限表格
+		var rightGrid = self.grid.rightGrid;
+		//选择的用户ID
+		var selUserIds = self.grid.selUserIds;
+		if (!rightGrid || !rightTypeId || !selUserIds) {
+			JxHint.alert(jx.event.noqxbg);
+			return;
 		}
+
+		//回调函数，刷新权限数据，并关闭对话框
+		var endcall = function(data) {
+			rightGrid.getStore().reload();
+			self.grid.rightGrid = null;			delete self.grid.rightGrid;
+			self.grid.rightTypeId = null;		delete self.grid.rightTypeId;
+			self.grid.selUserIds = null;		delete self.grid.selUserIds;
+
+			var win = self.grid.findParentByType('window');
+			if (win) win.close();
+		};
 		
-		var udrecord = udgrid.getSelectionModel().getSelections()[0];
-		var funfield = udrecord.get('sys_datatype__fun_field');
-		var funvfield = udrecord.get('sys_datatype__fun_vfield');
-		
-		var value = records[0].get(funfield.replace('.', '__'));
-		var display = records[0].get(funvfield.replace('.', '__'));
-		udrecord.set(datatable+'__dtype_data', value);
-		udrecord.set(datatable+'__display', display);
-		
-		//找到对话框，并关闭
-		var parent = this.grid.ownerCt;
-		while(parent != null && !parent.isXType('window')) {
-			parent = parent.ownerCt;
+		//构建请求参数
+		var params = 'funid='+ self.define.nodeid + '&userids=' + selUserIds;
+		for (var i = 0; i < records.length; i++) {
+			params += '&keyid=' + records[i].get(self.define.pkcol);
 		}
-		if (parent != null) parent.close();
+		params += '&pagetype=imptype&eventcode=imptype&typeid='+rightTypeId;
+		Request.postRequest(params, endcall);
 	},
 	
 	/**
@@ -391,7 +392,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		this.grid.stopEditing();
 		store.insert(0, record);
 		this.grid.startEditing(0, 0);
-
+		
 		if (this.fireEvent('beforecreate', this) == false) return;
 	},
 
@@ -661,7 +662,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			//发送后台请求
 			var href = Jxstar.path + "/reportAction.do?" + params;
 			
-			var tabPanel = self.grid.ownerCt.ownerCt;
+			var tabPanel = self.grid.findParentByType('tabpanel');
 			if (tabPanel == null || !tabPanel.isXType(Ext.TabPanel)) {
 				tabPanel = new Ext.Window({
 					title:'显示审批表单',
@@ -796,26 +797,32 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	**/
 	imp : function() {
 		var self = this;
-		var records = this.grid.getSelectionModel().getSelections();
+		var records = self.grid.getSelectionModel().getSelections();
 		if (!JxUtil.selected(records)) return;
 
+		//按钮不可用
+		JxUtil.disableButton(self.grid.getTopToolbar(), true);
+		
 		//取选择记录的主键值
 		var keys = '';
-		var pkcol = this.define.pkcol;
+		var pkcol = self.define.pkcol;
 		for (var i = 0; i < records.length; i++) {
 			keys += '&keyid=' + records[i].get(pkcol);
 		}
 
 		//目标功能外键值
-		var parentId = this.grid.destParentId;
+		var parentId = self.grid.destParentId;
 		//目标功能ID
-		var destFunId = this.grid.destNodeId;
+		var destFunId = self.grid.destNodeId;
 		//设置请求的参数
-		var params = 'funid='+ this.define.nodeid + '&destfunid=' + destFunId + keys;
+		var params = 'funid='+ self.define.nodeid + '&destfunid=' + destFunId + keys;
 		params += '&parentId='+ parentId +'&pagetype=import&eventcode=import';
 		
 		//导入后刷新数据
 		var endcall = function(data) {
+			//按钮可用
+			JxUtil.disableButton(self.grid.getTopToolbar(), false);
+			
 			self.grid.getStore().reload();
 
 			var destGrid = self.grid.destGrid;
@@ -845,7 +852,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	**/
 	selRecord: function() {
 		var records = this.grid.getSelectionModel().getSelections();
-		if (!JxUtil.selectone(records)) return;
+		if (!JxUtil.selected(records)) return;
 		
 		this.grid.fireEvent('rowclick', this.grid);
 		this.grid.fireEvent('rowdblclick', this.grid);
@@ -1173,6 +1180,35 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		
 		var appData = {funId:funId, dataId:dataId};
 		JxUtil.showCheckWindow(appData, fileName);
+	},
+	
+	/**
+	* public 
+	* 处理附件中的图片浏览功能
+	**/
+	showPicture: function() {
+		var self = this;
+		var records = self.grid.getSelectionModel().getSelections();
+		if (!JxUtil.selected(records)) return;
+		
+		var funId = self.define.nodeid;
+		//从附件目录中取图片文件
+		var url = Jxstar.path + '/commonAction.do?funid=sys_attach&pagetype=editgrid&eventcode=showpic&selfunid='+ funId;
+		url += '&dataType=json&user_id='+Jxstar.session['user_id'];
+		
+		for (var i = 0, n = records.length; i < n; i++) {
+			var keyid = records[i].get(self.define.pkcol);
+			url += '&keyid=' + keyid;
+		}
+		
+		var viewPicture = function (url) {
+			var tabPanel = self.grid.findParentByType('tabpanel');
+			
+			var shower = new ImageShower({parentCtl:tabPanel, url:url});
+			var tab = shower.show();
+			tabPanel.activate(tab);
+		};
+		viewPicture(url);
 	}
 });
 

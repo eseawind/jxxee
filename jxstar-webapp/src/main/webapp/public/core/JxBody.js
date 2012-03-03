@@ -32,18 +32,21 @@
 			"<div class='top_south' id='main_hint'>" + jx.base.welcome + ' ' + JxDefault.getUserName() +" ["+ JxDefault.getDeptName() +"]</div>" + 
 		"</div>";
 
+	var imgpath = './resources/images/top-app.png';
+	if (Jxstar.indexType == '1') imgpath = './resources/project/images/top-app.png';
     var topPanel = new Ext.Panel({
 		region:'north',
         layout:'border',
-		height:44,
+		height:48,
 		border:true,
 	    items:
 		[{
-			width: 143,
+			width: (Jxstar.indexType == '1') ? 64 : 146,
 			region:'west',
 			border:false,
 	        id:'top_left_img',
-	        html: '<div class=\'top_bg\'><img onload=\'JxUtil.fixPNG(this);\' id=\'main_page_img\' src=\'./resources/images/top-app.png\' style=\'cursor:pointer;\' width=\'143\' height=\'44\'/></div>'
+	        html: "<div class='top_bg'><img onload='JxUtil.fixPNG(this);' id='main_page_img' src='"+ imgpath
+				+"' style='cursor:pointer;' width='100%' height='100%'/></div>"
 	    },{
 	        region:'center',
 			border:false,
@@ -56,7 +59,11 @@
 		id:'sys_main_tab',
 		region:'center',
 		closeAction:'close',
-		tabPosition:'bottom',
+		tabPosition:'top',
+		margins:'2 5 5 0',
+		border:false,
+		minTabWidth:150,
+		resizeTabs:true,
 		activeTab:0,
 		items:[{
 			id:'fun_main',
@@ -67,6 +74,21 @@
 		}]
 	});
 	
+	//关闭页签 
+	funMainTab.on('contextmenu',function (ts, item, e) {
+		var nodemenu=new Ext.menu.Menu({
+         items:[{	text:jx.base.closeall,//可以关闭除首页的所有标签页
+					handler:function() {
+						ts.items.each(function(obj){if(obj.closable&&obj!=ts.get(0)) {ts.remove(obj);}});
+					}
+                 },{text:jx.base.closeother,//可以关闭除首页，当前页的所有标签页
+					handler:function(){
+						ts.items.each(function(obj){if(obj.closable&&obj!=item&&obj!=ts.get(0)) {ts.remove(obj);}});
+					}}]
+         });
+         nodemenu.showAt(e.getPoint());	
+	});
+	
 	//构建菜单树
 	var dataUrl = Jxstar.path + '/commonAction.do?funid=queryevent&eventcode=query_menu&user_id='+Jxstar.session['user_id'];
 	var treeMenu = new Ext.tree.TreePanel({
@@ -74,12 +96,13 @@
 		region:'west',
 		title:'功能菜单',
 		iconCls:'main-menu-tree',
+		margins:'2 0 5 5',
 		split:true,
-		width: 180,
-		minSize: 100,
-		maxSize: 300,
-		animate: true,
-		collapsible: true,
+		width:180,
+		minSize:180,
+		maxSize:300,
+		animate:true,
+		collapsible:true,
 		
 		tools:[{//添加刷新按钮可以重新加载功能菜单
 			id:'refresh',
@@ -91,7 +114,7 @@
 		autoScroll:true,
 		rootVisible: false,
 		lines: false,
-		useArrows: false,
+		useArrows: true,
 		
 		loader: new Ext.tree.TreeLoader({dataUrl: dataUrl, listeners:{
 			load:function(loader, node, response){
@@ -103,7 +126,7 @@
 	});
 	//打开功能
 	treeMenu.on('click', function(node){
-		if (node.isLeaf()) {
+		if (node.isLeaf()) { 
 			Jxstar.createNode(node.id);	
 		}
 	});
@@ -113,7 +136,7 @@
         layout:'border',
 	    items:[topPanel, treeMenu, funMainTab]
 	});
-
+	
 	//创建头部的菜单，main_menu是显示菜单的DIV标示
 	//JxMenu.createMainMenu('main_menu');
 

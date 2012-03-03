@@ -25,42 +25,42 @@ Jxstar.currentPage = function() {
 			autoScroll:true,
 			layout:'fit',
 			border:false,
-			iconCls:'tabs'
+			iconCls:'tab_grid'
 		},{
 			pagetype:'form',
 			title: jx.fun.form,		//'功能信息',
 			autoScroll:true,
 			layout:'fit',
 			border:false,
-			iconCls:'tabs'
+			iconCls:'tab_form'
 		},{
 			pagetype:'subgrid',
 			title: jx.fun.field,	//'字段列表',
 			autoScroll:true,
 			layout:'fit',
 			border:false,
-			iconCls:'tabs'
+			iconCls:'tab_sub'
 		},{
 			pagetype:'subgrid',
 			title: jx.fun.event,	//'事件注册',
 			autoScroll:true,
 			layout:'fit',
 			border:false,
-			iconCls:'tabs'
+			iconCls:'tab_sub'
 		},{
 			pagetype:'griddes',
 			title: jx.fun.dgrid,	//'表格设计',
 			autoScroll:true,
 			layout:'fit',
 			border:false,
-			iconCls:'tabs'
+			iconCls:'tab_des'
 		},{
 			pagetype:'formdes',
 			title: jx.fun.dform,	//'表单设计',
 			autoScroll:true,
 			layout:'fit',
-			border:false,
-			iconCls:'tabs',
+			border:true,
+			iconCls:'tab_des',
 			//先创建一个空按钮，保证在chrome中显示正常
 			tbar:new Ext.Toolbar({height:27, items:[{text:' '}]})
 		}]

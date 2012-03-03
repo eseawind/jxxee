@@ -170,7 +170,7 @@ Jxstar.currentPage = {
 
 		//必须要刷新布局，否则取不到el
 		parent.doLayout();
-		parent.getEl().setStyle('border-left-width', '1px');
+		//parent.getEl().setStyle('border-left-width', '1px');
 		self.parentEl = designPanel.el;
 		//取设计面板的父对象，用于取滚动条的距离
 		self.layoutEl = Ext.get(designPanel.el.findParent('div.x-panel-body', 2));
@@ -546,7 +546,7 @@ Jxstar.currentPage = {
 			var list = new Ext.ListView({
 				store: store,
 				style: 'background-color:#fff;',
-				disableHeaders: true,
+				hideHeaders: true,
 				columns: [{//'名称'
 					header: jx.fun.name, dataIndex: 'title', width:.4
 				},{//'代码'

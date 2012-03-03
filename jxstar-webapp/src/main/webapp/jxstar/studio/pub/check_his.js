@@ -78,7 +78,7 @@ Jxstar.currentPage = {
 			self.createWindow(page);
 			
 			//显示当前数据的所有历史审批意见，包括子过程与父过程，如果采用过程实例ID查询会非常复杂，不能兼顾子过程的历史记录
-			var whereSql = 'fun_id = ? and data_id = ?';
+			var whereSql = 'wf_taskhis.fun_id = ? and wf_taskhis.data_id = ?';
 			var whereValue = funId+ ';' +dataId;
 			var whereType = 'string;string';
 			Jxstar.loadData(page, {where_sql:whereSql, where_value:whereValue, where_type:whereType});

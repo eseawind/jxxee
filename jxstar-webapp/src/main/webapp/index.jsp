@@ -1,13 +1,22 @@
-﻿<%@ page contentType="text/html; charset=utf-8"%>
+﻿<%@ page contentType="text/html; charset=UTF-8"%>
+<%@ page import="org.jxstar.util.config.SystemVar" %>
 <%
 	String contextpath = request.getContextPath();
 	String curLangType = "zh";//java.util.Locale.getDefault().getLanguage();
 	String supLangType = org.jxstar.util.config.SystemVar.getValue("sys.lang.type");
+	
+	String svnNum = SystemVar.getValue("index.svn", "40");
+	String indexType = SystemVar.getValue("index.type", "0");
+	String indexName = SystemVar.getValue("index.name", "JXstar软件开发平台 V1.0");
+	String indexBottom = SystemVar.getValue("index.bottom", "广州市东宏软件科技有限公司 版权所有&copy;2010&nbsp;");
+	
+	String loginCss = "resources/css/login.css?verno=" + svnNum;
+	if (indexType.equals("1")) loginCss = "resources/project/css/login.css?verno=" + svnNum;
 %>
 <html>
 <head>
-	<title id='product_name'>JXSTAR软件开发平台 V1.0</title>
-	<link rel="stylesheet" type="text/css" href="resources/css/login.css" />
+	<title id='product_name'><%=indexName%></title>
+	<link rel="stylesheet" type="text/css" href="<%=loginCss%>" />
 </head>
 <body scroll="no">
 	<div id="loading" class="login_loading">
@@ -16,69 +25,95 @@
 		<span id="loading-msg">正在加载样式文件...</span>
 	</div>
 	<iframe id="frmhidden" style="display:none;"></iframe>
-	<link rel="stylesheet" type="text/css" href="public/lib/ext/resources/css/ext-all.css" />
-	<link rel="stylesheet" type="text/css" href="resources/css/main.css" />
-	<link rel="stylesheet" type="text/css" href="public/lib/ext/ux/css/portal.css" />
-	<link rel="stylesheet" type="text/css" href="public/lib/ext/ux/css/RowEditor.css" />
-	<link rel="stylesheet" type="text/css" href="public/lib/ext/ux/css/fileuploadfield.css" />
+	<link rel="stylesheet" type="text/css" href="public/lib/ext/resources/css/ext-all.css?verno=<%=svnNum%>" />
+	<link rel="stylesheet" type="text/css" href="resources/css/main.css?verno=<%=svnNum%>" />
+	<link rel="stylesheet" type="text/css" href="public/lib/ext/ux/css/portal.css?verno=<%=svnNum%>" />
+	<link rel="stylesheet" type="text/css" href="public/lib/ext/ux/css/RowEditor.css?verno=<%=svnNum%>" />
+	<link rel="stylesheet" type="text/css" href="public/lib/ext/ux/css/fileuploadfield.css?verno=<%=svnNum%>" />
+	<link rel="stylesheet" type="text/css" href="public/lib/ext/ux/css/data-view.css?verno=<%=svnNum%>" />
 	
 	<script type="text/javascript">
 		document.getElementById('loading-msg').innerHTML = '正在加载系统文件...';
 	</script>
 
-	<script type="text/javascript" src="public/lib/ext/adapter/ext-base.js"></script>
-	<script type="text/javascript" src="public/lib/ext/ext-all.js"></script>
-	<script type="text/javascript" src="public/lib/ext/locale/ext-lang-<%=curLangType%>.js"></script>
+	<script type="text/javascript" src="public/lib/ext/adapter/ext-base.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/lib/ext/ext-all.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/lib/ext/locale/ext-lang-<%=curLangType%>.js?verno=<%=svnNum%>"></script>
 	
-	<script type="text/javascript" src="public/lib/ext/ux/RowExpander.js"></script>
-	<script type="text/javascript" src="public/lib/ext/ux/Portal.js"></script>
-	<script type="text/javascript" src="public/lib/ext/ux/PortalColumn.js"></script>
-	<script type="text/javascript" src="public/lib/ext/ux/Portlet.js"></script>
-	<script type="text/javascript" src="public/lib/ext/ux/RowEditor.js"></script>
-	<script type="text/javascript" src="public/lib/ext/ux/Emptybox.js"></script>
-	<script type="text/javascript" src="public/lib/ext/ux/FileUploadField.js"></script>
-	<script type="text/javascript" src="public/lib/ext/ux/JxPagerTool.js"></script>
+	<script type="text/javascript" src="public/lib/ext/ux/RowExpander.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/lib/ext/ux/Portal.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/lib/ext/ux/PortalColumn.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/lib/ext/ux/Portlet.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/lib/ext/ux/RowEditor.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/lib/ext/ux/Emptybox.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/lib/ext/ux/FileUploadField.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/lib/ext/ux/JxPagerTool.js?verno=<%=svnNum%>"></script>
 	
-	<script type="text/javascript" src="public/locale/jxstar-lang-<%=curLangType%>.js"></script>
-	<script type="text/javascript" src="public/core/JxLang.js"></script>
-	<script type="text/javascript" src="public/core/SessionTimer.js"></script>
-	<script type="text/javascript" src="public/core/GridNode.js"></script>
-	<script type="text/javascript" src="public/core/FormNode.js"></script>
-	<script type="text/javascript" src="public/core/JxUtil.js"></script>
-	<script type="text/javascript" src="public/core/JxAttach.js"></script>
-	<script type="text/javascript" src="public/core/JxDefault.js"></script>
-	<script type="text/javascript" src="public/core/JxLists.js"></script>
-	<script type="text/javascript" src="public/core/JxGroup.js"></script>
-	<script type="text/javascript" src="public/core/JxSum.js"></script>
-	<script type="text/javascript" src="public/core/JxQuery.js"></script>
-	<script type="text/javascript" src="public/core/JxExport.js"></script>
-	<script type="text/javascript" src="public/core/JxPrint.js"></script>
-	<script type="text/javascript" src="public/core/JxHint.js"></script>
-	<script type="text/javascript" src="public/core/JxSelect.js"></script>
+	<script type="text/javascript" src="public/locale/jxstar-lang-<%=curLangType%>.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxLang.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/SessionTimer.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/GridNode.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/FormNode.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxUtil.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxAttach.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxDefault.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxLists.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxGroup.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxSum.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxQuery.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxExport.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxPrint.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxHint.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxSelect.js?verno=<%=svnNum%>"></script>
 	
-	<script type="text/javascript" src="public/portlet/PortletFun.js"></script>
-	<script type="text/javascript" src="public/portlet/PortletMsg.js"></script>
-	<script type="text/javascript" src="public/portlet/PortletWarn.js"></script>
-	<script type="text/javascript" src="public/portlet/PortletBoard.js"></script>
-	<script type="text/javascript" src="public/portlet/PortletResult.js"></script>
-	<script type="text/javascript" src="public/portlet/PortletResultG.js"></script>
-	<script type="text/javascript" src="public/portlet/PortletAssign.js"></script>
-	<script type="text/javascript" src="public/portlet/PortletAssignNum.js"></script>
-	<script type="text/javascript" src="public/core/JxMenu.js"></script>
-	<script type="text/javascript" src="public/core/JxPortal.js"></script>
+	<script type="text/javascript" src="public/portlet/PortletFun.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/portlet/PortletMsg.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/portlet/PortletWarn.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/portlet/PortletBoard.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/portlet/PortletResult.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/portlet/PortletResultG.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/portlet/PortletAssign.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/portlet/PortletAssignNum.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxMenu.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxPortal.js?verno=<%=svnNum%>"></script>
 
-	<script type="text/javascript" src="public/core/Request.js"></script>
-	<script type="text/javascript" src="public/core/XmlRequest.js"></script>
+	<script type="text/javascript" src="public/core/Request.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/XmlRequest.js?verno=<%=svnNum%>"></script>
 
-	<script type="text/javascript" src="public/core/GridEvent.js"></script>
-	<script type="text/javascript" src="public/core/FormEvent.js"></script>
+	<script type="text/javascript" src="public/core/GridEvent.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/FormEvent.js?verno=<%=svnNum%>"></script>
 
-	<script type="text/javascript" src="public/core/JxExt.js"></script>
-	<script type="text/javascript" src="public/core/Jxstar.js"></script>
+	<script type="text/javascript" src="public/core/JxExt.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/Jxstar.js?verno=<%=svnNum%>"></script>
 	
-	<script type="text/javascript" src="public/lib/graph/js/mxCanvas.js"></script>
+	<script type="text/javascript" src="public/lib/graph/js/mxCanvas.js?verno=<%=svnNum%>"></script>
 	<script type="text/javascript">Ext.fly('loading').hide();</script>
 	<div id="body_div"  class="body_div">
+	<%if (indexType.equals("1")) {%>
+	<div id="login_body" class="login_body"><a style="top:10px;left:10px;font-size:9pt;color:#fff;" href="#" onclick="down_firfox();">下载Firefox浏览器</a>
+		<div class="login_div">
+		<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+		  <tr>
+			<th>用户名：</th>
+			<td><input type="text" style="width:150px;height:20px;" tabindex=1 name="user_code" id="user_code"></td>
+		  </tr>
+		  <tr>
+			<th>密－码：</th>
+			<td><input type="password" style="width:150px;height:20px;" tabindex=2 name="user_pass" id="user_pass" onfocus="this.select()"></td>
+		  </tr>
+		  <tr>
+			<td></td>
+			<td>
+			<input type="button" class="iput_bnt" id="loginbtn" 
+				onmouseover="this.className='iput_bnt_hover';" onmouseout="this.className='iput_bnt';" value="登录"/>
+			<input type="button" class="iput_bnt" style="margin-left:8px;" id="returnbtn" 
+				onmouseover="this.className='iput_bnt_hover';" onmouseout="this.className='iput_bnt';" value="取消"/></td>
+		  </tr>
+		</table>
+		</div>
+		<div class="cpr_div"><%=indexBottom%></div>
+	</div>
+	<%} else {%>
 	<div id="login_body" class="login_body">
 		<div class="logo_div"></div>
 		<div class="login_div">
@@ -97,16 +132,18 @@
 		<a style="left:10px;color:#fff;display:none;" href="#" onclick="down_firfox();">下载Firefox8浏览器</a>
 		</div>
 	</div>
+	<%}%>
 	</div>
 </body>
 <script language="javascript">
 Jxstar.path = '<%=contextpath%>';
+Jxstar.indexType = '<%=indexType%>';
 
 Ext.BLANK_IMAGE_URL = Jxstar.path + '/public/lib/ext/resources/images/default/s.gif';
 Ext.chart.Chart.CHART_URL = Jxstar.path + '/public/lib/ext/resources/charts.swf';
 
 down_firfox = function() {
-	var params = 'funid=sys_attach&keyid=jxstar0001&pagetype=editgrid&eventcode=down&not_valid_user=1';
+	var params = 'funid=sys_attach&keyid=jxstar0001&pagetype=editgrid&eventcode=down&nousercheck=1';
 	Request.fileDown(params);
 };
 
@@ -184,11 +221,13 @@ Ext.onReady(function() {
 	
 	//登陆按钮
 	Ext.fly('loginbtn').on('click', f_login);
-	/*Ext.fly('returnbtn').on('click', function(){
-		usercodeEl.dom.value = "";
-		userpassEl.dom.value = "";
-		usercodeEl.focus();
-	});*/
+	if (Jxstar.indexType == '1') {
+		Ext.fly('returnbtn').on('click', function(){
+			usercodeEl.dom.value = "";
+			userpassEl.dom.value = "";
+			usercodeEl.focus();
+		});
+	}
 	
 	//添加frmhidden的响应事件，用于处理文件下载的错误消息
 	Ext.fly('frmhidden').on('load', function(event, dom){

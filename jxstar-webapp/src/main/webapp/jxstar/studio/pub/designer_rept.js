@@ -55,7 +55,7 @@ Jxstar.currentPage = {
 		});
 
 		parent.add(designPanel);
-		parent.getEl().setStyle('border-left-width', '1px');
+		//parent.getEl().setStyle('border-left-width', '1px');
 		//销毁XLS模板中的TD对象，因为td添加了click事件，在IE中不能销毁
 		designPanel.on('beforedestroy', function(){
 			Ext.fly('rpt_wall_center').select('td').remove();

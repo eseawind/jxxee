@@ -89,18 +89,18 @@ JxSelect = {};
 					//添加选择数据的方法
 					selgrid.on('rowdblclick', function(grid, n, event){
 						//取选择的来源记录数据
-						var srcRecord = grid.getSelectionModel().getSelections()[0];
-						if (srcRecord == null) {
+						var srcRecord = grid.getSelectionModel().getSelections();
+						if (srcRecord == null || srcRecord.length == 0) {
 						//如果选择的记录为空，则说明是清空选择的数据
 							var store = grid.getStore();
-							srcRecord = JxUtil.emptyRecord(store);
+							srcRecord = []; srcRecord[0] = JxUtil.emptyRecord(store);
 						}
 
 						//取选择字段的容器对象，根据它判断是在grid控件中还是在查询控件中
 						var fieldCt = parentField.ownerCt;
 						//查询值或统计参数值的输入控件赋值
 						if (fieldCt && fieldCt.id.indexOf('_qv') > 0) {
-							self.setControlData(srcRecord, parentField, config.sourceField, config.targetField);
+							self.setControlData(srcRecord[0], parentField, config.sourceField, config.targetField);
 						} else {
 							//取目标grid或form，根据ID查找
 							var tagRecord = self.selectTagRecord(targetId);
@@ -195,18 +195,18 @@ JxSelect = {};
 					if (!menuDiv.isVisible()) return false;
 
 					//取选择的来源记录数据
-					var srcRecord = grid.getSelectionModel().getSelections()[0];
-					if (srcRecord == null) {
+					var srcRecord = grid.getSelectionModel().getSelections();
+					if (srcRecord == null || srcRecord.length == 0) {
 					//如果选择的记录为空，则说明是清空选择的数据
 						var store = grid.getStore();
-						srcRecord = JxUtil.emptyRecord(store);
+						srcRecord = []; srcRecord[0] = JxUtil.emptyRecord(store);
 					}
 						
 					//取选择字段的容器对象，根据它判断是在grid控件中还是在查询控件中
 					var fieldCt = menuDiv.parentField.ownerCt;
 					//查询值或统计参数值的输入控件赋值
 					if (fieldCt && fieldCt.id.indexOf('_qv') > 0) {
-						self.setControlData(srcRecord, menuDiv.parentField, config.sourceField, config.targetField);
+						self.setControlData(srcRecord[0], menuDiv.parentField, config.sourceField, config.targetField);
 					} else {
 						//取目标grid或form，根据ID查找
 						var tagRecord = self.selectTagRecord(targetId);
@@ -315,13 +315,14 @@ JxSelect = {};
 		/**
 		* 处理选择表格数据的赋值方法，
 		* 
-		* srcRecord: 来源记录
+		* srcRecord: 来源记录，是一个数组
 		* tagRecord: 目标记录
 		* isSame: 是否同名赋值 '1', '0'
 		* sourceField: 来源字段，格式：tablename.field;field;tablename1.field...
 		* targetField: 目标字段，格式：tablename.field;field;tablename1.field...
 		*/
 		setSelectData: function(srcRecord, tagRecord, isSame, sourceField, targetField) {
+			var self = this;
 			//来源字段名、目标字段名
 			var srcFieldName, tagFieldName;
 
@@ -331,14 +332,14 @@ JxSelect = {};
 				tagData = tagRecord.getFieldValues();
 			}
 			if (isSame == '1'){
-				for(srcFieldName in srcRecord.data) {
+				for(srcFieldName in srcRecord[0].data) {
 					var srctmp = srcFieldName.split("__")[1];
 					for(tagFieldName in tagData) {
 						var tagtmp = tagFieldName.split("__")[1];
 						//auditing字段的值不赋值
 						if (srctmp.indexOf('auditing') < 0 && srctmp == tagtmp) {
 							//取值赋给目标数据对象
-							tagRecord.set(tagFieldName, srcRecord.get(srcFieldName));
+							tagRecord.set(tagFieldName, self.getValue(srcRecord, srcFieldName));
 						}
 					}
 				}
@@ -374,8 +375,21 @@ JxSelect = {};
 					}
 
 					//取值赋给目标数据对象
-					tagRecord.set(tagFieldName, srcRecord.get(srcFieldName));
+					tagRecord.set(tagFieldName, self.getValue(srcRecord, srcFieldName));
 				}
+			}
+		},
+		
+		getValue: function(records, field) {
+			var isMore = (records.length > 1);
+			if (isMore) {
+				var value = '';
+				for (var i = 0, n = records.length; i < n; i++) {
+					value += records[i].get(field) + ';';
+				}
+				return value;
+			} else {
+				return records[0].get(field);
 			}
 		}
 	});//Ext.apply

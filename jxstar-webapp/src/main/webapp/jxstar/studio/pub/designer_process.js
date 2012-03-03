@@ -137,7 +137,7 @@ Jxstar.currentPage = {
 
 		//必须要刷新布局，否则取不到el
 		parent.doLayout();
-		parent.getEl().setStyle('border-left-width', '1px');
+		//parent.getEl().setStyle('border-left-width', '1px');
 		self.parentEl = designPanel.el;
 		
 		//创建绘图对象，在layout中清空
