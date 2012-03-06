@@ -26,6 +26,25 @@ public class FieldCfgBO extends BusinessObject {
 	private static final long serialVersionUID = -8331379837338361547L;
 	
 	/**
+	 * 如果有新导入的记录，则修改表记录状态
+	 * @param tableId
+	 * @return
+	 */
+	public String modifyTable(String tableId) {
+		String tableState = DmConfig.getTableCfgState(tableId);
+		//如果表的状态为“完成”，添加新的字段后，表的状态该为修改
+		if (tableState.equals("6")) {
+			if (!DmConfig.updateTableState(tableId, "2")) {
+				//"表配置信息状态改为“修改”时出错！"
+				setMessage(JsMessage.getValue("fieldcfgbo.statemod"));
+				return _returnFaild;
+			}
+		}
+		
+		return _returnSuccess;
+	}
+	
+	/**
 	 * 根据表名与字段名查询字段信息
 	 * @param tableName -- 表名
 	 * @param fieldName -- 字段名
