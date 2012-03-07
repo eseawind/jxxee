@@ -73,36 +73,17 @@
 	};
 	
 	config.initpage = function(gridNode){
-		var grid = gridNode.page;
-		//表格编辑前事件，删除状态的记录不能修改
-		grid.on('beforeedit', function(event) {
-			var r = event.record;
-			var a = 'dm_fieldcfg__state';
-			return !(r.get(a) != 'undefined' && r.get(a) == '3');
-		});
-		//表格编辑后事件
-		grid.on('afteredit', function(event) {
-			if (event.field == 'dm_fieldcfg__data_type') {
-				var r = event.record;
-				var datatype = r.get('dm_fieldcfg__data_type');
-				if (datatype == 'char') {
-					r.set('dm_fieldcfg__data_size', '1');
-					r.set('dm_fieldcfg__data_scale', '');
-				} else if (datatype == 'int') {
-					r.set('dm_fieldcfg__data_size', '22');
-					r.set('dm_fieldcfg__data_scale', '0');
-					r.set('dm_fieldcfg__default_value', '0');
-				} else if (datatype == 'number') {
-					r.set('dm_fieldcfg__data_size', '22');
-					r.set('dm_fieldcfg__data_scale', '2');
-					r.set('dm_fieldcfg__default_value', '0');
-				} else if (datatype == 'date') {
-					r.set('dm_fieldcfg__data_size', '7');
-					r.set('dm_fieldcfg__data_scale', '');
-				} else {
-					r.set('dm_fieldcfg__data_size', '0');
-					r.set('dm_fieldcfg__data_scale', '');
-				}
+		var event = gridNode.event;
+		//导入字段后，修改主表为修改状态
+		event.on('afterimport', function(ge) {
+			//目标功能外键值
+			var parentId = ge.grid.destParentId;alert('parentId=' + parentId);
+			//目标功能ID
+			var destFunId = ge.grid.destNodeId;
+			
+			if (destFunId == 'dm_fieldcfg' && parentId && parentId.length > 0) {
+				var params = 'funid=sel_fieldcfg&pagetype=editgrid&eventcode=impfield&tableid='+ parentId;
+				Request.postRequest(params, null);
 			}
 		});
 	};

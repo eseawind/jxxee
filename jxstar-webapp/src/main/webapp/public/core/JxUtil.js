@@ -124,10 +124,10 @@ JxUtil = {};
 			}
 		},
 		
-		//根据子功能表格获取父功能的表格
-		getParentGrid: function(subgrid) {
+		//在功能区域的表单或子表中取得父功能的表格
+		getParentGrid: function(childCmp) {
 			//取到tab控件，而后取第一个页面中的表格
-			var tabPanel = subgrid.findParentByType('tabpanel');
+			var tabPanel = childCmp.findParentByType('tabpanel');
 			if (!tabPanel || tabPanel.isXType('tabpanel') == false) return null;
 			
 			var grid = tabPanel.getComponent(0).getComponent(0);
@@ -136,11 +136,22 @@ JxUtil = {};
 			return grid;
 		},
 		
-		//给树形控件添加本级选项
-		treeAddCheck: function(nodeId) {
-			var tree = Ext.getCmp('tree_' + nodeId);
-			if (!tree) return;
+		//在功能区域的表格或表单中取到布局页面中的树形控件
+		getLayoutTree: function(childCmp) {
+			//取到tab控件，再取上级容器对象
+			var tabPanel = childCmp.findParentByType('tabpanel');
+			if (!tabPanel || tabPanel.isXType('tabpanel') == false) return null;
 			
+			//左边第一个子控件是树
+			var tree = tabPanel.ownerCt.ownerCt.getComponent(0).getComponent(0);
+			if (!tree || tree.isXType('treepanel') == false) return null;
+			
+			return tree;
+		},
+		
+		//给树形控件添加本级选项
+		treeAddCheck: function(tree) {
+			if (!tree) return;
 			var tool = tree.getTopToolbar();
 			var tools = tree.getTopToolbar().find('xtype', 'checkbox');
 			if (tools.length > 0) return;

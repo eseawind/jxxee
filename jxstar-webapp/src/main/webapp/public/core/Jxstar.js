@@ -14,7 +14,9 @@
  * isShow -- 是否初始显示数据
  * selectKeyId -- 选择的单条记录ID，用于识别当前选择的记录
  *
- * treeParam -- 点击的树形节点信息
+ * cmpTree      -- 添加了树形控件，该属性必须延时1s才能取到
+ * treeNodeAttr -- 点击的树形节点的属性
+ *              -- 常见属性名称有：id, text, node_level, tree_no, table_name, 附加属性等
  *
  * jxstarParam.old_wsql -- 原查询语句，如数据导入窗口的过滤语句，在通用查询时用到
  * jxstarParam.old_wtype -- 原查询参数类型
@@ -57,22 +59,6 @@ Ext.ns('Jxstar');
 		editor: null,
 		
 		/**
-		* 关闭首页中打开的功能
-		* nodeId：功能ID
-		*/
-		closeNode: function(nodeId) {
-			var mainTab = Ext.getCmp('sys_main_tab');
-			if (mainTab == null) return;
-			
-			var funTab = mainTab.getComponent('fun_' + nodeId);
-			if (funTab != null) {
-				mainTab.remove(funTab, true);
-				funTab = null;
-				mainTab = null;
-			}
-		},
-		
-		/**
 		* 在首页的TAB上打开一个功能页面，
 		* 
 		* nodeId：功能ID
@@ -106,9 +92,7 @@ Ext.ns('Jxstar');
 			}
 			
 			//取主功能TAB
-			var mainTab = Ext.getCmp('sys_main_tab');
-			if (mainTab == null) return;
-			
+			var mainTab = Jxstar.sysMainTab;
 			var funTitle = define.nodetitle;
 			
 			//如果打开了功能界面就显示，否则创建功能界面
@@ -293,7 +277,6 @@ Ext.ns('Jxstar');
 			
 			var tbar = new Ext.Toolbar();
 			var tree = new Ext.tree.TreePanel({
-				id: 'tree_'+nodeId,
 				tbar: tbar,
 
 				autoScroll:true,
@@ -344,7 +327,7 @@ Ext.ns('Jxstar');
 			});
 
 			//延时执行该方法
-			JxUtil.delay(1000, function(){
+			JxUtil.delay(800, function(){
 				var tabPanel = dataPanel.getComponent(0);
 				var grid = tabPanel;
 				if (!tabPanel.isXType('grid')) {
@@ -354,8 +337,12 @@ Ext.ns('Jxstar');
 				//展开根节点，根节点不显示
 				//root.expand();
 
-				//设置树型信息
-				grid.treeParam = {parentId:'', levelCol:root.attributes.node_level};
+				//设置根节点树型信息
+				var ra = root.attributes;
+				grid.treeNodeAttr = {id:'', text:'', node_level:ra.node_level, 
+					tree_no:ra.tree_no, table_name:ra.table_name};
+				//添加树形控件
+				grid.cmpTree = tree;
 
 				//添加节点点击事件，查询树形数据
 				tree.on('click', function(node){
@@ -422,7 +409,7 @@ Ext.ns('Jxstar');
 					Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type, is_query:1});
 
 					//添加树形参数值
-					grid.treeParam = {parentId:treeId, levelCol:attr.node_level};
+					grid.treeNodeAttr = attr;
 				});
 				
 				//去掉相关对象的引用

@@ -95,7 +95,7 @@ Jxstar.currentPage = function() {
 	});
 	
 	//如果设计面板隐藏时，则需要关闭所有设计对话框
-	var closeWin = function() {
+	var closeWin = function(parent) {
 		//清除当前对象的参数
 		var selDiv = Ext.get('sel_rpttddiv');
 		if (selDiv != null) {
@@ -104,22 +104,22 @@ Jxstar.currentPage = function() {
 			selDiv.oldRecord = null;
 		}
 	
-		var detGrid = Ext.getCmp('node_rpt_detail_subeditgrid');
-		if (detGrid != null) {
-			detGrid.ownerCt.close();
+		var rpt_area = parent.rpt_area;
+		if (rpt_area != null) {
+			parent.rpt_area = null;
+			delete parent.rpt_area;
+			rpt_area.ownerCt.close();
 		}
-		var areaGrid = Ext.getCmp('node_rpt_area_subgrid');
-		if (areaGrid != null) {
-			areaGrid.ownerCt.close();
-		}
-		var headGrid = Ext.getCmp('node_rpt_head_subeditgrid');
-		if (headGrid != null) {
-			headGrid.ownerCt.close();
+		var rpt_head = parent.rpt_head;
+		if (rpt_head != null) {
+			parent.rpt_head = null;
+			delete parent.rpt_head;
+			rpt_head.ownerCt.close();
 		}
 	};
 	var desPanel = tabFunction.getComponent(1);
 	desPanel.on('hide', closeWin);
-	desPanel.on('destroy', closeWin);
+	desPanel.on('beforedestroy', closeWin);
 			   
 	var funLayout = new Ext.Panel({
 		border:false,

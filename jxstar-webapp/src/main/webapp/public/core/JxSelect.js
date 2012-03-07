@@ -32,6 +32,7 @@ JxSelect = {};
 			if(parentField.readOnly || parentField.disabled){
 				return;
 			}
+			
 			var self = this;
 			var nodeId = config.nodeId;
 			
@@ -80,7 +81,7 @@ JxSelect = {};
 					var whereValue = config.whereValue;
 					//解析查询参数值中的[]字段变量，如果在查询栏中使用，则会选择不到值
 					if (whereValue != null && whereValue.indexOf('[') >= 0) {
-						var tagRecord = self.selectTagRecord(targetId);
+						var tagRecord = self.selectTagRecord(parentField, targetId);
 						whereValue = JxUtil.parseWhereValue(whereValue, tagRecord);
 					}
 					//显示表格对象后再加载数据才稳定
@@ -103,7 +104,7 @@ JxSelect = {};
 							self.setControlData(srcRecord[0], parentField, config.sourceField, config.targetField);
 						} else {
 							//取目标grid或form，根据ID查找
-							var tagRecord = self.selectTagRecord(targetId);
+							var tagRecord = self.selectTagRecord(parentField, targetId);
 							//给目标表赋值
 							self.setSelectData(srcRecord, tagRecord, config.isSame, config.sourceField, config.targetField)
 						}
@@ -143,6 +144,7 @@ JxSelect = {};
 		createComboGrid: function(config, menuDiv, targetId) {
 			var self = this;
 			var nodeId = config.nodeId;
+			var parentField = menuDiv.parentField;
 			
 			//功能对象信息
 			var define = Jxstar.findNode(nodeId);
@@ -156,7 +158,7 @@ JxSelect = {};
 				//解析查询参数值中的[]字段变量，如果在查询栏中使用，则会选择不到值
 				var whereValue = config.whereValue;
 				if (whereValue != null && whereValue.indexOf('[') >= 0) {
-					var tagRecord = self.selectTagRecord(targetId);
+					var tagRecord = self.selectTagRecord(parentField, targetId);
 					whereValue = JxUtil.parseWhereValue(whereValue, tagRecord);
 				}
 				//显示表格对象后再加载数据才稳定
@@ -203,13 +205,13 @@ JxSelect = {};
 					}
 						
 					//取选择字段的容器对象，根据它判断是在grid控件中还是在查询控件中
-					var fieldCt = menuDiv.parentField.ownerCt;
+					var fieldCt = parentField.ownerCt;
 					//查询值或统计参数值的输入控件赋值
 					if (fieldCt && fieldCt.id.indexOf('_qv') > 0) {
-						self.setControlData(srcRecord[0], menuDiv.parentField, config.sourceField, config.targetField);
+						self.setControlData(srcRecord[0], parentField, config.sourceField, config.targetField);
 					} else {
 						//取目标grid或form，根据ID查找
-						var tagRecord = self.selectTagRecord(targetId);
+						var tagRecord = self.selectTagRecord(parentField, targetId);
 						//给目标表赋值
 						self.setSelectData(srcRecord, tagRecord, config.isSame, config.sourceField, config.targetField)
 					}
@@ -219,10 +221,7 @@ JxSelect = {};
 			};
 
 			//异步从JS文件加载功能对象
-			var pathname = config.layoutPage;
-			if (pathname == null || pathname.length == 0) {
-				pathname = define.gridpage;
-			}
+			var pathname = define.gridpage;
 			if (pathname == null || pathname.length == 0){
 				JxHint.alert(jx.star.noselect);	//'设计状态，不能显示选择窗口！'
 				return;
@@ -232,28 +231,28 @@ JxSelect = {};
 		
 		/**
 		* private 取目标grid或form，根据ID查找。选择窗口或下拉GRID控件使用。
+		* parentField -- 当前选择控件的字段对象
+		* targetId -- 当前选择控件所在的PanelID，现在取消通过Ext.getCmp(targetId)的方式找控件
 		*/
-		selectTagRecord: function(targetId) {
-			//取目标grid或form，根据ID查找
-			var tagRecord, targetDiv = Ext.getCmp(targetId);
-			if (targetId.indexOf('editgrid') >= 0) {
-				//子功能的表格ID为_subeditgrid
-				if (targetDiv == null) {
-					targetId = targetId.replace('editgrid', 'subeditgrid');
-					targetDiv = Ext.getCmp(targetId);
-					//查找无工具栏的表格
-					if (targetDiv == null) {
-						targetId = targetId.replace('subeditgrid', 'notoolsubeditgrid');
-						targetDiv = Ext.getCmp(targetId);
+		selectTagRecord: function(parentField, targetId) {
+			var tagRecord;
+			if (targetId.indexOf('grid') >= 0) {
+				var gdom = parentField.el.findParentNode('div.x-grid-panel');
+				var grid = Ext.getCmp(gdom.id);
+				if (grid) {
+					var selRecord = grid.getSelectionModel().getSelections();
+					if (selRecord && selRecord.length > 0) {
+						tagRecord = selRecord[0];
 					}
 				}
-				var selRecord = targetDiv.getSelectionModel().getSelections();
-				if (selRecord && selRecord.length > 0) {
-					tagRecord = selRecord[0];
-				}
 			} else {
-				tagRecord = targetDiv.getForm();
+				var ct = parentField.ownerCt;
+				var form = ct.findParentByType('form');
+				if (form) {
+					tagRecord = form.getForm();
+				}
 			}
+			
 			return tagRecord;
 		},
 	

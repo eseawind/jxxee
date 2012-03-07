@@ -212,18 +212,19 @@ Jxstar.currentPage = {
 	 * 显示报表标题定义界面
 	 **/
 	showHead: function() {
+		var self = this;
 		//过滤条件
 		var where_sql = 'rpt_head.report_id = ?';
 		var where_type = 'string';
-		var where_value = this.reportId;
+		var where_value = self.reportId;
 		
 		//加载数据
 		var hdcall = function(grid) {
 			grid.getBottomToolbar().hide();
 			//显示数据
 			JxUtil.delay(500, function(){
-				//var grid = layout.getComponent(0).getComponent(0);
-			
+				//临时保存，关闭时用
+				self.layoutEl.rpt_head = grid;
 				//设置外键值
 				grid.fkValue = where_value;
 				Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type});
@@ -247,18 +248,19 @@ Jxstar.currentPage = {
 	 * 显示报表区域定义界面
 	 **/
 	showArea: function() {
+		var self = this;
 		//过滤条件
 		var where_sql = 'rpt_area.report_id = ?';
 		var where_type = 'string';
-		var where_value = this.reportId;
+		var where_value = self.reportId;
 		
 		//加载数据
 		var hdcall = function(grid) {
 			grid.getBottomToolbar().hide();
 			//显示数据
 			JxUtil.delay(500, function(){
-				//var grid = layout.getComponent(0).getComponent(0);
-			
+				//临时保存，关闭时用
+				self.layoutEl.rpt_area = grid;
 				//设置外键值
 				grid.fkValue = where_value;
 				Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type});

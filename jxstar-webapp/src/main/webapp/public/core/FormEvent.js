@@ -391,9 +391,10 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		var mygrid = self.form.myGrid;
 		if (mygrid != null) {
 			//添加树型参数
-			if (mygrid.treeParam) {
-				var parentId = mygrid.treeParam.parentId;
-				var levelCol = mygrid.treeParam.levelCol;
+			var attr = mygrid.treeNodeAttr;
+			if (attr) {
+				var parentId = attr.id;
+				var levelCol = attr.node_level;
 				params += '&parentId=' + parentId + '&levelCol=' + levelCol;
 			}
 		}

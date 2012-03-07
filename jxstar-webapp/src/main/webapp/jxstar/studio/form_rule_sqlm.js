@@ -14,30 +14,23 @@
 			autoHeight:true,
 			items:[{
 				border:false,
-				columnWidth:0.33,
+				columnWidth:0.495,
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
 					{xtype:'textfield', fieldLabel:'来源功能ID', name:'fun_rule_sql__src_funid', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:25},
-					{xtype:'textfield', fieldLabel:'目标功能ID', name:'fun_rule_sql__dest_funid', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:25}
+					{xtype:'textfield', fieldLabel:'目标功能ID', name:'fun_rule_sql__dest_funid', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:25},
+					{xtype:'hidden', fieldLabel:'规则ID', name:'fun_rule_sql__rule_id', anchor:'100%'}
 				]
 			},{
 				border:false,
-				columnWidth:0.33,
+				columnWidth:0.495,
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
 					{xtype:'textfield', fieldLabel:'触发事件', name:'fun_rule_sql__event_code', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:100},
-					{xtype:'textfield', fieldLabel:'路由ID', name:'fun_rule_sql__route_id', readOnly:true, anchor:'100%', maxLength:25}
-				]
-			},{
-				border:false,
-				columnWidth:0.33,
-				layout:'form',
-				style: 'padding-left:10px;',
-				items:[
-					{xtype:'hidden', fieldLabel:'操作类型', name:'fun_rule_sql__do_type', defaultval:'insert', anchor:'100%'},
-					{xtype:'hidden', fieldLabel:'规则ID', name:'fun_rule_sql__rule_id', anchor:'100%'}
+					{xtype:'textfield', fieldLabel:'路由ID', name:'fun_rule_sql__route_id', readOnly:true, anchor:'100%', maxLength:25},
+					{xtype:'hidden', fieldLabel:'操作类型', name:'fun_rule_sql__do_type', defaultval:'insert', anchor:'100%'}
 				]
 			}
 			]
@@ -69,31 +62,41 @@
 		var event = formNode.event;
 		
 		event.on('beforecreate', function(event) {
-			//JxHint.alert(formNode.pageType);
-			var gfun = Ext.getCmp('node_sys_fun_base_editgrid');
-			var records = gfun.getSelectionModel().getSelections();
-			if (records.length == 0) return;
-			
-			var fkv = records[0].get('fun_base__fun_id');
-			if (formNode.pageType == 'form') {
-				var field = formNode.page.getForm().findField('fun_rule_sql__src_funid');
-				field.setValue(fkv);
-				field.disable();
+			var form = formNode.page.getForm();
+			var pnid = formNode.parentNodeId;
+			//取设置SQL的功能ID
+			var selectFunId = '';
+			//“数据导入”设置目标功能ID
+			var setFunId = 'fun_rule_sql__dest_funid';
+			if (pnid == 'rule_route') {
+				var pg = JxUtil.getParentGrid(form.myGrid);
+				if (pg) {
+					var records = pg.getSelectionModel().getSelections();
+					if (records.length > 0) {
+						selectFunId = records[0].get('fun_rule_route__fun_id');
+					}
+				}
 			} else {
-				var field = formNode.page.getForm().findField('fun_rule_sql__dest_funid');
-				field.setValue(fkv);
-				field.disable();
+				setFunId = 'fun_rule_sql__src_funid';
+				selectFunId = form.myGrid.selectFunId;
 			}
+
+			var field = form.findField(setFunId);
+			field.setValue(selectFunId);
+			field.disable();
 		});
 		
 		event.initOther = function() {
-			if (formNode.pageType == 'form') {
-				var field = formNode.page.getForm().findField('fun_rule_sql__src_funid');
-				field.disable();
-			} else {
-				var field = formNode.page.getForm().findField('fun_rule_sql__dest_funid');
-				field.disable();
+			var form = formNode.page.getForm();
+			var pnid = formNode.parentNodeId;
+			//“数据导入”设置目标功能ID
+			var setFunId = 'fun_rule_sql__dest_funid';
+			if (pnid != 'rule_route') {
+				setFunId = 'fun_rule_sql__src_funid';
 			}
+			
+			var field = form.findField(setFunId);
+			field.disable();
 		};
 	};
 	

@@ -65,7 +65,11 @@ Jxstar.GridEvent = function(define) {
 		* @param {JSON[]} data
 		* @param eventcode
 		**/
-		'aftercustom'
+		'aftercustom',
+		/**
+		* @param {Jxstar.GridEvent} this
+		**/
+		'afterimport'
 	);
 
 	Jxstar.GridEvent.superclass.constructor.call(this, define);
@@ -510,9 +514,10 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			params += keys + '&copynum='+text;
 			
 			//添加树型参数
-			if (self.grid.treeParam) {
-				var parentId = self.grid.treeParam.parentId;
-				var levelCol = self.grid.treeParam.levelCol;
+			var attr = self.grid.treeNodeAttr;
+			if (attr) {
+				var parentId = attr.id;
+				var levelCol = attr.node_level;
 				params += '&parentId=' + parentId + '&levelCol=' + levelCol;
 			}
 			
@@ -599,9 +604,10 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			params += '&fkValue=' + fkv;
 		}
 		//添加树型参数
-		if (this.grid.treeParam) {
-			var parentId = this.grid.treeParam.parentId;
-			var levelCol = this.grid.treeParam.levelCol;
+		var attr = self.grid.treeNodeAttr;
+		if (attr) {
+			var parentId = attr.id;
+			var levelCol = attr.node_level;
 			params += '&parentId=' + parentId + '&levelCol=' + levelCol;
 		}
 
@@ -829,6 +835,8 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			if (destGrid != null) {
 				destGrid.getStore().reload();
 			}
+			
+			self.fireEvent('afterimport', self);
 		};
 
 		//发送请求

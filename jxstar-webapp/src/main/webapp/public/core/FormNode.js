@@ -21,8 +21,6 @@ Jxstar.FormNode = function(config){
 	this.nodeId = this.param.funid;
 	//功能页面类型
 	this.pageType = 'form';
-	//功能对象ID
-	this.id = 'node_' + this.nodeId + '_' + this.pageType;
 
 	//功能定义对象
 	this.define = Jxstar.findNode(this.nodeId);
@@ -90,7 +88,6 @@ Jxstar.FormNode.prototype = {
 		var tbar = new Ext.Toolbar(tcfg);
 
 		var form = new Ext.form.FormPanel({
-			id: self.id,
 			labelAlign: fm.labelAlign || 'right',
 			labelWidth: 120,
 			border: true,

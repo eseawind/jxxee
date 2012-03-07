@@ -16,15 +16,15 @@
 		</DataSource>
 		<DataSource memo="系统缺省数据源">
 			<sourcename memo="数据源名">default</sourcename>
-			<schemaname memo="数据库名，构建数据表用">jxstar_xb</schemaname>
+			<schemaname memo="数据库名，构建数据表用">jxstar_ee</schemaname>
 			<driverclass memo="驱动类">oracle.jdbc.driver.OracleDriver</driverclass>
 			<jdbcurl memo="访问URL"><![CDATA[jdbc:oracle:thin:@127.0.0.1:1521:orcl]]></jdbcurl>
-			<username memo="数据库用户">jxstar_xb</username>
-			<password memo="数据库密码">jxstar_xb</password>
+			<username memo="数据库用户">jxstar_ee</username>
+			<password memo="数据库密码">jxstar_ee</password>
 			<maxconnum memo="最大连接数">15</maxconnum>
 			<maxwaittime memo="最大等待时间,ms">5000</maxwaittime>
 			<datasourcetype memo="数据源来源:[self|context],前者表示采用自带数据源,后者表示采用服务器数据源">self</datasourcetype>
-			<jndiname memo="服务器数据源的JNDI名称,如: jdbc/default">jdbc/hnzypm</jndiname>
+			<jndiname memo="服务器数据源的JNDI名称,如: jdbc/default">jdbc/default</jndiname>
 			<dbmstype memo="数据库类型">oracle</dbmstype>
 		</DataSource>
 	</DataSources>

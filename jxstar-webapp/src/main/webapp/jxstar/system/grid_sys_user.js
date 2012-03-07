@@ -82,7 +82,7 @@
 		funid: 'sys_user'
 	};
 	
-	config.initpage = function(gridNode){		var event = gridNode.event;		event.on('beforecreate', function(event) {			var page = event.grid;			var deptTree = Ext.getCmp('tree_sys_user');						var selNode = deptTree.selModel.selNode;			if (selNode == null) return;			var deptId = selNode.id;			var deptName = selNode.text;			var record = page.getStore().getAt(0);						record.set('sys_user__dept_id', deptId);			record.set('sys_dept__dept_name', deptName);		});	};		config.eventcfg = {				clearSql: function(seluserid) {			var params = '';			if (seluserid.indexOf('keyid=') >= 0) {				params = seluserid;			} else {				params = 'keyid=' + seluserid;			}			params += '&funid=sys_user&pagetype=grid&eventcode=clearsql';			//发送请求，清除数据权限SQL缓存			Request.postRequest(params, null);		},
+	config.initpage = function(gridNode){		var event = gridNode.event;		event.on('beforecreate', function(event) {			var page = event.grid;						var attr = page.treeNodeAttr;			if (attr) {				var deptId = attr.id;				var deptName = attr.text;				var record = page.getStore().getAt(0);								record.set('sys_user__dept_id', deptId);				record.set('sys_dept__dept_name', deptName);			}		});	};		config.eventcfg = {				clearSql: function(seluserid) {			var params = '';			if (seluserid.indexOf('keyid=') >= 0) {				params = seluserid;			} else {				params = 'keyid=' + seluserid;			}			params += '&funid=sys_user&pagetype=grid&eventcode=clearsql';			//发送请求，清除数据权限SQL缓存			Request.postRequest(params, null);		},
 
 		setRole: function(){
 			var records = this.grid.getSelectionModel().getSelections();

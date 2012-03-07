@@ -1,1 +1,133 @@
-Jxstar.currentPage={nodeId:"",target:"",createDesign:function(nodeId,target){if(nodeId==null||nodeId.length==0){JxHint.alert(jx.star.noid);return}this.nodeId=nodeId;this.target=target;var self=this;var hdCall=function(f){var node=(eval(f))();node.config.eventcfg=self.createEventCfg(nodeId);node.setState("1");var page=node.showPage();if(page==null){return}page.id=nodeId+"_des_grid";var subpage=target.getComponent(0);if(subpage!=null){target.remove(subpage,true)}var store=page.getStore();var record=new (store.reader.recordType)({});store.add(record);target.add(page);target.doLayout()};var params="funid=sys_fun_base&eventcode=query_griddes&projectpath="+Jxstar.session.project_path;params+="&selfunid="+nodeId;Request.dataRequest(params,hdCall,{type:"xml",wait:true})},createEventCfg:function(d){var c=this;var a=function(){var f=function(){var h="funid=sys_fun_base&eventcode=deletegd";h+="&selfunid="+d+"&selpagetype=grid";var g=function(){c.createDesign(c.nodeId,c.target)};Request.postRequest(h,g)};Ext.Msg.confirm(jx.base.hint,jx.fun.delyes,function(g){if(g=="yes"){f()}})};var b=function(){var g="funid=sys_fun_base&eventcode=savegd";g+="&selfunid="+d+"&selpagetype=grid";var f=this.grid.getState();var n=this.grid.colModel;var j=f.columns;var l="";if(j){for(var h=0,k=j.length;h<k;h++){var o=j[h];var m=n.getColumnById(o.id);if(m){if(m.dataIndex.length==0){continue}l+="{";l+="n:"+m.dataIndex+",";l+="w:"+o.width+",";l+="h:"+(o.hidden?"true":"false");l+="}-"}}if(j.length>0){l=l.substring(0,l.length-1)}}g+="&content="+l;Request.postRequest(g,null)};var e=function(){var f="funid=sys_fun_base&eventcode=creategd";f+="&selfunid="+d+"&selpagetype=grid&projectpath="+Jxstar.session.project_path;Request.postRequest(f,null)};return{deletegd:a,savegd:b,creategd:e}}};
+﻿/*!
+ * Copyright 2011 Guangzhou Donghong Software Technology Inc.
+ * Licensed under the www.jxstar.org
+ */
+
+Jxstar.currentPage = {
+	nodeId: '',
+	target: '',
+
+	/**
+	* 创建页面对象，用于直接从后台取到页面脚本生成页面
+	* 
+	* nodeId：功能ID
+	* target：功能对象显示的窗口
+	*/
+	createDesign: function(nodeId, target) {
+		if (nodeId == null || nodeId.length == 0) {
+			JxHint.alert(jx.star.noid);//'打开的功能ID为空！'
+			return;
+		}
+		//属性
+		this.nodeId = nodeId;
+		this.target = target;
+
+		var self = this;
+		//取创建页面的函数
+		var hdCall = function(f) {
+			var node = (eval(f))();
+			//设置工具栏
+			node.config.eventcfg = self.createEventCfg(nodeId);
+			//设置表格为设计状态
+			node.setState('1');
+			//创建新的页面
+			var page = node.showPage();
+			if (page == null) return;
+
+			//删除原来的对象
+			var subpage = target.getComponent(0);
+			if (subpage != null) {
+				target.remove(subpage, true);
+			}
+
+			//显示一行数据，否则grid的横向滚动条不会显示
+			var store = page.getStore();
+			var record = new (store.reader.recordType)({});
+			store.add(record);
+
+			//把新页面添加到目标窗口中
+			target.add(page);
+			//重新显示目标窗口
+			target.doLayout();
+		};
+
+		//异步从Servlet中取文件加载页面
+		var params = 'funid=sys_fun_base&eventcode=query_griddes&projectpath=' + Jxstar.session['project_path'];
+		params += '&selfunid='+ nodeId;
+		Request.dataRequest(params, hdCall, {type:'xml', wait:true});
+	},
+
+	//取设计器的工具按钮
+	createEventCfg: function(nodeId) {
+		var gdes = this;
+		//删除表格设计
+		var deletegd = function() {
+			var hdconf = function() {
+				//设置请求的参数
+				var params = 'funid=sys_fun_base&eventcode=deletegd';
+				params += '&selfunid='+nodeId+'&selpagetype=grid';
+
+				var hdcall = function() {
+					gdes.createDesign(gdes.nodeId, gdes.target);
+				};
+				//发送请求
+				Request.postRequest(params, hdcall);
+			};
+			//'确定删除设计信息，重新设计吗？'
+			Ext.Msg.confirm(jx.base.hint, jx.fun.delyes, function(btn) {
+				if (btn == "yes") hdconf();
+			});
+		};
+
+		//保存表格设计
+		var savegd = function() {
+			//设置请求的参数
+			var params = 'funid=sys_fun_base&eventcode=savegd';
+			params += '&selfunid='+nodeId+'&selpagetype=grid';
+			
+			//构建设计内容，取表格的状态信息转换为字符串，格式：
+			//{n:colname,w:width,h:true}-{}
+			var state = this.grid.getState();//n: 
+			var cm = this.grid.colModel;
+			var cs = state.columns;
+			var content = '';
+			if(cs){
+				for(var i = 0, len = cs.length; i < len; i++){
+					
+
+					var s = cs[i];
+					var c = cm.getColumnById(s.id);
+					if(c){
+						if (!(c.dataIndex) || c.dataIndex.length == 0) continue;
+						content += '{'
+						content += 'n:' + c.dataIndex + ',';
+						content += 'w:' + s.width + ',';
+						content += 'h:' + (s.hidden?'true':'false');
+						content += '}-';
+					}
+
+					
+				}
+				if (cs.length > 0) {
+					content = content.substring(0, content.length-1);
+				}
+			}
+			params += '&content='+content;
+			//发送请求
+			Request.postRequest(params, null);
+		};
+		
+
+		//生成表格文件
+		var creategd = function() {
+			//设置请求的参数
+			var params = 'funid=sys_fun_base&eventcode=creategd';
+			params += '&selfunid='+nodeId+'&selpagetype=grid&projectpath=' + Jxstar.session['project_path'];
+			
+			//发送请求
+			Request.postRequest(params, null);
+		};
+
+		return {deletegd:deletegd, savegd:savegd, creategd:creategd};
+	}
+};

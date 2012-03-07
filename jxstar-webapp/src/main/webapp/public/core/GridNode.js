@@ -23,8 +23,6 @@ Jxstar.GridNode = function(config){
 	this.nodeId = this.param.funid;
 	//功能页面类型，用于判断显示哪些事件按钮与是否生成可编辑表格
 	this.pageType = this.param.isedit=='1'?'editgrid':'grid';
-	//功能对象ID
-	this.id = 'node_' + this.nodeId + '_' + this.pageType;
 
 	//功能定义对象
 	this.define = Jxstar.findNode(this.nodeId);
@@ -66,8 +64,6 @@ Jxstar.GridNode.prototype = {
 			if (pageType == 'grid' && this.param.isedit=='1') {
 				this.pageType = 'editgrid';
 			}
-			//修改控件ID，否则会造成控件ID相同，页面控件混乱的问题
-			this.id = 'node_' + this.nodeId + '_' + this.pageType;
 		}
 		
 		//设置父功能ID
@@ -196,7 +192,6 @@ Jxstar.GridNode.prototype = {
 		
 		//配置信息
 		var config = {
-			id: self.id,
 			loadMask: true,
 			columnLines: true,	//显示列分隔线
 			store: store,
@@ -303,7 +298,8 @@ Jxstar.GridNode.prototype = {
 			gp.jxstarParam = null;		delete gp.jxstarParam;
 			gp.gridNode.destroy();
 			gp.gridNode = null;			delete gp.gridNode;
-			gp.treeParam = null;		delete gp.treeParam;
+			gp.cmpTree = null;			delete gp.cmpTree;
+			gp.treeNodeAttr = null;		delete gp.treeNodeAttr;
 			gp = null;
 			
 			return true;

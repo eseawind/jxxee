@@ -55,27 +55,29 @@
 	});
 
 	//创建首页功能显示区域
-	var funMainTab = new Ext.TabPanel({
+	var sysMainTab = new Ext.TabPanel({
 		id:'sys_main_tab',
 		region:'center',
 		closeAction:'close',
-		tabPosition:'top',
+		tabPosition:'bottom',
 		margins:'2 5 5 0',
 		border:false,
 		minTabWidth:150,
 		resizeTabs:true,
 		activeTab:0,
 		items:[{
-			id:'fun_main',
+			id:'fun_main_tab',
 			title:jx.base.onepage, //首页
 			autoScroll:true,
 			layout:'fit',
 			iconCls:'function'
 		}]
 	});
+	//保存到全局对象中
+	Jxstar.sysMainTab = sysMainTab;
 	
 	//关闭页签 
-	funMainTab.on('contextmenu',function (ts, item, e) {
+	sysMainTab.on('contextmenu',function (ts, item, e) {
 		var nodemenu=new Ext.menu.Menu({
          items:[{	text:jx.base.closeall,//可以关闭除首页的所有标签页
 					handler:function() {
@@ -134,19 +136,19 @@
 	//创建首页页面布局
     var viewport = new Ext.Viewport({
         layout:'border',
-	    items:[topPanel, treeMenu, funMainTab]
+	    items:[topPanel, treeMenu, sysMainTab]
 	});
 	
 	//创建头部的菜单，main_menu是显示菜单的DIV标示
 	//JxMenu.createMainMenu('main_menu');
 
 	//创建protel功能界面
-	var funTab = Ext.getCmp('fun_main');
+	var funTab = sysMainTab.getComponent(0);
 	JxPortal.createMainPortal(funTab);
 
 	//设置首页按钮
 	Ext.fly('main_page_img').on('click', function(){
-		funMainTab.activate(funTab);
+		sysMainTab.activate(funTab);
 		//重新加载首页
 		funTab.removeAll(funTab.getComponent(0), true);
 		JxPortal.createMainPortal(funTab);
@@ -172,7 +174,7 @@
 		return false;
 	};
 
-	funMainTab.doLayout();
+	sysMainTab.doLayout();
 	
 	//启动会话效验
 	SessionTimer.SESSION_TIMEOUT = Jxstar.session.maxInterval;

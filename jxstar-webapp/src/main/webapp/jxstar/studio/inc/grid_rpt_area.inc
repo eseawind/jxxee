@@ -2,8 +2,9 @@
 	config.eventcfg = {
 		//显示明细表的数据
 		showData: function(subid) {
+			var self = this;
 			var define = Jxstar.findNode(subid);
-			var records = this.grid.getSelectionModel().getSelections();
+			var records = self.grid.getSelectionModel().getSelections();
 			if (!JxUtil.selectone(records)) return;
 			
 			//过滤条件
@@ -14,8 +15,11 @@
 			//加载数据
 			var hdcall = function(grid) {
 				grid.getBottomToolbar().hide();
+				
 				//显示数据
 				JxUtil.delay(500, function(){
+					//保存子表控件
+					self.grid[subid] = grid;
 					//设置外键值
 					grid.fkValue = where_value;
 					Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type, has_page:0});
@@ -51,7 +55,7 @@
 	config.initpage = function(gridNode){
 		var grid = gridNode.page;
 		var queryGrid = function(tablename, nodeid, g, rowindex) {
-			var detGrid = Ext.getCmp('node_'+ nodeid +'_subeditgrid');
+			var detGrid = g[nodeid];
 			if (detGrid != null) {
 				var record = g.getStore().getAt(rowindex);
 				var areaId = record.get('rpt_area__area_id');
@@ -68,5 +72,20 @@
 			queryGrid('rpt_detail', 'rpt_detail', g, rowindex);
 			queryGrid('rpt_param', 'rpt_param', g, rowindex);
 			queryGrid('rpt_detail_wf', 'rpt_detailwf', g, rowindex);
+		});
+		
+		grid.on('beforedestroy', function(gp){
+			var closeWin = function(g){
+				if (!g) return;
+				var win = g.findParentByType('window');
+				if (win) win.close();
+			};
+			closeWin(gp.rpt_param);
+			closeWin(gp.rpt_detail);
+			closeWin(gp.rpt_detailwf);
+			
+			gp.rpt_param = null; delete gp.rpt_param;
+			gp.rpt_detail = null; delete gp.rpt_detail;
+			gp.rpt_detailwf = null; delete gp.rpt_detailwf;
 		});
 	};
