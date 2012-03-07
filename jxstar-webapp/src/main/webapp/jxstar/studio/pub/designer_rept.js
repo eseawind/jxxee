@@ -223,8 +223,8 @@ Jxstar.currentPage = {
 			grid.getBottomToolbar().hide();
 			//显示数据
 			JxUtil.delay(500, function(){
-				//临时保存，关闭时用
-				self.layoutEl.rpt_head = grid;
+				//保存子表控件
+				self.layoutEl['rpt_head'] = grid;
 				//设置外键值
 				grid.fkValue = where_value;
 				Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type});
@@ -259,8 +259,8 @@ Jxstar.currentPage = {
 			grid.getBottomToolbar().hide();
 			//显示数据
 			JxUtil.delay(500, function(){
-				//临时保存，关闭时用
-				self.layoutEl.rpt_area = grid;
+				//保存子表控件
+				self.layoutEl['rpt_area'] = grid;
 				//设置外键值
 				grid.fkValue = where_value;
 				Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type});
