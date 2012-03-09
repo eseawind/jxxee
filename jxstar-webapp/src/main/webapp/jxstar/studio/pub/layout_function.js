@@ -175,7 +175,14 @@ Jxstar.currentPage = function() {
 			items:[tabFunction]
 		}]
 	});
-	Jxstar.createTree(funid, funLayout);
+	var tree = Jxstar.createTree(funid, funLayout);
+	//如果不是jxstar账户，则不显示开发平台模块
+	if (Jxstar.session['user_code'] != 'jxstar') {
+		var loader = tree.getLoader();
+		loader.baseParams.where_sql = 'module_id not like ?';
+		loader.baseParams.where_value = '1010%';
+		loader.baseParams.where_type = 'string';
+	}
 
 	return funLayout;
 }
