@@ -675,8 +675,8 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 					layout:'fit',
 					width:820,
 					height:600,
-					resizable: false,
-					modal: true,
+					resizable:false,
+					modal:true,
 					closeAction:'close',
 					items:[]
 				});

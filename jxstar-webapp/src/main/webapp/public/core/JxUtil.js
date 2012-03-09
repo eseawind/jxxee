@@ -251,9 +251,9 @@ JxUtil = {};
 					title:tabtitle,
 					autoScroll:true,
 					layout:'fit',
-					border:false,
+					border:true,
 					tbar:tbar,
-					closable: true,
+					closable:true,
 					iconCls:'tab_form',
 					html:'<iframe id="'+ frmid +'" border="0" style="display:none;border-width:0;"></iframe>'
 				});
