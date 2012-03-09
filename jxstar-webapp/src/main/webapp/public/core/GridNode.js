@@ -183,7 +183,7 @@ Jxstar.GridNode.prototype = {
 				//'重新加载数据后，新增或修改记录会丢失，请确认是否保存修改内容！'
 				if (confirm(jx.node.reloaddata)) {
 					self.event.editSave();
-					return true;
+					return false;
 				}
 			}
 			return true;
