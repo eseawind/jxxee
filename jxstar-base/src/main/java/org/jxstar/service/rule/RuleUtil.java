@@ -281,7 +281,7 @@ public class RuleUtil {
 	 */
 	public Map<String, String> queryRule(String routeId, String destFunId) {
 		String sql = "select rule_id, src_sql, dest_sql from fun_rule_sql " +
-				"where route_id = ? and dest_funid = ? and event_code like '%,import,%'";
+			"where route_id = ? and dest_funid = ? and event_code like '%,import,%' order by sql_no";
 		
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(routeId);
@@ -297,7 +297,7 @@ public class RuleUtil {
 	 */
 	public List<Map<String, String>> queryUpdateRule(String funId, String eventCode) {
 		String sql = "select rule_id, src_sql, dest_sql, dest_funid from fun_rule_sql " +
-				"where src_funid = ? and event_code like '%,"+eventCode+",%'";
+			"where src_funid = ? and event_code like '%,"+eventCode+",%' order by sql_no";
 		
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(funId);
