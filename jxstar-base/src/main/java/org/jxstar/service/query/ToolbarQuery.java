@@ -72,13 +72,16 @@ public class ToolbarQuery extends BusinessObject {
 			rightJson = getRightJson(mpRight);
 		}
 		
+		//审批页面类型不做处理
+		boolean isCheck = (pageType.indexOf("chk") >= 0);
+		
 		//构建按钮组
 		StringBuilder sbItems = new StringBuilder();
 		for (int i = 0, n = lsEvent.size(); i < n; i++) {
 			Map<String, String> mpEvent = lsEvent.get(i);
 			
 			//判断是否该按钮的操作权限
-			if (!isAdmin && hasRight) {
+			if (!isAdmin && !isCheck && hasRight) {
 				String rightType = mpEvent.get("right_type");
 				String rightValue = mpRight.get(rightType);
 				if (!rightValue.equals("1")) continue;
