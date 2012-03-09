@@ -1,8 +1,6 @@
 ﻿Jxstar.currentPage = function() {
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 
-	var depttypeData = Jxstar.findComboData('depttype');
-
 	var cols = [
 	{col:{header:'*部门编码', width:144, sortable:true, editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.TextField({
@@ -12,27 +10,6 @@
 		editor:new Ext.form.TextField({
 			maxLength:50, allowBlank:false
 		})}, field:{name:'sys_dept__dept_name',type:'string'}},
-	{col:{header:'*部门类别', width:100, sortable:true, defaultval:'3', align:'center',
-		editable:true, hcss:'color:#0000ff;',
-		editor:new Ext.form.ComboBox({
-			store: new Ext.data.SimpleStore({
-				fields:['value','text'],
-				data: depttypeData
-			}),
-			emptyText: jx.star.select,
-			mode: 'local',
-			triggerAction: 'all',
-			valueField: 'value',
-			displayField: 'text',
-			editable:false, allowBlank:false,
-			value: depttypeData[0][0]
-		}),
-		renderer:function(value){
-			for (var i = 0; i < depttypeData.length; i++) {
-				if (depttypeData[i][0] == value)
-					return depttypeData[i][1];
-			}
-		}}, field:{name:'sys_dept__dept_type',type:'string'}},
 	{col:{header:'备注', width:184, sortable:true, editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.TextField({
 			maxLength:200
