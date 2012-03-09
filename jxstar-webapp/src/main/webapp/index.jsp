@@ -7,8 +7,8 @@
 	
 	String svnNum = SystemVar.getValue("index.svn", "40");
 	String indexType = SystemVar.getValue("index.type", "0");
-	String indexName = SystemVar.getValue("index.name", "JXstar软件开发平台 V1.0");
-	String indexBottom = SystemVar.getValue("index.bottom", "广州市东宏软件科技有限公司 版权所有&copy;2010&nbsp;");
+	String indexName = SystemVar.getValue("index.name", "JXstar软件开发平台企业版 V1.0");
+	String indexBottom = SystemVar.getValue("index.bottom", "");
 	
 	String loginCss = "resources/css/login.css?verno=" + svnNum;
 	if (indexType.equals("1")) loginCss = "resources/project/css/login.css?verno=" + svnNum;
