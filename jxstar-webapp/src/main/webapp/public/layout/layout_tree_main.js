@@ -102,7 +102,7 @@ Jxstar.currentPage = function(define, pageParam) {
 		var curPage = currentTab.getComponent(0);
 		if (curPage != null && curPage.isXType('form') && curPage.getForm().isDirty()) {
 			if (confirm(jx.layout.modify)) {	//'记录已被修改，是否需要先保存？'
-				self.save();
+				curPage.formNode.event.save();
 				return false;
 			}
 		}
