@@ -85,8 +85,9 @@ Ext.ns('Jxstar');
 				return false;
 			}
 			
-			//检查用户是否有该功能的权限
-			if (!Jxstar.validNode(nodeId)) {
+			//检查用户是否有该功能的权限，审批时不判断
+			var isCheck = (pageParam && pageParam.pageType && pageParam.pageType == 'check');
+			if (!isCheck && !Jxstar.validNode(nodeId)) {
 				JxHint.alert(String.format(jx.star.noright, nodeId));	//'用户没有该【{0}】功能的授权！'
 				return false;
 			}
