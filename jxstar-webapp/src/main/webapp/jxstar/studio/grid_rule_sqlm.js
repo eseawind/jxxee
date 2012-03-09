@@ -17,6 +17,7 @@
 			}
 		}}, field:{name:'fun_rule_sql__do_type',type:'string'}},
 	{col:{header:'规则ID', width:100, sortable:true, hidden:true}, field:{name:'fun_rule_sql__rule_id',type:'string'}},
+	{col:{header:'序号', width:48, sortable:true}, field:{name:'fun_rule_sql__sql_no',type:'string'}},
 	{col:{header:'路由ID', width:81, sortable:true}, field:{name:'fun_rule_sql__route_id',type:'string'}}
 	];
 	

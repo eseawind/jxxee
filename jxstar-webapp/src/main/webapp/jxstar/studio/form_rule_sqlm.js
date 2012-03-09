@@ -20,6 +20,7 @@
 				items:[
 					{xtype:'textfield', fieldLabel:'来源功能ID', name:'fun_rule_sql__src_funid', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:25},
 					{xtype:'textfield', fieldLabel:'目标功能ID', name:'fun_rule_sql__dest_funid', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:25},
+					{xtype:'textfield', fieldLabel:'序号', name:'fun_rule_sql__sql_no', defaultval:'1', anchor:'100%', maxLength:10},
 					{xtype:'hidden', fieldLabel:'规则ID', name:'fun_rule_sql__rule_id', anchor:'100%'}
 				]
 			},{

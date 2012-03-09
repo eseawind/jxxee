@@ -4,7 +4,7 @@
 	var authtypeData = Jxstar.findComboData('authtype');
 	var auditData = Jxstar.findComboData('audit');
 	var moneytypeData = Jxstar.findComboData('moneytype');
-	var Data = Jxstar.findComboData('');
+	var checkdeptData = Jxstar.findComboData('checkdept');
 	var projstatusData = Jxstar.findComboData('projstatus');
 	var items = [{
 		height: '97%',
@@ -23,8 +23,8 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
-					{xtype:'textfield', fieldLabel:'项目编号', name:'project_base__project_code', readOnly:true, anchor:'100%', maxLength:20},
-					{xtype:'textfield', fieldLabel:'项目名称', name:'project_base__project_name', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:100},
+					{xtype:'textfield', fieldLabel:'项目编号', name:'project_base__project_code', readOnly:true, anchor:'100%', maxLength:50},
+					{xtype:'textfield', fieldLabel:'项目名称', name:'project_base__project_name', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:50},
 					{xtype:'textfield', fieldLabel:'计划批复文号', name:'project_base__check_fileno', readOnly:true, anchor:'100%', maxLength:100},
 					{xtype:'numberfield', decimalPrecision:6, fieldLabel:'计划批复金额(万元)', name:'project_base__plan_money', readOnly:true, anchor:'100%', maxLength:12},
 					{xtype:'combo', fieldLabel:'授权类型', name:'project_base__auth_type',
@@ -42,7 +42,7 @@
 					{xtype:'datefield', fieldLabel:'计划开始日期', name:'project_base__plan_sdate', format:'Y-m-d', anchor:'100%'},
 					{xtype:'trigger', fieldLabel:'项目负责人', name:'project_base__project_user',
 						anchor:'100%', triggerClass:'x-form-search-trigger',
-						maxLength:20, allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', editable:false,
+						maxLength:100, allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', editable:false,
 						onTriggerClick: function() {
 							var selcfg = {pageType:'combogrid', nodeId:'sys_user', layoutPage:'/public/layout/layout_tree.js', sourceField:'sys_user.user_name;user_id', targetField:'project_base.project_user;project_userid', whereSql:"", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'1',fieldName:'project_base.project_user'};
 							JxSelect.createSelectWin(selcfg, this, 'node_project_create_form');
@@ -84,7 +84,7 @@
 						valueField: 'value',
 						displayField: 'text',
 						value: moneytypeData[0][0]},
-					{xtype:'textfield', fieldLabel:'计划批文名称', name:'project_base__check_name', readOnly:true, anchor:'100%', maxLength:150},
+					{xtype:'textfield', fieldLabel:'计划批文名称', name:'project_base__check_name', readOnly:true, anchor:'100%', maxLength:100},
 					{xtype:'textfield', fieldLabel:'实施单位', name:'project_base__dept_name', readOnly:true, anchor:'100%', maxLength:50},
 					{xtype:'trigger', fieldLabel:'主管部门', name:'project_base__done_deptname',
 						anchor:'100%', triggerClass:'x-form-search-trigger',
@@ -95,19 +95,19 @@
 						}},
 					{xtype:'datefield', fieldLabel:'计划结束日期', name:'project_base__plan_edate', format:'Y-m-d', anchor:'100%'},
 					{xtype:'datefield', fieldLabel:'立项申请日期', name:'project_base__project_date', defaultval:'fun_getToday()', format:'Y-m-d', anchor:'100%'},
-					{xtype:'textfield', fieldLabel:'立项批文名称', name:'project_base__project_checkname', anchor:'100%', maxLength:150},
+					{xtype:'textfield', fieldLabel:'立项批文名称', name:'project_base__project_checkname', anchor:'100%', maxLength:100},
 					{xtype:'combo', fieldLabel:'立项批复单位', name:'project_base__check_dept',
 						anchor:'100%', editable:false,
 						store: new Ext.data.SimpleStore({
 							fields:['value','text'],
-							data: Data
+							data: checkdeptData
 						}),
 						emptyText: jx.star.select,
 						mode: 'local',
 						triggerAction: 'all',
 						valueField: 'value',
 						displayField: 'text',
-						value: Data[0][0]},
+						value: checkdeptData[0][0]},
 					{xtype:'combo', fieldLabel:'项目状态', name:'project_base__project_status', defaultval:'1',
 						anchor:'100%', readOnly:true, editable:false,
 						store: new Ext.data.SimpleStore({
@@ -137,10 +137,10 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
-					{xtype:'textarea', fieldLabel:'项目主要内容', name:'project_base__project_content', width:'100%', height:48, maxLength:500},
-					{xtype:'textarea', fieldLabel:'项目必要性、可行性', name:'project_base__project_cause', width:'100%', height:48, maxLength:500},
-					{xtype:'textarea', fieldLabel:'项目论证结论意见', name:'project_base__project_result', width:'100%', height:48, maxLength:200},
-					{xtype:'textfield', fieldLabel:'论证人员签字', name:'project_base__result_user', anchor:'100%', maxLength:50},
+					{xtype:'textarea', fieldLabel:'项目主要内容', name:'project_base__project_content', width:'100%', height:48, maxLength:100},
+					{xtype:'textarea', fieldLabel:'项目必要性、可行性', name:'project_base__project_cause', width:'100%', height:48, maxLength:100},
+					{xtype:'textarea', fieldLabel:'项目论证结论意见', name:'project_base__project_result', width:'100%', height:48, maxLength:100},
+					{xtype:'textfield', fieldLabel:'论证人员签字', name:'project_base__result_user', anchor:'100%', maxLength:100},
 					{xtype:'textfield', fieldLabel:'备注', name:'project_base__project_memo', anchor:'100%', maxLength:200}
 				]
 			}
@@ -153,7 +153,7 @@
 		funid: 'project_create'
 	};
 
-	config.initpage = function(formNode){		var event = formNode.event;				//扩展保存前事件，如果立项批复金额必须大于0，且小于计划批复金额		event.on('beforesave', function(event, data) {			var form = event.form;			var plan_money = form.get('project_base__plan_money');			if (plan_money == '') plan_money = '0';			var project_money = form.get('project_base__project_money');			if (project_money == '') project_money = '0';						if (parseFloat(project_money) == 0) {				JxHint.alert('立项批复金额必须大于0！');				return false;			}						if (parseFloat(plan_money) < parseFloat(project_money)) {				JxHint.alert('立项批复金额必须小于计划批复金额！');				return false;			}						return true;		});	};		config.eventcfg = {		//初始化页面数据		initOther : function() {			var myform = this.form;			var chkdate = myform.get("project_base__project_date");			if (chkdate == null || chkdate.length == 0) {				myform.set("project_base__project_date", JxDefault.getToday());			}						var username = myform.get("project_base__project_user");			if (username == null || username.length == 0) {				myform.set("project_base__project_user", JxDefault.getUserName());				myform.set("project_base__project_userid", JxDefault.getUserId());			}		}	};
+	
 	
 	return new Jxstar.FormNode(config);
 }

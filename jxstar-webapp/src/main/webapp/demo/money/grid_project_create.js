@@ -4,6 +4,7 @@
 	var auditData = Jxstar.findComboData('audit');
 	var moneytypeData = Jxstar.findComboData('moneytype');
 	var authtypeData = Jxstar.findComboData('authtype');
+	var checkdeptData = Jxstar.findComboData('checkdept');
 	var projstatusData = Jxstar.findComboData('projstatus');
 
 	var cols = [
@@ -88,7 +89,13 @@
 			return value ? value.format('Y-m-d') : '';
 		}}, field:{name:'project_base__plan_edate',type:'date'}},
 	{col:{header:'计划批文名称', width:100, sortable:true, hidden:true}, field:{name:'project_base__check_name',type:'string'}},
-	{col:{header:'立项批复单位', width:100, sortable:true, hidden:true}, field:{name:'project_base__check_dept',type:'string'}},
+	{col:{header:'立项批复单位', width:100, sortable:true, hidden:true, align:'center',
+		renderer:function(value){
+			for (var i = 0; i < checkdeptData.length; i++) {
+				if (checkdeptData[i][0] == value)
+					return checkdeptData[i][1];
+			}
+		}}, field:{name:'project_base__check_dept',type:'string'}},
 	{col:{header:'立项批复日期', width:100, sortable:true, hidden:true, renderer:function(value) {
 			return value ? value.format('Y-m-d') : '';
 		}}, field:{name:'project_base__check_date',type:'date'}},
