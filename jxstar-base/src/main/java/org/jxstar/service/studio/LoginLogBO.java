@@ -7,6 +7,7 @@ import org.jxstar.dao.DaoParam;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
+import org.jxstar.util.config.SystemVar;
 import org.jxstar.util.key.KeyCreator;
 
 /**
@@ -27,10 +28,15 @@ public class LoginLogBO extends BusinessObject {
 		Map<String,String> mpUser = request.getUserInfo();
 		if (mpUser == null || mpUser.isEmpty()) return _returnSuccess;
 		
+		//是否记录登录日志
+		String isLog = SystemVar.getValue("sys.login.log");
+		
 		//新增登录日志
 		String userId = mpUser.get("user_id");
-		String logId = insertLog(userId);
-		if (logId.length() == 0) return _returnSuccess;
+		String logId = "";
+		if (isLog.equals("1")) {
+			logId = insertLog(userId);
+		}
 		
 		//取会话ID、客户端IP、客户端程序名
 		Map<String,String> mpInfo = request.getClientInfo();
@@ -73,11 +79,20 @@ public class LoginLogBO extends BusinessObject {
 	 * @param sessionId
 	 */
 	public void logout(String userId, String sessionId) {
-		String logId = getLogId(userId);
+		String logId = "";
+		//是否记录登录日志
+		String isLog = SystemVar.getValue("sys.login.log");
+		if (isLog.equals("1")) {
+			logId = getLogId(userId);
+		}
 		
 		//删除当前用户与修改退出日志
 		deleteLogin(userId, sessionId);
-		updateLog(logId);
+		
+		//修改退出时间
+		if (isLog.equals("1")) {
+			updateLog(logId);
+		}
 	}
 	
 	/**
