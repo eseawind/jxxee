@@ -77,7 +77,7 @@
 		//导入字段后，修改主表为修改状态
 		event.on('afterimport', function(ge) {
 			//目标功能外键值
-			var parentId = ge.grid.destParentId;alert('parentId=' + parentId);
+			var parentId = ge.grid.destParentId;
 			//目标功能ID
 			var destFunId = ge.grid.destNodeId;
 			
