@@ -14,7 +14,6 @@ import org.jxstar.util.DateUtil;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.resource.JsMessage;
 import org.jxstar.wf.WfException;
-import org.jxstar.wf.engine.AssignTaskUtil;
 import org.jxstar.wf.engine.ProcessContext;
 import org.jxstar.wf.engine.ProcessInstance;
 import org.jxstar.wf.engine.TaskInstance;
