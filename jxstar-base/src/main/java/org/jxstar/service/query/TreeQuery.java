@@ -81,7 +81,7 @@ public class TreeQuery extends BusinessObject {
 		//如果父节点是根节点,则取空字符串
 		if (parentId.equals(ROOT_ID)) parentId = "";
 		
-		//只有一个树定义
+		//只有一个树定义；后面的子方法中要用到
 		_isOnlyTree = onlyTree(funId);
 		
 		//取本级树定义
@@ -96,44 +96,42 @@ public class TreeQuery extends BusinessObject {
 		
 		//先查询本级树定义是否有数据
 		_log.showDebug(".................check current tree data");
-		List<Map<String,String>> lsNode = null;
-		
 		//如果是树
 		if (treeType.equals("0")) {
-			lsNode = treeData(userId, parentId, mpTree, whereSql, whereType, whereValue, false);
-			lsNode = addTreeLeaf(userId, lsNode, mpTree);
+			lsRet = treeData(userId, parentId, mpTree, whereSql, whereType, whereValue, false);
+			lsRet = addTreeLeaf(userId, lsRet, mpTree);
 		} else {
 			//只有根节点，才加载本级节点数据
 			if (parentId.length() == 0) {
-				lsNode = subTreeData(userId, parentId, mpTree, false);
-				lsNode = addNodeLeaf(userId, lsNode, mpTree);
-			} else {
-				lsNode = lsRet;
+				lsRet = subTreeData(userId, parentId, mpTree, false);
+				lsRet = addNodeLeaf(userId, lsRet, mpTree);
 			}
 		}
 		//如果只有一个树定义，则不执行下面的查询
-		if (_isOnlyTree) {
-			return lsNode;
-		}
-		lsRet.addAll(lsNode);
-		
-		//取下级树定义信息
-		Map<String,String> subTree = subTreeDef(funId, treeNo);
-		
-		if (!subTree.isEmpty()) {
-			//然后查询是否有下级树数据
-			_log.showDebug(".................check sub tree data");
-			List<Map<String,String>> lsSubNode = 
-				subTreeData(userId, parentId, subTree, false);
+		if (!_isOnlyTree) {
+			//取下级树定义信息
+			Map<String,String> subTree = subTreeDef(funId, treeNo);
 			
-			String subTreeType = MapUtil.getValue(subTree, "tree_type", "0");
-			//如果是树
-			if (subTreeType.equals("0")) {
-				lsSubNode = addTreeLeaf(userId, lsSubNode, subTree);
-			} else {
-				lsSubNode = addNodeLeaf(userId, lsSubNode, subTree);
+			if (!subTree.isEmpty()) {
+				//然后查询是否有下级树数据
+				_log.showDebug(".................check sub tree data");
+				List<Map<String,String>> lsSubNode = 
+					subTreeData(userId, parentId, subTree, false);
+				
+				String subTreeType = MapUtil.getValue(subTree, "tree_type", "0");
+				//如果是树
+				if (subTreeType.equals("0")) {
+					lsSubNode = addTreeLeaf(userId, lsSubNode, subTree);
+				} else {
+					lsSubNode = addNodeLeaf(userId, lsSubNode, subTree);
+				}
+				lsRet.addAll(lsSubNode);
 			}
-			lsRet.addAll(lsSubNode);
+		}
+		
+		//如果没有树数据，且是根节点查询，则构建一个空节点
+		if (parentId.length() == 0 && lsRet.isEmpty()) {
+			lsRet.add(createRoot(mpTree));
 		}
 		
 		return lsRet;
@@ -514,6 +512,26 @@ public class TreeQuery extends BusinessObject {
 		treesql.append(" from " + mpTree.get("table_name") + " ");
 		
 		return treesql;
+	}
+	
+	/**
+	 * 构建一个根节点，用于返回树定义信息
+	 * @param mpTree
+	 * @return
+	 */
+	private Map<String,String> createRoot(Map<String,String> mpTree) {
+		Map<String,String> mpRet = FactoryUtil.newMap();
+		
+		mpRet.put("id", "10");
+		mpRet.put("text", "");
+		mpRet.put("leaf", "false");
+		mpRet.put("tree_no", mpTree.get("tree_no"));
+		mpRet.put("tree_title", mpTree.get("tree_title"));
+		mpRet.put("node_level", mpTree.get("node_level"));
+		mpRet.put("right_where", mpTree.get("right_where"));
+		mpRet.put("table_name", mpTree.get("table_name"));
+		
+		return mpRet;
 	}
 	
 	/**
