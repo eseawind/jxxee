@@ -316,6 +316,9 @@ Ext.ns('Jxstar');
 					node.attributes.table_name = attr.table_name;
 					node.attributes.node_level = attr.node_level;
 					node.attributes.right_where = attr.right_where;
+					
+					//临时根节点用于传递树定义信息，需要删除
+					if (child.id == '10') child.remove(true);
 				}
 			});
 			
