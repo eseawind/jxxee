@@ -1,7 +1,7 @@
 ﻿	config.eventcfg = {
 
 		createFun: function(){
-			var self = this;
+			var self = this;						var attr = self.grid.treeNodeAttr;			if(attr == null || !attr.leaf ) {				JxHint.alert('必须选择最底层模块，才能新增功能！');				return;			}			
 			var hintcall = function(btn, text) {
 				if (btn != 'ok') return;
 
@@ -9,11 +9,9 @@
 					self.grid.getStore().reload();
 				};
 				
-				var params = 'funid=sys_fun_base&cfunid='+ text +'&pagetype=editgrid&eventcode=create';				var attr = self.grid.treeNodeAttr;
-				//添加树型参数
-				if (attr) {
-					params += '&cmodid=' + attr.id;
-				}
+				var params = 'funid=sys_fun_base&cfunid='+ text +'&pagetype=editgrid&eventcode=create';
+				//添加模块ID
+				params += '&cmodid=' + attr.id;
 				
 				//发送请求
 				Request.postRequest(params, hdcall);
