@@ -564,12 +564,16 @@ public class TreeQuery extends BusinessObject {
 	 * @return
 	 */
 	private String getLevel(String parentId) {
-		String level = "1";
-		if (parentId.equals(ROOT_ID)) {
-			level = "1"; 
-		} else {
-			level = Integer.toString(parentId.length()/4+1);
+		//点击根节点时，返回的级别
+		if (parentId == null || parentId.length() == 0 || 
+				parentId.equals(ROOT_ID)) {
+			return "1";
 		}
-		return level;
+		//特殊树数据，第一级数据长度可能小于4
+		if (parentId.length() < 4) {
+			return "2";
+		}
+		//系统默认树形数据4为一级
+		return Integer.toString(parentId.length()/4+1);
 	}
 }
