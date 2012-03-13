@@ -108,13 +108,13 @@ Jxstar.currentPage = function() {
 		if (rpt_area != null) {
 			parent.rpt_area = null;
 			delete parent.rpt_area;
-			rpt_area.ownerCt.close();
+			if (rpt_area.ownerCt) rpt_area.ownerCt.close();
 		}
 		var rpt_head = parent.rpt_head;
 		if (rpt_head != null) {
 			parent.rpt_head = null;
 			delete parent.rpt_head;
-			rpt_head.ownerCt.close();
+			if (rpt_head.ownerCt) rpt_head.ownerCt.close();
 		}
 	};
 	var desPanel = tabFunction.getComponent(1);
