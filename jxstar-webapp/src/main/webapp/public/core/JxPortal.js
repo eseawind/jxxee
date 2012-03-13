@@ -30,8 +30,7 @@ JxPortal = {};
 		'portlet_board':PortletBoard, 
 		'portlet_result':PortletResult,
 		'portlet_resultg':PortletResultG,
-		'portlet_flow':PortletAssign,
-		'portlet_flownum':PortletAssignNum
+		'portlet_flow':PortletAssign
 	},
 	
 	/**
