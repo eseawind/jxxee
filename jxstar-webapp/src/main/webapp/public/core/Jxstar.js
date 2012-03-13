@@ -81,7 +81,7 @@ Ext.ns('Jxstar');
 			//功能对象信息
 			var define = Jxstar.findNode(nodeId);
 			if (define == null) {
-				JxHint.alert(String.format(jx.star.nopage, nodeId));	//'没有定义【{0}】功能页面信息！'
+				JxHint.alert(String.format(jx.star.nodef, nodeId));	//'没有定义【{0}】功能页面信息！'
 				return false;
 			}
 			
@@ -162,7 +162,7 @@ Ext.ns('Jxstar');
 				var pathname = define.layout;
 				if (pathname == null || pathname.length == 0) pathname = define.gridpage;
 				if (pathname == null || pathname.length == 0 || pathname.indexOf('.jsp') > -1) {
-					JxHint.alert(jx.star.dontuse);	//'演示系统，该功能不能使用！'
+					JxHint.alert(String.format(jx.star.nopage, nodeId));
 					return false;
 				}
 				Request.loadJS(pathname, hdCall);
@@ -188,7 +188,7 @@ Ext.ns('Jxstar');
 			//功能对象信息
 			var define = Jxstar.findNode(nodeId);
 			if (define == null) {
-				JxHint.alert(String.format(jx.star.nopage, nodeId));	//'没有定义【{0}】功能页面信息！'
+				JxHint.alert(String.format(jx.star.nodef, nodeId));	//'没有定义【{0}】功能页面信息！'
 				return;
 			}
 
@@ -693,7 +693,7 @@ Ext.ns('Jxstar');
 		*	where_sql -- 过滤语句
 		*	where_value -- 参数值 
 		*	where_type -- 参数类型
-		*	is_query -- 缺省值为0，为1表示是工具栏查询，则附加原查询语句查询，且不保存当前查询语句
+		*	is_query -- 为1表示是工具栏查询，则附加原查询语句查询，且不保存当前查询语句，为空则需要保存查询语句，如数据导入
 		*	query_type -- 缺省值为0，为1表示是高级查询，高级查询不处理归档，可以查询已复核的数据
 		*	has_page -- 缺省值为1，为1表示处理分页查询，否则不处理分页查询
 		*/
