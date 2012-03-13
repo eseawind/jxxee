@@ -249,6 +249,12 @@ Jxstar.GridNode.prototype = {
 				
 				//没有编辑权限的不能编辑
 				if (self.right.edit == '0') return false;
+				
+				//没有保存按钮或不可用，则不能编辑
+				var tools = event.grid.getTopToolbar();
+				var saveBtn = JxUtil.getButton(tools, 'save_eg');
+				if (saveBtn == null || saveBtn.disabled) return false;
+				
 				return true;
 			});
 		} else {
