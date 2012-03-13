@@ -21,7 +21,9 @@ Jxstar.currentPage = {
 		//属性
 		this.nodeId = nodeId;
 		this.target = target;
-
+		
+		var a = (new Date()).getTime(); 
+		
 		var self = this;
 		//取创建页面的函数
 		var hdCall = function(f) {
@@ -49,6 +51,9 @@ Jxstar.currentPage = {
 			target.add(page);
 			//重新显示目标窗口
 			target.doLayout();
+			
+			var b = (new Date()).getTime();
+			JxHint.hint('use time(ms): ' + (b-a));
 		};
 
 		//异步从Servlet中取文件加载页面

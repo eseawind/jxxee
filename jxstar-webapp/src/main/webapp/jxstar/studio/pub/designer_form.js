@@ -94,6 +94,21 @@ Jxstar.currentPage = {
 		self.designDDs = null;
 		self.designResizes = null;
 	},
+	
+	/**
+	 * 初始化列与字段的宽度
+	 **/
+	initWidth: function(colsnum) {
+		var self = this;
+		self.colnums = colsnum;
+		if (self.colnums == 2) {
+			self.initsize.colw = 340;
+			self.initsize.fieldw = 320;
+		} else {
+			self.initsize.colw = 220;
+			self.initsize.fieldw = 200;
+		}
+	},
 
 	/**
 	 * 显示设计器
@@ -106,10 +121,7 @@ Jxstar.currentPage = {
 		self.nodeId = nodeId;
 		
 		//设置列的缺省宽度
-		if (self.colnums == 2) {
-			self.initsize.colw = 340;
-			self.initsize.fieldw = 320;
-		}
+		self.initWidth(self.colnums);
 		
 		//设计面板的工具栏
 		var tbar = parent.getTopToolbar();
@@ -145,9 +157,18 @@ Jxstar.currentPage = {
 			{text:jx.fun.addfld, iconCls:'eb_add', handler:function(){self.createComponent('fdes-fielditem');}}		//'添加字段'
 		];
 		
+		var onItemClick = function(item){
+			var num = item.text.split(' ')[0];
+			self.initWidth(num);
+	    };
 		var extMenu = [
 			{text:jx.fun.ctlprop, handler:function(){self.updateProp();}},		//'控件属性'
 			{text:jx.fun.delctl, handler:function(){self.deleteComponent();}},	//'删除控件'
+			{text: 'form cols', menu:{items: [									//'设置表单列数'
+             {text:'2 cols', checked: true, group: 'colsnum', checkHandler: onItemClick},
+             {text:'3 cols', checked: false, group: 'colsnum', checkHandler: onItemClick}
+             ]}
+			},
 			'-',
 			//{text:jx.wfx.imp, iconCls:'eb_imp', handler:function(){JxHint.alert('演示版功能暂不提供！');}},	//'导入设计'
 			{text:jx.wfx.exp, iconCls:'eb_exp', handler:function(){self.exportDesign();}}	//'导出设计'
@@ -181,16 +202,17 @@ Jxstar.currentPage = {
 		//显示设计画布
 		self.parentEl.insertHtml('beforeEnd', 
 						'<div id="maincanvas" class="fdes-canvas x-unselectable" style="height:'+ bgheight +'px;"></div>');
-		
+
 		//显示设计画布中的网格
+		var vhtml = '';
 		for (var i = 0; i < self.bgsize.cols; i++) {
 			for (var j = 0; j < self.bgsize.rows; j++) {
 				var stop = 10+j*self.bgsize.height;
 				var sleft = 10+i*self.bgsize.width;
-				self.parentEl.insertHtml('beforeEnd', 
-					'<div class="fdes-grid x-unselectable" style="top:'+stop+'px;left:'+sleft+'px;"></div>')
+				vhtml += '<div class="fdes-grid x-unselectable" style="top:'+stop+'px;left:'+sleft+'px;"></div>';
 			}
 		}
+		self.parentEl.insertHtml('beforeEnd', vhtml);
 		
 		//添加一个覆盖整个设计面板的DIV，用于处理底部的鼠标事件
 		var maxw = self.parentEl.getWidth();
@@ -289,6 +311,8 @@ Jxstar.currentPage = {
 	 * 
 	 **/
 	readDesign: function() {
+		var a = (new Date()).getTime(); 
+		
 		var self = this;
 		//读取设计文件后的回调函数
 		var hdCall = function(xml) {
@@ -307,6 +331,12 @@ Jxstar.currentPage = {
 
 			//生成所有form控件
 			self.parseFormXML(pageDom, state);
+			
+			//把元素添加到页面中
+			self.insertCompHtml();
+			
+			var b = (new Date()).getTime();
+			JxHint.hint('use time(ms): ' + (b-a)); 
 		};
 
 		//从数据库中读取设计文件，colnums指表单缺省显示几列
@@ -680,25 +710,74 @@ Jxstar.currentPage = {
 		
 		//添加控件并取当前控件
 		var curEl = self.parentEl.insertHtml('beforeEnd', html, true);
+		//添加移动与缩放属性
+		self.addCompDD(curEl);
 		
+		return curEl;
+	},
+	
+	/**
+	 * 把readDesign方法中的元素对象的html添加到全局变量中
+	 **/
+	addCompHtml: function(id, html) {
+		this.compnum++;
+		if (this.compHtml == undefined) {
+			this.compHtml = '';
+		}
+		
+		//添加布局元素的html
+		this.compHtml += html;
+	},
+	
+	/**
+	 * 把readDesign方法中的元素对象添加页面中
+	 **/
+	insertCompHtml: function() {
+		var self = this;
+		self.parentEl.insertHtml('beforeEnd', self.compHtml);
+		
+		var selector = 'div.fdes-fielditem, div.fdes-columnitem, div.fdes-formitem';
+		//要添加true参数，否则取到的是fly共享对象
+		self.parentEl.select(selector, true).each(self.addCompDD, self);
+		
+		//清除临时全局变量
+		self.compHtml = null;
+		delete self.compHtml;
+	},
+	
+	/**
+	 * 给布局元素添加移动、缩放特性
+	 * el -- 元素
+	 **/
+	addCompDD: function(el) {
+		var self = this;
 		//创建拖动对象；暂时不处理限制移动范围，因为当设计面板的scroll.top大于0时，创建的控件移动有问题。
-		var dd = new Ext.dd.DD(id);//new Ext.ux.DDRegion(id, '', {cont:self.parentEl});//unreg
+		var dd = new Ext.dd.DD(el.dom.id);
         dd.setXConstraint(800, 800, 10);
         dd.setYConstraint(1500, 1500, 10);//modify by tony.tan, 原来的值是500，调整为1500，方面调整多字段界面。
 		self.designDDs.push(dd);
 		
-		//创建可缩放对象destroy
-		var re = new Ext.Resizable(curEl, {minWidth:120, minHeight:22});
-		//调整form的高度，内部column高度自动调整
-		self.resizeForm(re);
-		self.designResizes.push(re);
+		//点击时，才创建可缩放对象，提供性能
+		el.on('click', function(){
+			var curEl = this, hasRe = false;
+			Ext.each(self.designResizes, function(item){
+				if (item.getEl().id == curEl.id) {
+					hasRe = true; return;
+				}
+			});
+			//如果已创建了缩放对象，则不用创建了
+			if (hasRe) return;
+			
+			var re = new Ext.Resizable(curEl, {minWidth:120, minHeight:22});
+			//调整form的高度，内部column高度自动调整
+			self.resizeForm(re);
+			self.designResizes.push(re);
+		});
 		
 		//双击时显示属性设置
-		curEl.on('dblclick', function(){self.updateProp();});
+		el.on('dblclick', function(){self.updateProp();});
 		//处理单个控件的选择、拖动事件
-		self.initClickEl(curEl);
-		
-		return curEl;
+		self.initClickEl(el);
 	},
 	
 	/**
@@ -784,7 +863,7 @@ Jxstar.currentPage = {
 				'<div id="'+id+'" class="fdes-formitem x-unselectable" style="top:'+y+';left:'+x+';width:'+w+';height:'+h+
 				';" title="'+title+'" collapsible="'+collapsible+'" collapsed="'+collapsed+'">F</div>';
 
-			self.createComponentByHtml(id, html);
+			self.addCompHtml(id, html);
 			
 			//生成form内的所有column控件
 			self.parseColumnXML(node, state, x, y);
@@ -827,7 +906,7 @@ Jxstar.currentPage = {
 				'<div id="'+id+'" class="fdes-columnitem x-unselectable" style="top:'+y+';left:'+x+';width:'+w+';height:'+h+
 				';" colwidth="'+colwidth+'">C</div>';
 
-			self.createComponentByHtml(id, html);
+			self.addCompHtml(id, html);
 			
 			//生成column内的所有field控件
 			self.parseFieldXML(node, state, x, y);
@@ -880,7 +959,7 @@ Jxstar.currentPage = {
 				';" title="'+title+'" colcode="'+colcode+
 				'" visible="'+visible+'" xtype="'+xtype+'">'+ title +'</div>';
 
-			self.createComponentByHtml(id, html);
+			self.addCompHtml(id, html);
 		}
 	},
 	
