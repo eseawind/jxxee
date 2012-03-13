@@ -465,6 +465,33 @@ JxUtil = {};
 		},
 		
 		/**
+		 * 显示已审批的记录
+		 * nodeId -- 功能ID
+		 * dataId -- 数据ID
+		 * userId -- 用户ID
+		 **/
+		showCheckHisData: function(nodeId, dataId, userId) {
+			//取功能对象信息
+			var define = Jxstar.findNode(nodeId);
+			if (define == null) {
+				JxHint.alert(String.format(jx.star.nopage, nodeId));	//'没有定义【{0}】功能页面信息！'
+				return false;
+			}
+			
+			//构建页面参数
+			var pkcol = define.pkcol.replace('__', '.');
+			var pageParam = {
+				pageType: 'check', 
+				whereSql: ' exists (select * from wf_assignhis where check_userid = ? and fun_id = ? and data_id = '+ pkcol +')',
+				whereValue: userId+';'+nodeId,
+				whereType: 'string;string',
+				showType: 'grid',
+				updateId: dataId
+			};
+			Jxstar.createNode(nodeId, pageParam);
+		},
+		
+		/**
 		 * 显示流程相关信息界面
 		 * appData -- 相关数据
 		 * fileName -- 相关信息界面文件
