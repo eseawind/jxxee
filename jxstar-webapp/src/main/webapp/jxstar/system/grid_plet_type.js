@@ -14,7 +14,7 @@
 		editor:new Ext.form.TextField({
 			maxLength:50, allowBlank:false
 		})}, field:{name:'plet_type__iconcls',type:'string'}},
-	{col:{header:'*建议高度', width:70, sortable:true, defaultval:'220', align:'right',
+	{col:{header:'*高度', width:70, sortable:true, defaultval:'220', align:'right',
 		editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.NumberField({
 			maxLength:12, allowBlank:false

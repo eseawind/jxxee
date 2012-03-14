@@ -34,6 +34,11 @@
 					return pletcolnoData[i][1];
 			}
 		}}, field:{name:'plet_portlet__col_no',type:'string'}},
+	{col:{header:'折叠?', width:58, sortable:true, defaultval:'0', editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.Checkbox(),
+		renderer:function(value) {
+			return value=='1' ? jx.base.yes : jx.base.no;
+		}}, field:{name:'plet_portlet__collapse',type:'string'}},
 	{col:{header:'栏目名称', width:100, sortable:true}, field:{name:'plet_portlet__type_name',type:'string'}},
 	{col:{header:'模板ID', width:100, sortable:true, hidden:true}, field:{name:'plet_portlet__templet_id',type:'string'}},
 	{col:{header:'栏目ID', width:100, sortable:true, hidden:true}, field:{name:'plet_portlet__type_id',type:'string'}},
