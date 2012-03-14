@@ -53,10 +53,4 @@ PortletResultG = {};
 	}
 	
 	});//Ext.apply
-	
-	//5分钟刷新一次
-	Ext.TaskMgr.start({
-		run: function() {PortletResultG.refresh();},
-		interval: 1000*60*5
-	});
 })();
