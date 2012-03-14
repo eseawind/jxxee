@@ -2,8 +2,8 @@
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 
 	var cols = [
-	{col:{header:'任务名称', width:260, sortable:true}, field:{name:'wf_instance__process_name',type:'string'}},
-	{col:{header:'任务数量', width:120, sortable:true, renderer:JxUtil.formatInt()}, field:{name:'process_num',type:'int'}},
+	{col:{header:'任务名称', width:220, sortable:true}, field:{name:'wf_instance__process_name',type:'string'}},
+	{col:{header:'任务数量', width:80, sortable:true, renderer:JxUtil.formatInt()}, field:{name:'process_num',type:'int'}},
 	{col:{header:'过程ID', width:100, sortable:true, hidden:true}, field:{name:'wf_instance__process_id',type:'string'}},
 	{col:{header:'功能ID', width:100, sortable:true, hidden:true}, field:{name:'wf_assign__fun_id',type:'string'}}
 	];
