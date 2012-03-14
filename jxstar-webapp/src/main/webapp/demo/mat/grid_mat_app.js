@@ -30,7 +30,7 @@
 			return value ? value.format('Y-m-d') : '';
 		}}, field:{name:'mat_app__app_date',type:'date'}},
 	{col:{header:'项目名称', width:183, sortable:true}, field:{name:'mat_app__project_name',type:'string'}},
-	{col:{header:'预算金额(万元)', width:100, sortable:true, renderer:JxUtil.formatNumber(2)}, field:{name:'mat_app__app_money',type:'float'}},
+	{col:{header:'预算金额(万元)', width:100, sortable:true, renderer:JxUtil.formatNumber(6)}, field:{name:'mat_app__app_money',type:'float'}},
 	{col:{header:'申请人', width:74, sortable:true}, field:{name:'mat_app__app_user',type:'string'}},
 	{col:{header:'申请部门', width:100, sortable:true}, field:{name:'mat_app__dept_name',type:'string'}},
 	{col:{header:'采购负责人', width:81, sortable:true}, field:{name:'mat_app__stock_user',type:'string'}},

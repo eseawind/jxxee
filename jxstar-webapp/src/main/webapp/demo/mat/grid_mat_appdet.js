@@ -20,6 +20,11 @@
 		editor:new Ext.form.NumberField({
 			decimalPrecision:2, maxLength:12, allowBlank:false
 		}),renderer:JxUtil.formatNumber(2)}, field:{name:'mat_appdet__mat_num',type:'float'}},
+	{col:{header:'*预算金额(万元)', width:120, sortable:true, defaultval:'0', align:'right',
+		editable:true, hcss:'color:#0000ff;',
+		editor:new Ext.form.NumberField({
+			decimalPrecision:6, maxLength:12, allowBlank:false
+		}),renderer:JxUtil.formatNumber(6)}, field:{name:'mat_appdet__mat_money',type:'float'}},
 	{col:{header:'类别名称', width:153, sortable:true}, field:{name:'mat_base__type_name',type:'string'}},
 	{col:{header:'物资ID', width:100, sortable:true, hidden:true}, field:{name:'mat_appdet__mat_id',type:'string'}},
 	{col:{header:'类别ID', width:100, sortable:true, hidden:true}, field:{name:'mat_base__type_id',type:'string'}},
