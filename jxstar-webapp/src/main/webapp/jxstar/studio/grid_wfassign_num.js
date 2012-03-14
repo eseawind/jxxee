@@ -37,10 +37,21 @@
 	config.initpage = function(gridNode){
 		var grid = gridNode.page;
 		
+		var cnt = 0;
 		var wsql = 'wf_assign.assign_userid = ?';
 		var wvalue = JxDefault.getUserId();
 		var wtype = 'string';
 		Jxstar.loadData(grid, {where_sql:wsql, where_value:wvalue, where_type:wtype, has_page:'0'});
+		
+		//5分钟刷新一次
+		Ext.TaskMgr.start({
+			run: function() {
+				if (cnt == 0) {cnt++; return;}
+				//JxHint.hint(cnt + ';' + grid.id);
+				Jxstar.loadData(grid, {where_sql:'', where_value:'', where_type:'', is_query:1});
+			},
+			interval: 1000*60*5
+		});
 	};
 		
 	return new Jxstar.GridNode(config);
