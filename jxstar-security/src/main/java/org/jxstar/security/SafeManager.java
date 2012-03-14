@@ -64,6 +64,30 @@ public class SafeManager {
 		Date curDate = Calendar.getInstance().getTime();
 		return getCode(curDate);
 	}
+	
+	/**
+	 * 是否为企业版本
+	 * @return
+	 */
+	public boolean isEE() {
+		License lic = readLicense("");
+		if (lic == null) return false;
+		
+		if (SafeUtil.encode(lic.versionType).equals("EE")) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
+	 * 修改平台版本类型
+	 * @return
+	 */
+	public void updateEE() {
+		String type = isEE() ? "EE" : "SE";
+		SystemVar.setValue("sys.version.type", type);
+	}
 
 	/**
 	 * 创建新的许可文件

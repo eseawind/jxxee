@@ -20,6 +20,7 @@ public class License implements Serializable {
 	//公共信息
 	public int[] productName;	//产品名称，如：东宏软件开发平台
 	public int[] versionNo;		//版本号，如：V1.0
+	public int[] versionType;	//版本类型，如：EE|SE
 	public int[] customer;		//客户名称，如：中国石油公司
 	public int[] userNum;		//控制用户数，如：10
 	public int[] developer;		//开发商，如：广州市东宏软件科技有限公司
