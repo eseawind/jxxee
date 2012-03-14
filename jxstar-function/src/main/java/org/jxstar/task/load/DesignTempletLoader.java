@@ -36,6 +36,7 @@ public class DesignTempletLoader extends SystemLoader {
 			_log.showDebug("jxstar load " + endTime);
 		}
 		
+		_safe.updateEE();
 		int code = _safe.validCode();
 		if (code > 0) return false;
 		
