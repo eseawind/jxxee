@@ -710,13 +710,25 @@ Ext.ns('Jxstar');
 				var old_wtype = grid.jxstarParam.old_wtype;
 				var old_wvalue = grid.jxstarParam.old_wvalue;
 				if (old_wsql && old_wsql.length > 0) {
-					options.where_sql = '(' + old_wsql + ') and (' + options.where_sql + ')';
+					if (options.where_sql && options.where_sql.length > 0) {
+						options.where_sql = '(' + old_wsql + ') and (' + options.where_sql + ')';
+					} else {
+						options.where_sql = old_wsql;
+					}
 				}
 				if (old_wtype && old_wtype.length > 0) {
-					options.where_type = old_wtype + ';' + options.where_type;
+					if (options.where_type && options.where_type.length > 0) {
+						options.where_type = old_wtype + ';' + options.where_type;
+					} else {
+						options.where_type = old_wtype;
+					}
 				}
 				if (old_wvalue && old_wvalue.length > 0) {
-					options.where_value = old_wvalue + ';' + options.where_value;
+					if (options.where_value && options.where_value.length > 0) {
+						options.where_value = old_wvalue + ';' + options.where_value;
+					} else {
+						options.where_value = old_wvalue;
+					}
 				}
 			}
 			
