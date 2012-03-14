@@ -49,6 +49,11 @@ public class XlsToHtmlBO extends BusinessObject {
 			setMessage(JsMessage.getValue("license.notvalid"), code);
 			return _returnFaild;
 		}
+		//企业版才可以使用此功能
+		if (!SafeManager.getInstance().isEE()) {
+			setMessage(JsMessage.getValue("license.notee"), code);
+			return _returnFaild;
+		}
 		
 		//取报表定义信息
 		Map<String,String> mpReport = ReportDao.getReport(reportId);

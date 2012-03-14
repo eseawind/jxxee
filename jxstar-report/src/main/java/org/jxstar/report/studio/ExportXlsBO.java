@@ -56,6 +56,11 @@ public class ExportXlsBO extends BusinessObject {
 			setMessage(JsMessage.getValue("license.notvalid"), code);
 			return _returnFaild;
 		}
+		//企业版才可以使用此功能
+		if (!SafeManager.getInstance().isEE()) {
+			setMessage(JsMessage.getValue("license.notee"), code);
+			return _returnFaild;
+		}
 		
 		//取功能定义对象
 		Map<String,String> mpDefine = FunDefineDao.queryFun(funid);
