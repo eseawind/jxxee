@@ -109,6 +109,7 @@ public class PortalQuery extends BusinessObject {
 			sbitems.append("colno:'"+ mpPort.get("col_no") +"', ");
 			sbitems.append("iconCls:'"+ mpPort.get("iconcls") +"', ");
 			sbitems.append("height:'"+ mpPort.get("height") +"', ");
+			sbitems.append("collapse:'"+ mpPort.get("collapse") +"', ");
 			sbitems.append("typecode:'"+ mpPort.get("type_code") +"', ");
 			sbitems.append("objectid:'"+ mpPort.get("object_id") +"'}");
 			sbitems.append((i < n - 1) ? ",\n" : "\n");
@@ -124,11 +125,14 @@ public class PortalQuery extends BusinessObject {
 	 */
 	private List<Map<String,String>> queryPortlet(String templetId) {
 		StringBuilder sql = new StringBuilder();
-		sql.append("select plet_type.type_code,portlet_id,portlet_no,portlet_title, ");
-		sql.append("col_no,templet_id,object_id,object_name, iconcls,height ");
+		sql.append("select plet_type.type_code, plet_type.iconcls, plet_type.height, ");
+		sql.append("plet_portlet.portlet_id, plet_portlet.portlet_no, ");
+		sql.append("plet_portlet.portlet_title, plet_portlet.collapse,");
+		sql.append("plet_portlet.col_no, plet_portlet.templet_id, ");
+		sql.append("plet_portlet.object_id, plet_portlet.object_name ");
 		sql.append("from plet_portlet, plet_type ");
-		sql.append("where plet_portlet.type_code = plet_type.type_code and templet_id = ? ");
-		sql.append("order by col_no, portlet_no ");
+		sql.append("where plet_portlet.type_code = plet_type.type_code and plet_portlet.templet_id = ? ");
+		sql.append("order by plet_portlet.col_no, plet_portlet.portlet_no ");
 		
 		DaoParam param = _dao.createParam(sql.toString());
 		param.addStringValue(templetId);
