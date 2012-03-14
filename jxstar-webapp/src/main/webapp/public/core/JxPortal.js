@@ -206,10 +206,14 @@ JxPortal = {};
 				iconCls: item.iconCls,
                 layout: 'fit',
                 tools: JxPortal.tools,
-                height:  parseInt(item.height),
+                height: parseInt(item.height),
+                collapsed: (item.collapse == '1'),
 				pletid: item.id,			//portletid，后台需要的参数
                 typecode: item.typecode,	//portlet类型的编码，后台需要的参数
-				objectid: item.objectid		//结果集与KPI类型的需要用objectid找具体的实例对象
+				objectid: item.objectid,	//结果集与KPI类型的需要用objectid找具体的实例对象
+				listeners: {
+					expand: function(){this.setHeight(parseInt(item.height));}
+				}
 			};
 			//添加到列数组中
 			var len = colitems[colno].length;
