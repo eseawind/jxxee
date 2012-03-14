@@ -7,15 +7,18 @@
 	
 	String svnNum = SystemVar.getValue("index.svn", "40");
 	String indexType = SystemVar.getValue("index.type", "0");
-	String indexName = SystemVar.getValue("index.name", "JXstar软件开发平台企业版 V1.0");
+	String indexName = SystemVar.getValue("index.name", "JXstar软件开发平台");
 	String indexBottom = SystemVar.getValue("index.bottom", "");
+	
+	String verNo = SystemVar.getValue("sys.version.no", "V1.0.0.0");
+	String verType = SystemVar.getValue("sys.version.type", "");
 	
 	String loginCss = "resources/css/login.css?verno=" + svnNum;
 	if (indexType.equals("1")) loginCss = "resources/project/css/login.css?verno=" + svnNum;
 %>
 <html>
 <head>
-	<title id='product_name'><%=indexName%></title>
+	<title id='product_name'><%=indexName%>-<%=verType%>-<%=verNo%></title>
 	<link rel="stylesheet" type="text/css" href="<%=loginCss%>" />
 </head>
 <body scroll="no">
