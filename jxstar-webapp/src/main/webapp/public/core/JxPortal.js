@@ -63,6 +63,9 @@ JxPortal = {};
 	 * 从系统中取portal配置，构建后显示在target中
 	 **/
 	createMainPortal: function(target) {
+		//重新加载portal时，关闭所有的定时任务
+		Ext.TaskMgr.stopAll();
+		
 		var hdcall = function(portalsJson) {
 			if (portalsJson == null || portalsJson.portalnum == 0) {
 				JxHint.alert(jx.port.notemp);	//'当前用户所属的角色没有定义首页模板！'
