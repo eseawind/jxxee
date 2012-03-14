@@ -64,6 +64,11 @@ public class WfDesignBO extends BusinessObject {
 			setMessage(JsMessage.getValue("license.notvalid"), code);
 			return _returnFaild;
 		}
+		//企业版才可以使用此功能
+		if (!SafeManager.getInstance().isEE()) {
+			setMessage(JsMessage.getValue("license.notee"), code);
+			return _returnFaild;
+		}
 
 		String[] nodeIds = getValues(request, "nodeIds");
 		String[] nodeTypes = getValues(request, "nodeTypes");
