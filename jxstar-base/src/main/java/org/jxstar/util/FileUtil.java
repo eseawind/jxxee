@@ -41,8 +41,9 @@ public class FileUtil {
 	}
 	
 	public static boolean saveFile(String fileName, String content) {
-		return saveFile(fileName, content);
+		return saveFile(fileName, content, Charset.defaultCharset().name());
 	}
+	
 	public static boolean saveFileUtf8(String fileName, String content) {
 		return saveFile(fileName, content, "UTF-8");
 	}
