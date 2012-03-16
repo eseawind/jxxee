@@ -24,6 +24,7 @@ public class LicenseReader {
 		
 		String str = "productName: " + SafeUtil.encode(lic.productName) + ";\n";
 		str += "versionNo: " + SafeUtil.encode(lic.versionNo) + ";\n";
+		str += "versionType: " + SafeUtil.encode(lic.versionType) + ";\n";
 		str += "customer: " + SafeUtil.encode(lic.customer) + ";\n";
 		str += "userNum: " + SafeUtil.encode(lic.userNum) + ";\n";
 		str += "developer: " + SafeUtil.encode(lic.developer) + ";\n";
