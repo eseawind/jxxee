@@ -40,10 +40,22 @@ public class FileUtil {
 		return file.exists();
 	}
 	
+	/**
+	 * 采用GBK编码方式保存文件
+	 * @param fileName -- 文件名，含路径
+	 * @param content -- 文件内容
+	 * @return
+	 */
 	public static boolean saveFile(String fileName, String content) {
-		return saveFile(fileName, content, Charset.defaultCharset().name());
+		return saveFile(fileName, content, "GBK");//Charset.defaultCharset().name()
 	}
 	
+	/**
+	 * 采用UTF-8编码方式保存文件
+	 * @param fileName -- 文件名，含路径
+	 * @param content -- 文件内容
+	 * @return
+	 */
 	public static boolean saveFileUtf8(String fileName, String content) {
 		return saveFile(fileName, content, "UTF-8");
 	}
