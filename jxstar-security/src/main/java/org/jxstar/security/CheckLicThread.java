@@ -34,6 +34,8 @@ public class CheckLicThread extends Thread {
 			//System.out.println("....................百度时间：" + time);
 			//如检查为非法，则会自动修改非法标志
 			manger.validCode(netDate);
+			//检查平台版本类型
+			manger.updateEE();
 		}
 	}
 }
