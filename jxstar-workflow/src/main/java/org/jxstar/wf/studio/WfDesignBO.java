@@ -66,7 +66,7 @@ public class WfDesignBO extends BusinessObject {
 		}
 		//企业版才可以使用此功能
 		if (!SafeManager.getInstance().isEE()) {
-			setMessage(JsMessage.getValue("license.notee"), code);
+			setMessage(JsMessage.getValue("license.notee"));
 			return _returnFaild;
 		}
 
