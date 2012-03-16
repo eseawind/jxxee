@@ -33,7 +33,7 @@
 		"</div>";
 
 	var imgpath = './resources/images/top-app.png';
-	if (Jxstar.indexType == '1') imgpath = './resources/project/images/top-app.png';
+	if (Jxstar.systemVar.indexType == '1') imgpath = './resources/project/images/top-app.png';
     var topPanel = new Ext.Panel({
 		region:'north',
         layout:'border',
@@ -41,7 +41,7 @@
 		border:true,
 	    items:
 		[{
-			width: (Jxstar.indexType == '1') ? 64 : 146,
+			width: (Jxstar.systemVar.indexType == '1') ? 64 : 146,
 			region:'west',
 			border:false,
 	        id:'top_left_img',
