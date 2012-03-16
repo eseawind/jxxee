@@ -42,12 +42,13 @@ public class ReportAction extends Action {
 		//许可检测
 		int code = SafeManager.getInstance().validCode();
 		if (code > 0) {
-			try {
-				String msg = JsMessage.getValue("license.notvalid", code);
-				response.getWriter().write(msg);
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			String msg = JsMessage.getValue("license.notvalid", code);
+			responseWrite(response, msg);
+			return;
+		}
+		//企业版才可以使用此功能
+		if (!SafeManager.getInstance().isEE()) {
+			responseWrite(response, JsMessage.getValue("license.notee"));
 			return;
 		}
 		
@@ -90,11 +91,7 @@ public class ReportAction extends Action {
 			}
 			
 			//反馈响应信息
-			try {
-				response.getWriter().write(e.getMessage());
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			responseWrite(response, e.getMessage());
 		}
 	}
 
@@ -300,5 +297,18 @@ public class ReportAction extends Action {
 		}
 		
 		return val;
+	}
+	
+	/**
+	 * 输出消息到前台
+	 * @param response
+	 * @param msg
+	 */
+	private void responseWrite(HttpServletResponse response, String msg) {
+		try {
+			response.getWriter().write(JsMessage.getValue("license.notee"));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }
