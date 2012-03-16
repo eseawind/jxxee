@@ -58,6 +58,9 @@ Ext.ns('Jxstar');
 		//流程绘图对象，在designer_process.render方法中创建绘图对象
 		editor: null,
 		
+		//保存系统环境变量
+		systemVar: {},
+		
 		/**
 		* 在首页的TAB上打开一个功能页面，
 		* 
@@ -657,6 +660,8 @@ Ext.ns('Jxstar');
 				return false;
 			}
 			fkName = fkName.replace('__', '.');
+			//添加外键值
+			grid.fkValue = fkval;
 			
 			//提交后台查询请求
 			var wsql = fkName + ' = ?';
@@ -666,14 +671,11 @@ Ext.ns('Jxstar');
 			if (grid.subWhereSql) {
 				whereParam.where_sql = grid.subWhereSql();
 			}
-			//扩展子功能whereparam
+			//扩展子功能whereparam，可以自定义修改外键值
 			if (grid.subWhereParam) {
 				whereParam = grid.subWhereParam();
 			}
 			Jxstar.loadData(grid, whereParam);
-
-			//添加外键值
-			grid.fkValue = fkval;
 		},
 
 		/**

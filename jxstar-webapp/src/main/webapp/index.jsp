@@ -140,7 +140,8 @@
 </body>
 <script language="javascript">
 Jxstar.path = '<%=contextpath%>';
-Jxstar.indexType = '<%=indexType%>';
+Jxstar.systemVar.indexType = '<%=indexType%>';
+Jxstar.systemVar.verType = '<%=verType%>';
 
 Ext.BLANK_IMAGE_URL = Jxstar.path + '/public/lib/ext/resources/images/default/s.gif';
 Ext.chart.Chart.CHART_URL = Jxstar.path + '/public/lib/ext/resources/charts.swf';
@@ -224,7 +225,7 @@ Ext.onReady(function() {
 	
 	//登陆按钮
 	Ext.fly('loginbtn').on('click', f_login);
-	if (Jxstar.indexType == '1') {
+	if (Jxstar.systemVar.indexType == '1') {
 		Ext.fly('returnbtn').on('click', function(){
 			usercodeEl.dom.value = "";
 			userpassEl.dom.value = "";
