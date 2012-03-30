@@ -246,8 +246,12 @@ JxSelect = {};
 					}
 				}
 			} else {
-				var ct = parentField.ownerCt;
-				var form = ct.findParentByType('form');
+				var form = parentField.ownerCt;
+				//有些自定义的form页面，字段的容器对象就是form
+				if (form.isXType('form') == false) {
+					form = form.findParentByType('form');
+				}
+				
 				if (form) {
 					tagRecord = form.getForm();
 				}
