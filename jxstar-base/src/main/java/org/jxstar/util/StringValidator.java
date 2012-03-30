@@ -47,9 +47,14 @@ public class StringValidator {
 
 		try {
 			if (value == null || value.length() == 0) return true;
+			if (type == null || type.length() == 0) return true;
 			
-			Pattern p = Pattern.compile(regex(type));
-			ret = p.matcher(value).matches();
+			String regex = regex(type);
+			if (regex == null || regex.length() == 0) return true;
+			
+			Pattern p = Pattern.compile(regex);
+			//只匹配字符串开始部分
+			ret = p.matcher(value).lookingAt();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return false;
@@ -73,6 +78,6 @@ public class StringValidator {
         } else if (type.equalsIgnoreCase("other_date")){
             return _otherDate;
         }
-	    return type;
+	    return "";
 	}
 }
