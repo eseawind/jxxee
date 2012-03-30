@@ -45,7 +45,13 @@
 				items:[
 					{xtype:'datefield', fieldLabel:'申请日期', name:'mat_app__app_date', defaultval:'fun_getToday()', format:'Y-m-d', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%'},
 					{xtype:'textfield', fieldLabel:'申请人', name:'mat_app__app_user', defaultval:'fun_getUserName()', readOnly:true, anchor:'100%', maxLength:20},
-					{xtype:'textfield', fieldLabel:'申请部门', name:'mat_app__dept_name', defaultval:'fun_getDeptName()', readOnly:true, anchor:'100%', maxLength:50},
+					{xtype:'trigger', fieldLabel:'申请部门', name:'mat_app__dept_name', defaultval:'fun_getDeptName()',
+						anchor:'100%', triggerClass:'x-form-search-trigger',
+						maxLength:50, editable:false,
+						onTriggerClick: function() {
+							var selcfg = {pageType:'combogrid', nodeId:'sys_dept', layoutPage:'/public/layout/layout_tree.js', sourceField:'', targetField:'', whereSql:"", whereValue:'', whereType:'', isSame:'1', isShowData:'1', isMoreSelect:'0',isReadonly:'1',fieldName:'mat_app.dept_name'};
+							JxSelect.createSelectWin(selcfg, this, 'node_mat_app_form');
+						}},
 					{xtype:'textfield', fieldLabel:'申请单号', name:'mat_app__app_code', readOnly:true, anchor:'100%', maxLength:20},
 					{xtype:'hidden', fieldLabel:'主键', name:'mat_app__app_id', anchor:'100%'}
 				]
