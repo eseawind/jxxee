@@ -246,7 +246,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	**/
 	checkAudit: function(auditval) {
 		if (auditval == null) auditval = '1';
-
+		
 		var records = this.grid.getSelectionModel().getSelections();
 		for (var i = 0; i < records.length; i++) {
 			var auditcol = this.define.auditcol;
@@ -257,7 +257,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			
 			if (auditval == '0') {
 				if (state != '1'){
-					JxHint.alert(jx.event.selaudit0);		//选择的记录中存在未复核的记录，不能操作！
+					JxHint.alert(jx.event.selaudit0);	//选择的记录中存在未复核的记录，不能操作！
 					return true;
 				}
 			} else {
@@ -335,6 +335,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	**/
 	baseAudit : function(auditval) {
 		var keyids = [];
+		var cm = this.grid.getColumnModel();
 		var records = this.grid.getSelectionModel().getSelections();
 		if (!JxUtil.selected(records)) return;
 		
@@ -346,13 +347,56 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 
 		if (this.checkAudit(auditval)) return;
 		if (this.fireEvent('beforeaudit', this) == false) return;
-
+		
 		var self = this;
+		//取第二个Tab的表单
+		var isReqCheck = true, myForm = null;
+		if (self.grid.isXType('editorgrid') == false) {
+			var f = JxUtil.getMyForm(self.grid);
+			if (f) {
+				myForm = f.getForm();
+			} else {
+				//如果是普通表格，又没有找到表单对象
+				isReqCheck = false;
+			}
+		}
+
 		var define = this.define;
 		var hdcall = function() {
 			//取选择记录的主键值
 			var params = 'funid='+ self.define.nodeid;
 			for (var i = 0; i < records.length; i++) {
+				//check request field -------
+				var record = records[i];
+				var fields = record.fields.keys;
+				for (var j = 0; isReqCheck && (j < fields.length); j++) {
+					var name = fields[j];
+					var value = record.data[name];
+					if (value == null) value = '';
+
+					//如果可编辑表格，则取表格字段，否则取表单字段
+					var field = null;
+					if (self.grid.isXType('editorgrid')) {
+						var colIndex = cm.findColumnIndex(name);
+						var rowIndex = self.grid.getStore().indexOfId(record.id);
+						var editor = cm.getCellEditor(colIndex, rowIndex);
+						if (editor) field = editor.field;
+					} else {
+						if (myForm) {
+							field = myForm.findField(name);
+						}
+					}
+					
+					if (field != null && !field.validateValue(value)) {
+						var index = self.grid.getStore().indexOf(record);
+						var label = cm.getColumnHeader(cm.findColumnIndex(name));
+						var hint = String.format(jx.event.auditvalid, index+1, label);
+						JxHint.alert(hint);	//第【{0}】条记录的【{1}】数据不完整！
+						return;
+					}
+				}
+				//end check request field -------
+				
 				params += '&keyid=' + records[i].get(self.define.pkcol);
 			}
 			//设置请求的参数

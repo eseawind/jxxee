@@ -124,6 +124,19 @@ JxUtil = {};
 			}
 		},
 		
+		//根据表格取表单对象
+		getMyForm: function(myGrid) {
+			var tabPanel = myGrid.findParentByType('tabpanel');
+			if (tabPanel == null) return null;
+			if (tabPanel.getComponent(1) == null) return null;
+			
+			var formPanel = tabPanel.getComponent(1).getComponent(0);
+			if (formPanel == null || !formPanel.isXType('form')) {
+				return null;
+			}
+			return formPanel;
+		},
+		
 		//在功能区域的表单或子表中取得父功能的表格
 		getParentGrid: function(childCmp) {
 			//取到tab控件，而后取第一个页面中的表格
