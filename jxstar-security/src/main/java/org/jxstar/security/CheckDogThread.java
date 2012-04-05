@@ -22,12 +22,13 @@ public class CheckDogThread extends Thread {
 	public void run() {
 		SafeManager manger = SafeManager.getInstance();
 		
-		while(true) {
+		while(true && !this.isInterrupted()) {
 			//等待检查间隔时间
 			try {
 				sleep(10*60*1000);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				//e.printStackTrace();
+				return;//关闭异常信息，避免泄露信息
 			}
 			//检查许可key的有效性
 			int code = LicenseKey.validKey();
