@@ -403,9 +403,15 @@ Ext.ns('Jxstar');
 					var right_table = grid.gridNode ? grid.gridNode.define.tablename : '';
 					if (table_name.length > 0 && table_name == right_table && 
 					   (attr.tree_no == '1' || attr.tree_no == '')) {
-						where_sql += ' and ' + attr.node_level + ' = ?';
-						where_value += ';' + treeLevel;
-						where_type += ';int';
+						if (attr.has_level == '1' && treeLevel > 1) {
+							where_sql += ' and (' + attr.node_level + ' = ? or ' + attr.node_level + ' = ?)';
+							where_value += ';' + treeLevel + ';' + (treeLevel-1);
+							where_type += ';int;int';
+						} else {
+							where_sql += ' and ' + attr.node_level + ' = ?';
+							where_value += ';' + treeLevel;
+							where_type += ';int';
+						}
 					}
 
 					//保存树形查询参数
