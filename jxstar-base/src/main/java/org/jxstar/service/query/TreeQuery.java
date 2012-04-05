@@ -505,6 +505,7 @@ public class TreeQuery extends BusinessObject {
 		treesql.append(" '"+ mpTree.get("node_level") +"' as node_level, ");
 		treesql.append(" '"+ mpTree.get("right_where") +"' as right_where, ");
 		treesql.append(" '"+ mpTree.get("table_name") +"' as table_name, ");
+		treesql.append(" '"+ mpTree.get("has_level") +"' as has_level, ");
 		
 		//缺省都不是叶子节点
 		treesql.append(" 'false' as leaf ");
