@@ -21,11 +21,12 @@ JxUtil = {};
 		 **/
 		logout: function(isF5) {
 			var hdcall = function() {
-				JxUtil.isLogout = true;
-				window.location.reload();
-				//退出系统方法不需要注册后台事件，由控制器统一处理
+				//退出后再刷新，如果把reload放到回调函数外，IE中向后退发送的请求参数为空
 				var params = 'funid=login&pagetype=login&eventcode=logout';
-				Request.postRequest(params);
+				Request.postRequest(params, function(){
+					JxUtil.isLogout = true;
+					window.location.reload();
+				});
 			};
 			//如果是通过刷新退出系统
 			if (isF5 == true) {hdcall(); return;}
