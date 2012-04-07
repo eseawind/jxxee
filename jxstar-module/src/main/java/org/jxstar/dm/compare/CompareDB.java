@@ -14,6 +14,7 @@ import org.jxstar.dao.DaoParam;
 import org.jxstar.dm.DmException;
 import org.jxstar.dm.DmFactory;
 import org.jxstar.dm.MetaData;
+import org.jxstar.dm.util.DmUtil;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.resource.JsMessage;
 
@@ -39,7 +40,8 @@ public class CompareDB extends CompareData {
     	List<Map<String,String>> lsField = FactoryUtil.newList();
     	lsField.add(fieldMap("table_name", "string"));
     	lsField.add(fieldMap("table_title", "string"));
-    	lsField.add(fieldMap("table_space", "string"));
+    	//有些数据库没有表空间
+    	//lsField.add(fieldMap("table_space", "string"));
     	
         //取来源表的主键字段名
     	String srcTable = "v_table_info";
@@ -51,17 +53,18 @@ public class CompareDB extends CompareData {
         
         //取来源表的数据
     	String srcsql = "select * from v_table_info where table_name in " +
-    			"(select table_name from dm_table where table_type < '9' and table_name like 'plet%') order by table_name";
+    			"(select table_name from dm_table where table_type < '9') order by table_name";
     	DaoParam srcParam = _dao.createParam(srcsql);
     	List<Map<String,String>> lsSrc = _dao.query(srcParam);
     	
     	//取目标表的数据
-    	String tagsql = "select * from dm_tablecfg where table_type < '9' and table_name like 'plet%' order by table_name";
+    	String tagsql = "select * from dm_tablecfg where table_type < '9' order by table_name";
     	DaoParam tagParam = _dao.createParam(tagsql);
     	List<Map<String,String>> lsTag = _dao.query(tagParam);
         
     	List<String> lssql = FactoryUtil.newList();
-    	//比较数据库表对象与dm_tablecfg配置信息的差异
+    	
+    	//=========比较数据库表对象与dm_tablecfg配置信息的差异=========
     	lssql.add("--"+JsMessage.getValue("comparedb.comptable")+"\r\n");
     	List<String> lstable = compareCfg(srcTable, srcKeyField, tagTable, tagKeyField, lsSrc, lsTag, lsField);
     	if (lstable.isEmpty()) {//无差异
@@ -69,7 +72,8 @@ public class CompareDB extends CompareData {
     	} else {
     		lssql.addAll(lstable);
     	}
-		//比较数据库字段对象与dm_fieldcfg配置信息的差异
+    	
+		//=========比较数据库字段对象与dm_fieldcfg配置信息的差异=========
     	lssql.add("--"+JsMessage.getValue("comparedb.compfield")+"\r\n");
     	List<String> lsfield = FactoryUtil.newList();
     	for (int i = 0, n = lsSrc.size(); i < n; i++) {
@@ -88,7 +92,8 @@ public class CompareDB extends CompareData {
     	} else {
     		lssql.addAll(lsfield);
     	}
-    	//比较数据库索引对象与dm_indexcfg配置信息的差异
+    	
+    	//=========比较数据库索引对象与dm_indexcfg配置信息的差异=========
     	lssql.add("--"+JsMessage.getValue("comparedb.compindex")+"\r\n");
     	List<String> lsindex = FactoryUtil.newList();
     	for (int i = 0, n = lsSrc.size(); i < n; i++) {
@@ -107,7 +112,8 @@ public class CompareDB extends CompareData {
     	} else {
     		lssql.addAll(lsindex);
     	}
-    	//比较数据库主键字段与dm_tablecfg.key_field字段值的差异
+    	
+    	//=========比较数据库主键字段与dm_tablecfg.key_field字段值的差异=========
     	lssql.add("--"+JsMessage.getValue("comparedb.compkey")+"\r\n");
     	lsTag = _dao.query(tagParam);	//目标记录在表配置比较时删除了，需要重新加载
     	List<String> lskey = FactoryUtil.newList();
@@ -167,6 +173,8 @@ public class CompareDB extends CompareData {
     	DaoParam srcParam = _dao.createParam(srcsql);
     	srcParam.addStringValue(tableName);
     	List<Map<String,String>> lsSrc = _dao.query(srcParam);
+    	//Oracle中处理缺省值中的换行符号
+    	lsSrc = clearDefaultChar(lsSrc);
     	
     	//取表配置ID
     	String tableId = TableConfig.getTableId(tableName);
@@ -201,7 +209,7 @@ public class CompareDB extends CompareData {
     	lsField.add(fieldMap("isunique", "string"));
     	
         //取来源表的主键字段名
-    	String srcTable = "v_index_info";
+    	String srcTable = "";
         String srcKeyField = "index_name";
     	
         //取目标表的主键字段名
@@ -322,7 +330,7 @@ public class CompareDB extends CompareData {
 			if (tagValue.length() == 0) tagValue = "0";
 		}
 		if (fieldName.equals("default_value")) {
-			System.out.println("srcValue="+srcValue+";tagValue=" +tagValue);
+			//System.out.println("srcValue="+srcValue+";tagValue=" +tagValue);
 		}
 		
 		return srcValue.length() == tagValue.length() && srcValue.equals(tagValue);
@@ -369,5 +377,36 @@ public class CompareDB extends CompareData {
     	}
     	
     	return lsnew;
+    }
+    
+    /**
+     * Oracle数据库用，取到的缺省值后面有换行符号
+     * @param lsData
+     * @return
+     */
+    private List<Map<String,String>> clearDefaultChar(List<Map<String,String>> lsData) {
+    	if (lsData == null || lsData.isEmpty()) return lsData;
+    	
+    	for (Map<String,String> mpData : lsData) {
+    		String key = "default_value";
+    		String value = mpData.get(key);
+    		if (value != null) {
+    			value = value.replaceAll("\n", "");
+    		} else {
+    			value = "";
+    		}
+    		
+    		if (value.length() > 0) {
+    			if (DmUtil.hasYinHao(value)) {
+    				value = value.substring(1, value.length()-1);
+    			} else if (value.equals("null")) {
+    				value = "";
+    			}
+    		}
+    		
+    		mpData.put(key, value);
+    	}
+    	
+    	return lsData;
     }
 }

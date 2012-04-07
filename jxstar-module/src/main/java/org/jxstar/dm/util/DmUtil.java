@@ -172,4 +172,19 @@ public class DmUtil {
 		
 		return sb.toString();
 	}
+	
+	/**
+	 * 判断字符串两头是否有单引号括住，如：'and'
+	 * @param value
+	 * @return
+	 */
+	public static boolean hasYinHao(String value) {
+		if (value == null || value.length() < 3) return false;
+		
+		if ((value.charAt(0) == (char)39) && (value.charAt(value.length()-1) == (char)39)) {
+			return true;
+		}
+		
+		return false;
+	}
 }

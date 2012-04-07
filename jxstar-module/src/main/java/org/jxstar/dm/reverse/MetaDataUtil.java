@@ -9,37 +9,34 @@ package org.jxstar.dm.reverse;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
 import org.jxstar.dao.pool.PooledConnection;
-import org.jxstar.dm.DmException;
 import org.jxstar.dm.util.DmUtil;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.log.Log;
-import org.jxstar.util.resource.JsMessage;
 
 /**
  * 读取数据库元数据的工具类。
  *
  * @author TonyTan
  * @version 1.0, 2010-12-23
- * @deprecated 直接从不同数据库的系统表中取值
  */
 public class MetaDataUtil {
 	//日志对象
 	private static Log _log = Log.getInstance();
 	
 	/**
-	 * 查询所有表对象
+	 * 查询表对象
+	 * @param tableName -- 表名
 	 * @param dsName -- 数据源名
 	 * @return
-	 * @throws DmException
+	 * @deprecated 直接从系统表中取值
 	 */
-	public static List<Map<String,String>> getTableMeta(String dsName) throws DmException {
-		List<Map<String,String>> lsRet = FactoryUtil.newList();
+	public static Map<String,String> getTableMeta(String tableName, String dsName) {
+		Map<String,String> mpTable = FactoryUtil.newMap();
 		String schema = DmUtil.getDbSchema(dsName);
 		
 		ResultSet rs = null;
@@ -47,34 +44,18 @@ public class MetaDataUtil {
 		DatabaseMetaData dbmd = null;
 		try {
 			conn = PooledConnection.getInstance().getConnection(dsName);
-			if (conn == null){//"数据源【{0}】取数据库连接为空！"
-				throw new DmException(JsMessage.getValue("metautil.connull", dsName));
-			}
+			if (conn == null) return mpTable;
 			
 			dbmd = conn.getMetaData();
-			//查询所有表对象
-			rs = dbmd.getTables(null, schema.toUpperCase(), null, new String[]{"TABLE"});
+			//查询表对象
+			rs = dbmd.getTables(null, schema.toUpperCase(), tableName.toUpperCase(), new String[]{"TABLE"});
 
-			ResultSetMetaData rsmd = rs.getMetaData();
-			int fcnt = rsmd.getColumnCount();
-			
-			while (rs.next()) {
-				for (int i = 1; i <= fcnt; i++) {
-					String name = rsmd.getColumnName(i);
-					String value = rs.getString(name);
-					System.out.print(name + "=" + value + ";");
-				}
-				System.out.println("");
-				
-				String tableName = rs.getString("TABLE_NAME");
+			if (rs.next()) {
 				String tableTitle = rs.getString("REMARKS");
 				
-				Map<String,String> mpTable = FactoryUtil.newMap();
 				mpTable.put("table_name", tableName);
 				mpTable.put("table_title", tableTitle);
-				//_log.showDebug("========" + mpTable.toString());
-				
-				lsRet.add(mpTable);
+				_log.showDebug("========" + mpTable.toString());
 			}
 		} catch (SQLException e) {
 			_log.showError(e);
@@ -90,7 +71,7 @@ public class MetaDataUtil {
 			}
 		}
 		
-		return lsRet;
+		return mpTable;
 	}
 	
 	/**
@@ -98,9 +79,9 @@ public class MetaDataUtil {
 	 * @param tableName -- 表名
 	 * @param dsName -- 数据源名
 	 * @return
-	 * @throws DmException
+	 * @deprecated 直接从系统表中取值
 	 */
-	public static List<Map<String,String>> getFieldMeta(String tableName, String dsName) throws DmException {
+	public static List<Map<String,String>> getFieldMeta(String tableName, String dsName) {
 		List<Map<String,String>> lsRet = FactoryUtil.newList();
 		String schema = DmUtil.getDbSchema(dsName);
 		
@@ -109,9 +90,7 @@ public class MetaDataUtil {
 		DatabaseMetaData dbmd = null;
 		try {
 			conn = PooledConnection.getInstance().getConnection(dsName);
-			if (conn == null){
-				throw new DmException(JsMessage.getValue("metautil.connull", dsName));
-			}
+			if (conn == null) return lsRet;
 			
 			dbmd = conn.getMetaData();
 			//查询指定表的字段信息
@@ -162,9 +141,8 @@ public class MetaDataUtil {
 	 * @param tableName -- 表名
 	 * @param dsName -- 数据源名
 	 * @return
-	 * @throws DmException
 	 */
-	public static Map<String,String> getKeyMeta(String tableName, String dsName) throws DmException {
+	public static Map<String,String> getKeyMeta(String tableName, String dsName) {
 		Map<String,String> mpKey = FactoryUtil.newMap();
 		String schema = DmUtil.getDbSchema(dsName);
 		
@@ -173,9 +151,7 @@ public class MetaDataUtil {
 		DatabaseMetaData dbmd = null;
 		try {
 			conn = PooledConnection.getInstance().getConnection(dsName);
-			if (conn == null){
-				throw new DmException(JsMessage.getValue("metautil.connull", dsName));
-			}
+			if (conn == null) return mpKey;
 			
 			dbmd = conn.getMetaData();
 			//查询表的主键信息
@@ -185,9 +161,9 @@ public class MetaDataUtil {
 				String keyName = rs.getString("PK_NAME");
 				String keyField = rs.getString("COLUMN_NAME");
 				
-				mpKey.put("pk_name", keyName);
-				mpKey.put("column_name", keyField);
-				_log.showDebug("========" + mpKey.toString());
+				mpKey.put("key_name", keyName.toUpperCase());
+				mpKey.put("key_field", keyField.toLowerCase());
+				//_log.showDebug("========" + mpKey.toString());
 			}
 		} catch (SQLException e) {
 			_log.showError(e);
@@ -207,13 +183,12 @@ public class MetaDataUtil {
 	}
 	
 	/**
-	 * 查询指定表的索引信息
+	 * 查询指定表的索引信息，不含主键
 	 * @param tableName -- 表名
 	 * @param dsName -- 数据源名
 	 * @return
-	 * @throws DmException
 	 */
-	public static List<Map<String,String>> getIndexMeta(String tableName, String dsName) throws DmException {
+	public static List<Map<String,String>> getIndexInfo(String tableName, String dsName) {
 		List<Map<String,String>> lsRet = FactoryUtil.newList();
 		String schema = DmUtil.getDbSchema(dsName);
 		
@@ -222,8 +197,13 @@ public class MetaDataUtil {
 		DatabaseMetaData dbmd = null;
 		try {
 			conn = PooledConnection.getInstance().getConnection(dsName);
-			if (conn == null){
-				throw new DmException(JsMessage.getValue("metautil.connull", dsName));
+			if (conn == null) return lsRet;
+			
+			//取该表的主键名
+			String keyName = "";
+			Map<String,String> mpKey = getKeyMeta(tableName, dsName);
+			if (!mpKey.isEmpty()) {
+				keyName = mpKey.get("key_name");
 			}
 			
 			dbmd = conn.getMetaData();
@@ -231,17 +211,21 @@ public class MetaDataUtil {
 			rs = dbmd.getIndexInfo(null, schema.toUpperCase(), tableName.toUpperCase(), false, false);
 
 			while (rs.next()) {
-				String indexName = rs.getString("INDEX_NAME");		//String => 索引名称；
+				String indexName = rs.getString("INDEX_NAME");			//String => 索引名称；
 				String indexField = rs.getString("COLUMN_NAME");		//String => 列名称；
 				String position = rs.getString("ORDINAL_POSITION");		//short => 索引中的列序列号；
-				String nonunique = rs.getString("NON_UNIQUE");	//boolean => 索引值是否可以不惟一 
+				String nonunique = rs.getString("NON_UNIQUE");			//boolean => 索引值是否可以不惟一 
+				//小于1的不处理
+				if (position.equals("0")) continue;
+				//主键不处理
+				if (keyName.equals(indexName)) continue;
 				
 				Map<String,String> mpIndex = FactoryUtil.newMap();
-				mpIndex.put("index_name", indexName);
-				mpIndex.put("index_field", indexField);
-				mpIndex.put("position", position);
-				mpIndex.put("non_unique", nonunique);
-				_log.showDebug("========" + mpIndex.toString());
+				mpIndex.put("index_name", indexName.toUpperCase());
+				mpIndex.put("column_name", indexField.toLowerCase());
+				mpIndex.put("column_position", position);
+				mpIndex.put("isunique", getIsUnique(nonunique));
+				//_log.showDebug("========" + mpIndex.toString());
 
 				lsRet.add(mpIndex);
 			}
@@ -260,5 +244,35 @@ public class MetaDataUtil {
 		}
 		
 		return lsRet;
+	}
+	
+	/**
+	 * 取是否唯一索引
+	 * @param non -- 不唯一
+	 * @return
+	 */
+	private static String getIsUnique(String non) {
+		if (non == null) return "0";
+		
+		non = non.toLowerCase();
+		String isunique = "0";
+		
+		if (non.equals("false") || non.equals("true")) {
+			if (non.equals("false")) {
+				isunique = "1";
+			} else {
+				isunique = "0";
+			}
+		} else {
+			if (non.equals("1") || non.equals("0")) {
+				if (non.equals("1")) {
+					isunique = "0";
+				} else {
+					isunique = "1";
+				}
+			}
+		}
+		
+		return isunique;
 	}
 }

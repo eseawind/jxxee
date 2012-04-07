@@ -50,9 +50,9 @@ public class DmFactory {
 		if (dbType.equals("oracle")) {
 			return new OracleMetaData();
 		} else if (dbType.equals("mysql")) {
-			return null;
+			return new MetaData();
 		} else if (dbType.equals("sqlserver")) {
-			return null;
+			return new MetaData();
 		};
 		
 		return null;

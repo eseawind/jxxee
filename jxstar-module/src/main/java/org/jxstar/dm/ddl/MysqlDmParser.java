@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.jxstar.dm.DmException;
 import org.jxstar.dm.DmParser;
+import org.jxstar.dm.util.DmUtil;
+import org.jxstar.util.MapUtil;
 import org.jxstar.util.resource.JsMessage;
 
 /**
@@ -34,28 +36,34 @@ public class MysqlDmParser extends DmParser {
 		
 		//取数据类型
 		if (name.equals("data_type")) {
-			String dataType = mpData.get("data_type");
-			String dataSize = mpData.get("data_size");
-			String preci = mpData.get("data_scale");
+			String dataType = MapUtil.getValue(mpData, "data_type");
+			String dataSize = MapUtil.getValue(mpData, "data_size", "22");
+			String dataScale = MapUtil.getValue(mpData, "data_scale", "0");
 			
-			ret = getDataType(dataType, dataSize, preci);
+			ret = getDataType(dataType, dataSize, dataScale);
 		} else if (name.equals("nullable")) {
 		//取是否必填
-			String nullable = mpData.get("nullable");
+			String nullable = MapUtil.getValue(mpData, "nullable");
 			
 			if (nullable.equals("1")) {
 				ret = "not null";
 			} else {
-				ret = "null";
+				ret = "";
 			}
 		} else if (name.equals("default_value")) {
 		//是否有缺省值
 			String value = mpData.get("default_value");
+			String dataType = mpData.get("data_type");
 			
 			if (value.length() > 0) {
-				ret = "default '" + value + "'";
+				//非字符类型与添加了引号的缺省值
+				if (dataType.indexOf("char") < 0 || DmUtil.hasYinHao(value)) {
+					ret = "default " + value;
+				} else {
+					ret = "default '" + value + "'";
+				}
 			} else {
-				ret = "default null";
+				ret = "";
 			}
 		} else if (name.equals("index_field")) {
 		//给索引相关字段添加``符号，MYSQL添加的

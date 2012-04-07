@@ -22,7 +22,7 @@ public class MysqlDdlTable extends DdlTable {
 	 * @param dbtype
 	 */
 	public MysqlDdlTable() {
-		super("oracle");
+		super("mysql");
 	}
 	
 	/**

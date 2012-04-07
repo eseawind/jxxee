@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.jxstar.dm.DmException;
 import org.jxstar.dm.DmParser;
+import org.jxstar.dm.util.DmUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.resource.JsMessage;
 
@@ -57,10 +58,15 @@ public class OracleDmParser extends DmParser {
 		} else if (name.equals("default_value") || name.equals("alert_default_value")) {
 		//是否有缺省值
 			String value = MapUtil.getValue(mpData, "default_value");
+			String dataType = MapUtil.getValue(mpData, "data_type");
 			
 			if (value.length() > 0) {
-				//ret = "default '" + value + "'";
-				ret = "default " + value; //缺省值不添加''符号，由用户自己添加
+				//非字符类型与添加了引号的缺省值
+				if (dataType.indexOf("char") < 0 || DmUtil.hasYinHao(value)) {
+					ret = "default " + value;
+				} else {
+					ret = "default '" + value + "'";
+				}
 			} else {
 				if (name.equals("default_value")) {
 					ret = "";

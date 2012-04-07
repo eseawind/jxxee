@@ -81,7 +81,6 @@ public abstract class DmParser {
 	 * @return
 	 */
 	protected abstract String parseElement(String name, Map<String,String> mpData) throws DmException;	
-
 	
 	/**
 	 * 解析模板文件中的元素
