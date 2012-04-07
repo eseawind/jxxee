@@ -49,7 +49,8 @@
 			}
 		}}, field:{name:'fun_tree__node_style',type:'string'}},
 	{col:{header:'不检查子级', width:100, sortable:true, hidden:true}, field:{name:'fun_tree__not_check',type:'string'}},
-	{col:{header:'关联查询字段', width:100, sortable:true, hidden:true}, field:{name:'fun_tree__relat_col',type:'string'}}
+	{col:{header:'关联查询字段', width:100, sortable:true, hidden:true}, field:{name:'fun_tree__relat_col',type:'string'}},
+	{col:{header:'是否含本级', width:100, sortable:true, hidden:true}, field:{name:'fun_tree__has_level',type:'string'}}
 	];
 	
 	config.param = {

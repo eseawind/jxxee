@@ -30,7 +30,8 @@
 					{xtype:'textfield', fieldLabel:'节点名字段', name:'fun_tree__node_name', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:100},
 					{xtype:'textfield', fieldLabel:'级别字段', name:'fun_tree__node_level', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:100},
 					{xtype:'textfield', fieldLabel:'目标过滤条件', name:'fun_tree__right_where', anchor:'100%', maxLength:100},
-					{xtype:'textfield', fieldLabel:'树形标题', name:'fun_tree__tree_title', anchor:'100%', maxLength:50}
+					{xtype:'textfield', fieldLabel:'树形标题', name:'fun_tree__tree_title', anchor:'100%', maxLength:50},
+					{xtype:'checkbox', fieldLabel:'是否含本级', name:'fun_tree__has_level', defaultval:'0', disabled:false, anchor:'100%'}
 				]
 			},{
 				border:false,
