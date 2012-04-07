@@ -5,7 +5,7 @@
 	var nodeclsData = Jxstar.findComboData('nodecls');
 
 	var cols = [
-	{col:{header:'树序号', width:55, sortable:true, renderer:JxUtil.formatInt()}, field:{name:'fun_tree__tree_no',type:'int'}},
+	{col:{header:'树序号', width:55, sortable:true}, field:{name:'fun_tree__tree_no',type:'string'}},
 	{col:{header:'树类型', width:70, sortable:true, align:'center',
 		editable:false,
 		editor:new Ext.form.ComboBox({

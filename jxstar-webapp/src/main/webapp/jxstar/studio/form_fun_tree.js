@@ -65,7 +65,7 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
-					{xtype:'numberfield', allowDecimals:false, fieldLabel:'树序号', name:'fun_tree__tree_no', defaultval:'1', anchor:'100%', maxLength:12},
+					{xtype:'textfield', fieldLabel:'树序号', name:'fun_tree__tree_no', defaultval:'1', anchor:'100%', maxLength:1},
 					{xtype:'combo', fieldLabel:'节点样式', name:'fun_tree__node_style',
 						anchor:'100%', editable:false,
 						store: new Ext.data.SimpleStore({
