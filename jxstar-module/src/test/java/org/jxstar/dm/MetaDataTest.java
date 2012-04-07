@@ -8,9 +8,9 @@ package org.jxstar.dm;
 
 import java.util.Map;
 
-
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
+import org.jxstar.dm.reverse.MetaDataUtil;
 import org.jxstar.dm.studio.ReverseBO;
 import org.jxstar.test.AbstractTest;
 
@@ -29,7 +29,9 @@ public class MetaDataTest extends AbstractTest {
 		 
 		//MetaDataTest.queryDefault();
 		
-		MetaDataTest.reverse();
+		//MetaDataTest.reverse();
+		
+		queryIndex();
 	}
 	
 	public static void reverse() {
@@ -49,6 +51,11 @@ public class MetaDataTest extends AbstractTest {
 		DaoParam param = _dao.createParam(sql);
 		Map<String, String> mp = _dao.queryMap(param);
 		System.out.println("================" + mp.toString());
+	}
+	
+	public static void queryIndex() {
+		System.out.println("================" + MetaDataUtil.getIndexInfo("wf_user", "default"));
+		System.out.println("================" + (new MetaData()).getIndexMeta("wf_user", "default"));
 	}
 
 }
