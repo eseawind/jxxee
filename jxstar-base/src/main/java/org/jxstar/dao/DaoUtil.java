@@ -89,29 +89,25 @@ public class DaoUtil {
 			int columnNum = rsmd.getColumnCount();
 
 			// 列数为0,返回空的ArrayList
-			String strVal = new String();
-			String strCol = new String();
+			String strVal = null, strCol = null;
 			while (rs.next()) {
 				map = FactoryUtil.newMap();
 				for (int i = 1; i <= columnNum; i++) {
 					strCol = rsmd.getColumnName(i).toLowerCase();
 					strVal = rs.getString(strCol);
+					if (strVal == null) strVal = "";
 					
 					//如果是日期类型的字段，转换为日期对象
 					if (rsmd.getColumnType(i) == java.sql.Types.DATE || 
 							rsmd.getColumnType(i) == java.sql.Types.TIMESTAMP) {
-						if (strVal == null) strVal = "";
-						
 						if (strVal.length() > 0) {
 							String strTmp[] = strVal.split("\\.");
 							if (strTmp.length == 2) {
 								strVal = strTmp[0];
 							}
 						}
-					} else if (rsmd.getColumnType(i) == java.sql.Types.CHAR || 
-							rsmd.getColumnType(i) == java.sql.Types.VARCHAR) {
-						if (strVal == null) strVal = "";
 					}
+					
 					map.put(strCol, strVal);
 				}
 				lsRet.add(map);
