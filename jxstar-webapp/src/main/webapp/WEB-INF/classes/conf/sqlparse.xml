@@ -10,7 +10,7 @@
 		<functionid memo="函数标识">{TO_DATETIME}</functionid>
 		<oracle memo="ORACLE数据库">to_date(@v1, 'yyyy-mm-dd hh24:mi:ss')</oracle>
 		<server memo="SQLSERVER数据库">CONVERT(datetime, @v1, 20)</server>
-		<mysql memo="MYSQL数据库">date_format(@v1, GET_FORMAT(date,'ISO'))</mysql>
+		<mysql memo="MYSQL数据库">date_format(@v1, GET_FORMAT(datetime,'ISO'))</mysql>
 	</function>
 	<function memo="日期型值转换成字符串型值,函数写法:{TO_STR}(v_date)">
 		<functionid memo="函数标识">{TO_STR}</functionid>
