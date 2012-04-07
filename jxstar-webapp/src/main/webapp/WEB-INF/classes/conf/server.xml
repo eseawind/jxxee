@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <Jxstar>
 	<DataSources memo="系统数据源定义">
-		<DataSource memo="系统缺省数据源">
-			<sourcename memo="数据源名">default</sourcename>
+		<DataSource memo="oracle数据源示例">
+			<sourcename memo="数据源名">default_orcl</sourcename>
 			<schemaname memo="数据库名，构建数据表用">jxstar</schemaname>
 			<driverclass memo="驱动类">oracle.jdbc.driver.OracleDriver</driverclass>
 			<jdbcurl memo="访问URL"><![CDATA[jdbc:oracle:thin:@127.0.0.1:1521:orcl]]></jdbcurl>
@@ -13,6 +13,19 @@
 			<datasourcetype memo="数据源来源:[self|context],前者表示采用自带数据源,后者表示采用服务器数据源">self</datasourcetype>
 			<jndiname memo="服务器数据源的JNDI名称,如: jdbc/default">jdbc/default</jndiname>
 			<dbmstype memo="数据库类型">oracle</dbmstype>
+		</DataSource>
+		<DataSource memo="mysql数据源示例">
+			<sourcename memo="数据源名">default</sourcename>
+			<schemaname memo="数据库名，构建数据表用">jxstar</schemaname>
+			<driverclass memo="驱动类">org.gjt.mm.mysql.Driver</driverclass>
+			<jdbcurl memo="访问URL"><![CDATA[jdbc:mysql://localhost/jxstar?useUnicode=true&characterEncoding=UTF-8&useOldAliasMetadataBehavior=true]]></jdbcurl>
+			<username memo="数据库用户">root</username>
+			<password memo="数据库密码">888</password>
+			<maxconnum memo="最大连接数">15</maxconnum>
+			<maxwaittime memo="最大等待时间,ms">5000</maxwaittime>
+			<datasourcetype memo="数据源来源:[self|context],前者表示采用自带数据源,后者表示采用服务器数据源">self</datasourcetype>
+			<datasourceprefix memo="服务器数据源的JNDI名称,如: jdbc/default">jdbc/default</datasourceprefix>
+			<dbmstype memo="数据库类型">mysql</dbmstype>
 		</DataSource>
 	</DataSources>
 
