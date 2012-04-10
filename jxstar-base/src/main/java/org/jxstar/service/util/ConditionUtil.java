@@ -56,7 +56,7 @@ public class ConditionUtil {
 	 * @return
 	 */
 	public static boolean parseCondition(Map<String,String> mpDefine, Map<String,String> appData) {
-		String condition = mpDefine.get("condition");
+		String condition = mpDefine.get("cond_where");
 		if (condition == null || condition.length() == 0) return true;
 		
 		//如果条件中有用户常量值
@@ -108,7 +108,7 @@ public class ConditionUtil {
 	 * @return
 	 */
 	private static String getLineCondition(String processId, String lineId) {
-		String sql = "select condition from wf_condition where process_id = ? and line_id = ?";
+		String sql = "select cond_where from wf_condition where process_id = ? and line_id = ?";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(processId);
 		param.addStringValue(lineId);
@@ -116,7 +116,7 @@ public class ConditionUtil {
 		Map<String,String> mpData = _dao.queryMap(param);
 		if (mpData.isEmpty()) return "";
 		
-		return mpData.get("condition");
+		return mpData.get("cond_where");
 	}
 	
 	/**
