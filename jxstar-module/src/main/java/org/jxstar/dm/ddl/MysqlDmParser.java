@@ -8,6 +8,7 @@ package org.jxstar.dm.ddl;
 
 import java.util.Map;
 
+import org.jxstar.dao.util.DBTypeUtil;
 import org.jxstar.dm.DmException;
 import org.jxstar.dm.DmParser;
 import org.jxstar.dm.util.DmUtil;
@@ -22,7 +23,7 @@ import org.jxstar.util.resource.JsMessage;
  */
 public class MysqlDmParser extends DmParser {
 	public MysqlDmParser() {
-		super("mysql");
+		super(DBTypeUtil.MYSQL);
 	}
 	
 	/**

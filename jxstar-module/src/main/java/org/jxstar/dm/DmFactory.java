@@ -28,11 +28,11 @@ public class DmFactory {
 	public static DdlTable getDdlTable(String dsName) {
 		String dbType = DBTypeUtil.getDbmsType(dsName);
 		
-		if (dbType.equals("oracle")) {
+		if (dbType.equals(DBTypeUtil.ORACLE)) {
 			return new OracleDdlTable();
-		} else if (dbType.equals("mysql")) {
+		} else if (dbType.equals(DBTypeUtil.MYSQL)) {
 			return new MysqlDdlTable();
-		} else if (dbType.equals("sqlserver")) {
+		} else if (dbType.equals(DBTypeUtil.SQLSERVER)) {
 			return null;
 		};
 		
@@ -47,11 +47,11 @@ public class DmFactory {
 	public static MetaData getMetaData(String dsName) {
 		String dbType = DBTypeUtil.getDbmsType(dsName);
 		
-		if (dbType.equals("oracle")) {
+		if (dbType.equals(DBTypeUtil.ORACLE)) {
 			return new OracleMetaData();
-		} else if (dbType.equals("mysql")) {
+		} else if (dbType.equals(DBTypeUtil.MYSQL)) {
 			return new MetaData();
-		} else if (dbType.equals("sqlserver")) {
+		} else if (dbType.equals(DBTypeUtil.SQLSERVER)) {
 			return new MetaData();
 		};
 		

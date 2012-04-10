@@ -23,7 +23,7 @@ import org.jxstar.util.resource.JsMessage;
  */
 public abstract class DdlTable {
 	//日志对象
-	private Log _log = Log.getInstance();
+	protected Log _log = Log.getInstance();
 	//当前数据源
 	protected String _dsname = null;
 	//模板解析对象
@@ -34,18 +34,10 @@ public abstract class DdlTable {
 	protected DdlIndex _indexObj = null;
 	
 	/**
-	 * 构建表对象
-	 * @param dbtype
-	 */
-	protected DdlTable(String dbtype) {
-		init(dbtype);
-	}
-	
-	/**
 	 * 初始化全局对象
 	 * @param dbtype
 	 */
-	protected abstract void init(String dbtype);
+	protected abstract void init();
 	
 	/**
 	 * 创建数据表对象

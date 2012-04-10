@@ -234,7 +234,7 @@ public class DdlField {
 	 * @param lsFieldOld -- 字段原配置信息
 	 * @return
 	 */
-	private Map<String,String> getOldField(String fieldId, List<Map<String,String>> lsFieldOld) {
+	protected Map<String,String> getOldField(String fieldId, List<Map<String,String>> lsFieldOld) {
 		for (int i = 0, n = lsFieldOld.size(); i < n; i++) {
 			Map<String,String> mpFieldOld = lsFieldOld.get(i);
 			

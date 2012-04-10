@@ -9,6 +9,7 @@ package org.jxstar.dm.ddl;
 import java.util.Map;
 
 
+import org.jxstar.dao.util.DBTypeUtil;
 import org.jxstar.dm.DmException;
 import org.jxstar.dm.DmParser;
 import org.jxstar.dm.util.DmUtil;
@@ -23,7 +24,7 @@ import org.jxstar.util.resource.JsMessage;
  */
 public class OracleDmParser extends DmParser {
 	public OracleDmParser() {
-		super("oracle");
+		super(DBTypeUtil.ORACLE);
 	}
 	
 	/**

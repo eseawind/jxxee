@@ -19,17 +19,15 @@ import org.jxstar.dm.DdlTable;
 public class OracleDdlTable extends DdlTable {
 	/**
 	 * 构建表对象
-	 * @param dbtype
 	 */
 	public OracleDdlTable() {
-		super("oracle");
+		init();
 	}
 	
 	/**
 	 * 初始化全局对象
-	 * @param dbtype
 	 */
-	public void init(String dbtype) {
+	public void init() {
 		//创建ORACLE模板解析类
 		_parser = new OracleDmParser();
 		//创建字段解析对象
