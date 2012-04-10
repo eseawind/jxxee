@@ -149,11 +149,11 @@ JxQuery = {};
 				var data = [];
 				for(var i = 0, len = condata.root.length; i < len; i++){
 					var item = [];
-					item[0] = condata.root[i].left;
+					item[0] = condata.root[i].left_brack;
 					item[1] = condata.root[i].colcode;
 					item[2] = condata.root[i].condtype;
-					item[3] = condata.root[i].value;
-					item[4] = condata.root[i].right;
+					item[3] = condata.root[i].cond_value;
+					item[4] = condata.root[i].right_brack;
 					item[5] = condata.root[i].andor;
 					item[6] = condata.root[i].coltype;
 					data[i] = item;
@@ -184,9 +184,9 @@ JxQuery = {};
 		
 		for (var i = 0; i < self.storeDet.getCount(); i++) {
 			var record = self.storeDet.getAt(i);
-			var value = record.get('value').trim();
+			var cond_value = record.get('cond_value').trim();
 			
-			if (value.length == 0) {
+			if (cond_value.length == 0) {
 				JxHint.alert(String.format(jx.query.valempty, i+1));	//'第{0}行的查询值为空，不能保存！'
 				return false;
 			}
@@ -277,11 +277,11 @@ JxQuery = {};
 		//创建存储对象
 		var condStore = new Ext.data.ArrayStore({
 			fields: [
-			   {name: 'left'},
+			   {name: 'left_brack'},
 			   {name: 'colcode'},
 			   {name: 'condtype'},
-			   {name: 'value'},
-			   {name: 'right'},
+			   {name: 'cond_value'},
+			   {name: 'right_brack'},
 			   {name: 'andor'},
 			   {name: 'coltype'}
 			]
@@ -373,7 +373,7 @@ JxQuery = {};
 		//创建列对象
 		var cm = new Ext.grid.ColumnModel([sm,
 			//"左括号"
-			{id:'left', header:jx.query.left, width:40, dataIndex:'left', hcss:'color:#004080;',
+			{id:'left_brack', header:jx.query.left, width:40, dataIndex:'left_brack', hcss:'color:#004080;',
 				editor:new Ext.form.TextField()
 			},//"列名*"
 			{id:'colcode', header:jx.query.colcode, width:130, dataIndex:'colcode', hcss:'color:#0000ff;',
@@ -394,13 +394,13 @@ JxQuery = {};
 					}
 				}
 			},//"查询值*"
-			{id:'value', header:jx.query.value, width:110, dataIndex:'value', hcss:'color:#0000ff;',
+			{id:'cond_value', header:jx.query.value, width:110, dataIndex:'cond_value', hcss:'color:#0000ff;',
 				editor:new Ext.form.TextField(),
 				renderer:function(value){
 					return Ext.isDate(value) ? value.format('Y-m-d') :value;
 				}
 			},//"右括号"
-			{id:'right', header:jx.query.right, width:40, dataIndex:'right', hcss:'color:#004080;',
+			{id:'right_brack', header:jx.query.right, width:40, dataIndex:'right_brack', hcss:'color:#004080;',
 				editor:new Ext.form.TextField()
 			},//"逻辑符"
 			{id:'andor', header:jx.query.andor, width:50, dataIndex:'andor', hcss:'color:#004080;',
@@ -419,11 +419,11 @@ JxQuery = {};
 		//新增查询条件
 		var createQuery = function() {
 			var c = new (condStore.reader.recordType)({
-				left: '',
+				left_brack: '',
 				colcode: fieldData[0][0],
 				condtype: condData[0][0],
-				value: '',
-				right: '',
+				cond_value: '',
+				right_brack: '',
 				andor: andorData[0][0],
 				coltype: 'string'
 			});
@@ -469,9 +469,9 @@ JxQuery = {};
 			
 			for (var i = 0; i < condStore.getCount(); i++) {
 				var record = condStore.getAt(i);
-				var value = record.get('value').trim();
+				var cond_value = record.get('cond_value').trim();
 				
-				if (value.length == 0) {
+				if (cond_value.length == 0) {
 					JxHint.alert(String.format(jx.query.valempty, i+1));	//第{0}行的查询值为空，不能执行！
 					return false;
 				}
@@ -555,32 +555,32 @@ JxQuery = {};
 		for (var i = 0; i < store.getCount(); i++) {
 			var record = store.getAt(i);
 			
-			var left = record.get('left');
+			var left_brack = record.get('left_brack');
 			var colcode = record.get('colcode').replace('__', '.');
 			var condtype = record.get('condtype');
-			var value = record.get('value');
-			var right = record.get('right');
+			var cond_value = record.get('cond_value');
+			var right_brack = record.get('right_brack');
 			var andor = record.get('andor');
 			var coltype = record.get('coltype');
 			
 			//如果是日期对象，则需要转换为字符串
-			value = Ext.isDate(value) ? value.dateFormat('Y-m-d') : value;
+			cond_value = Ext.isDate(cond_value) ? cond_value.dateFormat('Y-m-d') : cond_value;
 			
-			var values = this.getQueryValue(value, condtype, coltype);
+			var values = this.getQueryValue(cond_value, condtype, coltype);
 			//日期类型'=' 改为 >=? and <?查询
 			if (condtype == "=" && coltype == "date") {
-				query[0] += left;
+				query[0] += left_brack;
 				query[0] += "(" + colcode + " >= ? and " + colcode + " < ? )";
-				query[0] += right;
+				query[0] += right_brack;
 				query[0] += " " + andor + " ";
 
 				var nextDate = JxUtil.getNextDate(values[0], 1);
 				query[1] += values[0]+";"+nextDate + ";";
 				query[2] += coltype+";"+coltype + ";";
 			} else {
-				query[0] += left;
+				query[0] += left_brack;
 				query[0] += colcode + this.getCondType(condtype) + "?";
-				query[0] += right;
+				query[0] += right_brack;
 				query[0] += " " + andor + " ";
 
 				query[1] += values[0] + ";";

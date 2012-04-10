@@ -66,7 +66,7 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
-					{xtype:'textarea', fieldLabel:'分配条件', name:'wf_user__condition', width:'100%', height:72, maxLength:200}
+					{xtype:'textarea', fieldLabel:'分配条件', name:'wf_user__cond_where', width:'100%', height:72, maxLength:200}
 				]
 			}
 			]

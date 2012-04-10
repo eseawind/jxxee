@@ -76,7 +76,6 @@
 	<script type="text/javascript" src="public/portlet/PortletResult.js?verno=<%=svnNum%>"></script>
 	<script type="text/javascript" src="public/portlet/PortletResultG.js?verno=<%=svnNum%>"></script>
 	<script type="text/javascript" src="public/portlet/PortletAssign.js?verno=<%=svnNum%>"></script>
-	<script type="text/javascript" src="public/portlet/PortletAssignNum.js?verno=<%=svnNum%>"></script>
 	<script type="text/javascript" src="public/core/JxMenu.js?verno=<%=svnNum%>"></script>
 	<script type="text/javascript" src="public/core/JxPortal.js?verno=<%=svnNum%>"></script>
 

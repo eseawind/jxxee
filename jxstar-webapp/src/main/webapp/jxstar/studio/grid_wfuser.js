@@ -9,7 +9,6 @@
 	{col:{header:'用户组', width:164, sortable:true, hidden:true}, field:{name:'wf_user__group_name',type:'string'}},
 	{col:{header:'部门编码', width:100, sortable:true}, field:{name:'sys_dept__dept_code',type:'string'}},
 	{col:{header:'部门名称', width:124, sortable:true}, field:{name:'sys_dept__dept_name',type:'string'}},
-	{col:{header:'分配条件', width:331, sortable:true}, field:{name:'wf_user__condition',type:'string'}},
 	{col:{header:'是否定制类', width:70, sortable:true, hidden:true, align:'center',
 		renderer:function(value){
 			for (var i = 0; i < yesnoData.length; i++) {
@@ -17,6 +16,7 @@
 					return yesnoData[i][1];
 			}
 		}}, field:{name:'wf_user__use_class',type:'string'}},
+	{col:{header:'分配条件', width:256, sortable:true}, field:{name:'wf_user__cond_where',type:'string'}},
 	{col:{header:'升级用户', width:83, sortable:true}, field:{name:'wf_user__up_user',type:'string'}},
 	{col:{header:'任务属性ID', width:100, sortable:true, hidden:true}, field:{name:'wf_user__nodeattr_id',type:'string'}},
 	{col:{header:'用户组ID', width:100, sortable:true, hidden:true}, field:{name:'wf_user__group_id',type:'string'}},
