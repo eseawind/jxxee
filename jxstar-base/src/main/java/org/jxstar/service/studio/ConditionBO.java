@@ -52,7 +52,7 @@ public class ConditionBO extends BusinessObject {
 		}
 		
 		//取查询条件明细
-		String[] gucols = new String[]{"left", "colcode", "condtype", "value", "right", "andor", "coltype"};
+		String[] gucols = new String[]{"left_brack", "colcode", "condtype", "cond_value", "right_brack", "andor", "coltype"};
 		List<Map<String,String>> lsquery = ServiceUtil.getRequestMaps(
 				requestContext, gucols);
 		
@@ -130,7 +130,7 @@ public class ConditionBO extends BusinessObject {
 	 * @return
 	 */
 	public String queryCond(String queryid) {
-		String sql = "select left, colcode, condtype, value, right, andor, coltype " +
+		String sql = "select left_brack, colcode, condtype, cond_value, right_brack, andor, coltype " +
 				 	 "from sys_query_det where query_id = ?";
 		
 		DaoParam param = new DaoParam();
@@ -188,7 +188,7 @@ public class ConditionBO extends BusinessObject {
 	 */
 	private boolean saveQueryDet(String queryid, List<Map<String,String>> lsquery) {
 		String isql = "insert into sys_query_det(" +
-					  "query_detid, query_id, left, colcode, condtype, value, right, andor, coltype) " +
+					  "query_detid, query_id, left_brack, colcode, condtype, cond_value, right_brack, andor, coltype) " +
 					  "values(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		
 		for (int i = 0; i < lsquery.size(); i++) {
@@ -198,11 +198,11 @@ public class ConditionBO extends BusinessObject {
 			DaoParam param = _dao.createParam(isql);
 			param.addStringValue(detid);
 			param.addStringValue(queryid);
-			param.addStringValue(mp.get("left"));
+			param.addStringValue(mp.get("left_brack"));
 			param.addStringValue(mp.get("colcode"));
 			param.addStringValue(mp.get("condtype"));
-			param.addStringValue(mp.get("value"));
-			param.addStringValue(mp.get("right"));
+			param.addStringValue(mp.get("cond_value"));
+			param.addStringValue(mp.get("right_brack"));
 			param.addStringValue(mp.get("andor"));
 			param.addStringValue(mp.get("coltype"));
 			
