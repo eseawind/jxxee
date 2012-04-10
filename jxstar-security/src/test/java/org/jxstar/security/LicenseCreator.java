@@ -29,13 +29,13 @@ public class LicenseCreator {
 		lic.productName = SafeUtil.decode("东宏软件开发平台");
 		lic.versionNo = SafeUtil.decode("V1.0.0.0");
 		lic.versionType = SafeUtil.decode("EE");
-		lic.customer = SafeUtil.decode("广州市东宏软件科技有限公司");
+		lic.customer = SafeUtil.decode("广州正泰西部管道项目");
 		lic.userNum = SafeUtil.decode("10");
 		lic.developer = SafeUtil.decode("广州市东宏软件科技有限公司");
 		lic.website = SafeUtil.decode("www.jxstar.org");
 		
 		lic.tmpStart = SafeUtil.decode("2012-02-22 16:53:02");
-		lic.tmpEnd = SafeUtil.decode("2013-02-22 16:53:02");
+		lic.tmpEnd = SafeUtil.decode("2012-06-22 16:53:02");
 		lic.tmpValid = SafeUtil.decode("1");
 		
 		lic.dogStart = SafeUtil.decode("2010-11-30 12:10:10");
