@@ -30,7 +30,7 @@ public class SqlRuleMTest extends AbstractTest {
 		
 		String ruleId = "jxstar22";
 		//String srcSql = "select col_code, col_name, data_type, format_id, col_control, col_index from v_field_info where col_code = ?";
-		//String srcSql = "select sys_user.user_id, sys_user.user_name, {JOINSTR}({JOINSTR}('[dept_id] like ''', sys_user.dept_id), '%''') as condition, wf_nodeattr.process_id, wf_nodeattr.node_id from sys_user, wf_nodeattr where sys_user.user_id = ? and wf_nodeattr.nodeattr_id = {FKEYID}";
+		//String srcSql = "select sys_user.user_id, sys_user.user_name, {JOINSTR}({JOINSTR}('[dept_id] like ''', sys_user.dept_id), '%''') as cond, wf_nodeattr.process_id, wf_nodeattr.node_id from sys_user, wf_nodeattr where sys_user.user_id = ? and wf_nodeattr.nodeattr_id = {FKEYID}";
 		String userId = "administrator";
 		
 		bo.createSqlParam(ruleId, userId);
