@@ -16,6 +16,14 @@ import org.jxstar.dao.pool.DataSourceConfigManager;
  * @version 1.0, 2008-4-8
  */
 public class DBTypeUtil {
+	//数据库类型常量
+	public static final String ORACLE = "oracle";
+	public static final String MYSQL = "mysql";
+	public static final String SQLSERVER = "sqlserver";
+	public static final String DB2 = "db2";
+	public static final String SYBASE = "sybase";
+	public static final String INFORMIX = "informix";
+	public static final String POSTGRESQL = "postgresql";
 
 	/**
 	 * 获取缺省数据源的数据库类型.
