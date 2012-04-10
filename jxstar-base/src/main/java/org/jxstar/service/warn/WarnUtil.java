@@ -130,7 +130,7 @@ public class WarnUtil {
 			datasql = parseDataWhere(datasql);
 			
 			//添加到条件表达式中
-			mpUser.put("condition", datasql);
+			mpUser.put("cond_where", datasql);
 			
 			//添加有数据权限的用户
 			if (ConditionUtil.parseCondition(mpUser, mpData)) {
