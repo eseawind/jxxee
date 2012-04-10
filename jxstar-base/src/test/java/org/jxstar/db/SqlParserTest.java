@@ -11,9 +11,9 @@ public class SqlParserTest extends AbstractTest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//{JOINSTR}({JOINSTR}('{dept_id} like ''', sys_user.dept_id), '%''') as condition,
+		//{JOINSTR}({JOINSTR}('{dept_id} like ''', sys_user.dept_id), '%''') as cond,
 		String sql = "select "+
-		 "{JOINSTR}({JOINSTR}('[dept_id] like ''',sys_user.dept_id),'%''') as condition";
+		 "{JOINSTR}({JOINSTR}('[dept_id] like ''',sys_user.dept_id),'%''') as cond";
 
 		SqlParserImp parser = new SqlParserImp();
 		try {

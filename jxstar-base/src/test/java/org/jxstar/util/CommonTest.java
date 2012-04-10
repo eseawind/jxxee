@@ -39,6 +39,8 @@ public class CommonTest {
 		//}
 		
 		//System.out.println("----" + parseStr("卡号为【[std_code]】的工艺卡已制定，等待您审核。", "aaa"));
+		
+		System.out.println("========" + DateUtil.getTodaySec());
 	}
 	/*
 	private String createRandomNum() {
