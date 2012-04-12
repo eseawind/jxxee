@@ -33,10 +33,16 @@ public class LimitTaskMsg {
 	public static boolean limitMsg(Map<String,String> mpAssign) {
 		if (mpAssign == null || mpAssign.isEmpty()) return true;
 		
+		String assignId = mpAssign.get("assign_id");
+		//如果已经有消息了则不发送
+		if (hasLimitMsg(assignId)) {
+			_log.showDebug("已经存在限时任务提醒消息！");
+			return true;
+		}
+		
 		String taskId = mpAssign.get("task_id");
 		String userId = mpAssign.get("assign_userid");
 		String userName = mpAssign.get("assign_user");
-		String assignId = mpAssign.get("assign_id");
 		Map<String,String> mpUp = getUpUser(taskId, userId);
 		
 		if (mpUp.isEmpty()) {
@@ -51,14 +57,13 @@ public class LimitTaskMsg {
 			_log.showDebug("限时任务处理：【"+ userName +"】分配用户的上级用户信息为空！");
 			return true;
 		}
+		_log.showDebug("上级用户为：" + upUserName + ";" + upUserId);
 		
 		//构建提醒消息
 		String upMsg = getHintMsg(mpAssign);
 		
 		//发送流程限时提醒消息
-		if (!hasLimitMsg(assignId)) {
-			sendLimitMsg(upUserId, upUserName, upMsg, mpAssign);
-		}
+		sendLimitMsg(upUserId, upUserName, upMsg, mpAssign);
 		
 		return true;
 	}
@@ -128,7 +133,7 @@ public class LimitTaskMsg {
 	 * @return
 	 */
 	public static boolean hasLimitMsg(String assignId) {
-		String sql = "select count(*) as cnt from plet_msg where from_userid = 'wf_limit' and data_id = ?";
+		String sql = "select count(*) as cnt from plet_msg where from_userid = 'wf_limit' and instance_id = ?";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(assignId);
 		
@@ -160,7 +165,8 @@ public class LimitTaskMsg {
 		mpMsg.put("msg_state", "1");
 		mpMsg.put("msg_type", "sys");
 		mpMsg.put("fun_id", mpAssign.get("fun_id"));
-		mpMsg.put("data_id", mpAssign.get("assign_id"));//保存分配消息ID
+		mpMsg.put("data_id", mpAssign.get("data_id"));
+		mpMsg.put("instance_id", mpAssign.get("assign_id"));//保存分配消息ID
 		mpMsg.put("add_userid", "wf_limit");
 		mpMsg.put("add_date", DateUtil.getTodaySec());
 		//新增消息记录

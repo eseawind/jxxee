@@ -45,7 +45,7 @@ public class LimitTaskUtil {
 				"and wf_nodeattr.node_id = wf_task.node_id and wf_task.task_id = ?";
 		
 		DaoParam param = _dao.createParam(sql);
-		param.addDateValue(taskId);
+		param.addStringValue(taskId);
 		
 		Map<String,String> mp = _dao.queryMap(param);
 		if (mp.isEmpty()) return "";

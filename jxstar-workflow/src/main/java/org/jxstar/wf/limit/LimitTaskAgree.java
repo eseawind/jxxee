@@ -18,7 +18,7 @@ import org.jxstar.wf.client.ProcessClientBO;
  * @version 1.0, 2012-4-11
  */
 public class LimitTaskAgree {
-
+	
 	/**
 	 * 默认审批通过
 	 * @param mpAssign -- 任务分配信息

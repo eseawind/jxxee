@@ -3,6 +3,9 @@
  */
 package org.jxstar.wf.limit;
 
+import java.util.List;
+import java.util.Map;
+
 import org.jxstar.task.SystemTask;
 import org.jxstar.task.TaskException;
 
@@ -18,8 +21,23 @@ import org.jxstar.task.TaskException;
 public class LimitTaskRunner extends SystemTask {
 
 	public void execute() throws TaskException {
+		List<Map<String, String>> lsAssign = LimitTaskUtil.queryLimitAssign();
+		if (lsAssign.isEmpty()) return;
 		
+		if (!lsAssign.isEmpty()) {
+			_log.showDebug("需要限时处理的分配消息条数：" + lsAssign.size());
+		}
 
+		for(Map<String, String> mpAssign : lsAssign) {
+			String taskId = mpAssign.get("task_id");
+			String rule = LimitTaskUtil.getLimitRule(taskId);
+			
+			if (rule.equals("1")) {
+				LimitTaskAgree.limitAgree(mpAssign);
+			} else if (rule.equals("2")) {
+				LimitTaskMsg.limitMsg(mpAssign);
+			}
+		}
 	}
 
 }
