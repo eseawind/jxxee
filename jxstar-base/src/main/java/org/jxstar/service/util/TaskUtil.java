@@ -30,7 +30,7 @@ public class TaskUtil {
 		String limitDate = "";
 		if (limitValue == null || limitValue.length() == 0) return limitDate;
 		
-		String regex = "([0-9]|[0-9][0-9]):([0-9]|[0-5][0-9])";
+		String regex = "([0-9]+):([0-9]|[0-5][0-9])";
 		Pattern p = Pattern.compile(regex);
 		if (!p.matcher(limitValue).matches()) return limitDate;
 		
