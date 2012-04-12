@@ -13,6 +13,16 @@
 				}
 			}
 			
+			var limit_value = form.get('wf_nodeattr__limit_value');
+			if (limit_value != '00:00' && limit_value.length > 0) {
+				var hhmi = /^([0-9]+):([0-9]|[0-5][0-9])$/;
+		        if (hhmi.test(limit_value) == false) {
+		        	JxHint.alert('任务时限格式不正确，格式为hh:mi，hh为任意数字，mi为小于59的数字！');
+					form.findField('wf_nodeattr__limit_value').focus();
+					return false;
+		        }
+			}
+			
 			return true;
 		});
 	};

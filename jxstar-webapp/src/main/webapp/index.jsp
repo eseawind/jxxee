@@ -6,7 +6,7 @@
 	String supLangType = org.jxstar.util.config.SystemVar.getValue("sys.lang.type");
 	
 	String svnNum = SystemVar.getValue("index.svn", "40");
-	String indexType = SystemVar.getValue("index.type", "0");
+	String indexType = SystemVar.getValue("index.type", "1");
 	String indexName = SystemVar.getValue("index.name", "JXstar软件开发平台");
 	String indexBottom = SystemVar.getValue("index.bottom", "");
 	

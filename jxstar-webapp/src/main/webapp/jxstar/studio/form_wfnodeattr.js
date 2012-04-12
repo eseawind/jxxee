@@ -4,6 +4,7 @@
 	var yesnoData = Jxstar.findComboData('yesno');
 	var assruleData = Jxstar.findComboData('assrule');
 	var yesnoData = Jxstar.findComboData('yesno');
+	var limitruleData = Jxstar.findComboData('limitrule');
 	var items = [{
 		height: '97%',
 		width: '97%',
@@ -80,6 +81,18 @@
 						valueField: 'value',
 						displayField: 'text',
 						value: yesnoData[0][0]},
+					{xtype:'combo', fieldLabel:'超时规则', name:'wf_nodeattr__limit_rule', defaultval:'0',
+						anchor:'100%', editable:false,
+						store: new Ext.data.SimpleStore({
+							fields:['value','text'],
+							data: limitruleData
+						}),
+						emptyText: jx.star.select,
+						mode: 'local',
+						triggerAction: 'all',
+						valueField: 'value',
+						displayField: 'text',
+						value: limitruleData[0][0]},
 					{xtype:'numberfield', allowDecimals:false, fieldLabel:'多人审批，同意人数', name:'wf_nodeattr__agree_num', defaultval:'0', anchor:'100%', maxLength:12}
 				]
 			}
@@ -152,6 +165,16 @@
 					form.findField('wf_nodeattr__custom_class').focus();
 					return false;
 				}
+			}
+			
+			var limit_value = form.get('wf_nodeattr__limit_value');
+			if (limit_value != '00:00' && limit_value.length > 0) {
+				var hhmi = /^([0-9]+):([0-9]|[0-5][0-9])$/;
+		        if (hhmi.test(limit_value) == false) {
+		        	JxHint.alert('任务时限格式不正确，格式为hh:mi，hh为任意数字，mi为小于59的数字！');
+					form.findField('wf_nodeattr__limit_value').focus();
+					return false;
+		        }
 			}
 			
 			return true;

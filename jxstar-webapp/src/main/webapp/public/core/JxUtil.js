@@ -541,6 +541,8 @@ JxUtil = {};
 							
 							page.getForm().myRecord = r;
 							page.getForm().loadRecord(r);
+							//初始化事件
+							page.formNode.event.initForm();
 						}
 					}
 				};
