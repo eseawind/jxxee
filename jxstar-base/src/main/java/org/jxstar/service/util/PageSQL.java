@@ -76,7 +76,8 @@ public class PageSQL {
 	
 	/**
 	 * SQL数据库：从数据库表中第M条记录开始检索N条记录：
-	 * select top n * from (select top (m + n - 1) * from (原SQL)) t1
+	 * select top n * from (select top (m + n - 1) 原SQL) t1
+	 * 取代原SQL中的头部select
 	 * 
 	 * @param sql
 	 * @param m
@@ -84,10 +85,15 @@ public class PageSQL {
 	 * @return
 	 */
 	private static String getServerSQL(String sql, int m, int n) {
-		StringBuilder sb = new StringBuilder("select top "+ n +" * from ");
-			sb.append("(select top ("+ (m + n) +" - 1) * from ( ");
+		//替换头部的select
+		sql = sql.trim();
+		if (sql.length() > 7 && sql.substring(0, 7).equalsIgnoreCase("select ")) {
+			sql = sql.replaceFirst("select ", "select top ("+ (m + n) +" - 1) ");
+		}
+		
+		StringBuilder sb = new StringBuilder("select top "+ n +" * from (");
 			sb.append(sql);
-			sb.append(")) t1");
+			sb.append(") t1");
 		
 		return sb.toString();
 	}
