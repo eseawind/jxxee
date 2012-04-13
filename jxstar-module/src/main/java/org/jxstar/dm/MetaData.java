@@ -149,7 +149,8 @@ public class MetaData {
 	public String getDataType(String dataType) {
 		
 		if (dataType.equals("double") || dataType.equals("float") || 
-				dataType.equals("number") || dataType.equals("decimal")) {
+				dataType.equals("numeric") || dataType.equals("number") || 
+				dataType.equals("decimal")) {
 			return "number";
 		} else if (dataType.indexOf("int") > -1) {
 			return "int";

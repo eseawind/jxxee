@@ -10,6 +10,7 @@ package org.jxstar.dm;
 import org.jxstar.dao.util.DBTypeUtil;
 import org.jxstar.dm.ddl.MysqlDdlTable;
 import org.jxstar.dm.ddl.OracleDdlTable;
+import org.jxstar.dm.ddl.SqlServerDdlTable;
 import org.jxstar.dm.reverse.OracleMetaData;
 
 /**
@@ -33,7 +34,7 @@ public class DmFactory {
 		} else if (dbType.equals(DBTypeUtil.MYSQL)) {
 			return new MysqlDdlTable();
 		} else if (dbType.equals(DBTypeUtil.SQLSERVER)) {
-			return null;
+			return new SqlServerDdlTable();
 		};
 		
 		return null;

@@ -159,7 +159,9 @@ public class MetaDataUtil {
 
 			if (rs.next()) {
 				String keyName = rs.getString("PK_NAME");
+				keyName = keyName == null ? "" : keyName;
 				String keyField = rs.getString("COLUMN_NAME");
+				keyField = keyField == null ? "" : keyField;
 				
 				mpKey.put("key_name", keyName.toUpperCase());
 				mpKey.put("key_field", keyField.toLowerCase());
@@ -212,20 +214,26 @@ public class MetaDataUtil {
 
 			while (rs.next()) {
 				String indexName = rs.getString("INDEX_NAME");			//String => 索引名称；
+				indexName = indexName == null ? "" : indexName;
 				String indexField = rs.getString("COLUMN_NAME");		//String => 列名称；
+				indexField = indexField == null ? "" : indexField;
 				String position = rs.getString("ORDINAL_POSITION");		//short => 索引中的列序列号；
+				position = position == null ? "" : position;
 				String nonunique = rs.getString("NON_UNIQUE");			//boolean => 索引值是否可以不惟一 
+				nonunique = nonunique == null ? "" : nonunique;
+				
+				//为空不处理
+				if (indexName.length() == 0) continue;
 				//小于1的不处理
 				if (position.equals("0")) continue;
 				//主键不处理
-				if (keyName.equals(indexName)) continue;
+				if (keyName.equalsIgnoreCase(indexName)) continue;
 				
 				Map<String,String> mpIndex = FactoryUtil.newMap();
 				mpIndex.put("index_name", indexName.toUpperCase());
 				mpIndex.put("column_name", indexField.toLowerCase());
 				mpIndex.put("column_position", position);
 				mpIndex.put("isunique", getIsUnique(nonunique));
-				//_log.showDebug("========" + mpIndex.toString());
 
 				lsRet.add(mpIndex);
 			}

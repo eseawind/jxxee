@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
+import org.jxstar.dao.util.DBTypeUtil;
 import org.jxstar.dm.reverse.MetaDataUtil;
 import org.jxstar.dm.studio.ReverseBO;
 import org.jxstar.test.AbstractTest;
@@ -54,8 +55,10 @@ public class MetaDataTest extends AbstractTest {
 	}
 	
 	public static void queryIndex() {
-		System.out.println("================" + MetaDataUtil.getIndexInfo("wf_user", "default"));
-		System.out.println("================" + (new MetaData()).getIndexMeta("wf_user", "default"));
+		System.out.println("================" + DBTypeUtil.getDbmsType());
+		System.out.println("================" + MetaDataUtil.getKeyMeta("mat_order", "default"));
+		System.out.println("================" + MetaDataUtil.getIndexInfo("mat_order", "default"));
+		System.out.println("================" + (new MetaData()).getIndexMeta("mat_order", "default"));
 	}
 
 }

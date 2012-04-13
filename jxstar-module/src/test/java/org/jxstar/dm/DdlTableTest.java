@@ -13,6 +13,7 @@ import java.util.Map;
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dm.ddl.MysqlDdlTable;
 import org.jxstar.dm.ddl.OracleDdlTable;
+import org.jxstar.dm.ddl.SqlServerDdlTable;
 import org.jxstar.test.AbstractTest;
 import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.factory.FactoryUtil;
@@ -29,7 +30,7 @@ public class DdlTableTest extends AbstractTest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		allModifySql();
+		sqlTest();
 	}
 
 	public static void oracleTest() {
@@ -37,6 +38,15 @@ public class DdlTableTest extends AbstractTest {
 		try {
 			//oracle.create("jxstar2");
 			oracle.modify("jxstar3");
+		} catch (DmException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void sqlTest() {
+		SqlServerDdlTable ddl = new SqlServerDdlTable();
+		try {
+			ddl.create("jxstar777433");
 		} catch (DmException e) {
 			e.printStackTrace();
 		}
