@@ -38,8 +38,6 @@ public class FormPageParser extends PageParser {
 			ExtPageParser extParser = new ExtPageParser();
 
 			ret = extParser.parse(_funid, "form", _realPath);
-			//替换文件中的\转义符
-			ret = ret.replace("\\", "\\\\");
 			
 			if (ret.length() > 0) {//去掉换行符，不然前台取不到文件
 				ret = ret.trim();

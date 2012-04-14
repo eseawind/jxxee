@@ -133,7 +133,7 @@ public abstract class PageParser extends BusinessObject {
 			String name = tagName(tag);
 			//取元素的值
 			String reptext = elementValue(name);
-			m.appendReplacement(sb, reptext);
+			m.appendReplacement(sb, repchar(reptext));
 		}
 		m.appendTail(sb);
 		
@@ -155,11 +155,25 @@ public abstract class PageParser extends BusinessObject {
 			String name = tagName(tag);
 			//取参数的值
 			String reptext = paramValue(name);
-			m.appendReplacement(sb, reptext);
+			m.appendReplacement(sb, repchar(reptext));
 		}
 		m.appendTail(sb);
 		
 		return sb.toString();
+	}
+	
+	/**
+	 * 处理替换串中的\与$符号
+	 * @param str
+	 * @return
+	 */
+	private String repchar(String str) {
+		if (str == null || str.length() == 0) return "";
+		
+		str = str.replace("\\", "\\\\");
+		str = str.replace("$", "\\$");
+		
+		return str;
 	}
 	
 	/**
