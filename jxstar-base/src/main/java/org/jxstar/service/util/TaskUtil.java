@@ -11,7 +11,9 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jxstar.dao.util.DBTypeUtil;
 import org.jxstar.util.DateUtil;
+import org.jxstar.util.StringValidator;
 
 /**
  * 任务相关信息解析类，主要用于工作流的任务解析与上报组件。
@@ -81,6 +83,13 @@ public class TaskUtil {
 	 * @return
 	 */
 	private static String addChar(String str) {
+		//处理SQLServer数据库中double类型的字符串不能与int比较的错误
+		if (DBTypeUtil.SQLSERVER.equals(DBTypeUtil.getDbmsType())) {
+			if (str.indexOf(".") >= 0 && 
+					StringValidator.validValue(str, StringValidator.DOUBLE_TYPE))
+				return str;
+		}
+		
 		StringBuilder sb = new StringBuilder();
 		sb.append("'").append(str).append("'");
 		
