@@ -2,6 +2,8 @@ package org.jxstar.util;
 
 import java.lang.reflect.Method;
 
+import org.jxstar.dao.BaseDao;
+import org.jxstar.dao.DaoParam;
 import org.jxstar.util.log.Log;
 
 
@@ -15,7 +17,7 @@ public class LogTest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		String realPath1 = "D:/Tomcat6/webapps/jxstar";
+		String realPath1 = "D:/works/jxstar/jxstar-webapp/src/main/webapp/WEB-INF/classes/";
 		SystemInitTest.initSystem(realPath1);
 		log = Log.getInstance();
 
@@ -24,11 +26,12 @@ public class LogTest {
 		log.showDebug(id);
 		
 		log.showWarn("sdfsdfsd");
-		log.showError("sdfsdfsd", new Exception("那时要"));
-		//DbHandler dao = (DbHandler) SystemFactory.createSystemObject("DbHandler");
-		//dao.update("update fun_base set ='1'  where fun_base.fun_id = ?", new String[]{"tm3232023", "string"});
-
-		//dao.queryOneRow("select * from fun_base");
+		log.showError(new Exception("那时要"));
+		
+		BaseDao dao = BaseDao.getInstance();
+		String sql = "update fun_base set ='1'  where fun_base.fun_id = ?";
+		DaoParam param = dao.createParam(sql);
+		dao.update(param);
 	}
 	
 	public static void s(String s) {
