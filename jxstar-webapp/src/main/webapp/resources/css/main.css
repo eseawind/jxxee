@@ -6,7 +6,20 @@
 .font-green  a span {color:#006600 !important;}
 .font-black  a span {color:#000000 !important;}
 .x-list-wrap {border-bottom:1px dotted #d0d0d0;}
+.tool-query {
+	border:1px solid #99bbe8;
+	border-width:1 1 0 1px;
+	background-color:#d0def0;
+    background-image:url("../images/toolbar-bg.gif");
+    font:normal 12px tahoma, arial, helvetica, sans-serif;
+}
 
+.x-subgrid {
+	border-width:0px !important;
+}
+.x-fieldset {
+    margin-bottom:0px !important;/* modify by tony tan */
+}
 .x-selectable, .x-selectable * {
     -moz-user-select:text!important;
     -khtml-user-select:text!important;
@@ -215,7 +228,7 @@ td.ux-grid-hd-group-cell {/* ux.ColumnHeaderGroup */
 .eb_add {background-image:url(../images/icons/fam/add.gif) !important;}
 .eb_change {background-image:url( ../images/icons/button/change.gif) !important;}
 .eb_print {background-image:url( ../images/icons/button/print.gif) !important;}
-.eb_expxls {background-image:url( ../images/icons/button/change.gif) !important;}
+.eb_expxls {background-image:url( ../images/icons/button/expxls.gif) !important;}
 .eb_upload {background-image:url( ../images/icons/button/upload.gif) !important;}
 .eb_sum {background-image:url( ../images/icons/button/grid_sum.gif) !important;}
 .eb_chart {background-image:url( ../images/icons/button/chart.gif) !important;}
@@ -239,7 +252,7 @@ td.ux-grid-hd-group-cell {/* ux.ColumnHeaderGroup */
 .upload_icon{background-image:url( ../images/icons/button/image.gif) !important;}
 .eb_pattach {background-image:url( ../images/icons/button/upload.gif) !important;}
 
-/***************************formÉè¼ÆÃæ°åµÄÑùÊ½***************************/
+/***************************formè®¾è®¡é¢æ¿çš„æ ·å¼***************************/
 .fdes-canvas { 
 	border-top:1px dashed #000000;
 	border-left:1px dashed #000000;
@@ -315,7 +328,7 @@ td.ux-grid-hd-group-cell {/* ux.ColumnHeaderGroup */
 	background-color: #15428b;
 }
 
-/***************************±¨±íÉè¼ÆÃæ°åµÄÑùÊ½************************** 4BACC6 15428b x-list-selected*/
+/***************************æŠ¥è¡¨è®¾è®¡é¢æ¿çš„æ ·å¼************************** 4BACC6 15428b x-list-selected*/
 .wall_top {
 	vertical-align:middle;
 	text-align:center;
