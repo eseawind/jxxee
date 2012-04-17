@@ -49,7 +49,23 @@
 		funid: 'mat_app'
 	};
 	
-	
+	config.initpage = function(nodeg){ 
+		var grid = nodeg.page;
+		//测试
+		var datas = [[{colcode:'mat_app__app_code'},{colcode:'mat_app__project_name'}],
+		             [{colcode:'mat_app__app_date'},{colcode:'mat_app__app_money'}]];
+
+		//构建通用查询控件
+		grid.on('afterrender', function(g){
+			var hcfgs = JxToolCase.showQryTool(nodeg, datas);
+			alert(Ext.encode(hcfgs));
+			var topAlign = new Ext.Container({border:false, items:hcfgs});
+			var tbar = g.getTopToolbar();
+			var el = tbar.el.insertHtml('afterEnd', "<div class='tool-query'></div>");
+			topAlign.render(el);
+			g.doLayout();
+		});
+	}
 		
 	return new Jxstar.GridNode(config);
 }

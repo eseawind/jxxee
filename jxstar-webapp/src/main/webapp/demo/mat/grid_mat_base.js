@@ -62,8 +62,121 @@
 		
 		return true;
 	});
-	
-}
+
+		var grid = gridNode.page;
+		grid.on('afterrender', function(g){
+			var hcfg1 = {
+					xtype:'container',
+			    	layout:'hbox',
+			    	border:false,
+		            layoutConfig: {
+		                padding:'2',
+		                align:'middle'
+		            },
+		            defaults:{margins:'0 0 0 5'},
+		            items:[{
+		                xtype:'label',
+		                text: '生产部门:'
+		            },{
+		                xtype:'textfield'
+		            },{
+		                xtype:'label',
+		                text: '生产日期:'
+		            },{
+		                xtype:'datefield'
+		            },{
+		                xtype:'label',
+		                text: '生产部门:'
+		            },{
+		                xtype:'textfield'
+		            },{
+		                xtype:'label',
+		                text: '生产日期:'
+		            },{
+		                xtype:'datefield'
+		            }
+		        ]};;
+			var hcfg2 = {
+					xtype:'container',
+			    	layout:'hbox',
+			    	border:false,
+		            layoutConfig: {
+		                padding:'2',
+		                align:'middle'
+		            },
+		            defaults:{margins:'0 0 0 5'},
+		            items:[{
+		                xtype:'label',
+		                text: '生产部门:'
+		            },{
+		                xtype:'textfield'
+		            },{
+		                xtype:'label',
+		                text: '生产日期:'
+		            },{
+		                xtype:'datefield'
+		            },{
+		                xtype:'label',
+		                text: '生产部门:'
+		            },{
+		                xtype:'textfield'
+		            },{
+		                xtype:'label',
+		                text: '生产日期:'
+		            },{
+		                xtype:'datefield'
+		            },{
+		            	xtype:'button',
+		            	width:50,
+                        text: '查询'
+		            }
+		        ]};
+			var hcfg3 = {
+					xtype:'container',
+			    	layout:'hbox',
+			    	border:false,
+		            layoutConfig: {
+		                padding:'2',
+		                align:'middle'
+		            },
+		            defaults:{margins:'0 0 0 5'},
+		            items:[{
+		                xtype:'label',
+		                text: '生产部门:'
+		            },{
+		                xtype:'textfield'
+		            },{
+		                xtype:'label',
+		                text: '生产日期:'
+		            },{
+		                xtype:'datefield'
+		            },{
+		                xtype:'label',
+		                text: '生产部门:'
+		            },{
+		                xtype:'textfield'
+		            },{
+		                xtype:'label',
+		                text: '生产日期:'
+		            },{
+		                xtype:'datefield'
+		            },{
+		            	xtype:'button',
+		            	width:50,
+                        text: '查询'
+		            }
+		        ]};
+			
+			var topAlign = new Ext.Container({
+		    	border:false,
+	            items:[hcfg1, hcfg2, hcfg2]
+			});
+			var tbar = g.getTopToolbar();
+			var el = tbar.el.insertHtml('afterEnd', "<div class='tool-query'></div>");
+			topAlign.render(el);
+			g.doLayout();
+		});
+	}
 		
 	return new Jxstar.GridNode(config);
 }

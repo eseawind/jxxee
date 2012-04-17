@@ -25,7 +25,7 @@
 		editor:new Ext.form.NumberField({
 			decimalPrecision:6, maxLength:12, allowBlank:false
 		}),renderer:JxUtil.formatNumber(6)}, field:{name:'mat_appdet__mat_money',type:'float'}},
-	{col:{header:'类别名称', width:153, sortable:true}, field:{name:'mat_base__type_name',type:'string'}},
+	{col:{header:'类别名称', width:153, sortable:true, hidden:true}, field:{name:'mat_base__type_name',type:'string'}},
 	{col:{header:'物资ID', width:100, sortable:true, hidden:true}, field:{name:'mat_appdet__mat_id',type:'string'}},
 	{col:{header:'类别ID', width:100, sortable:true, hidden:true}, field:{name:'mat_base__type_id',type:'string'}},
 	{col:{header:'明细ID', width:100, sortable:true, hidden:true}, field:{name:'mat_appdet__det_id',type:'string'}},
@@ -35,13 +35,13 @@
 	config.param = {
 		cols: cols,
 		sorts: null,
-		hasQuery: '1',
+		hasQuery: '0',
 		isedit: '1',
 		isshow: '0',
 		funid: 'mat_appdet'
 	};
 	
-	
+	config.param.hidePageTool = true;
 		
 	return new Jxstar.GridNode(config);
 }
