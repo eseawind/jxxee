@@ -177,6 +177,9 @@ JxUtil = {};
 		
 		//显示表格合计数据在分页工具栏中
 		viewSumData: function(grid) {
+			var bbar = grid.getBottomToolbar();
+			if (!bbar) return;
+			
 			var sumdata = grid.getStore().reader.jsonData.data.sum;
 			if (Ext.isEmpty(sumdata)) return;
 			sumdata = sumdata[0];
@@ -189,7 +192,6 @@ JxUtil = {};
 				sumText += header + '：' + value + ' ';
 			});
 			
-			var bbar = grid.getBottomToolbar();
 			var sumItem = bbar.sumItem;
 			if (Ext.isEmpty(sumItem)) {
 				var idx = bbar.items.indexOf(bbar.refresh);

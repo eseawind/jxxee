@@ -22,6 +22,11 @@ Jxstar.FormEvent = function(define) {
 		'beforecreate', 
 		/**
 		* @param {Jxstar.FormEvent} this
+		* @param {JSON[]} data
+		**/
+		'aftercreate', 
+		/**
+		* @param {Jxstar.FormEvent} this
 		**/
 		'beforesave', 
 		/**
@@ -66,7 +71,11 @@ Jxstar.FormEvent = function(define) {
 		* @param {JSON[]} data
 		* @param eventcode
 		**/
-		'aftercustom'
+		'aftercustom',
+		/**
+		* @param {Jxstar.FormEvent} this
+		**/
+		'initother'
 	);
 
 	Jxstar.FormEvent.superclass.constructor.call(this, define);
@@ -190,6 +199,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 			JxUtil.showCheckEdit(nodeId, dataId, self.form, toolBar);
 		}
 		
+		self.fireEvent('initother', self);
 		return self.initOther();
 	},
 	
@@ -452,7 +462,12 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 					}
 				}
 			}
-			self.fireEvent('aftersave', self, data);
+			if (eventcode == 'save') {
+				self.fireEvent('aftersave', self, data);
+			} else {
+				self.fireEvent('aftercreate', self, data);
+			}
+			
 			//清除脏标记，设置最新原始值
 			JxUtil.clearDirty(self.form);
 		};

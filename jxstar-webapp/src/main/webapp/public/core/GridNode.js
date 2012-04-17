@@ -450,7 +450,8 @@ Jxstar.GridNode.prototype = {
 			if (self.state == '0' && (self.param.hasQuery == null || self.param.hasQuery==true)) {
 				//右对齐
 				tbar.add('->');
-				Jxstar.createSimpleQuery(self);
+				//Jxstar.createSimpleQuery(self);
+				JxToolCase.showCase(self);
 			}
 			
 			if (tbar.items != null && tbar.items.getCount() == 1) {
