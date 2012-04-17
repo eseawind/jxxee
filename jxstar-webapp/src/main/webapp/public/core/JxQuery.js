@@ -477,7 +477,7 @@ JxQuery = {};
 				}
 			}
 			
-			var query = self.getQuery(condStore, fieldData);
+			var query = self.getQuery(condStore);
 			if (query == null) return false;
 			
 			condStore.commitChanges();
@@ -505,7 +505,7 @@ JxQuery = {};
 		var buttons = [
 				{text:'查询', iconCls:'eb_qry', handler:executeQuery}, 
 				{text:'分组统计', iconCls:'eb_sum', handler:function(){
-					var query = self.getQuery(condStore, fieldData);
+					var query = self.getQuery(condStore);
 					JxGroup.showWindow(query, pageNode);
 				}}
 			];
@@ -544,7 +544,7 @@ JxQuery = {};
 	/**
 	* private
 	* 取查询子句信息
-	* store -- 查询明细对象
+	* store -- 查询明细对象，支持MixedCollection对象
 	* return 返回数组：wheresql, value, type
 	*/
 	getQuery: function(store) {
@@ -553,15 +553,20 @@ JxQuery = {};
 		var query = new Array('','','');
 		
 		for (var i = 0; i < store.getCount(); i++) {
-			var record = store.getAt(i);
+			var data;
+			if (store.getAt) {
+				data = store.getAt(i).data;
+			} else {
+				data = store.itemAt(i);
+			}
 			
-			var left_brack = record.get('left_brack');
-			var colcode = record.get('colcode').replace('__', '.');
-			var condtype = record.get('condtype');
-			var cond_value = record.get('cond_value');
-			var right_brack = record.get('right_brack');
-			var andor = record.get('andor');
-			var coltype = record.get('coltype');
+			var left_brack = data['left_brack'];
+			var colcode = data['colcode'].replace('__', '.');
+			var condtype = data['condtype'];
+			var cond_value = data['cond_value'];
+			var right_brack = data['right_brack'];
+			var andor = data['andor'];
+			var coltype = data['coltype'];
 			
 			//如果是日期对象，则需要转换为字符串
 			cond_value = Ext.isDate(cond_value) ? cond_value.dateFormat('Y-m-d') : cond_value;
@@ -708,6 +713,10 @@ JxQuery = {};
 			case 'float':
 				ret[0] = value;
 				ret[1] = "double";
+				break;
+			default :
+				ret[0] = value;
+				ret[1] = coltype;
 				break;
 		}
 
