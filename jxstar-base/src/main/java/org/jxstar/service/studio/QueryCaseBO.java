@@ -11,7 +11,7 @@ import org.jxstar.service.BusinessObject;
 import org.jxstar.util.ArrayUtil;
 
 /**
- * 处理查询方案与统计方案。
+ * 处理查询方案数据。
  *
  * @author TonyTan
  * @version 1.0, 2012-4-17
