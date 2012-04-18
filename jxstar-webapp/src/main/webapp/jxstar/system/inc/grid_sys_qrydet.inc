@@ -1,0 +1,1 @@
+config.param.hidePageTool = true;	config.eventcfg = {				dataImportParam: function() {			var grid = this.grid;			var options = {				whereSql: 'fun_col.fun_id = ?',				whereValue: grid.qryFunId,				whereType: 'string'			};			return options;		}	};

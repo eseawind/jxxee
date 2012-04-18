@@ -1,0 +1,1 @@
+config.param.hidePageTool = true;	config.initpage = function(gridNode){ 	var event = gridNode.event;		event.on('beforecreate', function(ge) {		var myGrid = this.grid;		var rec = myGrid.store.getAt(0);		rec.set('sys_query__fun_id', myGrid.qryFunId);				return true;	});};
