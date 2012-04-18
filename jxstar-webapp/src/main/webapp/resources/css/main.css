@@ -11,7 +11,7 @@
 	border-width:1 1 0 1px;
 	background-color:#d0def0;
     background-image:url("../images/toolbar-bg.gif");
-    font:normal 12px tahoma, arial, helvetica, sans-serif;
+    font:normal 12px tahoma, arial, helvetica, sans-serif  !important;
 }
 
 .x-subgrid {

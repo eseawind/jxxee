@@ -50,6 +50,33 @@ JxToolCase = {};
 		var staid = JxUtil.newId() + '_sta';
 		var stacb = Jxstar.createCombo(staid, stas, 100);
 		tbar.add(stacb);
+		stacb.on('beforeselect', function(combo, record){
+			var val = record.get('value');
+			var oldv = combo.getValue();
+			
+			if (val == '1') {
+				JxToolStat.caseWin(nodeg);
+			} else if (val != oldv && val != '0') {
+				if (!window.JxGroupPage) {//动态同步加载该对象
+					JxUtil.loadJS('/public/layout/ux/group_page.js', true);
+				}
+				var page = JxGroupPage.createPage(val, nodeg.nodeId);
+				var	win = new Ext.Window({
+					layout:'fit',
+					width: 800,
+					height: 600,
+					constrainHeader: true,
+					resizable: false,
+					modal: true,
+					closeAction: 'close',
+					defaults:{margins:'5 2 5 2'},
+					items:[page]
+				});
+				win.show();
+			}
+		});
+		//加载统计方案
+		JxToolStat.loadStaCase(nodeg, stacb);
 	},
 	
 	/**
@@ -95,7 +122,7 @@ JxToolCase = {};
 	renderToolQry: function(nodeg, qrycond) {
 		var grid = nodeg.page;
 		var tbar = grid.getTopToolbar();
-		grid.bwrap.select('div.tool-query').remove();
+		if (grid.bwrap) grid.bwrap.select('div.tool-query').remove();
 		
 		if (qrycond.length > 0) {
 			var rowno = 0, datas = [];
@@ -116,8 +143,10 @@ JxToolCase = {};
 			var el = tbar.el.insertHtml('afterEnd', "<div class='tool-query x-small-editor'></div>");
 			qryp.render(el);
 		}
-		grid.setHeight(grid.ownerCt.getHeight());//doLayout无效
-		grid.ownerCt.doLayout();
+		if (grid.bwrap) {
+			grid.setHeight(grid.ownerCt.getHeight());//doLayout无效
+			grid.ownerCt.doLayout();
+		}
 	},
 	
 	/**
@@ -197,7 +226,7 @@ JxToolCase = {};
 					}
 				}
 				
-				label = {xtype:'label', text: mycols[i].col.header + ':'};
+				label = {xtype:'label', text:qrycfg.colname + ':'};
 				
 				//添加一个查询字段
 				var len = qryrow.length;
@@ -250,7 +279,7 @@ JxToolCase = {};
 				query[2] = tree_wtype + ';' + query[2];
 			}
 		}
-		alert(Ext.encode(query));
+		
 		Jxstar.loadData(page, {where_sql:query[0], where_value:query[1], where_type:query[2], is_query:1});
 	},
 	
@@ -283,7 +312,7 @@ JxToolCase = {};
 		self.funid = nodeg.nodeId;
 		
 		var	win = new Ext.Window({
-			title:'自定义查询方案...',
+			title:'查询方案自定义...',
 			layout:'border',
 			width: 750,
 			height: 450,
@@ -327,8 +356,11 @@ JxToolCase = {};
 				mg.getSelectionModel().selectFirstRow();
 				mg.fireEvent('rowclick', mg, 0);
 			})
-			var options = {where_sql:"(is_share = '1' or user_id = ?)", 
-				where_value:JxDefault.getUserId(), where_type:'string'};
+			var options = {
+				where_sql:"fun_id = ? and (is_share = '1' or user_id = ?)", 
+				where_value:self.funid+';'+JxDefault.getUserId(), 
+				where_type:'string;string'
+			};
 			Jxstar.loadData(mg, options);
 			
 			//记录当前功能ID
