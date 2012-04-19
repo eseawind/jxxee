@@ -253,6 +253,10 @@ public abstract class AbstractTotal implements ReportTotal {
 				operator = "like";
 				value = "%" + value;
 			}
+			if (operator.equals("like")) {
+				operator = "like";
+				value = "%" + value + "%";
+			}
 					
 			//参数数据类型
 			String type = param.get("data_type");
