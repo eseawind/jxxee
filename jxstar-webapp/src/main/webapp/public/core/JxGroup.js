@@ -279,7 +279,7 @@ JxGroup = {};
 		params += '&charfield='+charfields+'&numfield='+numfields+'&user_id='+Jxstar.session['user_id'];
 
 		//查询数据URL
-		var url = Jxstar.path + '/commonAction.do?' + params;
+		var url = Jxstar.path + '/commonAction.do';
 		//创建数据对象
 		var queryStore = new Ext.data.Store({
 			proxy: new Ext.data.HttpProxy({
@@ -297,7 +297,7 @@ JxGroup = {};
 				totalProperty: 'data.total'
 			}, cols)
 		});
-		queryStore.load();
+		queryStore.load({params:params});
 		
 		//创建表格对象
 		var queryGrid = new Ext.grid.GridPanel({

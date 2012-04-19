@@ -451,7 +451,10 @@ Jxstar.GridNode.prototype = {
 				//右对齐
 				tbar.add('->');
 				//Jxstar.createSimpleQuery(self);
-				JxToolCase.showCase(self);
+				JxQueryExt.showCase(self);
+				if (',grid,editgrid,query,'.indexOf(','+self.pageType+',') >= 0) {
+					JxGroupExt.showCase(self);
+				}
 			}
 			
 			if (tbar.items != null && tbar.items.getCount() == 1) {
