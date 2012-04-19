@@ -245,17 +245,14 @@ public abstract class AbstractTotal implements ReportTotal {
 			value = StringFormat.getDataValue(value, style);
 			
 			//如果是左匹配或右匹配，则需要添加%
-			if (operator.equals("llike")) {
+			if (operator.equals("like")) {
+				value = "%" + value + "%";
+			} else if (operator.equals("llike")) {
 				operator = "like";
 				value = value + "%";
-			}
-			if (operator.equals("rlike")) {
+			} else if (operator.equals("rlike")) {
 				operator = "like";
 				value = "%" + value;
-			}
-			if (operator.equals("like")) {
-				operator = "like";
-				value = "%" + value + "%";
 			}
 					
 			//参数数据类型
