@@ -16,45 +16,53 @@ JxGroupPage = {};
 	funId:'',
 	selchars:[],
 	selnums:[],
+	charfields:'',
+	numfields:'',
 	groupPage:null,
 	statGrid:null,
+	statTool:null,
+	pageNode:null,
 	
 	/**
 	* public 返回页面对象
 	* 
 	**/
-	createPage: function(statId, funId) {
+	createPage: function(statId, pageNode) {
 		var self = this;
-		self.funId = funId;
+		self.pageNode = pageNode;
+		self.funId = pageNode.nodeId;
 		
-		var	page = new Ext.Panel({
+		var	page = new Ext.Container({
+			broder:false,
 			layout:'border',
 			items:[{
 				xtype:'container',
 				region:'north',
 				layout:'fit',
-				height:150
+				height:200
 			},{
 				xtype:'container',
 				region:'center',
-				layout:'border',
+				layout:'fit',
 				style:'border-top:1px solid #99bbe8;',
-				items:[{
-					xtype:'container',
-					region:'north',
-					layout:'fit',
-					height:100
-				},{
-					xtype:'container',
-					region:'center',
-					layout:'fit',
-					style:'border-top:1px solid #99bbe8;'
-				}]
 			}]
 		});
 		
 		self.groupPage = page;
 		self.loadCase(statId);
+		
+		page.on('beforeclose', function(){
+			if (!self.statGrid != null) self.statGrid.destroy();
+			self.funId = '';
+			self.selchars = [];
+			self.selnums = [];
+			self.charfields = '';
+			self.numfields = '';
+			self.groupPage = null;
+			self.statGrid = null;
+			self.statTool = null;
+			self.pageNode = null;
+		});
 		
 		return page;
 	},
@@ -94,15 +102,17 @@ JxGroupPage = {};
 		if (charfields.length > 0) {
 			charfields = charfields.substr(0, charfields.length-1);
 		}
+		self.charfields = charfields;
 		
 		//取统计字段
 		var numfields = '', nums = config.nums;
 		for (var i = 0, n = nums.length; i < n; i++) {
 			var text = nums[i].colname;
 			var field = nums[i].colcode
-			if (field != 'recordnum') {field = field.split('__')[1];}
-			
-			numfields += field + ',';
+			if (field != 'recordnum') {
+				field = field.split('__')[1];
+				numfields += field + ',';
+			}			
 			
 			self.selnums[i] = [field, text];
 			cols[f++] = {name:field};
@@ -111,12 +121,11 @@ JxGroupPage = {};
 		if (numfields.length > 0) {
 			numfields = numfields.substr(0, numfields.length-1);
 		}
+		self.numfields = numfields;
 		
-		var params = 'funid=queryevent&query_funid='+ self.funId + '&pagetype=grid&eventcode=group_stat';
-		params += '&charfield='+charfields+'&numfield='+numfields+'&user_id='+Jxstar.session['user_id'];
-
 		//查询数据URL
-		var url = Jxstar.path + '/commonAction.do?' + params;
+		var url = Jxstar.path + '/commonAction.do';
+		var params = self.getStatParams('group_stat', '&user_id='+Jxstar.session['user_id']);
 		//创建数据对象
 		var store = new Ext.data.Store({
 			proxy: new Ext.data.HttpProxy({
@@ -137,59 +146,73 @@ JxGroupPage = {};
 			pruneModifiedRecords: true
 		});
 		store.on('load', function(){
-			var cmp = self.groupPage.getComponent(1);
-			var group = self.createGroup();
-			cmp.getComponent(0).add(group);
-			var image = self.createImage();
-			cmp.getComponent(1).add(image);
-			self.groupPage.doLayout();
+			self.createImage();
 		});
-		store.load();
+		store.load({params:params});
 		
+		self.statTool = self.createGroup();
 		//创建表格对象
 		var queryGrid = new Ext.grid.GridPanel({
 			store: store,
 			columns: cm,
 			border: false,
 			stripeRows: true,
-			columnLines: true
+			columnLines: true,
+			viewConfig: {forceFit: true},
+			bbar:self.statTool
 		});
 		return queryGrid;
+	},
+	
+	//统计需要参数
+	getStatParams: function(eventCode, extParams) {
+		var self = this;
+		//取当前功能的最后查询的SQL
+		var opt = self.pageNode.page.getStore().lastOptions.params || {};
+		var e = encodeURIComponent;
+		
+		var params = 'funid=queryevent&query_funid='+ self.funId + '&pagetype=grid&eventcode=' + eventCode;
+		params += '&where_sql='+ e(opt.where_sql||'') +'&where_value='+ e(opt.where_value||'') +'&where_type='+(opt.where_type||'');
+		params += '&charfield='+self.charfields+'&numfield='+self.numfields;
+		
+		if (extParams && extParams.length > 0) {
+			params += extParams;
+		}
+		
+		return params;
+	},
+	
+	//导出统计数据
+	exportXls: function() {
+		var self = this;
+		//图形类型
+		var type = 'columnchart';
+		Ext.each(self.statTool.findByType('radio'), function(item){
+			if (item.checked == true) {
+				type = item.inputValue;
+				return;
+			}
+		});
+		//取分组字段与统计字段
+		var chars = self.statTool.find('name', 'group_field')[0];
+		var nums = self.statTool.find('name', 'stat_field')[0];
+		//从表格中取数据传到后台，格式：第一行：列名1,列名2,...；第二行开始就是数据；行用\n分割，列用,分隔；
+		var expText = JxUtil.gridToCSV(self.statGrid, false);
+		
+		var params = 'funid=queryevent&query_funid='+ self.funId + '&pagetype=grid&eventcode=group_exp';
+		params += '&chart_type=' + type + '&selchar=' + chars.getValue() + '&selnum=' + nums.getValue();
+		params += '&exptext=' + expText;
+		Request.fileDown(params);
 	},
 	
 	//创建统计面板
 	createGroup: function() {
 		var self = this;
-		//创建新的内容区
-		var chartForm = new Ext.form.FormPanel({
-			style:'padding:2px;',
-			broder:false,
-			baseCls: 'x-plain',
-			items:[            {xtype: 'radiogroup',
-			                   fieldLabel: 'Auto Layout',
-			       			   width:'100%',
-			                   items: [
-			                       {boxLabel: 'Item 1', name: 'rb-auto', inputValue: 1},
-			                       {boxLabel: 'Item 2', name: 'rb-auto', inputValue: 2, checked: true},
-			                       {boxLabel: 'Item 3', name: 'rb-auto', inputValue: 3},
-			                       {boxLabel: 'Item 4', name: 'rb-auto', inputValue: 4},
-			                       {boxLabel: 'Item 5', name: 'rb-auto', inputValue: 5}
-			                   ]},{xtype: 'radiogroup',
-				                   fieldLabel: 'Auto Layout1',
-				                   width:550,
-				                   items: [
-				                       {boxLabel: 'Item 1', name: 'rb-auto', inputValue: 1},
-				                       {boxLabel: 'Item 2', name: 'rb-auto', inputValue: 2, checked: true},
-				                       {boxLabel: 'Item 3', name: 'rb-auto', inputValue: 3},
-				                       {boxLabel: 'Item 4', name: 'rb-auto', inputValue: 4},
-				                       {boxLabel: 'Item 5', name: 'rb-auto', inputValue: 5}
-				                   ]}
-			                   /*
-			       {
-				xtype:'fieldset',
-				title:jx.group.datafield,	//'数据字段'
-				items:[{
-					xtype:'combo', fieldLabel:jx.group.groupfield, //'分组字段:'
+		var toolbar = new Ext.Toolbar({
+				items:['-',
+				   {xtype:'label', text:jx.group.groupfield},
+				   {width: 100,
+					xtype:'combo', 
 					name:'group_field', store: new Ext.data.SimpleStore({
 						fields:['value','text'],
 						data: self.selchars
@@ -200,8 +223,9 @@ JxGroupPage = {};
 					displayField: 'text',
 					editable:false, allowBlank:false, 
 					value: self.selchars[0][0]
-				},{
-					xtype:'combo', fieldLabel:jx.group.statfield, 	//'统计字段:'
+				 },'-',{xtype:'label', text:jx.group.statfield},
+				   {width: 100,
+					xtype:'combo', 
 					name:'stat_field', store: new Ext.data.SimpleStore({
 						fields:['value','text'],
 						data: self.selnums
@@ -212,34 +236,42 @@ JxGroupPage = {};
 					displayField: 'text',
 					editable:false, allowBlank:false, 
 					value: self.selnums[0][0]
-				}]
-			},{
-				xtype:'fieldset',
-				title:jx.group.chattype,	//'图表类型'
-				items:[{
-					xtype:'radiogroup',
-					fieldLabel:jx.group.chattype+':',	//'图表类型'
-					name:'chart_type',
-					items:[
-						{boxLabel:jx.group.pie, name:'chart_type', inputValue:'piechart', checked: true},	//'饼状'
-						{boxLabel:jx.group.col, name:'chart_type', inputValue:'columnchart'},				//'柱状'
-						{boxLabel:jx.group.line, name:'chart_type', inputValue:'linechart'}				//'线型'
-					]
-				}]
-			}*/]
-		});
-		return chartForm;
+				},'-',
+				{xtype:'label', text:jx.group.chattype+':'},
+				{xtype:'radio', boxLabel:jx.group.col, width:60, name:'chart_type', inputValue:'columnchart', checked: true},
+				{xtype:'radio', boxLabel:jx.group.pie, width:60, name:'chart_type', inputValue:'piechart'},
+				{xtype:'radio', boxLabel:jx.group.line, width:60, name:'chart_type', inputValue:'linechart'},
+				'-',
+				{xtype:'button', iconCls:'eb_chart', text:'图形分析', handler:self.createImage.createDelegate(self)},
+				{xtype:'button', iconCls:'eb_expxls', text:'另存excel', handler:self.exportXls.createDelegate(self)}
+			]});
+		return toolbar;
 	},
 	
 	//创建图形面板
 	createImage: function() {
 		var self = this;
+		//先删除子对象
+		var ct = self.groupPage.getComponent(1);
+		ct.removeAll(true);
 		//统计数据
 		var store = self.statGrid.getStore();
+		//图形类型
+		var type = 'columnchart';
+		Ext.each(self.statTool.findByType('radio'), function(item){
+			if (item.checked == true) {
+				type = item.inputValue;
+				return;
+			}
+		});
+		//取分组字段与统计字段
+		var chars = self.statTool.find('name', 'group_field')[0];
+		var nums = self.statTool.find('name', 'stat_field')[0];
 		//创建图表输出对象
-		var chartPanel = JxGroup.createChartImage(store, self.selchars[0][0], self.selnums[0][0], 'columnchart');
+		var chartPanel = JxGroup.createChartImage(store, chars.getValue(), nums.getValue(), type);
 		
-		return chartPanel;
+		ct.add(chartPanel);
+		self.groupPage.doLayout();
 	}
 	
 	});//Ext.apply
