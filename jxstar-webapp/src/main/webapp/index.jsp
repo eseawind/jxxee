@@ -69,8 +69,8 @@
 	<script type="text/javascript" src="public/core/JxHint.js?verno=<%=svnNum%>"></script>
 	<script type="text/javascript" src="public/core/JxSelect.js?verno=<%=svnNum%>"></script>
 	<script type="text/javascript" src="public/core/JxFormSub.js?verno=<%=svnNum%>"></script>
-	<script type="text/javascript" src="public/core/JxToolCase.js?verno=<%=svnNum%>"></script>
-	<script type="text/javascript" src="public/core/JxToolStat.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxQueryExt.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxGroupExt.js?verno=<%=svnNum%>"></script>
 	
 	<script type="text/javascript" src="public/portlet/PortletFun.js?verno=<%=svnNum%>"></script>
 	<script type="text/javascript" src="public/portlet/PortletMsg.js?verno=<%=svnNum%>"></script>
