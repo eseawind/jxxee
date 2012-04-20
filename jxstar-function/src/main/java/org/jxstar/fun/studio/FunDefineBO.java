@@ -125,8 +125,8 @@ public class FunDefineBO extends BusinessObject {
 	 */
 	public String createJson(String realPath) {
 		String sql = "select fun_id, fun_name, layout_page, grid_page, form_page, table_name, "+
-					 "pk_col, fk_col, audit_col, subfun_id, show_form, first_field from fun_base " +
-					 "where reg_type not in ('nouse') " + 
+					 "pk_col, fk_col, audit_col, subfun_id, show_form, first_field, is_archive " +
+					 "from fun_base where reg_type not in ('nouse') " + 
 					 "order by module_id, fun_index ";
 
 		DaoParam param = _dao.createParam(sql);
@@ -157,8 +157,8 @@ public class FunDefineBO extends BusinessObject {
 			sbItem.append("auditcol:'"+mpfun.get("audit_col").replace(".", "__")+"', ");
 			sbItem.append("subfunid:'"+mpfun.get("subfun_id")+"', ");
 			sbItem.append("showform:'"+mpfun.get("show_form")+"', ");
-			sbItem.append("first:'"+mpfun.get("first_field")+"'");
-			
+			sbItem.append("first:'"+mpfun.get("first_field")+"', ");
+			sbItem.append("isarch:'"+mpfun.get("is_archive")+"'");
 			
 			if (i < n-1) {
 				sbItem.append("},\r");
