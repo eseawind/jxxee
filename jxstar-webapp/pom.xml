@@ -58,6 +58,7 @@
   				<encoding>UTF-8</encoding>
   				<port>8080</port>
   				<path>/jxstar</path>
+  				<uriEncoding>UTF-8</uriEncoding>
   			</configuration>
 		</plugin> 
   	</plugins>
