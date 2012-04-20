@@ -223,7 +223,7 @@ public class ExportXlsBO extends BusinessObject {
 	 * @param wb -- 表单对象
 	 * @return
 	 */
-	private HSSFCellStyle createTitleStyle(HSSFWorkbook wb) {
+	public HSSFCellStyle createTitleStyle(HSSFWorkbook wb) {
 		//创建标题字体
 		HSSFFont cellFont = wb.createFont();
 		cellFont.setFontName("楷体");
@@ -244,7 +244,7 @@ public class ExportXlsBO extends BusinessObject {
 	 * @param wb -- 表单对象
 	 * @return
 	 */
-	private HSSFCellStyle createHeadStyle(HSSFWorkbook wb) {
+	public HSSFCellStyle createHeadStyle(HSSFWorkbook wb) {
 		//创建标题字体
 		HSSFFont cellFont = wb.createFont();
 		cellFont.setFontName("宋体");
@@ -271,7 +271,7 @@ public class ExportXlsBO extends BusinessObject {
 	 * @param wb -- 表单对象
 	 * @return
 	 */
-	private HSSFCellStyle createCellStyle(HSSFWorkbook wb) {
+	public HSSFCellStyle createCellStyle(HSSFWorkbook wb) {
 		//创建标题字体
 		HSSFFont cellFont = wb.createFont();
 		cellFont.setFontName("宋体");
