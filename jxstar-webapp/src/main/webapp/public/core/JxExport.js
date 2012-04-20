@@ -70,23 +70,15 @@ JxExport = {};
 	* selfields -- 选择字段的数据
 	**/
 	executeExp: function(pageNode, selfields) {
-		var dsOption = pageNode.page.getStore().lastOptions.params || {}; 
-		var where_sql = dsOption.where_sql || '';
-		var where_value = dsOption.where_value || '';
-		var where_type = dsOption.where_type || '';
-		
+		var dsOption = pageNode.page.getStore().lastOptions.params || {};
 		var funid = pageNode.nodeId;
 		
 		//请求参数
-		var e = encodeURIComponent; //编码
-		var params = 'funid=sysevent&query_funid='+ funid + '&user_id=' + Jxstar.session['user_id'];
+		var params = 'funid=sysevent&query_funid='+ funid;
 		params += '&pagetype=grid&eventcode=expxls&dataType=xls';
-		params += '&where_sql='+ e(where_sql) +'&where_value='+ e(where_value) +'&where_type='+where_type;
 		params += '&selfield='+selfields+'&zerotonull=0';
-		
-		//发送后台请求
-		var href = Jxstar.path + "/fileAction.do?" + params;
-		document.getElementById('frmhidden').src = href;
+		//导出xls文件
+		Request.expFile(params, dsOption);
 	}
 
 	});//Ext.apply
