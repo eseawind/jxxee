@@ -194,11 +194,15 @@ Request = {};
 		fileUpdate: function(targetId, params, hdCall) {
 			SessionTimer.resetTimer();
 			
-			params = params||{};
+			params = params||'';
 			//添加用户名判断
-			params += '&user_id=' + Jxstar.session['user_id'];
+			if (params.indexOf('&user_id=') < 0) {
+				params += '&user_id=' + Jxstar.session['user_id'];
+			}
 			//添加数据类型
-			params += '&dataType=byte';
+			if (params.indexOf('&dataType=') < 0) {
+				params += '&dataType=byte';
+			}
 		
 			Ext.get(targetId).load({
 				method: 'POST',
@@ -223,11 +227,15 @@ Request = {};
 		fileDown: function(params) {
 			SessionTimer.resetTimer();
 			
-			params = params||{};
+			params = params||'';
 			//添加用户名判断
-			params += '&user_id=' + Jxstar.session['user_id'];
+			if (params.indexOf('&user_id=') < 0) {
+				params += '&user_id=' + Jxstar.session['user_id'];
+			}
 			//添加数据类型
-			params += '&dataType=byte';
+			if (params.indexOf('&dataType=') < 0) {
+				params += '&dataType=byte';
+			}
 			
 			//输出iframe下载文件
 			var href = Jxstar.path + '/fileAction.do?' + params;
@@ -244,9 +252,11 @@ Request = {};
 		fileRequest: function(form, params, hdCall) {
 			SessionTimer.resetTimer();
 			
-			params = params||{};
+			params = params||'';
 			//添加用户名判断
-			params += '&user_id=' + Jxstar.session['user_id'];
+			if (params.indexOf('&user_id=') < 0) {
+				params += '&user_id=' + Jxstar.session['user_id'];
+			}
 			//设置上传附件的参数
 			form.fileUpload = true;
 			form.method = 'POST';
@@ -277,29 +287,48 @@ Request = {};
 		},
 		
 		/**
-		* 表格中的数据导出到xls文件中
-		* grid -- 数据表格
-		* fileName -- excel文件名
-		**/
-		exportCSV: function(grid, fileName) {
-			var vExportContent = JxUtil.gridToCSV(grid, true);
-			var fd = Ext.get('frmDummy');
+		 * 通过POST的方式向后台发送请求，后台取得文件内容，返回前台下载，
+		 * 替换原来采用document.getElementById('frmhidden').src = href;的方式。
+		 * getParams -- GET请求的参数，URL字符串
+		 * postParams -- POST请求的参数，格式为：{exp_text:'', where_sql:'', where_value:'', where_type:''}
+		 */
+		expFile: function(getParams, postParams) {
+			//如果没有form则自动创建
+			var fd = Ext.get('frmExpFile');
 			if (!fd) {
 				fd = Ext.DomHelper.append(Ext.getBody(), {
 						tag:'form', 
 						method:'post', 
-						id:'frmDummy', 
-						name:'frmDummy',
-						action:Jxstar.path+'/public/core/exportfile.jsp', 
-						target:'_blank',
+						id:'frmExpFile', 
+						name:'frmExpFile',
+						target:'frmhidden',
 						cls:'x-hidden',
-						cn:[
-							{tag:'input',name:'fileName',id:'fileName',type:'hidden'},
-							{tag:'input',name:'exportContent',id:'exportContent',type:'hidden'}]
+						cn:[{tag:'input',name:'exp_text',id:'exp_text',type:'hidden'},
+						    {tag:'input',name:'where_sql',id:'where_sql',type:'hidden'},
+						    {tag:'input',name:'where_value',id:'where_value',type:'hidden'},
+						    {tag:'input',name:'where_type',id:'where_type',type:'hidden'}]
 					}, true);
 			}
-			fd.child('#fileName').set({value:fileName});
-			fd.child('#exportContent').set({value:vExportContent});
+			//POST请求参数
+			var pps = postParams||{};
+			fd.child('#exp_text').set({value:pps.exp_text||''});
+			fd.child('#where_sql').set({value:pps.where_sql||''});
+			fd.child('#where_value').set({value:pps.where_value||''});
+			fd.child('#where_type').set({value:pps.where_type||''});
+			
+			//URL请求参数
+			var href = Jxstar.path + "/fileAction.do";
+			var gps = getParams||'';
+			if (gps.indexOf('&user_id=') < 0) {
+				gps += '&user_id=' + Jxstar.session['user_id'];
+			}
+			if (gps.indexOf('&dataType=') < 0) {
+				gps += '&dataType=byte';
+			}
+			if (gps.length > 0) {
+				href += '?' + encodeURI(gps);
+			}
+			fd.dom.action = href;
 			fd.dom.submit();
 		}
 
