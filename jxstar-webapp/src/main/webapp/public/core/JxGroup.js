@@ -209,7 +209,7 @@ JxGroup = {};
 				width:70,
 				handler:function(){
 					//把grid中的数据保存为csv格式的文件, 统计数据.csv
-					Request.exportCSV(self.statGrid, jx.group.statdata+'.csv');
+					self.exportCSV(self.statGrid, jx.group.statdata+'.csv');
 				}
 			},{
 				text:jx.group.back,	//返回
@@ -275,7 +275,8 @@ JxGroup = {};
 		/**************************重新统计结果*******************************/
 		var e = encodeURIComponent;	//编码
 		var params = 'funid=queryevent&query_funid='+ self.funId + '&pagetype=grid&eventcode=group_stat';
-		params += '&where_sql='+ e(where_sql) +'&where_value='+ e(where_value) +'&where_type='+where_type;
+		params += '&where_sql='+ e(where_sql) + '&where_value='+ e(where_value);
+		params += '&where_type='+where_type + '&query_type=1';
 		params += '&charfield='+charfields+'&numfield='+numfields+'&user_id='+Jxstar.session['user_id'];
 
 		//查询数据URL
@@ -546,6 +547,33 @@ JxGroup = {};
 		}
 		
 		return [max, interval];
+	},
+	
+	/**
+	* 表格中的数据导出到xls文件中
+	* grid -- 数据表格
+	* fileName -- excel文件名
+	**/
+	exportCSV: function(grid, fileName) {
+		var vExportContent = JxUtil.gridToCSV(grid, true);
+		var fd = Ext.get('frmDummy');
+		if (!fd) {
+			fd = Ext.DomHelper.append(Ext.getBody(), {
+					tag:'form', 
+					method:'post', 
+					id:'frmDummy', 
+					name:'frmDummy',
+					action:Jxstar.path+'/public/core/exportfile.jsp', 
+					target:'_blank',
+					cls:'x-hidden',
+					cn:[
+						{tag:'input',name:'fileName',id:'fileName',type:'hidden'},
+						{tag:'input',name:'exportContent',id:'exportContent',type:'hidden'}]
+				}, true);
+		}
+		fd.child('#fileName').set({value:fileName});
+		fd.child('#exportContent').set({value:vExportContent});
+		fd.dom.submit();
 	}
 	
 	});//Ext.apply

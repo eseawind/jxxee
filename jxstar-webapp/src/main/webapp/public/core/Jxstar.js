@@ -862,8 +862,7 @@ Ext.ns('Jxstar');
 		validNode: function(nodeId) {
 			var self = this;
 			//如果是管理员，则不校验
-			var roleId = JxDefault.getRoleId();
-			if (roleId.indexOf('admin') >= 0) return true;
+			if (JxUtil.isAdminUser()) return true;
 			
 			//检查功能ID是否在授权的功能ID数组中
 			for (var i = 0; i < self.rightNodes.length; i++) {

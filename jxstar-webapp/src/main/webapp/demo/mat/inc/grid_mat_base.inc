@@ -22,30 +22,4 @@ config.initpage = function(gridNode){
 		
 		return true;
 	});
-	
-	var topAlign = new Ext.Container({
-			height:25,
-	    	layout:'hbox',
-            layoutConfig: {
-                padding:'5',
-                align:'top'
-            },
-            defaults:{margins:'0 5 0 0'},
-            items:[{
-                xtype:'button',
-                text: 'Button 1'
-            },{
-                xtype:'button',
-                text: 'Button 2'
-            },{
-                xtype:'button',
-                text: 'Button 3'
-            },{
-                xtype:'button',
-                text: 'Button 4'
-            }]
-	});
-	var grid = gridNode.page;
-	var el = grid.body.insertHtml('beforeBegin', '<div name=1></div>');
-	topAlign.render(el);
 }

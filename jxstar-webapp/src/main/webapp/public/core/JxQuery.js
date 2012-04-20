@@ -38,23 +38,19 @@ JxQuery = {};
 		//查询明细表格对象
 		self.gridDet = self.conditionGrid(pageNode);
 		
-		var queryLayout = new Ext.Panel({
-			id:pageNode.id+'_query_layout',
-			border:false,
+		var queryLayout = new Ext.Container({
 			layout:'border',
+			defaults:{margins:'2 2 2 2'},
 			items:[{
-				id:pageNode.id+'_left_query',
-				autoScroll:true,
+				xtype:'container',
 				region:'west',
 				layout:'fit',
 				width:200,
-				border:false,
 				items:[self.gridHis]
 			},{
-				id:pageNode.id+'_right_query',
+				xtype:'container',
 				region:'center',
 				layout:'fit',
-				border:false,
 				items:[self.gridDet]
 			}]
 		});
@@ -150,7 +146,7 @@ JxQuery = {};
 				for(var i = 0, len = condata.root.length; i < len; i++){
 					var item = [];
 					item[0] = condata.root[i].left_brack;
-					item[1] = condata.root[i].colcode;
+					item[1] = condata.root[i].colcode.replace('.', '__');//查询方案中的字段名中带.
 					item[2] = condata.root[i].condtype;
 					item[3] = condata.root[i].cond_value;
 					item[4] = condata.root[i].right_brack;

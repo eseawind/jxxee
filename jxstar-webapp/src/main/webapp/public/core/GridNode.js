@@ -306,6 +306,7 @@ Jxstar.GridNode.prototype = {
 			gp.gridNode = null;			delete gp.gridNode;
 			gp.cmpTree = null;			delete gp.cmpTree;
 			gp.treeNodeAttr = null;		delete gp.treeNodeAttr;
+			gp.qryCt = null;			delete gp.qryCt;
 			gp = null;
 			
 			return true;
@@ -450,10 +451,14 @@ Jxstar.GridNode.prototype = {
 			if (self.state == '0' && (self.param.hasQuery == null || self.param.hasQuery==true)) {
 				//右对齐
 				tbar.add('->');
-				//Jxstar.createSimpleQuery(self);
-				JxQueryExt.showCase(self);
-				if (',grid,editgrid,query,'.indexOf(','+self.pageType+',') >= 0) {
-					JxGroupExt.showCase(self);
+				//判断是采用原公共查询还是采用新的查询模式
+				if (Jxstar.systemVar.useCase == '1') {
+					JxQueryExt.showCase(self);
+					if (',grid,editgrid,query,'.indexOf(','+self.pageType+',') >= 0) {
+						JxGroupExt.showCase(self);
+					}
+				} else {
+					Jxstar.createSimpleQuery(self);
 				}
 			}
 			

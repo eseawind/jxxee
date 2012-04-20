@@ -30,6 +30,7 @@ Jxstar.GridEvent = function(define) {
 		'aftersave', 
 		/**
 		* @param {Jxstar.GridEvent} this
+		* @param {Ext.data.Record[]} records
 		**/
 		'beforedelete', 
 		/**
@@ -280,7 +281,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		if (!JxUtil.selected(records)) return;
 
 		if (this.checkAudit()) return;
-		if (this.fireEvent('beforedelete', this) == false) return;
+		if (this.fireEvent('beforedelete', this, records) == false) return;
 
 		var self = this;
 		var hdcall = function() {
@@ -490,7 +491,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		if (!JxUtil.selected(records)) return;
 
 		if (this.checkAudit()) return;
-		if (this.fireEvent('beforedelete', this) == false) return;
+		if (this.fireEvent('beforedelete', this, records) == false) return;
 
 		var self = this;
 		var pkcol = self.define.pkcol;

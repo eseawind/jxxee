@@ -46,10 +46,11 @@ JxGroupExt = {};
 		tbar.add(stacb);
 		stacb.on('beforeselect', function(combo, record){
 			var val = record.get('value');
+			var oldv = combo.getValue();//防止重复点击
 			
-			if (val == '1') {
+			if (val != oldv && val == '1') {
 				self.caseWin(nodeg);
-			} else if (val != '0') {
+			} else if (val != oldv && val != '0') {
 				if (!window.JxGroupPage) {//动态同步加载该对象
 					JxUtil.loadJS('/public/layout/ux/group_page.js', true);
 				}
@@ -182,7 +183,7 @@ JxGroupExt = {};
 				}
 				
 				hdcall(text);
-			},self,null,'方案1');
+			},self,null,'统计方案1');
 		} else {
 			hdcall('');
 		}
@@ -253,19 +254,19 @@ JxGroupExt = {};
 		var	win = new Ext.Window({
 			title:'统计方案自定义...',
 			layout:'border',
-			width: 610,
+			width: 620,
 			height: 500,
 			constrainHeader: true,
 			resizable: false,
 			modal: true,
 			closeAction: 'close',
-			defaults:{margins:'5 2 5 2'},
+			defaults:{margins:'2 2 2 2'},
 			items:[{
 				xtype:'container',
 				autoScroll:true,
 				region:'west',
 				layout:'fit',
-				width:190,
+				width:210,
 				border:false
 			},{
 				xtype:'container',
@@ -310,7 +311,7 @@ JxGroupExt = {};
 			Jxstar.loadData(mg, options);
 		});
 		
-		win.on('beforeclose', function(){
+		win.on('destroy', function() {
 			self.loadStaCase(pageNode, self.statCombo);
 			
 			if (self.statGrid != null) self.statGrid.destroy();

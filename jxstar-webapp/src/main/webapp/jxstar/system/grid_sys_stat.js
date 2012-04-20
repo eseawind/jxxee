@@ -2,7 +2,7 @@
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 
 	var cols = [
-	{col:{header:'*统计方案名称', width:138, sortable:true, editable:true, hcss:'color:#0000ff;',
+	{col:{header:'*统计方案名称', width:115, sortable:true, editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.TextField({
 			maxLength:50, allowBlank:false
 		})}, field:{name:'sys_stat__stat_name',type:'string'}},
@@ -29,7 +29,7 @@
 		funid: 'sys_stat'
 	};
 	
-	config.param.hidePageTool = true;
+	config.param.hidePageTool = true;config.initpage = function(gridNode){ 	var event = gridNode.event;		//只能删除自己新建的方案，但管理员可以删除所有方案	event.on('beforedelete', function(ge, records) {		if (JxUtil.isAdminUser()) return true;				for (var i = 0; i < records.length; i++) {			var user_id = records[i].get('sys_stat__user_id');			if (user_id != JxDefault.getUserId()) {				JxHint.alert('选择的方案中含他人建立的方案，不能删除！');				return false;			}		}				return true;	});};
 		
 	return new Jxstar.GridNode(config);
 }

@@ -2,9 +2,9 @@
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 
 	var cols = [
-	{col:{header:'查询方案', width:108, sortable:true, editable:true, hcss:'color:#3039b4;',
+	{col:{header:'*查询方案', width:108, sortable:true, defaultval:'查询方案1', editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.TextField({
-			maxLength:50
+			maxLength:50, allowBlank:false
 		})}, field:{name:'sys_query__query_name',type:'string'}},
 	{col:{header:'共享?', width:48, sortable:true, defaultval:'1', editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.Checkbox(),
@@ -34,7 +34,7 @@
 		funid: 'sys_query'
 	};
 	
-	config.param.hidePageTool = true;	config.initpage = function(gridNode){ 	var event = gridNode.event;		event.on('beforecreate', function(ge) {		var myGrid = this.grid;		var rec = myGrid.store.getAt(0);		rec.set('sys_query__fun_id', myGrid.qryFunId);				return true;	});};
+	config.param.hidePageTool = true;	config.initpage = function(gridNode){ 	var event = gridNode.event;		event.on('beforecreate', function(ge) {		var myGrid = this.grid;		var rec = myGrid.store.getAt(0);		rec.set('sys_query__fun_id', myGrid.qryFunId);				return true;	});		//只能删除自己新建的方案，但管理员可以删除所有方案	event.on('beforedelete', function(ge, records) {		if (JxUtil.isAdminUser()) return true;				for (var i = 0; i < records.length; i++) {			var user_id = records[i].get('sys_query__user_id');			if (user_id != JxDefault.getUserId()) {				JxHint.alert('选择的方案中含他人建立的方案，不能删除！');				return false;			}		}				return true;	});};
 		
 	return new Jxstar.GridNode(config);
 }

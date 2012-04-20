@@ -125,6 +125,12 @@ JxUtil = {};
 			}
 		},
 		
+		//当前用户是否管理员
+		isAdminUser: function(){
+			var roleId = Jxstar.session['role_id'];
+			return (roleId.indexOf('admin') >= 0);
+		},
+		
 		//根据表格取表单对象
 		getMyForm: function(myGrid) {
 			var tabPanel = myGrid.findParentByType('tabpanel');

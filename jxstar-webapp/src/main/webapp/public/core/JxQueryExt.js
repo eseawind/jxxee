@@ -30,9 +30,9 @@ JxQueryExt = {};
 		tbar.add(qrycb);
 		qrycb.on('beforeselect', function(combo, record){
 			var val = record.get('value');
-			var oldv = combo.getValue();
+			var oldv = combo.getValue();//防止重复点击
 			
-			if (val == '1') {
+			if (val != oldv && val == '1') {
 				self.openToolQry(nodeg, combo);
 			} else if (val != oldv && val != '0') {
 				var endcall = function(data) {
@@ -66,6 +66,9 @@ JxQueryExt = {};
 			//刷新查询方案
 			var qrycase = data.qrycase, iqs = JxQueryExt.initQrys;
 			var qrys = [iqs[0], iqs[1]];
+			//只有管理员才有自定义权限
+			//if (JxUtil.isAdminUser()) qrys[1] = iqs[1];
+			
 			Ext.each(qrycase, function(item){
 				qrys[qrys.length] = [item.value, item.text];
 			});
@@ -94,11 +97,14 @@ JxQueryExt = {};
 		if (qrycond.length > 0) {
 			var rowno = 0, datas = [];
 			for (var i = 0, n = qrycond.length; i < n; i++) {//查询字段分行显示
-				if (rowno == parseInt(qrycond[i].row_no)) {
+				var qryrowno = qrycond[i].row_no;
+				if (Ext.isEmpty(qryrowno)) qryrowno = '1';
+				
+				if (rowno == parseInt(qryrowno)) {
 					var row = datas[rowno-1];
 					row[row.length] = qrycond[i];
 				} else {
-					rowno = parseInt(qrycond[i].row_no);//新的行号
+					rowno = parseInt(qryrowno);//新的行号
 					datas[rowno-1] = [qrycond[i]];
 				}
 			}
@@ -109,9 +115,10 @@ JxQueryExt = {};
 			});
 			var el = tbar.el.insertHtml('afterEnd', "<div class='tool-query x-small-editor'></div>");
 			qryp.render(el);
+			grid.qryCt = qryp;//记录当前表格的公共查询容器
 		}
 		if (grid.bwrap) {
-			grid.setHeight(grid.ownerCt.getHeight());//doLayout无效
+			grid.setHeight(grid.ownerCt.getHeight());//单个doLayout无效，需要添加高度设置
 			grid.ownerCt.doLayout();
 		}
 	},
@@ -155,6 +162,10 @@ JxQueryExt = {};
 			
 			if (i == n-1) {//最后一行添加查询按钮
 				qryrow[qryrow.length] = {xtype:'button', iconCls:'eb_qry', tooltip:jx.star.qry, handler:self.exeQry, data:grid};
+				//如果查询做归档处理，则显示归档checkbox
+				if (nodeg.define.isarch == '1') {
+					qryrow[qryrow.length] = {xtype:'checkbox', boxLabel:'含归档数据', width:80, name:'xx_isarch', checked:false};
+				}
 			}
 			hcfgs[hcfgs.length] = hcfg(qryrow);
 		}
@@ -185,8 +196,7 @@ JxQueryExt = {};
 					}
 				} else {
 					var oldcmp = mc.editor;
-					var r = (!oldcmp.isXType('combo'));
-					Ext.apply(oldcmp.initialConfig, {allowBlank:true, editable:r, cls:'', xtype:oldcmp.getXType()});
+					Ext.apply(oldcmp.initialConfig, {allowBlank:true, editable:true, cls:'', xtype:oldcmp.getXType()});
 					field = oldcmp.initialConfig;
 					if (oldcmp.isXType('combo')) {
 						field.value = '';
@@ -194,6 +204,7 @@ JxQueryExt = {};
 				}
 				
 				var text = qrycfg.colname;
+				if (Ext.isEmpty(text)) text = mc.header;
 				if (qrycfg.condtype.indexOf('like') < 0) {
 					text += qrycfg.condtype;
 				}
@@ -228,8 +239,13 @@ JxQueryExt = {};
 		if (b.isXType('field')) {//如果字段按回车键，则需要查找按钮
 			b = hps.findByType('button')[0];
 		}
-		var page = b.initialConfig.data;//取当前表格
+		var isarch = hps.findByType('checkbox')[0];//取含归档的checkbox
+		var query_type = 0;
+		if (isarch && isarch.getValue() == '1') {//是否可以查询到已复核的记录
+			query_type = 1;
+		}
 		
+		var page = b.initialConfig.data;//取当前表格
 		var vfs = JxQueryExt.getQryField(hps);//取出所有有查询值的字段
 		
 		var query = JxQuery.getQuery(vfs);
@@ -251,7 +267,7 @@ JxQueryExt = {};
 			}
 		}
 		
-		Jxstar.loadData(page, {where_sql:query[0], where_value:query[1], where_type:query[2], is_query:1});
+		Jxstar.loadData(page, {where_sql:query[0], where_value:query[1], where_type:query[2], is_query:1, query_type:query_type});
 	},
 	
 	/**
@@ -261,7 +277,7 @@ JxQueryExt = {};
 		var vfs = new Ext.util.MixedCollection();
 		hps.items.each(function(hrs){
 			hrs.items.each(function(f){
-				if (f.isXType('field')) {
+				if (f.isXType('field') && f.getName() != 'xx_isarch') {
 					var v = f.getValue();
 					if (Ext.isEmpty(v) == false) {
 						var d = f.initialConfig.data;
@@ -291,25 +307,16 @@ JxQueryExt = {};
 			resizable: false,
 			modal: true,
 			closeAction: 'close',
-			items:[/*{
-				xtype:'container',
-				region:'north',
-				height:40,
-				margins:'2 2 2 2',
-				style:'border:1px solid #99bbe8;background-color:#fff;',
-				html:'<p height=20>查询方案建立方法：先点击左边表格上的“新增”按钮，填写方案名称，“保存”；<br>'+
-					 '<p height=20>然后点击右边表格上的“选择字段”，在弹出窗口中选择需要查询的字段；'
-			},*/{
+			defaults:{margins:'2 2 2 2'},
+			items:[{
 				xtype:'container',
 				region:'west',
 				layout:'fit',
-				width:250,
-				margins:'2 2 2 2'
+				width:250
 			},{
 				xtype:'container',
 				region:'center',
-				layout:'fit',
-				margins:'2 2 2 2'
+				layout:'fit'
 			}]
 		});
 		//构建表格对象

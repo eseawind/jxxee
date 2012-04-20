@@ -125,7 +125,8 @@ JxGroupPage = {};
 		
 		//查询数据URL
 		var url = Jxstar.path + '/commonAction.do';
-		var params = self.getStatParams('group_stat', '&user_id='+Jxstar.session['user_id']);
+		var params = self.getStatParams();
+		
 		//创建数据对象
 		var store = new Ext.data.Store({
 			proxy: new Ext.data.HttpProxy({
@@ -165,19 +166,17 @@ JxGroupPage = {};
 	},
 	
 	//统计需要参数
-	getStatParams: function(eventCode, extParams) {
+	getStatParams: function() {
 		var self = this;
 		//取当前功能的最后查询的SQL
-		var opt = self.pageNode.page.getStore().lastOptions.params || {};
+		var srcGrid = self.pageNode.page;
+		var opt = srcGrid.getStore().lastOptions.params || {};
 		var e = encodeURIComponent;
 		
-		var params = 'funid=queryevent&query_funid='+ self.funId + '&pagetype=grid&eventcode=' + eventCode;
-		params += '&where_sql='+ e(opt.where_sql||'') +'&where_value='+ e(opt.where_value||'') +'&where_type='+(opt.where_type||'');
-		params += '&charfield='+self.charfields+'&numfield='+self.numfields;
-		
-		if (extParams && extParams.length > 0) {
-			params += extParams;
-		}
+		var params = 'funid=queryevent&query_funid='+ self.funId + '&pagetype=grid&eventcode=group_stat';
+		params += '&where_sql='+ e(opt.where_sql||'') + '&where_value='+ e(opt.where_value||'');
+		params += '&where_type='+(opt.where_type||'') + '&query_type=' + opt.query_type||'0';
+		params += '&charfield='+self.charfields+'&numfield='+self.numfields + '&user_id='+Jxstar.session['user_id'];
 		
 		return params;
 	},
@@ -196,13 +195,15 @@ JxGroupPage = {};
 		//取分组字段与统计字段
 		var chars = self.statTool.find('name', 'group_field')[0];
 		var nums = self.statTool.find('name', 'stat_field')[0];
+		var charTitle = chars.el.dom.value;
+		var numTitle = nums.el.dom.value;
 		//从表格中取数据传到后台，格式：第一行：列名1,列名2,...；第二行开始就是数据；行用\n分割，列用,分隔；
-		var expText = JxUtil.gridToCSV(self.statGrid, false);
-		
+		var expText = JxUtil.gridToCSV(self.statGrid, false).trim();
+		//构建请求参数
 		var params = 'funid=queryevent&query_funid='+ self.funId + '&pagetype=grid&eventcode=group_exp';
-		params += '&chart_type=' + type + '&selchar=' + chars.getValue() + '&selnum=' + nums.getValue();
-		params += '&exptext=' + expText;
-		Request.fileDown(params);
+		params += '&chart_type=' + type + '&selchar=' + charTitle + '&selnum=' + numTitle + '&dataType=xls';
+		//导出xls文件
+		Request.expFile(params, {exp_text:expText});
 	},
 	
 	//创建统计面板

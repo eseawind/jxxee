@@ -12,6 +12,7 @@
 	
 	String verNo = SystemVar.getValue("sys.version.no", "V1.0.0.0");
 	String verType = SystemVar.getValue("sys.version.type", "");
+	String useCase = SystemVar.getValue("page.query.case", "0");
 	
 	String loginCss = "resources/css/login.css?verno=" + svnNum;
 	if (indexType.equals("1")) loginCss = "resources/project/css/login.css?verno=" + svnNum;
@@ -144,6 +145,7 @@
 Jxstar.path = '<%=contextpath%>';
 Jxstar.systemVar.indexType = '<%=indexType%>';
 Jxstar.systemVar.verType = '<%=verType%>';
+Jxstar.systemVar.useCase = '<%=useCase%>';
 
 Ext.BLANK_IMAGE_URL = Jxstar.path + '/public/lib/ext/resources/images/default/s.gif';
 Ext.chart.Chart.CHART_URL = Jxstar.path + '/public/lib/ext/resources/charts.swf';
