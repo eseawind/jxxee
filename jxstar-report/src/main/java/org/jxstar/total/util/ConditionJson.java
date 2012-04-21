@@ -47,7 +47,7 @@ public class ConditionJson {
 		
 		//工具栏构建JSON
 		String toolId = funid + "_tool_qv";
-		String toolJs = "var tbar = new Ext.Toolbar({id:'"+ toolId +"', deferHeight:true, items:["+ condJs +"]});";
+		String toolJs = "var tbar = new Ext.Toolbar({name:'"+ toolId +"', deferHeight:true, items:["+ condJs +"]});";
 		
 		//返回工具栏JSON
 		StringBuilder sbjs = new StringBuilder("function(){");
