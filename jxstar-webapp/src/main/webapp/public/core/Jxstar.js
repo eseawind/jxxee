@@ -899,13 +899,13 @@ Ext.ns('Jxstar');
 		/**
 		* 创建一个下拉选项对象，
 		* 
-		* comboID: 选项代号
+		* comboName: 选项代号
 		* comboData: 选项数据
 		* comboWidth: 控件宽度
 		*/
-		createCombo: function(comboID, comboData, comboWidth) {
+		createCombo: function(comboName, comboData, comboWidth) {
 			var combo = new Ext.form.ComboBox({
-				name:comboID, 
+				name:comboName, 
 				store: new Ext.data.SimpleStore({
 					fields:['value','text'],
 					data: comboData
@@ -931,11 +931,25 @@ Ext.ns('Jxstar');
 			var self = this;
 			var page = nodePage.page;
 			var tbar = page.getTopToolbar();
-
+			
+			//添加查询字段
 			tbar.add('-');
+			self.addBaseQry(nodePage, tbar);
+			
+			//显示高级查询按钮
+			tbar.add({iconCls:'eb_qryh', tooltip:jx.star.hqry, handler:function(){	//'高级查询'
+				self.showQuery(nodePage);
+			}});
+
+			//刷新工具栏
+			tbar.doLayout();
+		},
+		//同时用于JxQueryExt的简单查询
+		addBaseQry: function(nodePage, tbar) {
+			var self = this;
+			var page = nodePage.page;
 
 			//显示查询字段
-			var fieldID = JxUtil.newId() + '_qf';
 			var fieldNames = [], mycols = nodePage.param.cols;
 			for (var i = 0, c = 0, n = mycols.length; i < n; i++){
 				var mc = mycols[i].col, mf = mycols[i].field; 
@@ -949,18 +963,16 @@ Ext.ns('Jxstar');
 					fieldNames[c++] = [fn, h];
 				}
 			}
-			var fieldCombo = self.createCombo(fieldID, fieldNames, 100);
+			var fieldCombo = self.createCombo('field_qf', fieldNames, 100);
 			tbar.add(fieldCombo);
 
 			//显示查询条件
-			var condID = JxUtil.newId() + '_qc';
 			var condData = ComboData.condtype;
-			var condCombo = self.createCombo(condID, condData);
+			var condCombo = self.createCombo('field_qc', condData);
 			tbar.add(condCombo);
 
 			//显示查询值录入对象
-			var valueID = JxUtil.newId() + '_qv';
-			var valuePanel = new Ext.Container({id:valueID, width:120, layout:'fit', border:false, items:[{xtype:'textfield'}]});
+			var valuePanel = new Ext.Container({name:'field_qv', width:120, layout:'fit', border:false, items:[{xtype:'textfield'}]});
 			tbar.add(valuePanel);
 			//在IE8时会出现textfield高度为17px的情况
 			valuePanel.on('afterlayout', function(c){
@@ -992,8 +1004,7 @@ Ext.ns('Jxstar');
 							}
 						} else {
 							var oldcmp = mc.editor;
-							var r = (!oldcmp.isXType('combo'));
-							Ext.apply(oldcmp.initialConfig, {allowBlank:true, editable:r, cls:''});
+							Ext.apply(oldcmp.initialConfig, {allowBlank:true, editable:true, cls:''});
 							field = new oldcmp.constructor(oldcmp.initialConfig);
 						}
 						break;
@@ -1028,17 +1039,6 @@ Ext.ns('Jxstar');
 				//保存字段数据类型
 				valuePanel.valueType = coltype;
 			});
-			//显示查询按钮
-			tbar.add({iconCls:'eb_qry', tooltip:jx.star.qry, handler:function(){	//'查询'
-				self.simpleQuery(page, fieldCombo, condCombo, valuePanel);
-			}});
-			//显示高级查询按钮
-			tbar.add({iconCls:'eb_qryh', tooltip:jx.star.hqry, handler:function(){	//'高级查询'
-				self.showQuery(nodePage);
-			}});
-
-			//刷新工具栏
-			tbar.doLayout();
 			
 			//处理第一个查询字段
 			var first = nodePage.define.first;
@@ -1046,6 +1046,11 @@ Ext.ns('Jxstar');
 				fieldCombo.setValue(first);
 			}
 			fieldCombo.fireEvent('select', fieldCombo);
+			
+			//显示查询按钮
+			tbar.add({xtype:'button', iconCls:'eb_qry', tooltip:jx.star.qry, handler:function(){	//'查询'
+				self.simpleQuery(page, fieldCombo, condCombo, valuePanel);
+			}});
 		},
 
 		/**
@@ -1066,6 +1071,13 @@ Ext.ns('Jxstar');
 				value = '%';
 			}
 			
+			var query_type = 0;
+			//是否可以查询到已复核的记录
+			var isarch = valuePanel.ownerCt.findByType('checkbox')[0];
+			if (isarch && isarch.getName() == 'xx_isarch' && isarch.getValue() == '1') {
+				query_type = 1;
+			}
+			
 			//取查询语句
 			var wheres = JxQuery.getWhere(colcode, condtype, value, coltype)
 
@@ -1084,7 +1096,7 @@ Ext.ns('Jxstar');
 			}
 
 			//JxHint.alert('wsql='+wheres[0]+', wvalue='+wheres[1]+', wtype='+wheres[2]);
-			Jxstar.loadData(page, {where_sql:wheres[0], where_value:wheres[1], where_type:wheres[2], is_query:1});
+			Jxstar.loadData(page, {where_sql:wheres[0], where_value:wheres[1], where_type:wheres[2], is_query:1, query_type:query_type});
 		}
 	});//Ext.apply
 

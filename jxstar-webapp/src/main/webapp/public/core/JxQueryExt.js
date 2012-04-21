@@ -14,7 +14,7 @@ JxQueryExt = {};
 
 	Ext.apply(JxQueryExt, {
 	
-	initQrys:[['0', '--查询方案--'], ['1', '自定义...']],
+	initQrys:[['0', '--查询方案--'], ['1', '自定义...'], ['2', '简单查询']],
 		
 	/**
 	 * 构建查询方案选项控件
@@ -34,6 +34,8 @@ JxQueryExt = {};
 			
 			if (val != oldv && val == '1') {
 				self.openToolQry(nodeg, combo);
+			} else if (val != oldv && val == '2') {
+				self.selectBaseQry(nodeg);
 			} else if (val != oldv && val != '0') {
 				var endcall = function(data) {
 					JxQueryExt.renderToolQry(nodeg, data.qrycond);
@@ -57,6 +59,42 @@ JxQueryExt = {};
 		});
 	},
 	
+	//显示简单查询
+	selectBaseQry: function(nodeg) {
+		var grid = nodeg.page;
+		var tbar = grid.getTopToolbar();
+		if (grid.bwrap) grid.bwrap.select('div.tool-query').remove();
+		
+		var rowCfg = new Ext.Container({
+			layout:'hbox',
+	    	border:false,
+            layoutConfig: {
+                padding:'2',
+                align:'middle'
+            },
+            defaults:{margins:'0 0 0 5'}
+        });
+        Jxstar.addBaseQry(nodeg, rowCfg);
+		//如果查询做归档处理，则显示归档checkbox
+		if (nodeg.define.isarch == '1') {
+			rowCfg.add({xtype:'checkbox', boxLabel:'含归档数据', width:80, name:'xx_isarch', checked:false});
+		}
+		
+		var qryp = new Ext.Container({
+			border:false, 
+			items:[rowCfg]
+		});
+		
+		var el = tbar.el.insertHtml('afterEnd', "<div class='tool-query x-small-editor'></div>");
+		qryp.render(el);
+		grid.qryCt = qryp;//记录当前表格的公共查询容器
+		
+		if (grid.bwrap) {
+			grid.setHeight(grid.ownerCt.getHeight());//单个doLayout无效，需要添加高度设置
+			grid.ownerCt.doLayout();
+		}
+	},
+	
 	/**
 	 * 从后台加载查询方案
 	 */
@@ -65,7 +103,7 @@ JxQueryExt = {};
 			//alert(Ext.encode(data));
 			//刷新查询方案
 			var qrycase = data.qrycase, iqs = JxQueryExt.initQrys;
-			var qrys = [iqs[0], iqs[1]];
+			var qrys = [iqs[0], iqs[1], iqs[2]];
 			//只有管理员才有自定义权限
 			//if (JxUtil.isAdminUser()) qrys[1] = iqs[1];
 			
@@ -92,34 +130,40 @@ JxQueryExt = {};
 	renderToolQry: function(nodeg, qrycond) {
 		var grid = nodeg.page;
 		var tbar = grid.getTopToolbar();
-		if (grid.bwrap) grid.bwrap.select('div.tool-query').remove();
 		
-		if (qrycond.length > 0) {
-			var rowno = 0, datas = [];
-			for (var i = 0, n = qrycond.length; i < n; i++) {//查询字段分行显示
-				var qryrowno = qrycond[i].row_no;
-				if (Ext.isEmpty(qryrowno)) qryrowno = '1';
-				
-				if (rowno == parseInt(qryrowno)) {
-					var row = datas[rowno-1];
-					row[row.length] = qrycond[i];
-				} else {
-					rowno = parseInt(qryrowno);//新的行号
-					datas[rowno-1] = [qrycond[i]];
+		var renderQry = function() {
+			grid.bwrap.select('div.tool-query').remove();
+			if (qrycond.length > 0) {
+				var rowno = 0, datas = [];
+				for (var i = 0, n = qrycond.length; i < n; i++) {//查询字段分行显示
+					var qryrowno = qrycond[i].row_no;
+					if (Ext.isEmpty(qryrowno)) qryrowno = '1';
+					
+					if (rowno == parseInt(qryrowno)) {
+						var row = datas[rowno-1];
+						row[row.length] = qrycond[i];
+					} else {
+						rowno = parseInt(qryrowno);//新的行号
+						datas[rowno-1] = [qrycond[i]];
+					}
 				}
+				var hcfgs = JxQueryExt.showQryTool(nodeg, datas);
+				var qryp = new Ext.Container({
+					border:false, 
+					items:hcfgs
+				});
+				var el = tbar.el.insertHtml('afterEnd', "<div class='tool-query x-small-editor'></div>");
+				qryp.render(el);
+				grid.qryCt = qryp;//记录当前表格的公共查询容器
 			}
-			var hcfgs = JxQueryExt.showQryTool(nodeg, datas);
-			var qryp = new Ext.Container({
-				border:false, 
-				items:hcfgs
-			});
-			var el = tbar.el.insertHtml('afterEnd', "<div class='tool-query x-small-editor'></div>");
-			qryp.render(el);
-			grid.qryCt = qryp;//记录当前表格的公共查询容器
-		}
-		if (grid.bwrap) {
 			grid.setHeight(grid.ownerCt.getHeight());//单个doLayout无效，需要添加高度设置
 			grid.ownerCt.doLayout();
+		};
+		//由于子表构建时tbar.el is null，所以在子表呈现时再触发
+		if (grid.bwrap == null) {
+			grid.on('render', renderQry);
+		} else {
+			renderQry();
 		}
 	},
 	
@@ -203,12 +247,14 @@ JxQueryExt = {};
 					}
 				}
 				
-				var text = qrycfg.colname;
-				if (Ext.isEmpty(text)) text = mc.header;
-				if (qrycfg.condtype.indexOf('like') < 0) {
-					text += qrycfg.condtype;
+				var str = qrycfg.colname;
+				if (Ext.isEmpty(str)) str = mc.header;
+				if (qrycfg.condtype == 'like') {
+					str += ':';
+				} else {
+					str += qrycfg.condtype;
 				}
-				label = {xtype:'label', text:text+':'};
+				label = {xtype:'label', text:str};
 				
 				//添加一个查询字段
 				var len = qryrow.length;
@@ -233,7 +279,7 @@ JxQueryExt = {};
 	/**
 	 * 执行查询
 	 */
-	exeQry: function(b) {
+	exeQry: function(b) {		
 		var hrs = b.ownerCt;//取行容器
 		var hps = hrs.ownerCt;//取查询容器
 		if (b.isXType('field')) {//如果字段按回车键，则需要查找按钮
