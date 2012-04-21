@@ -6,9 +6,12 @@ package org.jxstar.service.studio;
 import java.util.Map;
 
 import org.jxstar.dao.DaoParam;
+import org.jxstar.dao.DmDao;
 import org.jxstar.dao.JsonDao;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.util.ArrayUtil;
+import org.jxstar.util.DateUtil;
+import org.jxstar.util.factory.FactoryUtil;
 
 /**
  * 处理查询方案数据。
@@ -20,7 +23,36 @@ public class QueryCaseBO extends BusinessObject {
 	private static final long serialVersionUID = 1L;
 	
 	private JsonDao _jsonDao = JsonDao.getInstance();
-
+	
+	/**
+	 * 自动新增查询方案
+	 * @param funId
+	 * @return
+	 */
+	public String createCase(String funId, String userId, String userName) {
+		//取新的方案序号
+		int caseNo = queryCaseNo(funId)+1;
+		//取方案名称
+		String caseName = "查询方案" + caseNo;
+		
+		Map<String,String> mp = FactoryUtil.newMap();
+		mp.put("query_name", caseName);
+		mp.put("fun_id", funId);
+		mp.put("user_name", userName);
+		mp.put("user_id", userId);
+		mp.put("is_default", "0");
+		mp.put("is_share", "1");
+		mp.put("query_no", Integer.toString(caseNo));
+		mp.put("add_userid", userId);
+		mp.put("add_date", DateUtil.getTodaySec());
+		
+		String qryid = DmDao.insert("sys_query", mp);
+		
+		setReturnData("{qryid:'"+ qryid +"'}");
+		
+		return _returnSuccess;
+	}
+	
 	/**
 	 * 关闭查询方案界面或打开功能页面时调用
 	 * @param funId
@@ -130,5 +162,22 @@ public class QueryCaseBO extends BusinessObject {
 		if (mp.isEmpty()) return "";
 		
 		return mp.get("query_id");
+	}
+	
+	/**
+	 * 取最大的方案序号
+	 * @param funId
+	 * @return
+	 */
+	private int queryCaseNo(String funId) {
+		String sql = "select query_no from sys_query where fun_id = ? order by query_no desc";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(funId);
+		
+		Map<String,String> mp = _dao.queryMap(param);
+		if (mp.isEmpty()) return 0;
+		
+		String no = mp.get("query_no");
+		return Integer.parseInt(no);
 	}
 }
