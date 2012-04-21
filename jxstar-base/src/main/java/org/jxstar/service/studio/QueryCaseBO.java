@@ -33,8 +33,9 @@ public class QueryCaseBO extends BusinessObject {
 		//取第一个查询方案的名称
 		String queryId = queryFirstId(funId, userId);
 		if (queryId.length() == 0) {
-			setReturnData("{qrycase:[],qrycond:[],qryid:''}");
-			return _returnSuccess;
+			jsonsb.append("qryid:'',");
+		} else {
+			jsonsb.append("qryid:'"+ queryId +"',");
 		}
 		
 		//取所有查询方案
@@ -48,12 +49,12 @@ public class QueryCaseBO extends BusinessObject {
 		//取第一个查询方案的查询条件
 		String qrycond = queryCondJson(queryId);
 		if (qrycond.length() == 0) {
-			jsonsb.append("qrycond:[],");
+			jsonsb.append("qrycond:[]");
 		} else {
-			jsonsb.append("qrycond:[" + qrycond + "],");
+			jsonsb.append("qrycond:[" + qrycond + "]");
 		}
 		
-		jsonsb.append("qryid:'"+ queryId +"'}");
+		jsonsb.append("}");
 		setReturnData(jsonsb.toString());
 		
 		return _returnSuccess;
@@ -119,7 +120,7 @@ public class QueryCaseBO extends BusinessObject {
 	 * @return
 	 */
 	private String queryFirstId(String funId, String userId) {
-		String sqlm = "select query_id from sys_query where fun_id = ? and " +
+		String sqlm = "select query_id from sys_query where is_default = '1' and fun_id = ? and " +
 				"(is_share = '1' or user_id = ?) order by query_no";
 		DaoParam param = _dao.createParam(sqlm);
 		param.addStringValue(funId);
