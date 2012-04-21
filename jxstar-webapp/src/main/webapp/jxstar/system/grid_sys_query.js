@@ -6,6 +6,11 @@
 		editor:new Ext.form.TextField({
 			maxLength:50, allowBlank:false
 		})}, field:{name:'sys_query__query_name',type:'string'}},
+	{col:{header:'缺省?', width:44, sortable:true, defaultval:'0', editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.Checkbox(),
+		renderer:function(value) {
+			return value=='1' ? jx.base.yes : jx.base.no;
+		}}, field:{name:'sys_query__is_default',type:'string'}},
 	{col:{header:'共享?', width:48, sortable:true, defaultval:'1', editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.Checkbox(),
 		renderer:function(value) {

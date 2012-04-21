@@ -100,7 +100,7 @@ JxSelect = {};
 						//取选择字段的容器对象，根据它判断是在grid控件中还是在查询控件中
 						var fieldCt = parentField.ownerCt;
 						//查询值或统计参数值的输入控件赋值
-						if (fieldCt && fieldCt.id.indexOf('_qv') > 0) {
+						if (fieldCt && fieldCt.initialConfig.name.indexOf('_qv') > 0) {
 							self.setControlData(srcRecord[0], parentField, config.sourceField, config.targetField);
 						} else {
 							//取目标grid或form，根据ID查找
@@ -207,7 +207,7 @@ JxSelect = {};
 					//取选择字段的容器对象，根据它判断是在grid控件中还是在查询控件中
 					var fieldCt = parentField.ownerCt;
 					//查询值或统计参数值的输入控件赋值
-					if (fieldCt && fieldCt.id.indexOf('_qv') > 0) {
+					if (fieldCt && fieldCt.initialConfig.name.indexOf('_qv') > 0) {
 						self.setControlData(srcRecord[0], parentField, config.sourceField, config.targetField);
 					} else {
 						//取目标grid或form，根据ID查找

@@ -52,7 +52,7 @@ JxGroupExt = {};
 				self.caseWin(nodeg);
 			} else if (val != oldv && val != '0') {
 				if (!window.JxGroupPage) {//动态同步加载该对象
-					JxUtil.loadJS('/public/layout/ux/group_page.js', true);
+					JxUtil.loadJS('/public/layout/ux/group_page.js', false);
 				}
 				var page = JxGroupPage.createPage(val, nodeg);
 				var	win = new Ext.Window({
@@ -119,7 +119,7 @@ JxGroupExt = {};
 	
 	//构建统计字段选择区
 	numFieldCt: function() {
-		var self  = this;
+		var self = this;
 		self.numLists = new JxLists({
 			leftData:self.numFields, 
 			leftHeader:'可选统计列',
@@ -260,19 +260,18 @@ JxGroupExt = {};
 			resizable: false,
 			modal: true,
 			closeAction: 'close',
-			defaults:{margins:'2 2 2 2'},
 			items:[{
 				xtype:'container',
-				autoScroll:true,
 				region:'west',
 				layout:'fit',
 				width:210,
-				border:false
+				split:true,
+				margins:'2 0 2 2'
 			},{
 				xtype:'container',
 				region:'center',
 				layout:'fit',
-				border:false,
+				margins:'2 2 2 0',
 				items:[selpanel]
 			}]
 		});

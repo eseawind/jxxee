@@ -286,7 +286,7 @@ JxQuery = {};
 		self.storeDet = condStore;
 		
 		var editor = new Ext.ux.grid.RowEditor({
-			id: JxUtil.newId() + '_qv',
+			name: JxUtil.newId() + '_qv',
 			saveText: jx.base.ok,		//'确定'
 			cancelText: jx.base.cancel	//'取消'
 		});

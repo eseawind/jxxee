@@ -1024,14 +1024,12 @@ Ext.ns('Jxstar');
 				valuePanel.add(field);
 				valuePanel.doLayout(true);
 				
-				//如果是input输入栏，则输入回车就查询。
-				if (field.el && field.isXType('textfield')) {
-					field.on('specialkey', function(field, e){
-						if (e.getKey() == e.ENTER) {
-							self.simpleQuery(page, fieldCombo, condCombo, valuePanel);
-						}
-					});
-				}
+				//输入回车就查询。
+				field.on('specialkey', function(field, e){
+					if (e.getKey() == e.ENTER) {
+						self.simpleQuery(page, fieldCombo, condCombo, valuePanel);
+					}
+				});
 
 				//更换字段查询条件的缺省值
 				JxQuery.setCondDefault(condCombo, coltype, field.getXType());

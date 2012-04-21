@@ -44,7 +44,7 @@ JxGroupPage = {};
 				xtype:'container',
 				region:'center',
 				layout:'fit',
-				style:'border-top:1px solid #99bbe8;',
+				style:'border-top:1px solid #99bbe8;'
 			}]
 		});
 		
