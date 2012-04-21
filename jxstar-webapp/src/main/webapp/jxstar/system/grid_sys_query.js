@@ -16,7 +16,7 @@
 		renderer:function(value) {
 			return value=='1' ? jx.base.yes : jx.base.no;
 		}}, field:{name:'sys_query__is_share',type:'string'}},
-	{col:{header:'序号', width:48, sortable:true, defaultval:'10', align:'right',
+	{col:{header:'序号', width:48, sortable:true, defaultval:'1', align:'right',
 		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.NumberField({
 			maxLength:12
@@ -39,7 +39,7 @@
 		funid: 'sys_query'
 	};
 	
-	config.param.hidePageTool = true;	config.initpage = function(gridNode){ 	var event = gridNode.event;		event.on('beforecreate', function(ge) {		var myGrid = this.grid;		var rec = myGrid.store.getAt(0);		rec.set('sys_query__fun_id', myGrid.qryFunId);				return true;	});		//只能删除自己新建的方案，但管理员可以删除所有方案	event.on('beforedelete', function(ge, records) {		if (JxUtil.isAdminUser()) return true;				for (var i = 0; i < records.length; i++) {			var user_id = records[i].get('sys_query__user_id');			if (user_id != JxDefault.getUserId()) {				JxHint.alert('选择的方案中含他人建立的方案，不能删除！');				return false;			}		}				return true;	});};
+	config.param.hidePageTool = true;	config.initpage = function(gridNode){ 	var event = gridNode.event;		event.on('beforecreate', function(ge) {		var myGrid = this.grid;		var rec = myGrid.store.getAt(0);		rec.set('sys_query__fun_id', myGrid.qryFunId);				return true;	});		//只能删除自己新建的方案，但管理员可以删除所有方案	event.on('beforedelete', function(ge, records) {		if (JxUtil.isAdminUser()) return true;				for (var i = 0; i < records.length; i++) {			var user_id = records[i].get('sys_query__user_id');			if (user_id != JxDefault.getUserId()) {				JxHint.alert('选择的方案中含他人建立的方案，不能删除！');				return false;			}		}		ge.grid.selectKeyId = '';				return true;	});		event.newQry = function() {		var grid = event.grid;		var params = 'funid=sys_query&qryfunid='+ grid.qryFunId;		params += '&pagetype=editgrid&eventcode=create';		var endcall = function(data) {			grid.selectKeyId = data.qryid;//定位当前新增的记录			grid.getStore().reload();		};		Request.postRequest(params, endcall);	}};
 		
 	return new Jxstar.GridNode(config);
 }

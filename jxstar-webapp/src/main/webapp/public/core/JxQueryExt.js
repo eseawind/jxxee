@@ -14,7 +14,7 @@ JxQueryExt = {};
 
 	Ext.apply(JxQueryExt, {
 	
-	initQrys:[['0', '--查询方案--'], ['1', '自定义...']],
+	initQrys:[['0', '--查询方案--'], ['1', '--自定义...']],
 		
 	/**
 	 * 构建查询方案选项控件
@@ -403,8 +403,10 @@ JxQueryExt = {};
 				Jxstar.loadSubData(sg, fkval);
 			});
 			mg.getStore().on('load', function(s){
-				mg.getSelectionModel().selectFirstRow();
-				mg.fireEvent('rowclick', mg, 0);
+				if (mg.selectKeyId == null || mg.selectKeyId.length == 0) {
+					mg.getSelectionModel().selectFirstRow();
+					mg.fireEvent('rowclick', mg, 0);
+				}
 			})
 			var options = {
 				where_sql:"fun_id = ? and (is_share = '1' or user_id = ?)", 

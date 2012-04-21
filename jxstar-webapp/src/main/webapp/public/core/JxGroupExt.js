@@ -15,7 +15,7 @@ JxGroupExt = {};
 
 	Ext.apply(JxGroupExt, {
 	
-	initStas:[['0', '--统计方案--'], ['1', '自定义...']],
+	initStas:[['0', '--统计方案--'], ['1', '--自定义...']],
 	//当前功能ID
 	funId: '',
 	//非数字字段
