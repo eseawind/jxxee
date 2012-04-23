@@ -399,26 +399,33 @@ JxAttach = {};
 			var fileField = Ext.getCmp(mya.parentNode.id);
 			if (fileField == null) return;
 			
-			var param = JxAttach.attachParam(fileField, 'fdelete');
-			if (param == null) return;
-			
-			var audit = '0';
-			if (param.define.auditcol.length > 0) {
-				audit = param.form.get(param.define.auditcol);
-			}
-			if (audit != '0' && audit != '6') {
-				JxHint.alert('业务记录已提交，不能删除附件！');
-				return false;
-			}
-			//清除附件字段值
 			var hdcall = function() {
-				fileField.setValue('');
-				param.form.myRecord.set(fileField.name, '');
-				param.form.myRecord.commit();
+				var param = JxAttach.attachParam(fileField, 'fdelete');
+				if (param == null) return;
+				
+				var audit = '0';
+				if (param.define.auditcol.length > 0) {
+					audit = param.form.get(param.define.auditcol);
+				}
+				if (audit != '0' && audit != '6') {
+					JxHint.alert('业务记录已提交，不能删除附件！');
+					return false;
+				}
+				//清除附件字段值
+				var hdcall = function() {
+					fileField.setValue('');
+					param.form.myRecord.set(fileField.name, '');
+					param.form.myRecord.commit();
+				};
+				
+				//发送下载请求
+				Request.postRequest(param.params, hdcall);
 			};
 			
-			//发送下载请求
-			Request.postRequest(param.params, hdcall);
+			//确定删除选择的记录吗？
+			Ext.Msg.confirm(jx.base.hint, jx.event.delyes, function(btn) {
+				if (btn == 'yes') hdcall();
+			});
 		},
 		
 		//public 保存表单中的附件信息

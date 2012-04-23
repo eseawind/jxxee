@@ -127,7 +127,8 @@ JxQuery = {};
 			],
 			tbar: queryTool,
 			
-			frame:true,
+			frame:false,
+			border:true,
 			stripeRows: true,
 			columnLines: true,
 			viewConfig: {forceFit:true}
@@ -180,9 +181,8 @@ JxQuery = {};
 		
 		for (var i = 0; i < self.storeDet.getCount(); i++) {
 			var record = self.storeDet.getAt(i);
-			var cond_value = record.get('cond_value').trim();
-			
-			if (cond_value.length == 0) {
+			var value = record.get('cond_value');
+			if (Ext.isEmpty(value)) {
 				JxHint.alert(String.format(jx.query.valempty, i+1));	//'第{0}行的查询值为空，不能保存！'
 				return false;
 			}
@@ -332,7 +332,8 @@ JxQuery = {};
 						if (coltype == 'string') { 
 							field = new Ext.form.TextField({allowBlank:false});
 						} else if (coltype == 'date') { 
-							field = new Ext.form.DateField({format:'Y-m-d', allowBlank:false});
+							var format = JxUtil.getDateFormat(mc.renderer);//设置日期控件的样式，可能是月份样式
+							field = new Ext.form.DateField({format:format, allowBlank:false});
 						} else {
 							field = new Ext.form.NumberField({allowBlank:false, maxLength:12});
 						}
@@ -465,9 +466,8 @@ JxQuery = {};
 			
 			for (var i = 0; i < condStore.getCount(); i++) {
 				var record = condStore.getAt(i);
-				var cond_value = record.get('cond_value').trim();
-				
-				if (cond_value.length == 0) {
+				var value = record.get('cond_value');
+				if (Ext.isEmpty(value)) {
 					JxHint.alert(String.format(jx.query.valempty, i+1));	//第{0}行的查询值为空，不能执行！
 					return false;
 				}
@@ -514,7 +514,8 @@ JxQuery = {};
 			tbar: condTool,
 			plugins: [editor],
 			
-			frame:true,
+			frame:false,
+			border:true,
 			//clicksToEdit:1,
 			stripeRows: true,
 			columnLines: true,

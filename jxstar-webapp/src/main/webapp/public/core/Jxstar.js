@@ -998,7 +998,8 @@ Ext.ns('Jxstar');
 							if (coltype == 'string') { 
 								field = new Ext.form.TextField();
 							} else if (coltype == 'date') { 
-								field = new Ext.form.DateField({format:'Y-m-d'});
+								var format = JxUtil.getDateFormat(mc.renderer);//设置日期控件的样式，可能是月份样式
+								field = new Ext.form.DateField({format:format});
 							} else {
 								field = new Ext.form.NumberField({maxLength:12});
 							}

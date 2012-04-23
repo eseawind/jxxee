@@ -1020,6 +1020,21 @@ JxUtil = {};
 		},
 		
 		/**
+		* 取呈现函数中的样式：renderer:function(value) {return value ? value.format('Y-m-d') : '';}
+		*/
+		getDateFormat: function(renderer) {
+			var ren = renderer.toString(), form = 'Y-m-d';
+			if (ren.indexOf('format(\'Y-m-d') >= 0 || ren.indexOf('format(\"Y-m-d') >= 0) {
+				form = 'Y-m-d';
+			} else if (ren.indexOf('format(\'Y-m') >= 0 || ren.indexOf('format(\"Y-m') >= 0) {
+				form = 'Y-m';
+			} else if (ren.indexOf('format(\'Y') >= 0 || ren.indexOf('format(\"Y') >= 0) {
+				form = 'Y';
+			}
+			return form;
+		},
+		
+		/**
 		* 取当前年份
 		* inc -- 增减年份
 		*/
@@ -1069,6 +1084,13 @@ JxUtil = {};
 		* 取间隔月份, 格式：yyyy-mm
 		*/
 		getNextMonth: function(smonth, num){
+			if (smonth == null || smonth.length == 0) return '';
+			var sd = smonth.split('-');
+			if (sd.length == 2) {
+				smonth = smonth + '-01';
+			} else if (sd.length == 1) {
+				smonth = smonth + '-01-01';
+			}
 			var dt = Date.parseDate(smonth, "Y-m");
 
 			dt = dt.add(Date.MONTH, num);
@@ -1079,6 +1101,13 @@ JxUtil = {};
 		* 取指定日期间隔值的日期, 格式：yyyy-mm-dd
 		*/
 		getNextDate: function (sdate, num){
+			if (sdate == null || sdate.length == 0) return '';
+			var sd = sdate.split('-');
+			if (sd.length == 2) {
+				sdate = sdate + '-01';
+			} else if (sd.length == 1) {
+				sdate = sdate + '-01-01';
+			}
 			var dt = Date.parseDate(sdate, "Y-m-d");
 
 			dt = dt.add(Date.DAY, num);

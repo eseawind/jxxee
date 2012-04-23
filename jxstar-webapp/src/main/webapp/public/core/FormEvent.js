@@ -765,7 +765,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 				//设置目标功能信息
 				grid.attachDataId = keyid;
 				grid.attachFunId = nodeid;
-				grid.attachAudit = audit || '0';
+				grid.attachAudit = audit || '1';
 				//删除GRID的自定义参数
 				grid.on('beforedestroy', function(gp){
 					gp.attachDataId = null;		delete gp.attachDataId;

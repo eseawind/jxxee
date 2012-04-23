@@ -98,7 +98,7 @@ JxFormSub = {};
 					}
 				}
 			};
-			//在审批界面中，如果显示form界面太快，会报subgrid is null错误
+			//在审批界面中，如果显示form界面太快，会报subgrid is null错误，这种情况采用延时处理
 			var tmpg = subps[0].getComponent(0);
 			if (tmpg) {
 				showsub();
