@@ -396,8 +396,10 @@ Jxstar.currentPage = {
 				//同步属性
 				var xtype = self.readAttrVal(item, 'xtype', '');
 				if (fieldData.xtype != xtype && xtype != 'hidden') {
-					item.setAttribute('xtype', fieldData.xtype);
-					propnum++;
+					if (!(fieldData.xtype == 'text' && xtype == 'area')) {
+						item.setAttribute('xtype', fieldData.xtype);
+						propnum++;
+					}
 				}
 				var title = self.readAttrVal(item, 'title', '');
 				if (fieldData.title != title) {
