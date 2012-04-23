@@ -252,7 +252,8 @@ JxQueryExt = {};
 					if (coltype == 'string') { 
 						field = {xtype:'textfield'};
 					} else if (coltype == 'date') { 
-						field = {xtype:'datefield', format:'Y-m-d'};
+						var format = JxUtil.getDateFormat(mc.renderer);//设置日期控件的样式，可能是月份样式
+						field = {xtype:'datefield', format:format};
 					} else {
 						field = {xtype:'numberfield', maxLength:12};
 					}
