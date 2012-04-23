@@ -29,7 +29,15 @@
 		funid: 'sys_attach'
 	};
 	
-	config.eventcfg = {					delFile: function() {			var records = this.grid.getSelectionModel().getSelections();			if (!JxUtil.selected(records)) return;						var self = this;			var pkcol = self.define.pkcol;			var hdcall = function() {				//取选择记录的主键值				var keys = '';				for (var i = 0; i < records.length; i++) {					keys += '&keyid=' + records[i].get(pkcol);				}				//设置请求的参数				var params = 'funid=sys_attach'+ keys +'&pagetype=editgrid&eventcode=delete';				var endcall = function(data) {					//重新加载数据					self.grid.getStore().reload();				};				//发送请求				Request.postRequest(params, endcall);			};			//'确定删除选择的记录吗？'			Ext.Msg.confirm(jx.base.hint, jx.event.delyes, function(btn) {				if (btn == 'yes') hdcall();			});		}, 				downFile: function() {			var records = this.grid.getSelectionModel().getSelections();			if (!JxUtil.selectone(records)) return;						var keyid = records[0].get(this.define.pkcol);			var params = 'funid=sys_attach&keyid='+ keyid +'&pagetype=editgrid&eventcode=down';			//发送下载请求			Request.fileDown(params);		}	};		//业务记录复核后不能删除附件	config.initpage = function(gridNode){		JxUtil.delay(1500, function(){			var grid = gridNode.page;			if (grid.attachAudit != '0') {				var tbar = grid.getTopToolbar();				var btn = JxUtil.getButton(tbar, 'delete');				if (btn) btn.disable();			}		});	};
+	config.eventcfg = {					delFile: function() {			var records = this.grid.getSelectionModel().getSelections();			if (!JxUtil.selected(records)) return;						var self = this;			var pkcol = self.define.pkcol;			var hdcall = function() {				//取选择记录的主键值				var keys = '';				for (var i = 0; i < records.length; i++) {					keys += '&keyid=' + records[i].get(pkcol);				}				//设置请求的参数				var params = 'funid=sys_attach'+ keys +'&pagetype=editgrid&eventcode=delete';				var endcall = function(data) {					//重新加载数据					self.grid.getStore().reload();				};				//发送请求				Request.postRequest(params, endcall);			};			//'确定删除选择的记录吗？'			Ext.Msg.confirm(jx.base.hint, jx.event.delyes, function(btn) {				if (btn == 'yes') hdcall();			});		}, 				downFile: function() {			var records = this.grid.getSelectionModel().getSelections();			if (!JxUtil.selectone(records)) return;						var keyid = records[0].get(this.define.pkcol);			var params = 'funid=sys_attach&keyid='+ keyid +'&pagetype=editgrid&eventcode=down';			//发送下载请求			Request.fileDown(params);		}	};		//业务记录复核后不能删除附件	config.initpage = function(gridNode){		JxUtil.delay(1500, function(){
+			var grid = gridNode.page;
+			var audit = grid.attachAudit;
+			if (audit != '0' && audit != '6') {
+				var tbar = grid.getTopToolbar();
+				var btn = JxUtil.getButton(tbar, 'delete');
+				if (btn) btn.disable();
+			}
+		});	};
 		
 	return new Jxstar.GridNode(config);
 }
