@@ -37,7 +37,8 @@
 	{col:{header:'申请理由', width:248, sortable:true}, field:{name:'mat_app__app_cause',type:'string'}},
 	{col:{header:'申请人ID', width:100, sortable:true, hidden:true}, field:{name:'mat_app__app_userid',type:'string'}},
 	{col:{header:'主键', width:100, sortable:true, hidden:true}, field:{name:'mat_app__app_id',type:'string'}},
-	{col:{header:'申请部门ID', width:100, sortable:true, hidden:true}, field:{name:'mat_app__dept_id',type:'string'}}
+	{col:{header:'申请部门ID', width:100, sortable:true, hidden:true}, field:{name:'mat_app__dept_id',type:'string'}},
+	{col:{header:'效益分析', width:100, sortable:true, hidden:true}, field:{name:'mat_app__app_analyse',type:'string'}}
 	];
 	
 	config.param = {
@@ -48,6 +49,7 @@
 		isshow: '1',
 		funid: 'mat_app'
 	};
+	
 	
 		
 	return new Jxstar.GridNode(config);
