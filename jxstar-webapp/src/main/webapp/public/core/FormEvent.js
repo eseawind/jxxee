@@ -372,11 +372,6 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 	**/
 	save : function() {
 		var self = this;
-		//数据校验
-		if (!this.form.isValid()) {
-			JxHint.alert(jx.event.datavalid);	//'请确保输入的数据正确完整！'
-			return;
-		}
 
 		if (this.checkAudit()) return;
 		if (this.fireEvent('beforesave', this) == false) return;
