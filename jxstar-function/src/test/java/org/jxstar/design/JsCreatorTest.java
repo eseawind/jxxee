@@ -12,7 +12,7 @@ public class JsCreatorTest extends AbstractTest {
 	
 	
 	public static void main(String[] args) {
-		AbstractTest.path = "D:/tomcat6/webapps/pm/WEB-INF/classes/";
+		init("D:/tomcat6/webapps/pm");
 		/*PageTemplet pageTpl = PageTemplet.getInstance();
 		pageTpl.read(path+"/WEB-INF/tpl/grid-page-tpl.txt", "grid");
 		
