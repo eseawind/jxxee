@@ -74,7 +74,7 @@ JxFormSub = {};
 			var showsub = function(){
 				for (var i = 0, n = subps.length; i < n; i++) {
 					var subgrid = subps[i].getComponent(0);
-					if (subgrid.body.hasClass('x-subgrid') == false) {
+					if (subgrid.body && subgrid.body.hasClass('x-subgrid') == false) {
 						subgrid.body.addClass('x-subgrid');
 						var tbar = subgrid.getTopToolbar();
 						if (tbar) tbar.addClass('x-subgrid');
