@@ -36,6 +36,7 @@ public class JsCreatorTest extends AbstractTest {
 		String sql = "select * from fun_base where module_id >= '1011'";
 		DaoParam param = dao.createParam(sql);
 		List ls = dao.query(param);
+		System.out.println("............total fun num:" + ls.size());
 		
 		PageParserBO parser = new PageParserBO();
 		for (int i = 0; i < ls.size(); i++) {
@@ -45,6 +46,8 @@ public class JsCreatorTest extends AbstractTest {
 			
 			parser.createJs(funid, "grid", path);
 			parser.createJs(funid, "form", path);
+			
+			System.out.println("............total num:"+ ls.size() +", complete no:" + (i+1));
 		}
 	}
 }
