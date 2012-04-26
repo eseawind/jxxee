@@ -474,27 +474,10 @@ JxQuery = {};
 			}
 			
 			var query = self.getQuery(condStore);
-			if (query == null) return false;
-			
 			condStore.commitChanges();
 			
-			var page = pageNode.page;
-			//复杂查询事件中添加树形过滤条件
-			var tree_wsql = page.jxstarParam.tree_wsql;
-			var tree_wtype = page.jxstarParam.tree_wtype;
-			var tree_wvalue = page.jxstarParam.tree_wvalue;
-			if (tree_wsql && tree_wsql.length > 0) {
-				query[0] = tree_wsql + ' and (' + query[0] + ')';
-			}
-			if (tree_wvalue && tree_wvalue.length > 0) {
-				query[1] = tree_wvalue + ';' + query[1];
-			}
-			if (tree_wtype && tree_wtype.length > 0) {
-				query[2] = tree_wtype + ';' + query[2];
-			}
-			
-			//重载表格中的数据，添加query_type高级查询参数，高级查询能查询到已提交记录，不处理归档
-			Jxstar.loadData(page, {where_sql:query[0], where_value:query[1], where_type:query[2], is_query:1, query_type:1});
+			//高级查询能查询到已提交记录，不处理归档
+			Jxstar.myQuery(pageNode.page, query, '1');
 		};
 		
 		//创建底部工具栏
@@ -565,6 +548,8 @@ JxQuery = {};
 			var andor = data['andor'];
 			var coltype = data['coltype'];
 			
+			if (Ext.isEmpty(cond_value)) continue;
+			
 			//如果是日期对象，则需要转换为字符串
 			cond_value = Ext.isDate(cond_value) ? cond_value.dateFormat('Y-m-d') : cond_value;
 			
@@ -608,6 +593,7 @@ JxQuery = {};
 	*/
 	getWhere: function(colcode, condtype, value, coltype) {
 		var query = new Array('','','');
+		if (Ext.isEmpty(value)) return query;
 		
 		//如果是日期对象，则需要转换为字符串
 		value = Ext.isDate(value) ? value.dateFormat('Y-m-d') : value;

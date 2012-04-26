@@ -708,7 +708,7 @@ Ext.ns('Jxstar');
 		loadData: function(grid, options) {
 			if (grid == null || grid.getStore() == null) return;
 			//保存原查询语句，如数据导入时用到
-			if (!options.is_query) {
+			if (options.is_query == null) {
 				grid.jxstarParam.old_wsql = options.where_sql||'';
 				grid.jxstarParam.old_wtype = options.where_type||'';
 				grid.jxstarParam.old_wvalue = options.where_value||'';
@@ -1065,11 +1065,6 @@ Ext.ns('Jxstar');
 			var value = valuePanel.getComponent(0).getValue();
 			var coltype = valuePanel.valueType;
 			
-			if (value == null || Ext.util.Format.trim(value).length == 0) {
-				valuePanel.getComponent(0).setValue('%');
-				value = '%';
-			}
-			
 			var query_type = 0;
 			//是否可以查询到已复核的记录
 			var isarch = valuePanel.ownerCt.findByType('checkbox')[0];
@@ -1081,21 +1076,46 @@ Ext.ns('Jxstar');
 			var wheres = JxQuery.getWhere(colcode, condtype, value, coltype)
 
 			//取树形查询语句
+			Jxstar.myQuery(page, wheres, query_type);
+		},
+		
+		/**
+		 * 添加树形查询语句的查询
+		 * page -- 是表格对象
+		 * wheres -- 是查询条件:sql, value, type
+		 * queryType -- 是否高级查询
+		 */
+		myQuery: function(page, wheres, queryType) {
+			if (wheres == null) wheres = new Array('','','');
+			if (queryType == null) queryType= '0';
+			
+			//取树形查询语句
 			var tree_wsql = page.jxstarParam.tree_wsql;
 			var tree_wtype = page.jxstarParam.tree_wtype;
 			var tree_wvalue = page.jxstarParam.tree_wvalue;
 			if (tree_wsql && tree_wsql.length > 0) {
-				wheres[0] = tree_wsql + ' and (' + wheres[0] + ')';
+				if (wheres[0] && wheres[0].length > 0) {
+					wheres[0] = tree_wsql + ' and (' + wheres[0] + ')';
+				} else {
+					wheres[0] = tree_wsql;
+				}
 			}
 			if (tree_wvalue && tree_wvalue.length > 0) {
-				wheres[1] = tree_wvalue + ';' + wheres[1];
+				if (wheres[1] && wheres[1].length > 0) {
+					wheres[1] = tree_wvalue + ';' + wheres[1];
+				} else {
+					wheres[1] = tree_wvalue;
+				}
 			}
 			if (tree_wtype && tree_wtype.length > 0) {
-				wheres[2] = tree_wtype + ';' + wheres[2];
+				if (wheres[2] && wheres[2].length > 0) {
+					wheres[2] = tree_wtype + ';' + wheres[2];
+				} else {
+					wheres[2] = tree_wtype;
+				}
 			}
 
-			//JxHint.alert('wsql='+wheres[0]+', wvalue='+wheres[1]+', wtype='+wheres[2]);
-			Jxstar.loadData(page, {where_sql:wheres[0], where_value:wheres[1], where_type:wheres[2], is_query:1, query_type:query_type});
+			Jxstar.loadData(page, {where_sql:wheres[0], where_value:wheres[1], where_type:wheres[2], is_query:1, query_type:queryType});
 		}
 	});//Ext.apply
 

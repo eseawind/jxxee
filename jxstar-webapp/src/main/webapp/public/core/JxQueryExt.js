@@ -314,25 +314,7 @@ JxQueryExt = {};
 		var vfs = JxQueryExt.getQryField(hps);//取出所有有查询值的字段
 		
 		var query = JxQuery.getQuery(vfs);
-		if (query == null) {
-			query = ['', '', ''];
-		} else {
-			//添加树形过滤条件
-			var tree_wsql = page.jxstarParam.tree_wsql;
-			var tree_wtype = page.jxstarParam.tree_wtype;
-			var tree_wvalue = page.jxstarParam.tree_wvalue;
-			if (tree_wsql && tree_wsql.length > 0) {
-				query[0] = tree_wsql + ' and (' + query[0] + ')';
-			}
-			if (tree_wvalue && tree_wvalue.length > 0) {
-				query[1] = tree_wvalue + ';' + query[1];
-			}
-			if (tree_wtype && tree_wtype.length > 0) {
-				query[2] = tree_wtype + ';' + query[2];
-			}
-		}
-		
-		Jxstar.loadData(page, {where_sql:query[0], where_value:query[1], where_type:query[2], is_query:1, query_type:query_type});
+		Jxstar.myQuery(page, query, '1');
 	},
 	
 	/**
