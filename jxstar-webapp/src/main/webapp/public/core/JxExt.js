@@ -515,11 +515,13 @@ Ext.form.TextField.prototype.getErrors = function(value) {
 			//if value is blank and allowBlank is true, there cannot be any additional errors
 			return errors;
 		} else {
-			errors.push(this.blankText);
+			if (!this.isBlankCheck) {//add by tony.tan
+				errors.push(this.blankText);
+			}
 		}
 	}
-	
-	if (!this.allowBlank && (value.length < 1 || value === this.emptyText)) { // if it's blank
+	//modify by Tony.Tan
+	if (!this.isBlankCheck && !this.allowBlank && (value.length < 1 || value === this.emptyText)) { // if it's blank
 		errors.push(this.blankText);
 	}
 	
@@ -547,5 +549,19 @@ Ext.form.TextField.prototype.getErrors = function(value) {
 	return errors;
 };
 
-	
+/**
+ * 增加一种不检查必填项的校验方法
+ **/
+Ext.form.BasicForm.prototype.isValidBlank = function(){
+	var valid = true;
+	this.items.each(function(f){
+		f.isBlankCheck = true; //add by tony.tan
+	   if(!f.validate()){
+		   valid = false;
+	   }
+	   delete f.isBlankCheck; //add by tony.tan
+	});
+	return valid;
+};
+
 
