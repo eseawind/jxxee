@@ -13,6 +13,7 @@ import org.jxstar.fun.design.templet.ElementTemplet;
 import org.jxstar.fun.design.templet.PageTemplet;
 import org.jxstar.service.define.DefineName;
 import org.jxstar.test.AbstractTest;
+import org.jxstar.util.config.SystemVar;
 
 /**
  * form页面生成类
@@ -39,17 +40,17 @@ public class FormPageParserTest extends AbstractTest {
 	
 	public static void test1() {
 	       PageTemplet pageTpl = PageTemplet.getInstance();
-	        pageTpl.read(path+"/WEB-INF/tpl/form-page-tpl.txt", "form");
+	        pageTpl.read(SystemVar.REALPATH+"/WEB-INF/tpl/form-page-tpl.txt", "form");
 	        //System.out.println(pageTpl.content());
 	        
 	        ElementTemplet elTpl = ElementTemplet.getInstance();
-	        elTpl.read(path+"/WEB-INF/tpl/form-element-tpl.xml", "form");
+	        elTpl.read(SystemVar.REALPATH+"/WEB-INF/tpl/form-element-tpl.xml", "form");
 	        //System.out.println(elTpl.element("columnModel"));
 	        
 	        //GridPageParser parse = new GridPageParser();
 	        //parse.parseGrid("sys_fun_col");
 	        ReadDesignBO read = new ReadDesignBO();
-			read.readGrid("car_app", path);
+			read.readGrid("car_app", SystemVar.REALPATH);
 			System.out.println(read.getReturnData());
 	}
 	

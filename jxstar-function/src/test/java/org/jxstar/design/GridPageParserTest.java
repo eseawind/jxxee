@@ -11,6 +11,7 @@ import org.jxstar.fun.design.ReadDesignBO;
 import org.jxstar.fun.design.templet.ElementTemplet;
 import org.jxstar.fun.design.templet.PageTemplet;
 import org.jxstar.test.AbstractTest;
+import org.jxstar.util.config.SystemVar;
 
 /**
  * grid页面生成类
@@ -23,11 +24,11 @@ public class GridPageParserTest extends AbstractTest {
 	
 	public static void main(String[] args) {
 		PageTemplet pageTpl = PageTemplet.getInstance();
-		pageTpl.read(path+"/WEB-INF/tpl/grid-page-tpl.txt", "grid");
+		pageTpl.read(SystemVar.REALPATH+"/WEB-INF/tpl/grid-page-tpl.txt", "grid");
 		//System.out.println(pageTpl.content());
 		
 		ElementTemplet elTpl = ElementTemplet.getInstance();
-		elTpl.read(path+"/WEB-INF/tpl/grid-element-tpl.xml", "grid");
+		elTpl.read(SystemVar.REALPATH+"/WEB-INF/tpl/grid-element-tpl.xml", "grid");
 		//System.out.println(elTpl.element("columnModel"));
 		
 		
