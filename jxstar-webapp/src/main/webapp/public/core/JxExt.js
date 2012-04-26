@@ -550,7 +550,7 @@ Ext.form.TextField.prototype.getErrors = function(value) {
 };
 
 /**
- * 增加一种不检查必填项的校验方法
+ * 增加一种不检查必填项的校验方法，暂时未使用
  **/
 Ext.form.BasicForm.prototype.isValidBlank = function(){
 	var valid = true;
