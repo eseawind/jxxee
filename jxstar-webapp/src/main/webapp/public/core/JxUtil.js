@@ -131,6 +131,57 @@ JxUtil = {};
 			return (roleId.indexOf('admin') >= 0);
 		},
 		
+		//检查当前表格中选择的记录的值必填项及长度是否有效
+		validateGrid: function(grid) {
+			//取第二个Tab的表单
+			var isReqCheck = true, myForm = null;
+			if (grid.isXType('editorgrid') == false) {
+				var f = JxUtil.getMyForm(grid);
+				if (f) {
+					myForm = f.getForm();
+				} else {
+					//如果是普通表格，又没有找到表单对象
+					isReqCheck = false;
+				}
+			}
+			
+			if (isReqCheck == false) return true;
+			
+			var cm = grid.getColumnModel();
+			var records = grid.getSelectionModel().getSelections();
+			for (var i = 0; i < records.length; i++) {
+				var record = records[i];
+				var fields = record.fields.keys;
+				for (var j = 0; j < fields.length; j++) {
+					var name = fields[j];
+					var value = record.data[name];
+					if (value == null) value = '';
+
+					//如果可编辑表格，则取表格字段，否则取表单字段
+					var field = null;
+					if (grid.isXType('editorgrid')) {
+						var colIndex = cm.findColumnIndex(name);
+						var rowIndex = grid.getStore().indexOfId(record.id);
+						var editor = cm.getCellEditor(colIndex, rowIndex);
+						if (editor) field = editor.field;
+					} else {
+						if (myForm) {
+							field = myForm.findField(name);
+						}
+					}
+					
+					if (field != null && !field.validateValue(value)) {
+						var index = grid.getStore().indexOf(record);
+						var label = cm.getColumnHeader(cm.findColumnIndex(name));
+						var hint = String.format(jx.event.auditvalid, index+1, label);
+						JxHint.alert(hint);	//第【{0}】条记录的【{1}】数据不完整！
+						return false;
+					}
+				}
+			}
+			return true;
+		},
+		
 		//根据表格取表单对象
 		getMyForm: function(myGrid) {
 			var tabPanel = myGrid.findParentByType('tabpanel');
