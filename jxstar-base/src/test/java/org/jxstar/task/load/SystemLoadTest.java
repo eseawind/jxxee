@@ -67,7 +67,7 @@ public class SystemLoadTest {
 			
 			//_log.showDebug("======已启动线程数：" + (i+1));				
 			System.out.println("======已启动线程数：" + (i+1));
-			TestThread tt = new TestThread(checkTime, sClassName);
+			TestThread tt = new TestThread(checkTime, sClassName, 20000);
 			tt.start();
 		}
 		
