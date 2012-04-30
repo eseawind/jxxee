@@ -11,11 +11,12 @@ package org.jxstar.test.base;
  */
 public class TestThread extends Thread {
 	private static int _doCount = 0;
+	private static int _maxCount = 0;
 	
 	private int _checkTime = 200;
 	private TestInf _testCase = null;
 	
-	public TestThread(String checkTime, String className) {
+	public TestThread(String checkTime, String className, int maxCount) {
 		if (checkTime == null || checkTime.length() == 0) {
 			checkTime = "200";
 		}
@@ -33,14 +34,16 @@ public class TestThread extends Thread {
 			return;
 		}
 		
+		//最大执行次数
+		_maxCount = maxCount;
 		showLog("======已创建测试用例：" + _testCase.toString());
 	}
-	
+
 	public void run() {	
 		//String hashCode = Integer.toString(Thread.currentThread().hashCode());		
 		//_log.showLog("======已创建线程号码：" + hashCode);
 		
-		while (true) {
+		while (true && (_maxCount > 0 && _doCount++ < _maxCount)) {
 			try {
 				sleep(_checkTime);
 			} catch (InterruptedException e) {
@@ -48,7 +51,7 @@ public class TestThread extends Thread {
 			}		
 			
 			_testCase.execute();
-			_doCount++;
+			//_doCount++;
 			//showLog("======执行任务总次数：" + _doCount);
 		}
 	}
