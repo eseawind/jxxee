@@ -8,7 +8,6 @@ package org.jxstar.util.key;
 
 import java.util.Map;
 
-
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.service.define.DefineDataManger;
@@ -38,6 +37,13 @@ import org.jxstar.util.log.Log;
  * 
  * 此方案是一个比较优秀的序列号生成方案，此类在20个并发线程10万次请求测试通过。
  * 
+ * 2012-04-30
+ * 当两个会话同时更新sys_tablecode表的同一条记录时，会出现死锁的情况，
+ * 现在改为取独立的connection，加快更新速度，可以避免死锁的问题。
+ * 性能测试生成2万个编码，同一个事务中耗时218，不同事务中耗时314。
+ * 如果是在集群环境下，会出现编码重复的问题，而且可能会出现死锁，现在
+ * 把每次分配编码数量调整为10个，如果重启服务，则会出现断码的情况。
+ * 
  * @author TonyTan
  * @version 1.0, 2010-11-4
  */
@@ -48,7 +54,7 @@ public class CodeCreator {
 	private static BaseDao _dao = BaseDao.getInstance();
 	
 	//每次取编码数量
-	private static final int POOL_SIZE = 10000000;
+	private static final int POOL_SIZE = 10;
 	//缓存不同表的键对象
 	private static Map<String, KeyInfo> _keyList = FactoryUtil.newMap();
 	
@@ -242,8 +248,7 @@ public class CodeCreator {
 		}
 		
 		//取新的序号
-		int serial = keyInfo.getNextKey(); //getNextKey(tableName, extValue);
-		//int serial = getNextKey(tableName, extValue);
+		int serial = keyInfo.getNextKey();
 		String key = Integer.toString(serial);
 		
 		//如果掩码长度小于2，则直接返回流水号
@@ -288,34 +293,39 @@ public class CodeCreator {
 			if (nextKey > keyMax) {
 				retrieveFromDB();
 			}
-			
-			//每次取新号时，更新当前最大值；采用累加1的方式可以解决多线程多事务累加不丢失的问题。
-			String usql = "update sys_tablecode set max_value = max_value + 1 where table_name = ? and code_ext = ?";
-			DaoParam uparam = _dao.createParam(usql);
-			uparam.addStringValue(keyName);
-			uparam.addStringValue(keyExtend);
-			if (!_dao.update(uparam)) {
-				_log.showWarn("get next code no update error!! tablename={0} extvalue={1}!!", keyName, keyExtend);
-			}
 
 			return nextKey++;
 		}
 		
-		private void retrieveFromDB() {
+		private synchronized void retrieveFromDB() {
 			//从数据库中取上次分配的最大值
 			int dbmax = 0;
 			String ssql = "select max_value from sys_tablecode where table_name = ? and code_ext = ?";
 			DaoParam sparam = _dao.createParam(ssql);
+			sparam.setUseTransaction(false);
 			sparam.addStringValue(keyName);
 			sparam.addStringValue(keyExtend);
 			Map<String, String> mpMax = _dao.queryMap(sparam);
 			
 			if (!mpMax.isEmpty()) {
 				dbmax = Integer.parseInt(mpMax.get("max_value"));
+				
+				//每次取新号时，更新当前最大值；采用累加poolSize的方式可以解决多线程多事务累加不丢失的问题。
+				String usql = "update sys_tablecode set max_value = max_value + ? where table_name = ? and code_ext = ?";
+				DaoParam uparam = _dao.createParam(usql);
+				uparam.setUseTransaction(false);
+				uparam.addIntValue(Integer.toString(poolSize));
+				uparam.addStringValue(keyName);
+				uparam.addStringValue(keyExtend);
+				if (!_dao.update(uparam)) {
+					_log.showWarn("get next code no update error!! tablename={0} extvalue={1}!!", keyName, keyExtend);
+				}
 			} else {
 				//新建一条记录
-				String usql = "insert into sys_tablecode(max_value, table_name, code_ext) values(0, ?, ?)";
+				String usql = "insert into sys_tablecode(max_value, table_name, code_ext) values(?, ?, ?)";
 				DaoParam uparam = _dao.createParam(usql);
+				uparam.setUseTransaction(false);
+				uparam.addIntValue(Integer.toString(poolSize));
 				uparam.addStringValue(keyName);
 				uparam.addStringValue(keyExtend);
 				if (!_dao.update(uparam)) {
