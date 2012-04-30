@@ -18,6 +18,7 @@ import java.util.Map;
 
 import org.jxstar.dao.transaction.TransactionException;
 import org.jxstar.dao.transaction.TransactionObject;
+import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.StringUtil;
 import org.jxstar.util.config.SystemVar;
 import org.jxstar.util.factory.FactoryUtil;
@@ -368,6 +369,32 @@ public class DaoUtil {
 			_log.showWarn(sbError.toString());
 		}
 	}	
+	
+	/**
+	 * 输出所有SQL与参数到文件中，需要设置参数：db.show.sql=1
+	 * @param param
+	 * @param type -- 操作类型：1查询，2更新 ，3所有
+	 */
+	public static void debugSQL(DaoParam param, String type) {
+		if (param == null) return;
+		
+		String isShow = SystemVar.getValue("db.show.sql", "0");
+		if (isShow == null || isShow.length() == 0 || isShow.equals("0")) return;
+		boolean valid =
+			(isShow.equals("3") || 						//显示所有SQL
+			 isShow.equals("1") && type.equals("1") ||	//只显示查询SQL
+			 isShow.equals("2") && type.equals("2"));	//只显示更新SQL
+		if (!valid) return;
+		
+		String sql = param.getSql();
+		String[] vals = ArrayUtil.listToArray(param.getValue());
+		String value =  ArrayUtil.arrayToString(vals);
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("ThreadId=").append(Thread.currentThread().hashCode()).append(";\nSQL=");
+		sb.append(sql).append(";\nPARAM=").append(value).append("\n");
+		_log.showError(sb.toString());
+	}
 	
 	/**
 	 * 显示异常信息。

@@ -114,6 +114,8 @@ public class BaseDao {
 			return false;
 		}
 		
+		//根据配置输出SQL
+		DaoUtil.debugSQL(param, "2");
 		//取数据源名
 		String dataSource = param.getDsName();
 		
@@ -211,6 +213,8 @@ public class BaseDao {
 			return lsRet;
 		}
 		
+		//根据配置输出SQL
+		DaoUtil.debugSQL(param, "1");
 		//取数据源名
 		String dataSource = param.getDsName();
 
@@ -219,8 +223,13 @@ public class BaseDao {
 		ResultSet rs = null;
 		TransactionObject tranObj = null;
 		try {
-			tranObj = _tranMng.getTransactionObject();
-			con = tranObj.getConnection(dataSource);
+			if (param.isUseTransaction()) {
+				tranObj = _tranMng.getTransactionObject();
+				con = tranObj.getConnection(dataSource);
+			} else {
+				con = PooledConnection.getInstance().getConnection(dataSource);
+				if (con != null) con.setAutoCommit(true);
+			}
 			
 			if (con == null) {
 				_log.showWarn("connection is null sql=" + sql);
@@ -252,6 +261,13 @@ public class BaseDao {
 				rs = null;
 				if (ps != null) ps.close();
 				ps = null;			
+				
+				if (!param.isUseTransaction()) {
+					if (con != null) {
+						con.close();
+					}
+					con = null;
+				}
 			} catch (SQLException e) {
 				_log.showError(e);
 			}
