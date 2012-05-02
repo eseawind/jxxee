@@ -98,7 +98,13 @@
 		funid: 'sys_qrydet'
 	};
 	
-	config.param.hidePageTool = true;	config.eventcfg = {				dataImportParam: function() {			var grid = this.grid;			var options = {				whereSql: 'fun_col.fun_id = ?',				whereValue: grid.qryFunId,				whereType: 'string'			};			return options;		}	};config.initpage = function(gridNode){ 	var grid = gridNode.page;		grid.on('beforeedit', function(e) {		if (e.field != 'sys_query_det__condtype') return true;		var coltype = e.record.get('sys_query_det__coltype');				var combo = gridNode.config.param.cols[2].col.editor;		if (combo.isXType('combo') == true) {			var cs = combo.store;			var cr = cs.reader.recordType;			if (coltype == 'string') {				if (cs.getCount() == 5) {					cs.insert(5, new cr({value:'llike', text:jx.query.llike}));					cs.insert(6, new cr({value:'rlike', text:jx.query.rlike}));					cs.insert(7, new cr({value:'like', text:jx.query.like}));				}			} else {				if (cs.getCount() == 8) {					cs.remove(cs.getAt(7));					cs.remove(cs.getAt(6));					cs.remove(cs.getAt(5));				}			}		}		return true;	});};
+	config.param.hidePageTool = true;	config.eventcfg = {				dataImportParam: function() {
+			var fkValue = this.grid.fkValue;
+			if (!fkValue) {
+				JxHint.alert('先选择左边的查询方案，才能添加查询字段！');
+				return;
+			}
+					var grid = this.grid;			var options = {				whereSql: 'fun_col.fun_id = ?',				whereValue: grid.qryFunId,				whereType: 'string'			};			return options;		}	};config.initpage = function(gridNode){ 	var grid = gridNode.page;		grid.on('beforeedit', function(e) {		if (e.field != 'sys_query_det__condtype') return true;		var coltype = e.record.get('sys_query_det__coltype');				var combo = gridNode.config.param.cols[2].col.editor;		if (combo.isXType('combo') == true) {			var cs = combo.store;			var cr = cs.reader.recordType;			if (coltype == 'string') {				if (cs.getCount() == 5) {					cs.insert(5, new cr({value:'llike', text:jx.query.llike}));					cs.insert(6, new cr({value:'rlike', text:jx.query.rlike}));					cs.insert(7, new cr({value:'like', text:jx.query.like}));				}			} else {				if (cs.getCount() == 8) {					cs.remove(cs.getAt(7));					cs.remove(cs.getAt(6));					cs.remove(cs.getAt(5));				}			}		}		return true;	});};
 		
 	return new Jxstar.GridNode(config);
 }
