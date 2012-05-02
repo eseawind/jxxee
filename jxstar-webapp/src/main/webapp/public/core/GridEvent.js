@@ -70,6 +70,10 @@ Jxstar.GridEvent = function(define) {
 		/**
 		* @param {Jxstar.GridEvent} this
 		**/
+		'beforeimport',
+		/**
+		* @param {Jxstar.GridEvent} this
+		**/
 		'afterimport'
 	);
 
@@ -709,6 +713,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		var self = this;
 		//取外键值
 		var fkValue = this.grid.fkValue; 
+		if (this.fireEvent('beforeimport', this) == false) return;
 		
 		//取路由定义信息，格式：{srcNodeId:"sys_event",whereSql:"fun_id='sysevent'",whereType:"",whereValue:""}
 		var route = RuleData[this.define.nodeid][0];
