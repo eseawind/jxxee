@@ -89,7 +89,7 @@ Jxstar.FormNode.prototype = {
 
 		var form = new Ext.form.FormPanel({
 			labelAlign: fm.labelAlign || 'right',
-			labelWidth: 120,
+			labelWidth: fm.labelWidth || 120,
 			border: true,
 			autoScroll: true,
 			frame: false,
