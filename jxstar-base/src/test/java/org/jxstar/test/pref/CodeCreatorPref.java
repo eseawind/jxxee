@@ -31,7 +31,7 @@ public class CodeCreatorPref extends TestBase {
 		
 		//需要添加这个延时才能测试出死锁的效果
 		/*try {
-			Thread.currentThread().sleep(1000);
+			Thread.currentThread().sleep(500);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}*/
