@@ -306,7 +306,7 @@ public class ReportAction extends Action {
 	 */
 	private void responseWrite(HttpServletResponse response, String msg) {
 		try {
-			response.getWriter().write(JsMessage.getValue("license.notee"));
+			response.getWriter().write(msg);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

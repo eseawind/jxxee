@@ -25,6 +25,7 @@ import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.ColumnDefine;
 import org.jxstar.service.define.FunDefineDao;
 import org.jxstar.service.util.WhereUtil;
+import org.jxstar.util.StringFormat;
 import org.jxstar.util.StringUtil;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.resource.JsMessage;
@@ -125,9 +126,9 @@ public class ExportXlsBO extends BusinessObject {
 			for (int j = 0, m = lsCol.size(); j < m; j++) {
 				Map<String,String> mpcol = lsCol.get(j);
 				String colcode = StringUtil.getNoTableCol(mpcol.get("col_code"));
-				//String datatype = mpcol.get("data_type");
 				String ctltype = mpcol.get("col_control");
 				String ctlname = mpcol.get("control_name");
+				String colformat = mpcol.get("format_id");
 				
 				String colvalue = mpData.get(colcode);
 				if (colvalue == null) colvalue = "";
@@ -138,10 +139,17 @@ public class ExportXlsBO extends BusinessObject {
 						colvalue = mpcombo.get(colvalue);
 					}
 				}
+				//处理数据格式
+				colvalue = StringFormat.getDataValue(colvalue, colformat);
 
 				sfCell = hfRow.createCell(j+1);
 				sfCell.setCellType(HSSFCell.CELL_TYPE_STRING);
-				sfCell.setCellValue(colvalue);
+				if (colformat.equals("int") || colformat.indexOf("number") >= 0) {
+					if (colvalue.length() == 0) colvalue = "0";
+					sfCell.setCellValue(Double.parseDouble(colvalue));
+				} else {
+					sfCell.setCellValue(colvalue);
+				}
 				sfCell.setCellStyle(cellStyle);
 			}
 		}
