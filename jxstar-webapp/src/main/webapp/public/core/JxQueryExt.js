@@ -33,12 +33,12 @@ JxQueryExt = {};
 			var oldv = combo.getValue();//防止重复点击
 			
 			if (val != oldv && val == '0') {
-				self.selectBaseQry(nodeg);
+				self.renderToolQry(nodeg);
 			} else if (val != oldv && val == '1') {
 				self.openToolQry(nodeg, combo);
 			} else if (val != oldv) {
 				var endcall = function(data) {
-					JxQueryExt.renderToolQry(nodeg, data.qrycond);
+					self.renderToolQry(nodeg, data.qrycond);
 				}
 				var params = 'funid=sys_query&queryid=' + val +'&pagetype=grid&eventcode=selcase';
 				Request.dataRequest(params, endcall);
@@ -57,54 +57,6 @@ JxQueryExt = {};
 		win.on('destroy', function() {
 			JxQueryExt.loadQryCase(nodeg, combo);
 		});
-	},
-	
-	//显示简单查询
-	selectBaseQry: function(nodeg) {
-		var grid = nodeg.page;
-		var renderQry = function() {
-			if (grid.bwrap == null) {
-				JxHint.alert('查询字段容器未显示！');
-				return;
-			}
-			grid.bwrap.select('div.tool-query').remove();
-		
-			var rowCfg = new Ext.Container({
-				name:JxUtil.newId()+'_qv',//选择窗口控件使用
-				layout:'hbox',
-		    	border:false,
-	            layoutConfig: {
-	                padding:'2',
-	                align:'middle'
-	            },
-	            defaults:{margins:'0 0 0 5'}
-	        });
-	        Jxstar.addBaseQry(nodeg, rowCfg);
-			//如果查询做归档处理，则显示归档checkbox
-			if (nodeg.define.isarch == '1') {
-				rowCfg.add({xtype:'checkbox', boxLabel:'含归档数据', width:80, name:'xx_isarch', checked:false});
-			}
-			
-			var qryp = new Ext.Container({
-				border:false, 
-				items:[rowCfg]
-			});
-			
-			var tbar = grid.getTopToolbar();
-			var el = tbar.el.insertHtml('afterEnd', "<div class='tool-query x-small-editor'></div>");
-			qryp.render(el);
-			grid.qryCt = qryp;//记录当前表格的公共查询容器
-			
-			grid.setHeight(grid.ownerCt.getHeight());//单个doLayout无效，需要添加高度设置
-			grid.ownerCt.doLayout();
-		};
-		
-		//由于子表构建时tbar.el is null，所以在子表呈现时再触发
-		if (grid.bwrap == null) {
-			grid.on('render', renderQry);
-		} else {
-			renderQry();
-		}
 	},
 	
 	/**
@@ -129,7 +81,7 @@ JxQueryExt = {};
 				JxQueryExt.renderToolQry(nodeg, data.qrycond);
 			} else {
 				combo.setValue('0');
-				JxQueryExt.selectBaseQry(nodeg);
+				JxQueryExt.renderToolQry(nodeg);
 			}
 		}
 		var params = 'funid=sys_query&qryfunid=' + nodeg.nodeId +'&pagetype=grid&eventcode=reloadcase';
@@ -142,37 +94,34 @@ JxQueryExt = {};
 	renderToolQry: function(nodeg, qrycond) {
 		var grid = nodeg.page;
 		var renderQry = function() {
-			if (grid.bwrap == null) {
+			if (Ext.isEmpty(grid.qryCt)) {
 				JxHint.alert('查询字段容器未显示！');
 				return;
 			}
-			grid.bwrap.select('div.tool-query').remove();
-			if (qrycond.length > 0) {
-				var rowno = 0, datas = [];
-				for (var i = 0, n = qrycond.length; i < n; i++) {//查询字段分行显示
-					var qryrowno = qrycond[i].row_no;
-					if (Ext.isEmpty(qryrowno)) qryrowno = '1';
-					
-					if (rowno == parseInt(qryrowno)) {
-						var row = datas[rowno-1];
-						row[row.length] = qrycond[i];
-					} else {
-						rowno = parseInt(qryrowno);//新的行号
-						datas[rowno-1] = [qrycond[i]];
-					}
+			grid.qryCt.removeAll(true);
+			
+			var hcfgs = [], rn = 1;
+			//如果有查询条件，则是查询方案，否则为通用查询
+			if (qrycond) {
+				if (qrycond.length > 0) {
+					hcfgs = JxQueryExt.showQryTool(nodeg, qrycond);
+					rn = hcfgs.length;
 				}
-				var hcfgs = JxQueryExt.showQryTool(nodeg, datas);
-				var qryp = new Ext.Container({
-					border:false, 
-					items:hcfgs
-				});
-				
-				var tbar = grid.getTopToolbar();
-				var el = tbar.el.insertHtml('afterEnd', "<div class='tool-query x-small-editor'></div>");
-				qryp.render(el);
-				grid.qryCt = qryp;//记录当前表格的公共查询容器
+			} else {
+				hcfgs = JxQueryExt.hcfg();
+		        Jxstar.addBaseQry(nodeg, hcfgs);
+				//如果查询做归档处理，则显示归档checkbox
+				if (nodeg.define.isarch == '1') {
+					hcfgs.add(self.archCfg);
+				}
 			}
-			grid.setHeight(grid.ownerCt.getHeight());//单个doLayout无效，需要添加高度设置
+			//添加到查询工具栏容器中
+			grid.qryCt.add(hcfgs);
+			
+			//由于存在2行的情况，qryCt, grid.ownerCt需要doLayout
+			grid.qryCt.setHeight(24*rn+2);
+			grid.qryCt.doLayout();
+			grid.setHeight(grid.ownerCt.getHeight());//单执行doLayout无效
 			grid.ownerCt.doLayout();
 		};
 		
@@ -184,31 +133,54 @@ JxQueryExt = {};
 		}
 	},
 	
+	//私有方法
+	hcfg: function(cfg) {//单行查询配置
+		var ct = {
+			name:JxUtil.newId()+'_qv',//选择窗口控件使用
+			xtype:'container',
+			layout:'hbox',
+	    	border:false,
+            layoutConfig: {
+                padding:'1',
+                align:'middle'
+            },
+            defaults:{margins:'0 0 0 5'},
+            items:cfg||[]
+        };
+		if (cfg) {
+			return ct;
+		} else {
+			return new Ext.Container(ct);
+		}
+	},
+	
+	//私有属性
+	archCfg: {xtype:'checkbox', boxLabel:'含归档数据', width:80, name:'xx_isarch', checked:false},
+	
 	/**
 	 * 根据配置的查询方案，显示查询面板
 	 * cfg: {left_brack, colcode, colname, condtype, cond_value, right_brack, andor, coltype}
 	 * row: [{cfg1}, {cfg2}, ...]
 	 * datas: [{row1}, {row2}, ...]
 	 */
-	showQryTool: function(nodeg, datas) {
-		if (datas == null || datas.length == 0) return;
+	showQryTool: function(nodeg, qrycond) {
+		if (qrycond == null || qrycond.length == 0) return [];
+		
+		var rowno = 0, datas = [];
+		for (var i = 0, n = qrycond.length; i < n; i++) {//查询字段分行显示
+			var qryrowno = qrycond[i].row_no;
+			if (Ext.isEmpty(qryrowno)) qryrowno = '1';
+			
+			if (rowno == parseInt(qryrowno)) {
+				var row = datas[rowno-1];
+				row[row.length] = qrycond[i];
+			} else {
+				rowno = parseInt(qryrowno);//新的行号
+				datas[rowno-1] = [qrycond[i]];
+			}
+		}
 		
 		var hcfgs = [];//所有查询字段控件
-		var hcfg = function(cfg) {//单行查询配置
-			return {
-				name:JxUtil.newId()+'_qv',//选择窗口控件使用
-				xtype:'container',
-				layout:'hbox',
-		    	border:false,
-	            layoutConfig: {
-	                padding:'2',
-	                align:'middle'
-	            },
-	            defaults:{margins:'0 0 0 5'},
-	            items:cfg
-	        };
-		};
-		
 		var self = this, grid = nodeg.page;
 		var mycols = nodeg.param.cols;
 		for (var i = 0, n = datas.length; i < n; i++) {
@@ -226,10 +198,10 @@ JxQueryExt = {};
 				qryrow[qryrow.length] = {xtype:'button', iconCls:'eb_qry', tooltip:jx.star.qry, handler:self.exeQry, data:grid};
 				//如果查询做归档处理，则显示归档checkbox
 				if (nodeg.define.isarch == '1') {
-					qryrow[qryrow.length] = {xtype:'checkbox', boxLabel:'含归档数据', width:80, name:'xx_isarch', checked:false};
+					qryrow[qryrow.length] = self.archCfg;
 				}
 			}
-			hcfgs[hcfgs.length] = hcfg(qryrow);
+			hcfgs[hcfgs.length] = self.hcfg(qryrow);
 		}
 		
 		return hcfgs;

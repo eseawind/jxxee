@@ -51,23 +51,7 @@ JxGroupExt = {};
 			if (val != oldv && val == '1') {
 				self.caseWin(nodeg);
 			} else if (val != oldv && val != '0') {
-				if (!window.JxGroupPage) {//动态同步加载该对象
-					JxUtil.loadJS('/public/layout/ux/group_page.js', false);
-				}
-				var page = JxGroupPage.createPage(val, nodeg);
-				var	win = new Ext.Window({
-					title:record.get('text'),
-					layout:'fit',
-					width: 800,
-					height: 600,
-					constrainHeader: true,
-					resizable: true,
-					modal: true,
-					closeAction: 'close',
-					defaults:{margins:'5 2 5 2'},
-					items:[page]
-				});
-				win.show();
+				self.exeStat(nodeg, val);
 			}
 		});
 		stacb.on('select', function(combo, record){
@@ -190,6 +174,35 @@ JxGroupExt = {};
 	},
 	
 	/**
+	 * 执行统计方案
+	 */
+	exeStat: function(nodeg, statId) {
+		if (!statId) statId = this.selStatId;
+		if (Ext.isEmpty(statId)) {
+			JxHint.alert('当前统计方案没有保存，不能执行！');
+			return;
+		}
+		
+		if (!window.JxGroupPage) {//动态同步加载该对象
+			JxUtil.loadJS('/public/layout/ux/group_page.js', false);
+		}
+		var page = JxGroupPage.createPage(statId, nodeg);
+		var	win = new Ext.Window({
+			title:'统计方案',
+			layout:'fit',
+			width: 800,
+			height: 600,
+			constrainHeader: true,
+			resizable: true,
+			modal: true,
+			closeAction: 'close',
+			defaults:{margins:'5 2 5 2'},
+			items:[page]
+		});
+		win.show();
+	},
+	
+	/**
 	 * 查询统计方案，显示到combo中
 	 */
 	loadStaCase: function(pageNode, combo) {
@@ -235,7 +248,7 @@ JxGroupExt = {};
 			layout:'border',
 			tbar:[{text:'新建', iconCls:'eb_create', handler:self.createCase.createDelegate(self)}, 
 			      {text:'保存', iconCls:'eb_save', handler:self.saveCase.createDelegate(self)},
-				  {text:'统计', iconCls:'eb_sum', handler:self.saveCase.createDelegate(self)}],
+				  {text:'统计', iconCls:'eb_sum', handler:self.exeStat.createDelegate(self, [pageNode])}],
 			items:[{
 				xtype:'container',
 				region:'north',

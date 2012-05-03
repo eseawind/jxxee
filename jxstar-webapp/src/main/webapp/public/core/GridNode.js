@@ -217,7 +217,7 @@ Jxstar.GridNode.prototype = {
 		if (self.pageType.indexOf('notool') < 0) {
 			var tcfg = {deferHeight:true, items:[{text:' '}]};
 			//处理：IE下工具栏的高度为29px，FF下工具栏的高度为27px
-			if (Ext.isIE) tcfg.style = 'padding:1px;';
+			//if (Ext.isIE) tcfg.style = 'padding:1px;';
 			//创建工具栏，先创建一个空按钮，保证在chrome中显示正常
 			var tbar = new Ext.Toolbar(tcfg);
 			config.tbar = tbar;
@@ -306,6 +306,8 @@ Jxstar.GridNode.prototype = {
 			gp.gridNode = null;			delete gp.gridNode;
 			gp.cmpTree = null;			delete gp.cmpTree;
 			gp.treeNodeAttr = null;		delete gp.treeNodeAttr;
+			
+			if (gp.qryCt) {Ext.destroy(gp.qryCt, gp.qryCt.el);}
 			gp.qryCt = null;			delete gp.qryCt;
 			gp = null;
 			
@@ -333,6 +335,21 @@ Jxstar.GridNode.prototype = {
 		self.event.setPage(grid);
 		//设置页面对象
 		self.page = grid;
+		
+		//如果显示查询方案，则添加查询工具栏，避免出现表格延时移动
+		if (self.state == '0' && (self.param.hasQuery == null || self.param.hasQuery==true)) {
+			if (Jxstar.systemVar.useCase == '1') {
+				grid.on('render', function(g){
+					if (Ext.isEmpty(g.tbar)) return;
+					g.qryCt = new Ext.Container({
+						renderTo:g.tbar,
+						style:'padding:1px;',
+						cls:'tool-query x-small-editor',
+						height:26
+					});
+				});
+			}
+		}
 
 		return true;
 	},
