@@ -420,12 +420,14 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 			//如果是新增记录，则反馈后台新增的主键值与编码
 			//如果是保存，可能存在后台构建的值需要反馈
 			for(var key in data) {
-				var val = data[key];
+				var field, val = data[key];
 				if (key == 'keyid')	{
-					self.getPkField().osetValue(val);
+					field = self.getPkField();
+					if (field) field.osetValue(val);
 				} else {
 					key = key.replace('.', '__');
-					self.form.findField(key).osetValue(val);
+					field = self.form.findField(key);
+					if (field) field.osetValue(val);
 				}
 			}
 			
