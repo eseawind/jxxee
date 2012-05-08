@@ -64,8 +64,8 @@
 				items:[
 					{xtype:'checkbox', fieldLabel:'根据权限通知', name:'warn_base__use_role', defaultval:'0', disabled:false, anchor:'100%'},
 					{xtype:'checkbox', fieldLabel:'是否待办任务', name:'warn_base__is_assign', defaultval:'1', disabled:false, anchor:'100%'},
-					{xtype:'checkbox', fieldLabel:'是否发送短信', name:'warn_base__send_sms', defaultval:'0', disabled:false, anchor:'100%'},
-					{xtype:'checkbox', fieldLabel:'是否发送邮件', name:'warn_base__send_email', defaultval:'0', disabled:false, anchor:'100%'},
+					{xtype:'hidden', fieldLabel:'是否发送短信', name:'warn_base__send_sms', anchor:'100%'},
+					{xtype:'hidden', fieldLabel:'是否发送邮件', name:'warn_base__send_email', anchor:'100%'},
 					{xtype:'hidden', fieldLabel:'上报用途描述', name:'warn_base__warn_memo', anchor:'100%'}
 				]
 			}
@@ -82,7 +82,7 @@
 				style: 'padding-left:10px;',
 				items:[
 					{xtype:'textarea', fieldLabel:'上报条件SQL', name:'warn_base__where_sql', width:'100%', height:48, maxLength:200},
-					{xtype:'textarea', fieldLabel:'上报消息描述', name:'warn_base__warn_desc', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', width:'100%', height:48, maxLength:200}
+					{xtype:'textarea', fieldLabel:'上报消息描述', name:'warn_base__warn_desc', width:'100%', height:48, maxLength:200}
 				]
 			}
 			]
