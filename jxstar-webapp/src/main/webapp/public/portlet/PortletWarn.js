@@ -55,7 +55,7 @@ PortletWarn = {};
 			target.doLayout();
 		};
 		//加载显示“待办任务”的上报消息
-		var params = 'funid=sys_warn&eventcode=newwarn';
+		var params = 'funid=sys_warn&eventcode=cntwarn';
 		Request.dataRequest(params, hdCall);
 	},
 	
@@ -73,17 +73,24 @@ PortletWarn = {};
 	
 		var rowTpl = new Ext.Template(
 			'<tr height="20" style="background-color:{bgcolor};"><td>',
-				'<li><a href="#" {chgcolor} onclick="PortletWarn.showWarnData(\'{warnid}\', \'{funid}\');">{warntitle}</a>',
+				'<li><a href="#" {chgcolor} onclick="{readFn}">{warntitle}</a>',
 			'</td><tr>'
 		);
 	
+		var en = function(str){
+			if (str == null || str.length == 0) return '';
+			str = encodeURIComponent(str);
+			str = str.replace(/'/g, "\\'");
+			return str;
+		};
+		
 		var rows = [];
 		//列表中只显示6条最新消息
 		var len = warnJson.length;// > 6 ? 6 : warnJson.length;
 		for (var i = 0; i < len; i++) {
 			var warnVal = {};
-			warnVal.funid = warnJson[i].fun_id;
-			warnVal.warnid = warnJson[i].warn_id;
+			warnVal.readFn = 'PortletWarn.showWarnData(\''+ 
+				warnJson[i].fun_id +'\', \''+ en(warnJson[i].whereSql) +'\');';
 			
 			var warnnum = warnJson[i].warn_num;
 			var warnname = warnJson[i].warn_name;
@@ -100,29 +107,18 @@ PortletWarn = {};
 	
 	/**
 	 * 显示上报任务的记录
-	 * warnId -- 上报ID
 	 * funId -- 功能ID
+	 * wheresql -- 过滤条件
 	 **/
-	showWarnData: function(warnId, funId) {
+	showWarnData: function(funId, wheresql) {
 		//取功能对象信息
 		var define = Jxstar.findNode(funId);
 		if (define == null) {
 			JxHint.alert(String.format(jx.star.nopage, funId));	//'没有定义【{0}】功能页面信息！'
 			return false;
 		}
-		//当前用户ID
-		var userId = JxDefault.getUserId();
 		
-		//构建页面参数
-		/*var pkcol = define.pkcol.replace('__', '.');
-		var pageParam = {
-			whereSql: ' exists (select * from warn_assign where user_id = ? and is_assign = ? and warn_id = ? and fun_id = ? and data_id = '+ pkcol +')',
-			whereValue: userId+';1;'+warnId+';'+funId,
-			whereType: 'string;string;string;string',
-			showType: 'form'
-		};*/
-		//由于需要打开功能页面的待办工作大部分都是当前功能显示的记录，所以暂时不添加上面的查询条件
-		var pageParam = {};
+		var pageParam = {whereSql:decodeURIComponent(wheresql)};
 		Jxstar.createNode(funId, pageParam);
 	}
 	
