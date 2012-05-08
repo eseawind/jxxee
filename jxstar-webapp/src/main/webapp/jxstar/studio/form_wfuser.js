@@ -18,13 +18,7 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
-					{xtype:'trigger', fieldLabel:'分配用户', name:'wf_user__user_name',
-						anchor:'100%', triggerClass:'x-form-search-trigger',
-						maxLength:20, allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', editable:false,
-						onTriggerClick: function() {
-							var selcfg = {pageType:'combogrid', nodeId:'sys_user', layoutPage:'/public/layout/layout_tree.js', sourceField:'sys_user.user_name;user_id', targetField:'wf_user.user_name;user_id', whereSql:"sys_user.is_novalid = '0'", whereValue:'', whereType:'', isSame:'1', isShowData:'1', isMoreSelect:'0',isReadonly:'1',fieldName:'wf_user.user_name'};
-							JxSelect.createSelectWin(selcfg, this, 'node_wf_user_form');
-						}},
+					{xtype:'textfield', fieldLabel:'分配用户', name:'wf_user__user_name', readOnly:true, anchor:'100%', maxLength:20},
 					{xtype:'textfield', fieldLabel:'部门名称', name:'sys_dept__dept_name', readOnly:true, anchor:'100%', maxLength:100},
 					{xtype:'trigger', fieldLabel:'升级用户', name:'wf_user__up_user',
 						anchor:'100%', triggerClass:'x-form-search-trigger',

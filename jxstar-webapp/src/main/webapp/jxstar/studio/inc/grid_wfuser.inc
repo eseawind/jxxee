@@ -1,3 +1,2 @@
-﻿	config.eventcfg = {		
-		dataImportParam: function() {			var nodeattrId = this.grid.fkValue;						var options = {				whereSql: 'not exists (select * from wf_user where sys_user.user_id = wf_user.user_id and nodeattr_id = ?)',				whereValue: nodeattrId,				whereType: 'string'			};			return options;		}
-	};
+	config.initpage = function(pageNode){		var event = pageNode.event;		event.on('beforeimport', function(){		var fkValue = pageNode.page.fkValue;		if (!fkValue) {			JxHint.alert(jx.util.selectno);			return false;		}		return true;	});
+};

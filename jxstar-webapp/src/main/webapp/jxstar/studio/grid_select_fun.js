@@ -35,7 +35,7 @@
 		sorts: null,
 		hasQuery: '1',
 		isedit: '0',
-		isshow: '1',
+		isshow: '0',
 		funid: 'sel_fun'
 	};
 	
