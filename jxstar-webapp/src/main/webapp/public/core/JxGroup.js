@@ -209,7 +209,7 @@ JxGroup = {};
 				width:70,
 				handler:function(){
 					//把grid中的数据保存为csv格式的文件, 统计数据.csv
-					self.exportCSV(self.statGrid, jx.group.statdata+'.csv');
+					Request.exportCSV(self.statGrid, jx.group.statdata+'.csv');
 				}
 			},{
 				text:jx.group.back,	//返回
