@@ -23,7 +23,8 @@
 		funid: 'wf_user_def'
 	};
 	
-	
+	config.initpage = function(pageNode){		var grid = pageNode.page;		grid.getStore().on('load', function(s){		grid.getSelectionModel().selectFirstRow();		grid.fireEvent('rowclick', grid, 0);	});
+};
 		
 	return new Jxstar.GridNode(config);
 }

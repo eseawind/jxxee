@@ -197,8 +197,8 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
-					{xtype:'textarea', fieldLabel:'from子句', name:'fun_base__from_sql', width:'100%', height:48, maxLength:200},
-					{xtype:'textarea', fieldLabel:'where子句', name:'fun_base__where_sql', width:'100%', height:48, maxLength:200},
+					{xtype:'textarea', fieldLabel:'from子句', name:'fun_base__from_sql', width:'100%', height:48, maxLength:500},
+					{xtype:'textarea', fieldLabel:'where子句', name:'fun_base__where_sql', width:'100%', height:48, maxLength:500},
 					{xtype:'textarea', fieldLabel:'order子句', name:'fun_base__order_sql', width:'100%', height:48, maxLength:200},
 					{xtype:'textarea', fieldLabel:'group子句', name:'fun_base__group_sql', width:'100%', height:48, maxLength:200}
 				]

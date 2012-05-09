@@ -45,6 +45,7 @@ Jxstar.currentPage = function(define, pageParam) {
 		var pgrid = tabGridDet.getComponent(1).getComponent(0);		
 		//点击调用类，显示调用参数
 		igrid.on('rowclick', function(g, n, e){
+			pgrid.fkValue = '';
 			var record = g.getStore().getAt(n);
 			if (record == null) return false;
 			
