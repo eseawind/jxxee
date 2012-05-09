@@ -216,8 +216,8 @@ Jxstar.GridNode.prototype = {
 		//如果是下拉选项数据，则不要工具栏self.pageType != 'combogrid' && 
 		if (self.pageType.indexOf('notool') < 0) {
 			var tcfg = {deferHeight:true, items:[{text:' '}]};
-			//处理：IE下工具栏的高度为29px，FF下工具栏的高度为27px
-			//if (Ext.isIE) tcfg.style = 'padding:1px;';
+			//处理：FF下工具栏高度为27px，IE为29px，通过下面设置后为27px
+			if (Ext.isIE) tcfg.style = 'padding:1px;';
 			//创建工具栏，先创建一个空按钮，保证在chrome中显示正常
 			var tbar = new Ext.Toolbar(tcfg);
 			config.tbar = tbar;

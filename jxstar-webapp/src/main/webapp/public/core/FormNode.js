@@ -82,7 +82,7 @@ Jxstar.FormNode.prototype = {
 
 		
 		var tcfg = {deferHeight:true, items:[{text:' '}]};
-		//处理：IE下工具栏的高度为29px，FF下工具栏的高度为27px
+		//处理：FF下工具栏高度为27px，IE为29px，通过下面设置后为27px
 		if (Ext.isIE) tcfg.style = 'padding:1px;';
 		//创建工具栏
 		var tbar = new Ext.Toolbar(tcfg);
