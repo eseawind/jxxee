@@ -197,7 +197,7 @@ public class TreeQuery extends BusinessObject {
 		
 		//添加order子句
 		String order = mpTree.get("self_order");
-		if (order.length() > 0) {
+		if (!isCnt && order.length() > 0) {
 			treesql.append(" order by " + order);
 		}
 		if (!isCnt) {
