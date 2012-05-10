@@ -103,46 +103,32 @@ public class SafeManager {
 	}
 	
 	/**
-	 * 读取许可文件
-	 * @return
-	 */
-	public License readLicense() {
-		//取输出文件的路径
-		String path = SystemVar.getValue("license.create.path", "d:/");
-		
-		path += "license.dat";
-		
-		return readLicense(path);
-	}
-	
-	/**
-	 * 检测软件狗是否合法，判断方法是：
-	 * 先检查合法标志，如果不合法，则返回false；
-	 * 再检查当前时间是否超过结束时间，如果超过，则返回false。
-	 * 
-	 * 通过后台任务定时检查服务器的狗，如果检测到，则延长结束时间，否则修改为非法；
-	 * 
+	 * 先检查合法标志，再检查序列号是否相等
 	 * @param lic -- 许可对象
-	 * @param curDate -- 当前时间
 	 * @return
 	 */
-	public int validDog(License lic, Date curDate) {
+	private int validSerial(License lic) {
 		if (lic == null) {
 			return 200;
 		}
-		if (SafeUtil.encode(lic.dogValid).length() == 0) {
+		//序列号
+		String serial = SafeUtil.encode(lic.serialNo);
+		//序列合法标志
+		String val = SafeUtil.encode(lic.serialValid);
+		
+		if (val.length() == 0) {
 			return 201;
 		}
-		if (SafeUtil.encode(lic.dogValid).equals("0")) {
+		if (val.equals("0")) {
 			return 202;
 		}
-		if (SafeUtil.encode(lic.dogEnd).length() == 0) {
+		if (serial.length() == 0) {
 			return 203;
 		}
 		
-		Calendar end = DateUtil.strToCalendar(SafeUtil.encode(lic.dogEnd));
-		//如果当前时间超过了结束时间，则算无效
-		if (curDate.compareTo(end.getTime()) > 0) {
+		//序列号无效
+		String key = LicenseKey.getLocalKey();
+		if (!serial.equals(key)) {
 			return 204;
 		}
 		
@@ -150,17 +136,14 @@ public class SafeManager {
 	}
 	
 	/**
-	 * 判断临时许可文件是否合法，判断方法是：
-	 * 先检查合法标志，如果不合法，则返回false；
-	 * 再检查当前时间是否超过结束时间，如果超过，则返回false。
-	 * 
+	 * 先检查合法标志，再检查当前时间是否超过结束时间。
 	 * 为防止用户修改服务器的时间，则定时通过后台任务比较网络时间与许可结束时间，如果超过，则修改合法标志为0。
 	 * 
 	 * @param lic -- 许可对象
 	 * @param curDate -- 当前时间
 	 * @return
 	 */
-	public int validTmp(License lic, Date curDate) {
+	private int validTmp(License lic, Date curDate) {
 		if (lic == null) {
 			return 100;
 		}
@@ -184,25 +167,13 @@ public class SafeManager {
 	}
 	
 	/**
-	 * 修改系统许可文件中的dogValid值
+	 * 修改系统许可文件中的serialValid值
 	 * @param valid -- 1表示合法，0表示非法
 	 */
 	public void setDogValid(String valid) {
 		License lic = readLicense("");
 		if (lic != null) {
-			lic.dogValid = SafeUtil.decode(valid);
-			writeLicense(lic, "");
-		}
-	}
-	
-	/**
-	 * 修改系统许可文件中的dogEnd值
-	 * @param dogEnd
-	 */
-	public void setDogEnd(String dogEnd) {
-		License lic = readLicense("");
-		if (lic != null) {
-			lic.dogEnd = SafeUtil.decode(dogEnd);
+			lic.serialValid = SafeUtil.decode(valid);
 			writeLicense(lic, "");
 		}
 	}
@@ -237,18 +208,17 @@ public class SafeManager {
 		if (lic == null) return 999;
 		
 		int code = validTmp(lic, curDate);
-		//检测许可文件是否合法
+		//检测试用期是否合法
 		if (code > 0) {
 			setTmpValid("0");	//修改临时许可为非法标志
-			return code;
 		}
 		
-		//检测软件狗是否合法
-		/*code = validDog(lic, curDate);
+		//检测序列号是否合法
+		code = validSerial(lic);
 		if (code > 0) {
 			setDogValid("0");	//修改软件狗为非法标志
 			return code;
-		}*/
+		}
 		
 		return 0;
 	}
@@ -257,7 +227,7 @@ public class SafeManager {
 	 * 取出系统许可文件，生成License对象
 	 * @return
 	 */
-	private License readLicense(String path) {
+	public License readLicense(String path) {
 		if (path == null || path.length() == 0) {
 			path = SystemVar.REALPATH + "/WEB-INF/classes/license.dat";
 		}
