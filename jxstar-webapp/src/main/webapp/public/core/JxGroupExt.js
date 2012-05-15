@@ -292,7 +292,7 @@ JxGroupExt = {};
 		Jxstar.createPage('sys_stat', 'gridpage', win.getComponent(0));
 		
 		//添加主从关系
-		JxUtil.delay(500, function(){
+		JxUtil.delay(1000, function(){
 			var mg = win.getComponent(0).getComponent(0);	
 			self.statGrid = mg;
 			

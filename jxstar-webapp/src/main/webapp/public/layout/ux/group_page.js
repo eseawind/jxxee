@@ -32,6 +32,13 @@ JxGroupPage = {};
 		self.pageNode = pageNode;
 		self.funId = pageNode.nodeId;
 		
+		var srcGrid = self.pageNode.page;
+		var opt = srcGrid.getStore().lastOptions;
+		if (!opt) {
+			JxHint.alert('当前表格没有查询结果，不能执行统计方案！');
+			return;
+		} 
+		
 		var	page = new Ext.Container({
 			broder:false,
 			layout:'border',

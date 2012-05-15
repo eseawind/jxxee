@@ -346,7 +346,7 @@ JxQueryExt = {};
 		Jxstar.createPage('sys_qrydet', 'gridpage', win.getComponent(1), param2);
 		
 		//添加主从关系
-		JxUtil.delay(500, function(){
+		JxUtil.delay(1000, function(){
 			var mg = win.getComponent(0).getComponent(0);
 			var sg = win.getComponent(1).getComponent(0);		
 			
