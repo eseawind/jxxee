@@ -16,10 +16,8 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.util.CellRangeAddress;
-
 import org.jxstar.control.action.RequestContext;
 import org.jxstar.dao.DaoParam;
-import org.jxstar.security.SafeManager;
 import org.jxstar.service.BoException;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.ColumnDefine;
@@ -50,18 +48,6 @@ public class ExportXlsBO extends BusinessObject {
 		String selfield = request.getRequestValue("selfield");
 		//String zerotonull = request.getParameter("zerotonull");
 		_log.showDebug("==========exp file param funid=" + funid + ";where_sql=" + where_sql+";where_value="+where_value+";where_type="+where_type);
-		
-		//许可检测
-		int code = SafeManager.getInstance().validCode();
-		if (code > 0) {
-			setMessage(JsMessage.getValue("license.notvalid"), code);
-			return _returnFaild;
-		}
-		//企业版才可以使用此功能
-		if (!SafeManager.getInstance().isEE()) {
-			setMessage(JsMessage.getValue("license.notee"));
-			return _returnFaild;
-		}
 		
 		//取功能定义对象
 		Map<String,String> mpDefine = FunDefineDao.queryFun(funid);
