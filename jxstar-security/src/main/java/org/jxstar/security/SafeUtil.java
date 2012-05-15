@@ -10,6 +10,7 @@ package org.jxstar.security;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 
 /**
  * 安全许可相关的工具方法。
@@ -117,7 +118,13 @@ public class SafeUtil {
 			retbytes[i] = (byte) (bytes[i]-3);
 		}
 		
-		return new String(retbytes);
+		String str = "";
+		try {
+			str = new String(retbytes, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		return str;
 	}
 	
 	/**
@@ -128,7 +135,12 @@ public class SafeUtil {
 	public static int[] decode(String text) {
 		if (text == null || text.length() == 0) return null;
 		
-		byte[] bytes = text.getBytes();
+		byte[] bytes = new byte[0];
+		try {
+			bytes = text.getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
 		int[] retbytes = new int[bytes.length];
 		for (int i = 0, n = bytes.length; i < n; i++) {
 			retbytes[i] = bytes[i]+3;
