@@ -27,7 +27,7 @@
 		funid: 'sys_var'
 	};
 	
-	
+	config.eventcfg = {					readKey: function() {			//设置请求的参数			var params = 'funid=sys_var&pagetype=editgrid&eventcode=read_key';			var endcall = function(data) {				JxHint.alert('序列号：' + data.key);			};			//发送请求			Request.postRequest(params, endcall);		}, 				readInfo: function() {			//设置请求的参数			var params = 'funid=sys_var&pagetype=editgrid&eventcode=read_info';			var endcall = function(data) {				JxHint.alert(data.info);			};			//发送请求			Request.postRequest(params, endcall);		}	};
 		
 	return new Jxstar.GridNode(config);
 }
