@@ -211,6 +211,8 @@ public class SafeManager {
 		//检测试用期是否合法
 		if (code > 0) {
 			setTmpValid("0");	//修改临时许可为非法标志
+		} else {
+			return 0;
 		}
 		
 		//检测序列号是否合法
