@@ -144,6 +144,7 @@ public class TaskInstance {
 	private String 	taskDesc;		//任务描述
 	private String 	agreeNum;		//必须审批同意人数
 	private String 	hasEmail;		//是否发生邮件
+	private String 	noteType;		//短信发送类型
 	private String 	isTimeout;		//是否超时
 	private String 	checkUserName;	//处理人
 	private String 	checkUserId;	//处理人ID
@@ -306,6 +307,12 @@ public class TaskInstance {
 	}
 	public void setTaskId(String taskId) {
 		this.taskId = taskId;
+	}
+	public String getNoteType() {
+		return noteType;
+	}
+	public void setNoteType(String noteType) {
+		this.noteType = noteType;
 	}
 
 }

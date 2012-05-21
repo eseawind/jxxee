@@ -81,6 +81,7 @@ public class TaskInstanceManager {
 		task.setTaskDesc(taskDesc);
 		task.setAgreeNum(agreeNum);
 		task.setHasEmail(mpNodeAttr.get("send_email"));
+		task.setNoteType(mpNodeAttr.get("note_type"));
 		
 		return task;
 	}
@@ -171,6 +172,7 @@ public class TaskInstanceManager {
 		task.setEndDate(mpTask.get("end_date"));
 		task.setTaskDesc(mpTask.get("task_desc"));
 		task.setHasEmail(mpTask.get("has_email"));
+		task.setNoteType(mpTask.get("note_type"));
 		task.setIsTimeout(mpTask.get("is_timeout"));
 		task.setAgreeNum(mpTask.get("agree_num"));
 		//设置任务执行信息

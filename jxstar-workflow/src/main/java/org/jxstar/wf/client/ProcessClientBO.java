@@ -374,6 +374,7 @@ public class ProcessClientBO extends BusinessObject {
 		task.setTaskDesc(MapUtil.getValue(mpTask, "task_desc"));
 		task.setAgreeNum(MapUtil.getValue(mpTask, "agree_num"));
 		task.setHasEmail(MapUtil.getValue(mpTask, "has_email"));
+		task.setNoteType(MapUtil.getValue(mpTask, "note_type"));
 		task.setIsTimeout(MapUtil.getValue(mpTask, "is_timeout"));
 		//设置任务执行信息
 		task.setCheckUserId(MapUtil.getValue(mpUser, "user_id"));
