@@ -1,7 +1,7 @@
 /*
  * Copyright(c) 2012 Donghong Inc.
  */
-package org.jxstar.service.note;
+package org.jxstar.service.note.my;
 
 import java.io.BufferedReader;
 import java.io.IOException;

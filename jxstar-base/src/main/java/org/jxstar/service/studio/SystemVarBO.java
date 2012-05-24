@@ -34,10 +34,12 @@ public class SystemVarBO extends BusinessObject {
 			return _returnSuccess;
 		}
 		
+		varcodes += ",1";
+		varvalues += ",1";//处理多个值都是空的情况，分隔时不会处理后面的空
 		String[] keys = varcodes.split(",");
 		String[] values = varvalues.split(",");
 		
-		for (int i = 0, n = keys.length; i < n; i++) {
+		for (int i = 0, n = keys.length-1; i < n; i++) {
 			String key = keys[i];
 			String value = values[i];
 			

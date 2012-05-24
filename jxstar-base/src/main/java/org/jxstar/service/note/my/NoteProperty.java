@@ -1,7 +1,7 @@
 /*
  * Copyright(c) 2012 Donghong Inc.
  */
-package org.jxstar.service.note;
+package org.jxstar.service.note.my;
 
 import org.jxstar.util.config.SystemVar;
 
@@ -48,16 +48,12 @@ public class NoteProperty {
 		return SystemVar.getValue("sms.proxy.userpwd");
 	}
 	public static String getCharSet() {
-		return SystemVar.getValue("sms.note.charset", "");
+		return SystemVar.getValue("sms.note.charset", "gbk");
 	}
 	public static String getUserName() {
 		return SystemVar.getValue("sms.note.username");
 	}
 	public static String getUserPwd() {
 		return SystemVar.getValue("sms.note.userpwd");
-	}
-	public static int getSendInterval() {
-		String interval = SystemVar.getValue("sms.send.interval", "60");
-		return Integer.parseInt(interval);
 	}
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright(c) 2012 Donghong Inc.
  */
-package org.jxstar.service.note;
+package org.jxstar.service.note.my;
 
 /**
  * 短信发送后反馈结果信息解析类。
@@ -28,7 +28,7 @@ public class NoteBackParser {
 		}
 		
 		int iStart = retInfo.indexOf(BACK_NUM)+BACK_NUM.length();
-		int iEnd = retInfo.indexOf(BACK_SUCC)-1;
+		int iEnd = retInfo.indexOf("&");
 		String num = retInfo.substring(iStart, iEnd);
 		return Integer.parseInt(num);
 	}

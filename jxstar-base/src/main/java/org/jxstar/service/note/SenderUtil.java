@@ -3,14 +3,15 @@
  */
 package org.jxstar.service.note;
 
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.util.Map;
 
 import org.jxstar.dao.DmDao;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
+import org.jxstar.util.config.SystemVar;
+import org.jxstar.util.factory.SystemFactory;
+import org.jxstar.util.log.Log;
 
 /**
  * 短信发送的工具方法。
@@ -20,7 +21,7 @@ import org.jxstar.util.MapUtil;
  */
 public class SenderUtil extends BusinessObject {
 	private static final long serialVersionUID = 1L;
-	private static NoteSender _sender = null;
+	private static SenderI _sender = null;
 	
 	public static final String SEND_FAILD = "7";	//发送失败
 	public static final String SEND_SUCCESS = "3";	//发送成功
@@ -29,11 +30,11 @@ public class SenderUtil extends BusinessObject {
 	 * 获取短信发送对象
 	 * @return
 	 */
-	public static NoteSender getSender() {
+	public static SenderI getSender() {
 		if (_sender == null) {
-			String userName = NoteProperty.getUserName();
-			String userPwd = NoteProperty.getUserPwd();
-			_sender = new NoteSender(userName, userPwd);
+			String clsName = SystemVar.getValue("sms.note.class", "org.jxstar.service.note.my.MySender");
+			_sender = (SenderI) SystemFactory.createObject(clsName);
+			_sender.init();
 		}
 		return _sender;
 	}
@@ -48,14 +49,14 @@ public class SenderUtil extends BusinessObject {
 		if (modCode == null || modCode.length() == 0) return false;
 		if (msg == null || msg.length() == 0) return false;
 		
-		msg = NoteProperty.getMsgHeader() + msg;
+		msg = SystemVar.getValue("sms.note.header") + msg;
 		
-		String ret = getSender().massSend(modCode, msg, "", "", "");
-		
-		String faileCode = NoteBackParser.getFaileCode(ret);
-		if (faileCode == null) return false;
-		
-		return faileCode.trim().length() == 0;
+		String ret = getSender().massSend(modCode, msg);
+		boolean bret = ret.charAt(4) == '1';
+		if (!bret) {
+			Log.getInstance().showWarn(ret);
+		}
+		return bret;
 	}
 	
 	/**
@@ -94,7 +95,7 @@ public class SenderUtil extends BusinessObject {
 	 * 取代理设置对象
 	 * @return
 	 */
-	public static Proxy getProxy() {
+	/*public static Proxy getProxy() {
 		String proxyHost = NoteProperty.getProxyHostIP();
 		if (proxyHost.length() == 0) return null;
 		
@@ -102,6 +103,6 @@ public class SenderUtil extends BusinessObject {
 		Proxy proxy = new Proxy(Proxy.Type.HTTP, addr);
 		
 		return proxy;
-	}
+	}*/
 	
 }

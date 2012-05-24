@@ -3,6 +3,8 @@
  */
 package org.jxstar.service.note;
 
+import org.jxstar.service.note.my.NoteBackParser;
+
 /**
  * 
  *
@@ -17,6 +19,7 @@ public class NoteBackParserTest {
 	public static void main(String[] args) {
 		String retInfo = "num=2&success=1393710***4,1393710***5&faile=1393710***5&err=发送成功11&errid=0";
 		
+		info(""+retInfo.charAt(4));
 		info(""+NoteBackParser.getSendNum(retInfo));
 		info(NoteBackParser.getFaileCode(retInfo));
 		info(NoteBackParser.getError(retInfo));
