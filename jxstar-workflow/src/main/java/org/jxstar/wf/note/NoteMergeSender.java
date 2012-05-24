@@ -102,9 +102,9 @@ public class NoteMergeSender extends BusinessObject {
 	private boolean updateAssignState() {
 		StringBuilder sql = new StringBuilder("");
 		sql.append("update wf_assign set has_note = '1' ");
-		sql.append("where assign_id in (select wf_assign.assign_id from wf_assign, wf_task ");
-		sql.append("where wf_assign.task_id = wf_task.task_id ");
-		sql.append("and wf_task.note_type = '2' and wf_assign.has_note = '0')");
+		sql.append("where assign_id in (select wf_assign.assign_id from wf_assign, sys_user, wf_task ");
+		sql.append("where wf_assign.assign_userid = sys_user.user_id and wf_assign.task_id = wf_task.task_id ");
+		sql.append("and wf_task.note_type = '2' and sys_user.mob_code > ' ' and wf_assign.has_note = '0')");
 		
 		DaoParam param = _dao.createParam(sql.toString());
 		return _dao.update(param);
