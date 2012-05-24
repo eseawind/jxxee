@@ -210,6 +210,7 @@ public class TaskInstanceDao {
 		mpTask.put("task_desc", task.getTaskDesc());	//任务描述解析在给值的时候计算
 		mpTask.put("agree_num", task.getAgreeNum());
 		mpTask.put("has_email", task.getHasEmail());
+		mpTask.put("note_type", task.getNoteType());
 		
 		mpTask.put("add_date", DateUtil.getTodaySec());
 		

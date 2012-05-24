@@ -154,6 +154,7 @@ public class EventAgent {
 		if (eventCode.equals(EventCode.PROCESS_RUNNING) || 
 			eventCode.equals(EventCode.PROCESS_COMPLETED) || 
 			eventCode.equals(EventCode.PROCESS_TERMINATED) ||
+			eventCode.equals(EventCode.TASK_CREATED) || 
 			eventCode.equals(EventCode.TASK_COMPLETED)) {
 			return eventCode;
 		}
