@@ -89,9 +89,9 @@ public class NoteMergeSender extends BusinessObject {
 	//统计所有审批消息，减少短信数量
 	private List<Map<String,String>> queryCheckMsg() {
 		StringBuilder sql = new StringBuilder("select wf_assign.assign_user, wf_assign.assign_userid, ");
-		sql.append("count(*) as cnt from wf_assign, wf_task ");
-		sql.append("where wf_assign.task_id = wf_task.task_id ");
-		sql.append("and wf_task.note_type = '2' and wf_assign.has_note = '0' ");
+		sql.append("count(*) as cnt from wf_assign, sys_user, wf_task ");
+		sql.append("where wf_assign.assign_userid = sys_user.user_id and wf_assign.task_id = wf_task.task_id ");
+		sql.append("and wf_task.note_type = '2' and sys_user.mob_code > ' ' and wf_assign.has_note = '0' ");
 		sql.append("group by wf_assign.assign_user, wf_assign.assign_userid ");
 		
 		DaoParam param = _dao.createParam(sql.toString());
