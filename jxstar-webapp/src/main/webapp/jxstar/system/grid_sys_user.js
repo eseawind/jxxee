@@ -31,10 +31,14 @@
 		editor:new Ext.form.TextField({
 			maxLength:50
 		})}, field:{name:'sys_user__duty',type:'string'}},
-	{col:{header:'电话', width:100, sortable:true, editable:true, hcss:'color:#3039b4;',
+	{col:{header:'固定电话', width:100, sortable:true, editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.TextField({
 			maxLength:20
 		})}, field:{name:'sys_user__phone_code',type:'string'}},
+	{col:{header:'手机号码', width:100, sortable:true, editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.TextField({
+			maxLength:20
+		})}, field:{name:'sys_user__mob_code',type:'string'}},
 	{col:{header:'性别', width:34, sortable:true, align:'center',
 		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.ComboBox({

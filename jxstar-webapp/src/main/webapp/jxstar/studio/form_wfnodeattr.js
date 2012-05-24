@@ -5,6 +5,7 @@
 	var assruleData = Jxstar.findComboData('assrule');
 	var yesnoData = Jxstar.findComboData('yesno');
 	var limitruleData = Jxstar.findComboData('limitrule');
+	var notetypeData = Jxstar.findComboData('notetype');
 	var items = [{
 		height: '97%',
 		width: '97%',
@@ -22,7 +23,7 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
-					{xtype:'textarea', fieldLabel:'任务描述', name:'wf_nodeattr__task_desc', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', width:'100%', height:72, maxLength:200}
+					{xtype:'textarea', fieldLabel:'任务描述', name:'wf_nodeattr__task_desc', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', width:'100%', height:48, maxLength:200}
 				]
 			}
 			]
@@ -124,11 +125,22 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
-					{xtype:'checkbox', fieldLabel:'使用部门印章', name:'wf_nodeattr__dept_sign', defaultval:'0', disabled:false, anchor:'100%'},
-					{xtype:'hidden', fieldLabel:'是否发送邮件', name:'wf_nodeattr__send_email', defaultval:'0', anchor:'62%'},
+					{xtype:'combo', fieldLabel:'短信提醒类型', name:'wf_nodeattr__note_type', defaultval:'0',
+						anchor:'100%', editable:false,
+						store: new Ext.data.SimpleStore({
+							fields:['value','text'],
+							data: notetypeData
+						}),
+						emptyText: jx.star.select,
+						mode: 'local',
+						triggerAction: 'all',
+						valueField: 'value',
+						displayField: 'text',
+						value: notetypeData[0][0]},
 					{xtype:'hidden', fieldLabel:'功能名称', name:'wf_nodeattr__fun_name', anchor:'62%'},
 					{xtype:'hidden', fieldLabel:'过程ID', name:'wf_nodeattr__process_id', anchor:'62%'},
-					{xtype:'hidden', fieldLabel:'节点ID', name:'wf_nodeattr__node_id', anchor:'62%'}
+					{xtype:'hidden', fieldLabel:'节点ID', name:'wf_nodeattr__node_id', anchor:'62%'},
+					{xtype:'hidden', fieldLabel:'是否发送邮件', name:'wf_nodeattr__send_email', defaultval:'0', anchor:'62%'}
 				]
 			},{
 				border:false,
@@ -136,11 +148,12 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
+					{xtype:'checkbox', fieldLabel:'使用部门印章', name:'wf_nodeattr__dept_sign', defaultval:'0', disabled:false, anchor:'100%'},
 					{xtype:'checkbox', fieldLabel:'使用个人签名', name:'wf_nodeattr__user_sign', defaultval:'0', disabled:false, anchor:'100%'},
-					{xtype:'hidden', fieldLabel:'邮件模板', name:'wf_nodeattr__templet_name', anchor:'62%'},
 					{xtype:'hidden', fieldLabel:'功能ID', name:'wf_nodeattr__fun_id', anchor:'62%'},
 					{xtype:'hidden', fieldLabel:'属性ID', name:'wf_nodeattr__nodeattr_id', anchor:'62%'},
-					{xtype:'hidden', fieldLabel:'邮件模板ID', name:'wf_nodeattr__templet_id', anchor:'62%'}
+					{xtype:'hidden', fieldLabel:'邮件模板ID', name:'wf_nodeattr__templet_id', anchor:'62%'},
+					{xtype:'hidden', fieldLabel:'邮件模板', name:'wf_nodeattr__templet_name', anchor:'62%'}
 				]
 			}
 			]
