@@ -10,7 +10,9 @@ import org.jxstar.dao.DaoParam;
 import org.jxstar.service.BoException;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.DefineDataManger;
+import org.jxstar.service.util.SysUserUtil;
 import org.jxstar.service.util.WhereUtil;
+import org.jxstar.util.MapUtil;
 import org.jxstar.util.StringUtil;
 
 /**
@@ -38,6 +40,12 @@ public class WarnQuery extends BusinessObject {
 			String funId = mpWarn.get("fun_id");
 			String warnId = mpWarn.get("warn_id");
 			String funName = mpWarn.get("fun_name");
+			String warnName = mpWarn.get("warn_name");
+			
+			//判断是否有功能权限，没有编辑权限的不能处理消息
+			if (SysUserUtil.isAdmin(userId) == false) {
+				if (hasFunRight(userId, funId) == false) continue;
+			}
 			
 			String whereSql = mpWarn.get("where_sql");
 			
@@ -61,7 +69,7 @@ public class WarnQuery extends BusinessObject {
 			String cnt = queryCnt(tableName, whereAll);
 			if (!cnt.equals("0")) {
 				sbJson.append("{fun_id:'").append(funId).append("', warn_id:'").append(warnId);
-				sbJson.append("', warn_num:'").append(cnt).append("', warn_name:'").append(funName);
+				sbJson.append("', warn_num:'").append(cnt).append("', warn_name:'").append(warnName);
 				sbJson.append("', whereSql:'").append(StringUtil.strForJson(whereSql)).append("'},");
 			}
 		}
@@ -85,5 +93,19 @@ public class WarnQuery extends BusinessObject {
 		Map<String,String> mp = _dao.queryMap(param);
 		
 		return mp.get("cnt");
+	}
+	
+	//是否有功能权限
+	private boolean hasFunRight(String userId, String funId) {
+		StringBuilder sql = new StringBuilder("select count(*) as cnt from sys_user_role, sys_role_fun ");
+		sql.append("where sys_user_role.role_id = sys_role_fun.role_id ");
+		sql.append("and sys_role_fun.is_edit = '1' and sys_user_role.user_id = ? and sys_role_fun.fun_id = ?");
+		
+		DaoParam param = _dao.createParam(sql.toString());
+		param.addStringValue(userId);
+		param.addStringValue(funId);
+		Map<String,String> mp = _dao.queryMap(param);
+		
+		return MapUtil.hasRecord(mp);
 	}
 }
