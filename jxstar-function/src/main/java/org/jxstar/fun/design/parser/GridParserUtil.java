@@ -113,7 +113,8 @@ public class GridParserUtil {
 			
 			//解析数据或控件
 			String fieldjs = "";
-			if ((gridEdit.equals("1") || ctlType.equals("combo")) && hidden.equals("false")) {
+			//修改为combo不管是隐藏还是显示，都需要editor对象，方便构建查询输入栏
+			if ((gridEdit.equals("1") && hidden.equals("false")) || ctlType.equals("combo")) {
 				fieldjs = editorJs(funId, ctlType, ctlName, mpColumn);
 			} else {
 				fieldjs = fieldJs(ctlType, ctlName, format);
