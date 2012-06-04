@@ -112,7 +112,7 @@ JxQueryExt = {};
 		        Jxstar.addBaseQry(nodeg, hcfgs);
 				//如果查询做归档处理，则显示归档checkbox
 				if (nodeg.define.isarch == '1') {
-					hcfgs.add(self.archCfg);
+					hcfgs.add(JxQueryExt.archCfg);
 				}
 			}
 			//添加到查询工具栏容器中
