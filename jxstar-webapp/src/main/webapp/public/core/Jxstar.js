@@ -274,6 +274,8 @@ Ext.ns('Jxstar');
 				JxHint.alert(jx.star.notree);	//'没有定义树形信息！'
 				return;
 			}*/
+			//根节点ID
+			var ROOT_ID = '10';
 
 			//查询数据URL
 			var dataUrl = Jxstar.path + '/commonAction.do?eventcode=query_tree&funid=queryevent';
@@ -297,7 +299,7 @@ Ext.ns('Jxstar');
 					}
 				}),
 				
-				root: new Ext.tree.AsyncTreeNode({id:'10', iconCls:'tree_root_ext', text:jx.star.refresh})
+				root: new Ext.tree.AsyncTreeNode({id:ROOT_ID, iconCls:'tree_root_ext', text:jx.star.refresh})
 			});
 			
 			treePanel.add(tree);
@@ -305,7 +307,7 @@ Ext.ns('Jxstar');
 			
 			//设置树根节点数据加载时添加配置信息
 			tree.on('load', function(node){
-				if (node.id == '10') {
+				if (node.id == ROOT_ID) {
 					var child = node.firstChild;
 					if (!child) return;
 					
@@ -373,6 +375,7 @@ Ext.ns('Jxstar');
 					var where_type = 'string';
 					//处理查询值
 					var where_value = treeId+'%';
+					
 					//是否不含下级
 					var tools = tree.getTopToolbar().find('xtype', 'checkbox');
 					if (tools.length > 0) {
@@ -383,6 +386,11 @@ Ext.ns('Jxstar');
 					//如果过滤条件是=，则不添加%
 					if (where_sql.indexOf('=') >= 0) {
 						where_value = treeId;
+					}
+					
+					//如果是根节点
+					if (ROOT_ID == treeId) {
+						where_value = '%';
 					}
 					
 					//扩展的树形查询条件
