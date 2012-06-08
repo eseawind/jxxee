@@ -3,16 +3,20 @@
 <%
 	String contextpath = request.getContextPath();
 	String curLangType = "zh";//java.util.Locale.getDefault().getLanguage();
-	String supLangType = org.jxstar.util.config.SystemVar.getValue("sys.lang.type");
+	String supLangType = SystemVar.getValue("sys.lang.type");
 	
-	String svnNum = SystemVar.getValue("index.svn", "40");
-	String indexType = SystemVar.getValue("index.type", "1");
+	String svnNum = SystemVar.getValue("index.svn", "");
+	String indexType = SystemVar.getValue("index.type", "0");
 	String indexName = SystemVar.getValue("index.name", "JXstar软件开发平台");
 	String indexBottom = SystemVar.getValue("index.bottom", "");
 	
-	String verNo = SystemVar.getValue("sys.version.no", "V1.0.0.0");
+	String verNo = SystemVar.getValue("sys.version.no", "");
 	String verType = SystemVar.getValue("sys.version.type", "");
 	String useCase = SystemVar.getValue("page.query.case", "0");
+	
+	if (svnNum.length() == 0 && verNo.length() == 0) {
+		response.sendRedirect(contextpath+"/error.jsp");
+	}
 	
 	String loginCss = "resources/css/login.css?verno=" + svnNum;
 	if (indexType.equals("1")) loginCss = "resources/project/css/login.css?verno=" + svnNum;
