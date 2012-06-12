@@ -61,6 +61,7 @@ public class ImpUtil {
 			_log.showDebug("..........relatsql:" + sql);
 			
 			DaoParam param = _dao.createParam(sql);
+			param.setUseParse(true);
 			Map<String,String> mp = _dao.queryMap(param);
 			
 			queryData.putAll(mp);

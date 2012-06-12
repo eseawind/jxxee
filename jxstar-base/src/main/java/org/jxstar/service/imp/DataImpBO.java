@@ -84,7 +84,7 @@ public class DataImpBO extends BusinessObject {
 		//模板文件类型：xls, csv
 		String tplType = mpImp.get("tpl_type");
 		//第一行数据的位置
-		int firstRow = MapUtil.getInt(mpImp, "first_row"); 
+		int firstRow = MapUtil.getInt(mpImp, "first_row", "-1"); 
 		if (firstRow < 0) {
 			setMessage("第一行数据位置为【{0}】，不正确！", firstRow);
 			return _returnFaild;
@@ -104,15 +104,10 @@ public class DataImpBO extends BusinessObject {
 		
 		//新增SQL对象
 		String insertSql = mpImp.get("insert_sql");
-		insertSql = ImpUtil.parseInsertSQL(funId, fkValue, insertSql, userInfo);
-		if (insertSql.length() == 0) {
-			setMessage("导入数据的SQL语句为空！");
-			return _returnFaild;
-		}
 		String impId = mpImp.get("imp_id");
 		
 		//解析数据，执行导入
-		boolean bret = importData(parser, impId, insertSql, firstRow);
+		boolean bret = importData(parser, impId, insertSql, funId, fkValue, userInfo);
 		if (!bret) {
 			setMessage("执行数据导入操作失败！");
 			return _returnFaild;
@@ -125,14 +120,15 @@ public class DataImpBO extends BusinessObject {
 	 * 解析数据，根据定义，执行导入
 	 * @return
 	 */
-	private boolean importData(DataParser parser, String impId, String insertSql, int firstRow) {
+	private boolean importData(DataParser parser, String impId, String baseSql,
+			String funId, String fkValue, Map<String,String> userInfo) {
 		//表头定义
-		List<Map<String,String>> formField = queryDataField(impId, "1");
+		List<Map<String,String>> formField = queryDataField(impId, "2");
 		//解析表头中的数据
 		Map<String,String> formData = parseForm(parser, formField);
 		
 		//表格定义
-		List<Map<String,String>> lsGfield = queryDataField(impId, "2");
+		List<Map<String,String>> lsGfield = queryDataField(impId, "1");
 		//解析表格中的数据
 		List<Map<String,String>> gridData = parseGrid(parser, lsGfield);
 		
@@ -144,14 +140,19 @@ public class DataImpBO extends BusinessObject {
 		//新增SQL的参数
 		List<Map<String,String>> lsField = queryField(impId);
 		
-		DaoParam param = _dao.createParam(insertSql);
-		
 		//开始导入数据
 		for (Map<String,String> mpData : gridData) {
+			_log.showDebug("==========start import new data ========================");
 			Map<String,String> relatData = null;
 			if (hasRelat) {//取得相关关系数据集
 				relatData = ImpUtil.queryRelat(lsRelatSql, formData, mpData);
 			}
+			
+			//解析SQL中的主键、编码、常量
+			String sql = ImpUtil.parseInsertSQL(funId, fkValue, baseSql, userInfo);
+			_log.showDebug(".........insert sql:" + sql);
+			DaoParam param = _dao.createParam(sql);
+			param.setUseParse(true);
 			
 			//取新增SQL的参数：如果是表头数据则从formData取值；如果是表格数据则从gridData取值；如果是关系数据则从relat取值
 			for (Map<String,String> mpField : lsField) {
@@ -159,6 +160,7 @@ public class DataImpBO extends BusinessObject {
 				String srcType = mpField.get("data_src");
 				String field_name = mpField.get("field_name");
 				String data_type = mpField.get("data_type");
+				String is_must = mpField.get("is_must");
 				
 				if (srcType.equals("1")) {
 					value = MapUtil.getValue(mpData, field_name);
@@ -170,6 +172,10 @@ public class DataImpBO extends BusinessObject {
 					}
 				}
 				_log.showDebug("..........field_name={0}, data_type={1}, data_src={2}, value={3}", field_name, data_type, srcType, value);
+				if (is_must.equals("1") && value.length() == 0) {
+					_log.showDebug("..........field_name:{0} value is empty!!!", field_name);
+					return true;
+				}
 				
 				param.addValue(value);
 				param.addType(data_type);
@@ -178,8 +184,6 @@ public class DataImpBO extends BusinessObject {
 			//执行新增操作
 			boolean bret = _dao.update(param);
 			if (!bret) return false;
-			
-			param.clearParam();
 		}
 		
 		return true;
@@ -203,12 +207,15 @@ public class DataImpBO extends BusinessObject {
 		}
 		
 		for (int i = 0; i < rowsNum; i++) {
-			_log.showDebug("............parse row:" + i);
+			_log.showDebug("..........parse row:" + i);
 			
 			Map<String,String> mpData = FactoryUtil.newMap();
+			//是否有效数据，如果有必填字段没有填写，则不添加
+			boolean isValid = true;
 			for (Map<String,String> mpField : lsGfield) {
 				String fieldPos = mpField.get("field_pos");
 				String fieldName = mpField.get("field_name");
+				String is_must = mpField.get("is_must");
 				
 				int[] pos = ImpUtil.getPosition(fieldPos);
 				if (pos.length != 2) {
@@ -216,12 +223,23 @@ public class DataImpBO extends BusinessObject {
 					continue;
 				}
 				
-				String value = parser.getData(pos[0], pos[1]);
+				int frow = parser.getFirstRow();
+				String value = parser.getData(frow+i, pos[1]);
+				if (is_must.equals("1") && value.length() == 0) {
+					_log.showDebug("..........parse row fieldname:[{0}] data is empty!!", fieldName);
+					isValid = false;
+					break;
+				}
 				
 				mpData.put(fieldName, value);
 			}
 			
-			lsData.add(mpData);
+			if (isValid) {
+				_log.showDebug("..........parse row data:" + mpData);
+				lsData.add(mpData);
+			} else {
+				_log.showDebug("..........parse row data has not valid!!");
+			}
 		}
 		
 		return lsData;
@@ -247,9 +265,10 @@ public class DataImpBO extends BusinessObject {
 			}
 			
 			String value = parser.getData(pos[0], pos[1]);
-			
 			mpData.put(fieldName, value);
 		}
+		_log.showDebug("..........parse form data:" + mpData);
+		
 		return mpData;
 	}
 	
@@ -265,7 +284,7 @@ public class DataImpBO extends BusinessObject {
 	
 	//取表头字段定义，数据来源类型：1表格、2表头、3关系数据
 	private List<Map<String,String>> queryDataField(String impId, String srcType) {
-		String sql = "select field_name, field_pos, field_value from imp_field where data_src = ? and imp_id = ?";
+		String sql = "select field_name, field_pos, is_must from imp_field where data_src = ? and imp_id = ?";
 		
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(srcType);
@@ -297,7 +316,7 @@ public class DataImpBO extends BusinessObject {
 	
 	//取新增SQL的参数列表
 	private List<Map<String,String>> queryField(String impId) {
-		String sql = "select field_name, data_type, data_src from imp_field where imp_id = ? order by field_index";
+		String sql = "select field_name, data_type, data_src, is_must from imp_field where imp_id = ? order by field_no";
 		
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(impId);

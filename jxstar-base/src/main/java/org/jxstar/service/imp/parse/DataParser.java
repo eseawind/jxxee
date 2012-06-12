@@ -19,6 +19,12 @@ public interface DataParser {
 	 * @param firstRow -- 第一行数据的位置
 	 */
 	public void init(InputStream inputStream, int firstRow);
+	
+	/**
+	 * 返回第一行数据位置
+	 * @return
+	 */
+	public int getFirstRow();
 
 	/**
 	 * 返回数据总行数，不含标题与表头

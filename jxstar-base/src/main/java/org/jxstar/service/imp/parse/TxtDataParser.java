@@ -17,7 +17,7 @@ import org.jxstar.util.log.Log;
 public class TxtDataParser implements DataParser {
 	private int _rowsNum = 0;
 	private int _colsNum = 0;
-	
+	private int _firstRow = 0;
 	private String[] _rows = null;
 	//保存每行、每列数据
 	private String[][] _values = null;
@@ -57,6 +57,12 @@ public class TxtDataParser implements DataParser {
 			_colsNum = _values[firstRow].length;
 		}
 		_log.showDebug(".........TxtDataParser rowsNum: {0}, colsNum: {1}.", _rowsNum, _colsNum);
+		
+		_firstRow = firstRow;
+	}
+	
+	public int getFirstRow() {
+		return _firstRow;
 	}
 
 	public int getRowsNum() {

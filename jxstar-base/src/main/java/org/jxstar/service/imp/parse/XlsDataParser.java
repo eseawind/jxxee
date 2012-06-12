@@ -36,6 +36,24 @@ public class XlsDataParser implements DataParser {
 		}
 		
 		_firstRow = firstRow;
+		
+		//初始化行数与列数
+		if (_sheet != null) {
+			_rowsNum = _sheet.getLastRowNum();
+			_rowsNum++;
+			
+			HSSFRow row = _sheet.getRow(_firstRow);
+			if (row == null) {
+				_colsNum = -1;
+			} else {
+				_colsNum = row.getLastCellNum();
+				_colsNum++;
+			}
+		}
+	}
+	
+	public int getFirstRow() {
+		return _firstRow;
 	}
 	
 	/**
@@ -43,14 +61,6 @@ public class XlsDataParser implements DataParser {
 	 * @return
 	 */
 	public int getRowsNum() {
-		if (_sheet == null) return -1;
-		
-		_rowsNum = _sheet.getLastRowNum();
-		if (_rowsNum <= 0) {
-			return -1;
-		}
-		
-		_rowsNum++;
 		return _rowsNum;
 	}
 	
@@ -59,17 +69,6 @@ public class XlsDataParser implements DataParser {
 	 * @return
 	 */
 	public int getColsNum() {
-		if (_sheet == null) return -1;
-		
-		HSSFRow row = _sheet.getRow(_firstRow);
-		if (row == null) return -1;
-		
-		_colsNum = row.getLastCellNum();
-		if (_colsNum <= 0) {
-			return -1;
-		}
-		
-		_colsNum++;
 		return _colsNum;
 	}
 	
@@ -89,7 +88,12 @@ public class XlsDataParser implements DataParser {
 		if (row != null) {
 			HSSFCell cell = row.getCell(colIndex);
 			if (cell != null) {
-				return cell.getStringCellValue();
+				int itype = cell.getCellType();
+				if (HSSFCell.CELL_TYPE_NUMERIC == itype) {
+					return Double.toString(cell.getNumericCellValue());
+				} else {
+					return cell.getStringCellValue();
+				}
 			}
 		}
 		
