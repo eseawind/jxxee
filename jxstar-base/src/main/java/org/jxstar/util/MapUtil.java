@@ -19,6 +19,36 @@ import java.util.Set;
  */
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class MapUtil {
+	
+	/**
+	 * 从map中取double类型数值
+	 * @param mp
+	 * @param param
+	 * @return
+	 */
+	public static double getDouble(Map mp, String param) {
+		return getDouble(mp, param, "0.00");
+	}
+	
+	public static double getDouble(Map mp, String param, String defval) {
+		String value = getValue(mp, param, defval);
+		return Double.parseDouble(value);
+	}
+	
+	/**
+	 * 从map中取int类型数值
+	 * @param mp
+	 * @param param
+	 * @return
+	 */
+	public static int getInt(Map mp, String param) {
+		return getInt(mp, param, "0");
+	} 
+	
+	public static int getInt(Map mp, String param, String defval) {
+		String value = getValue(mp, param, defval);
+		return Integer.parseInt(value);
+	}
 
 	/**
 	 * 从map中取字符串值, 如果找不到对象, 则返回空串.
