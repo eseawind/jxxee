@@ -108,6 +108,24 @@ public class ImpUtil {
 		return insertSql;
 	}
 	
+	//取表格数据字段的位置信息，取行序号
+	public static int getFirstRow(String impId) {
+		String sql = "select field_pos from imp_field where data_src = '1' and imp_id = ?";
+		
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(impId);
+		
+		Map<String,String> mp = _dao.queryMap(param);
+		if (mp.isEmpty()) return -1;
+		
+		String field_pos = mp.get("field_pos");
+		int[] pos = getPosition(field_pos);
+		if (pos.length != 2) {
+			return -1;
+		}
+		return pos[0];
+	}
+	
 	/**
 	 * 获取位置
 	 * @param position

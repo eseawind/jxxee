@@ -5,6 +5,7 @@ package org.jxstar.service.imp.parse;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 
 import org.jxstar.util.log.Log;
 
@@ -37,7 +38,13 @@ public class TxtDataParser implements DataParser {
 			e.printStackTrace();
 		}
 		
-		String content = new String(datas);
+		String content = "";
+		try {
+			content = new String(datas, "GBK");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		content = content.trim();
 		content = content + "\n";
 		_log.showDebug(".........TxtDataParser read txt:" + content);
@@ -49,7 +56,7 @@ public class TxtDataParser implements DataParser {
 		
 		//保存每个单元格中的数据
 		for (int i = 0; i < _rowsNum; i++) {
-			_values[i] = _rows[i].split(",");
+			_values[i] = _rows[i].split(",", -1);//尾部的空串也需要解析
 		}
 		
 		//取总列数

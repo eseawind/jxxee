@@ -83,8 +83,10 @@ public class DataImpBO extends BusinessObject {
 		}
 		//模板文件类型：xls, csv
 		String tplType = mpImp.get("tpl_type");
+		//定义ID
+		String impId = mpImp.get("imp_id");
 		//第一行数据的位置
-		int firstRow = MapUtil.getInt(mpImp, "first_row", "-1"); 
+		int firstRow = ImpUtil.getFirstRow(impId); 
 		if (firstRow < 0) {
 			setMessage("第一行数据位置为【{0}】，不正确！", firstRow);
 			return _returnFaild;
@@ -104,7 +106,6 @@ public class DataImpBO extends BusinessObject {
 		
 		//新增SQL对象
 		String insertSql = mpImp.get("insert_sql");
-		String impId = mpImp.get("imp_id");
 		
 		//解析数据，执行导入
 		boolean bret = importData(parser, impId, insertSql, funId, fkValue, userInfo);
@@ -142,7 +143,7 @@ public class DataImpBO extends BusinessObject {
 		
 		//开始导入数据
 		for (Map<String,String> mpData : gridData) {
-			_log.showDebug("==========start import new data ========================");
+			_log.showDebug("--------------------- start import new data ---------------------");
 			Map<String,String> relatData = null;
 			if (hasRelat) {//取得相关关系数据集
 				relatData = ImpUtil.queryRelat(lsRelatSql, formData, mpData);
@@ -200,7 +201,7 @@ public class DataImpBO extends BusinessObject {
 		
 		int rowsNum = parser.getRowsNum();
 		int colsNum = parser.getColsNum();
-		
+		_log.showDebug("..........rows num: {0}, cols num: {1}", rowsNum, colsNum);
 		if (rowsNum < 0 || colsNum < 0) {
 			_log.showWarn("parse grid data rowsnum is -1 or colsnum is -1!!");
 			return lsData;
@@ -223,8 +224,7 @@ public class DataImpBO extends BusinessObject {
 					continue;
 				}
 				
-				int frow = parser.getFirstRow();
-				String value = parser.getData(frow+i, pos[1]);
+				String value = parser.getData(pos[0]+i, pos[1]);
 				if (is_must.equals("1") && value.length() == 0) {
 					_log.showDebug("..........parse row fieldname:[{0}] data is empty!!", fieldName);
 					isValid = false;
@@ -274,7 +274,7 @@ public class DataImpBO extends BusinessObject {
 	
 	//取数据导入的SQL
 	private Map<String,String> queryImp(String funId) {
-		String sql = "select tpl_type, insert_sql, first_row, imp_id from imp_list where fun_id = ?";
+		String sql = "select tpl_type, insert_sql, imp_id from imp_list where fun_id = ?";
 		
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(funId);
