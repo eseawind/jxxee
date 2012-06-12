@@ -26,6 +26,8 @@ import org.jxstar.util.factory.FactoryUtil;
  */
 public class DataImpBO extends BusinessObject {
 	private static final long serialVersionUID = 1L;
+	//返回到环境变量中的导入数据的主键值队列
+	private static final String IMP_KEYIDS = "imp_keyids";
 
 	/**
 	 * 根据功能ID找到数据导入定义信息：构建表头数据定义对象、表格数据定义对象、关联关系定义对象、新增数据SQL对象；
@@ -64,7 +66,11 @@ public class DataImpBO extends BusinessObject {
 		Map<String,String> userInfo = request.getUserInfo();
 		
 		//解析数据，执行导入
-		return dataImp(ins, funId, fkValue, userInfo);
+		List<String> lsImpKeys = dataImp(ins, funId, fkValue, userInfo);
+		if (lsImpKeys == null || lsImpKeys.isEmpty()) return _returnFaild;
+		
+		request.getRequestMap().put(IMP_KEYIDS, lsImpKeys);
+		return _returnSuccess;
 	}
 	
 	/**
@@ -75,11 +81,11 @@ public class DataImpBO extends BusinessObject {
 	 * @param userInfo
 	 * @return
 	 */
-	public String dataImp(InputStream ins, String funId, String fkValue, Map<String,String> userInfo) {
+	public List<String> dataImp(InputStream ins, String funId, String fkValue, Map<String,String> userInfo) {
 		Map<String,String> mpImp = queryImp(funId);
 		if (mpImp.isEmpty()) {
 			setMessage("没有找到【{0}】功能的数据导入定义！", funId);
-			return _returnFaild;
+			return null;
 		}
 		//模板文件类型：xls, csv
 		String tplType = mpImp.get("tpl_type");
@@ -89,7 +95,7 @@ public class DataImpBO extends BusinessObject {
 		int firstRow = ImpUtil.getFirstRow(impId); 
 		if (firstRow < 0) {
 			setMessage("第一行数据位置为【{0}】，不正确！", firstRow);
-			return _returnFaild;
+			return null;
 		}
 		
 		//解析上传的文件
@@ -100,29 +106,33 @@ public class DataImpBO extends BusinessObject {
 			parser = new TxtDataParser();
 		} else {
 			setMessage("没有找到解析上传文件的对象！");
-			return _returnFaild;
+			return null;
 		}
 		parser.init(ins, firstRow);
 		
 		//新增SQL对象
 		String insertSql = mpImp.get("insert_sql");
+		//解析目标SQL中的常量
+		insertSql = ImpUtil.parseConstant(insertSql, userInfo);
+		//解析目标SQL中的外键值
+		insertSql = insertSql.replaceFirst(ImpUtil.FKEYID_REGEX, ImpUtil.addChar(fkValue));
 		
 		//解析数据，执行导入
-		boolean bret = importData(parser, impId, insertSql, funId, fkValue, userInfo);
-		if (!bret) {
+		List<String> lsImpKeys = importData(parser, impId, insertSql, funId);
+		if (lsImpKeys == null || lsImpKeys.isEmpty()) {
 			setMessage("执行数据导入操作失败！");
-			return _returnFaild;
+			return null;
 		}
 		
-		return _returnSuccess;
+		return lsImpKeys;
 	}
 	
 	/**
 	 * 解析数据，根据定义，执行导入
 	 * @return
 	 */
-	private boolean importData(DataParser parser, String impId, String baseSql,
-			String funId, String fkValue, Map<String,String> userInfo) {
+	private List<String> importData(DataParser parser, String impId, String insertSql, String funId) {
+		List<String> lsImpKeys = FactoryUtil.newList();
 		//表头定义
 		List<Map<String,String>> formField = queryDataField(impId, "2");
 		//解析表头中的数据
@@ -141,6 +151,20 @@ public class DataImpBO extends BusinessObject {
 		//新增SQL的参数
 		List<Map<String,String>> lsField = queryField(impId);
 		
+		//判断是否有主键标志与编码标志
+		boolean isNewKeyId = (insertSql.indexOf(ImpUtil.NEW_KEYID) >= 0);
+		if (isNewKeyId) {
+			insertSql = insertSql.replaceFirst(ImpUtil.NEW_KEYID_REGEX, "?");
+		}
+		boolean isNewCode = (insertSql.indexOf(ImpUtil.NEW_CODE) >= 0);
+		if (isNewCode) {
+			insertSql = insertSql.replaceFirst(ImpUtil.NEW_CODE_REGEX, "?");
+		}
+		_log.showDebug(".........insert sql:" + insertSql);
+		//构建参数对象
+		DaoParam param = _dao.createParam(insertSql);
+		param.setUseParse(true);
+		
 		//开始导入数据
 		for (Map<String,String> mpData : gridData) {
 			_log.showDebug("--------------------- start import new data ---------------------");
@@ -150,10 +174,15 @@ public class DataImpBO extends BusinessObject {
 			}
 			
 			//解析SQL中的主键、编码、常量
-			String sql = ImpUtil.parseInsertSQL(funId, fkValue, baseSql, userInfo);
-			_log.showDebug(".........insert sql:" + sql);
-			DaoParam param = _dao.createParam(sql);
-			param.setUseParse(true);
+			//String sql = ImpUtil.parseInsertSQL(funId, fkValue, baseSql, userInfo);
+			if (isNewKeyId) {
+				String keyId = ImpUtil.getKeyValue(funId);
+				lsImpKeys.add(keyId);
+				param.addStringValue(keyId);
+			}
+			if (isNewCode) {
+				param.addStringValue(ImpUtil.getCodeValue(funId));
+			}
 			
 			//取新增SQL的参数：如果是表头数据则从formData取值；如果是表格数据则从gridData取值；如果是关系数据则从relat取值
 			for (Map<String,String> mpField : lsField) {
@@ -175,7 +204,7 @@ public class DataImpBO extends BusinessObject {
 				_log.showDebug("..........field_name={0}, data_type={1}, data_src={2}, value={3}", field_name, data_type, srcType, value);
 				if (is_must.equals("1") && value.length() == 0) {
 					_log.showDebug("..........field_name:{0} value is empty!!!", field_name);
-					return true;
+					return lsImpKeys;
 				}
 				
 				param.addValue(value);
@@ -184,10 +213,12 @@ public class DataImpBO extends BusinessObject {
 			
 			//执行新增操作
 			boolean bret = _dao.update(param);
-			if (!bret) return false;
+			param.clearParam();
+			
+			if (!bret) return lsImpKeys;
 		}
 		
-		return true;
+		return lsImpKeys;
 	}
 	
 	/**

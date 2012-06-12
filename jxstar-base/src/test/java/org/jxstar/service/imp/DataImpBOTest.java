@@ -6,6 +6,7 @@ package org.jxstar.service.imp;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.List;
 import java.util.Map;
 
 import org.jxstar.test.AbstractTest;
@@ -40,7 +41,8 @@ public class DataImpBOTest extends AbstractTest {
 			e.printStackTrace();
 		}
 		
-		impbo.dataImp(ins, funId, fkValue, userInfo);
+		List<String> lsKeys = impbo.dataImp(ins, funId, fkValue, userInfo);
+		System.out.println(".............success imp:" + lsKeys);
 	}
 
 }

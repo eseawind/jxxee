@@ -29,13 +29,13 @@ public class ImpUtil {
 	private static Log _log = Log.getInstance();
 	private static BaseDao _dao = BaseDao.getInstance();
 	//外键标志
-	private static final String FKEYID_REGEX = "\\{FKEYID\\}";
+	public static final String FKEYID_REGEX = "\\{FKEYID\\}";
 	//新增主键标志
-	private static final String NEW_KEYID = "{NEWKEYID}";
-	private static final String NEW_KEYID_REGEX = "\\{NEWKEYID\\}";
+	public static final String NEW_KEYID = "{NEWKEYID}";
+	public static final String NEW_KEYID_REGEX = "\\{NEWKEYID\\}";
 	//新增编号标志
-	private static final String NEW_CODE = "{NEWCODE}";
-	private static final String NEW_CODE_REGEX = "\\{NEWCODE\\}";
+	public static final String NEW_CODE = "{NEWCODE}";
+	public static final String NEW_CODE_REGEX = "\\{NEWCODE\\}";
 	
 	/**
 	 * 取得关联关系数据
@@ -108,6 +108,29 @@ public class ImpUtil {
 		return insertSql;
 	}
 	
+	/**
+	 * 取编码值
+	 * @param funId
+	 * @return
+	 */
+	public static String getCodeValue(String funId) {
+		CodeCreator codeCreator = CodeCreator.getInstance();
+		return codeCreator.createCode(funId);
+	}
+	
+	/**
+	 * 取主键值
+	 * @param funId
+	 * @return
+	 */
+	public static String getKeyValue(String funId) {
+		KeyCreator keyCreator = KeyCreator.getInstance();
+		FunctionDefine funObject = FunctionDefineManger.getInstance().getDefine(funId);
+		
+		String tableName = funObject.getElement("table_name");
+		return keyCreator.createKey(tableName);
+	}
+	
 	//取表格数据字段的位置信息，取行序号
 	public static int getFirstRow(String impId) {
 		String sql = "select field_pos from imp_field where data_src = '1' and imp_id = ?";
@@ -152,7 +175,7 @@ public class ImpUtil {
 	 * @param userInfo
 	 * @return
 	 */
-	private static String parseConstant(String sql, 
+	public static String parseConstant(String sql, 
 			Map<String,String> userInfo) {
 		String regex = "\\{[^}]+\\}";
 		Pattern p = Pattern.compile(regex);
@@ -179,7 +202,7 @@ public class ImpUtil {
 	 * @param str
 	 * @return
 	 */
-	private static String addChar(String str) {
+	public static String addChar(String str) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("'").append(str).append("'");
 		
