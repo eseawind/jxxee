@@ -26,7 +26,8 @@ public class XlsToHtmlTest extends AbstractTest {
 		// TODO Auto-generated method stub
 		XlsToHtml xls = new XlsToHtml();
 		try {
-			xls.parserXls("d:/grid.xls");
+			String html = xls.parserXls("d:/form_mat_app.xls");
+			System.out.println(html);
 		} catch (ReportException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

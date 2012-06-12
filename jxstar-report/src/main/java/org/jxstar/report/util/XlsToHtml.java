@@ -37,9 +37,9 @@ public class XlsToHtml {
 	private static final String PARSERTABLEID = "xls_parser_table";
 	//xls单元没有线的边框颜色
 	private static final String EMPTYCOLOR = "DBDBDB";
-	//模板添加4行4列的空行
-	private static final int EMPTY_ROWNUM = 4;
-	private static final int EMPTY_COLNUM = 4;
+	//模板添加3行3列的空行
+	private static final int EMPTY_ROWNUM = 3;
+	private static final int EMPTY_COLNUM = 3;
 
 	//解析后的样式
 	private static Map<String,String> _mpCss = FactoryUtil.newMap();
@@ -52,9 +52,9 @@ public class XlsToHtml {
 		}
 		
 		HSSFSheet sheet = hssfWB.getSheetAt(0); 
-		//取总行数
-		int tableRowNum = sheet.getPhysicalNumberOfRows();
-        if (tableRowNum == 0) {
+		//取模板中的最后一行，0为起始行
+		int lastRowNum = sheet.getLastRowNum();
+        if (lastRowNum == 0) {
         	_log.showDebug("xls file row num is 0!!");
         	return "";
         }
@@ -74,31 +74,34 @@ public class XlsToHtml {
         List<Integer> lswidth = FactoryUtil.newList();
         
         //处理每行
-        for (int i = 0; i < tableRowNum; i++) {
+        for (int i = 0; i <= lastRowNum; i++) {
             HSSFRow row = sheet.getRow(i);
-            if (row == null) continue;
+            if (row == null) {//表格中间的空行也需要解析
+            	lsemp.add(i);
+            	sbTable.append("<tr height='22px' >\n{EMPTY_LINE}</tr>\n");
+            	continue;
+            }
             
-            //添加tr行
-            sbTable.append("<tr height='"+ getHeightPixel(row.getHeightInPoints()) +"px' >\n");
-            
-            //取行单元数
-            int cells = row.getLastCellNum();
+            //取最后一列的位置
+            int lastCellNum = row.getLastCellNum();
             
             //如果是空行cells的值为-1，添加空行的标识，并记录空行的行号
-            if (cells <= 0) {
+            if (lastCellNum <= 0) {
             	lsemp.add(i);
-            	sbTable.append("{EMPTY_LINE}");
+            	sbTable.append("<tr height='22px' >\n{EMPTY_LINE}</tr>\n");
             	continue;
             } else {
             	//记录有数据的第一行的列数
-            	if (hasnum == 0) tableColNum = cells + EMPTY_COLNUM;
+            	if (hasnum == 0) tableColNum = lastCellNum + EMPTY_COLNUM;
             	hasnum++;
             }
 
+            //添加tr行
+            sbTable.append("<tr height='"+ getHeightPixel(row.getHeightInPoints()) +"px' >\n");
             //_log.showDebug("row=" + i + "; nums=" + cells);
-            for (int j = 0; j < cells + EMPTY_COLNUM; j++) { 
+            for (int j = 0; j < tableColNum; j++) {
             	HSSFCell cell = null;
-            	if (j < cells) cell = row.getCell(j);
+            	if (j < lastCellNum) cell = row.getCell(j);
             	//单元ID
             	String tdid = i + "," + j;
             	
@@ -107,7 +110,7 @@ public class XlsToHtml {
             		String ls = "";
             		if (hasnum == 1) {
             			//后补的空列宽度为30px
-            			int width = (j < cells) ? 10 : 30;
+            			int width = (j < lastCellNum) ? 10 : 30;
             			ls = " style='width:"+ width +"px;'";
             			lswidth.add(width);
             		}
@@ -145,8 +148,8 @@ public class XlsToHtml {
         }
         //_log.showDebug(sbTable.toString());
         //在模板底部添加指定数量的空行
-        for (int i = 0; i < EMPTY_ROWNUM; i++) {
-        	lsemp.add(tableRowNum + i);
+        for (int i = 1; i <= EMPTY_ROWNUM; i++) {
+        	lsemp.add(lastRowNum + i);
             //添加tr行
             sbTable.append("<tr height='22px' >\n");
             sbTable.append("{EMPTY_LINE}");
