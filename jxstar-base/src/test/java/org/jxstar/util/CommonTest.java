@@ -41,6 +41,11 @@ public class CommonTest {
 		//System.out.println("----" + parseStr("卡号为【[std_code]】的工艺卡已制定，等待您审核。", "aaa"));
 		
 		System.out.println("========" + DateUtil.getTodaySec());
+		
+		String txt = "1,a,b,c,d,,e,2,";
+		System.out.println("========txt=" + txt + ";len=" + txt.split(",{1}").length);
+		String txt1 = ",a,b,,,,,";
+		System.out.println("========txt1=" + txt1 + ";len=" + txt1.split(",", -1).length);
 	}
 	/*
 	private String createRandomNum() {
