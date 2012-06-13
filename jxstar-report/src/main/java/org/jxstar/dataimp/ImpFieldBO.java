@@ -53,7 +53,7 @@ public class ImpFieldBO extends BusinessObject {
 			return false;
 		}
 		
-		int index = 0;
+		int index = 1;
 		for (Map<String,String> mpField : lsField) {
 			Map<String,String> mpData = FactoryUtil.newMap();
 			
@@ -62,13 +62,14 @@ public class ImpFieldBO extends BusinessObject {
 			mpData.put("field_title", mpField.get("col_name"));
 			mpData.put("data_type", mpField.get("data_type"));
 			
-			mpData.put("field_no", Integer.toString(++index));
+			mpData.put("field_no", Integer.toString(index*10));
 			mpData.put("data_src", "1");
 			mpData.put("imp_id", imp_id);
 			mpData.put("add_date", DateUtil.getTodaySec());
 			mpData.put("add_userid", user_id);
 			
 			DmDao.insert("imp_field", mpData);
+			index++;
 		}
 		
 		return true;
