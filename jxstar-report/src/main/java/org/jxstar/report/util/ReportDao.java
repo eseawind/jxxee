@@ -369,7 +369,7 @@ public class ReportDao {
 	 * @return List
 	 */
 	public static List<Map<String,String>> getReportWfCol(String reportId) {
-		String sql = "select "+ _field_detail +" from rpt_detail_wf where col_pos > ' ' and " +
+		String sql = "select * from rpt_detail_wf where col_pos > ' ' and " +
 					 "area_id in (select area_id from rpt_area where report_id = ?) ";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(reportId);
