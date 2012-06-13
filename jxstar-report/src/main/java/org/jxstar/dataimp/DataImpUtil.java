@@ -268,7 +268,7 @@ public class DataImpUtil {
 	//取新增SQL的参数列表
 	public static List<Map<String,String>> queryField(String impId) {
 		String sql = "select field_name, data_type, data_src, is_must, field_title, field_pos " +
-				"from imp_field where imp_id = ? order by field_no";
+				"from imp_field where is_param = '0' and imp_id = ? order by field_no";
 		
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(impId);

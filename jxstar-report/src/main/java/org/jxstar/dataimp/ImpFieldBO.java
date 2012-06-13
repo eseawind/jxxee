@@ -64,6 +64,8 @@ public class ImpFieldBO extends BusinessObject {
 			
 			mpData.put("field_no", Integer.toString(index*10));
 			mpData.put("data_src", "1");
+			mpData.put("is_must", "0");
+			mpData.put("is_param", "0");
 			mpData.put("imp_id", imp_id);
 			mpData.put("add_date", DateUtil.getTodaySec());
 			mpData.put("add_userid", user_id);
