@@ -363,6 +363,21 @@ public class ReportDao {
 	}
 	
 	/**
+	 * 获取报表所有区域审批字段信息
+	 * 
+	 * @param reportId -- 报表定义ID
+	 * @return List
+	 */
+	public static List<Map<String,String>> getReportWfCol(String reportId) {
+		String sql = "select "+ _field_detail +" from rpt_detail_wf where col_pos > ' ' and " +
+					 "area_id in (select area_id from rpt_area where report_id = ?) ";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(reportId);
+
+		return _dao.query(param);
+	}
+	
+	/**
 	 * 取数据区域第一行的数据位置
 	 * @param areaId -- 区域ID
 	 * @return
