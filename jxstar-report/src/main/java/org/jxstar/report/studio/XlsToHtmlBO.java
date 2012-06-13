@@ -83,21 +83,46 @@ public class XlsToHtmlBO extends BusinessObject {
 			return _returnFaild;
 		}
 		
-		//添加字段设置位置信息
-		sbHtml.append("<script>\n");
-		sbHtml.append("var headPos = [], detailPos = [];\n");
-		
-		//取表头字段位置信息
+		//添加表头字段位置信息
 		List<Map<String,String>> lsHead = ReportDao.getHeadInfo(reportId);
-		if (lsHead.isEmpty()) {
-			_log.showDebug("报表头位置定义信息为空！");
+		sbHtml.append(queryFieldPos("headPos", "display", "col_pos", lsHead));
+		
+		//添加报表字段位置信息
+		List<Map<String,String>> lsDetail = ReportDao.getReportCol(reportId);
+		sbHtml.append(queryFieldPos("detailPos", "display", "col_pos", lsDetail));
+		
+		//添加审批字段位置信息
+		List<Map<String,String>> lsCheck = ReportDao.getReportWfCol(reportId);
+		sbHtml.append(queryFieldPos("checkPos", "col_code", "col_pos", lsCheck));
+		//_log.showDebug(sbHtml.toString());
+		
+		try {
+			request.setReturnBytes(sbHtml.toString().getBytes("utf-8"));
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		
+		return _returnSuccess;
+	}
+	
+	//取设置字段位置信息
+	private String queryFieldPos(
+			String varName, String titleField, String posField, 
+			List<Map<String,String>> lsField) {
+		StringBuilder sbHtml = new StringBuilder();
+		sbHtml.append("<script  language=\"javascript\">\n");
+		sbHtml.append("var "+ varName +" = [];\n");
+		
+		if (lsField.isEmpty()) {
+			_log.showDebug(varName + "位置定义信息为空！");
+			return "";
 		} else {
 			StringBuilder sbHead = new StringBuilder();
-			for (int i = 0; i < lsHead.size(); i++) {
-				Map<String,String> mpHead = lsHead.get(i);
+			for (int i = 0; i < lsField.size(); i++) {
+				Map<String,String> mpHead = lsField.get(i);
 				
-				String display = mpHead.get("display");
-				String colpos = mpHead.get("col_pos");
+				String display = mpHead.get(titleField);
+				String colpos = mpHead.get(posField);
 				
 				if (display.length() > 0 && colpos.length() > 0) {
 					sbHead.append("['"+ colpos +"', '"+ display +"'],");
@@ -108,49 +133,14 @@ public class XlsToHtmlBO extends BusinessObject {
 			if (sbHead.length() > 0) {
 				shead = sbHead.substring(0, sbHead.length()-1);
 			}
-			sbHtml.append("headPos = ["+ shead +"];\n");
+			sbHtml.append(varName + " = ["+ shead +"];\n");
 		}
-		
-		//取报表字段位置信息
-		List<Map<String,String>> lsDetail = ReportDao.getReportCol(reportId);
-		if (lsDetail.isEmpty()) {
-			_log.showDebug("报表明细位置定义信息为空！");
-		} else {
-			StringBuilder sbDetail = new StringBuilder();
-			for (int i = 0; i < lsDetail.size(); i++) {
-				Map<String,String> mpDetail = lsDetail.get(i);
-				
-				String display = mpDetail.get("display");
-				String colpos = mpDetail.get("col_pos");
-				
-				if (display.length() > 0 && colpos.length() > 0) {
-					sbDetail.append("['"+ colpos +"', '"+ display +"'],");
-				}
-			}
-			//去掉最后一个,
-			String sdet = "";
-			if (sbDetail.length() > 0) {
-				sdet = sbDetail.substring(0, sbDetail.length()-1);
-			}
-			sbHtml.append("detailPos = ["+ sdet +"];\n");
-		}
-		
 		//显示字段位置信息
-		sbHtml.append("for(var i = 0, n = headPos.length; i < n; i++) {\n");
-		sbHtml.append("	document.getElementById(headPos[i][0]).innerHTML = headPos[i][1];\n");
-		sbHtml.append("}\n");
-		sbHtml.append("for(var i = 0, n = detailPos.length; i < n; i++) {\n");
-		sbHtml.append("	document.getElementById(detailPos[i][0]).innerHTML = detailPos[i][1];\n");
+		sbHtml.append("for(var i = 0, n = "+ varName +".length; i < n; i++) {\n");
+		sbHtml.append("	document.getElementById("+ varName +"[i][0]).innerHTML = "+ varName +"[i][1];\n");
 		sbHtml.append("}\n");
 		sbHtml.append("</script>\n");
-		//_log.showDebug(sbHtml.toString());
 		
-		try {
-			request.setReturnBytes(sbHtml.toString().getBytes("utf-8"));
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-		
-		return _returnSuccess;
+		return sbHtml.toString();
 	}
 }
