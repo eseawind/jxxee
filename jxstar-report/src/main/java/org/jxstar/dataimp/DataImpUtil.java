@@ -126,9 +126,8 @@ public class DataImpUtil {
 	 */
 	public static String getKeyValue(String funId) {
 		KeyCreator keyCreator = KeyCreator.getInstance();
-		FunctionDefine funObject = FunctionDefineManger.getInstance().getDefine(funId);
+		String tableName = getTableName(funId);
 		
-		String tableName = funObject.getElement("table_name");
 		return keyCreator.createKey(tableName);
 	}
 	
@@ -222,7 +221,7 @@ public class DataImpUtil {
 	
 	//取数据导入的SQL
 	public static Map<String,String> queryImpById(String imp_id) {
-		String sql = "select tpl_type, insert_sql, tpl_file, imp_id from imp_list where imp_id = ?";
+		String sql = "select tpl_type, insert_sql, tpl_file, imp_id, fun_id from imp_list where imp_id = ?";
 		
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(imp_id);
@@ -284,5 +283,16 @@ public class DataImpUtil {
 		param.addStringValue(impId);
 		
 		return _dao.query(param);
+	}
+	
+	//根据功能ID取表明
+	public static String getTableName(String funId) {
+		String sql = "select table_name from fun_base where fun_id = ?";
+		
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(funId);
+		
+		Map<String,String> mp = _dao.queryMap(param);
+		return MapUtil.getValue(mp, "table_name");
 	}
 }
