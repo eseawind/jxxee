@@ -42,7 +42,7 @@ public class DataImpBOTest extends AbstractTest {
 			e.printStackTrace();
 		}
 		
-		List<String> lsKeys = impbo.dataImp(ins, funId, fkValue, userInfo);
+		List<String> lsKeys = impbo.dataImp(ins, funId, "", fkValue, userInfo);
 		System.out.println(".............success imp:" + lsKeys);
 	}
 
