@@ -46,8 +46,7 @@ Jxstar.currentPage = function() {
 			var frmid = "frm_designer_report";
 			designPanel = new Ext.Container({
 				border:false,
-				autoScroll:false,
-				html:'<iframe id="'+ frmid +'" frameborder="no" style="display:none;border-width:0;"></iframe>'
+				html:'<iframe id="'+ frmid +'" frameborder="no" style="display:none;border-width:0;width:100%;height:100%;"></iframe>'
 			});
 
 			parent.add(designPanel);
@@ -72,12 +71,10 @@ Jxstar.currentPage = function() {
 			//加载设计文件
 			var href = Jxstar.path + "/jxstar/studio/pub/xls_html.jsp?user_id=" + Jxstar.session['user_id'] + 
 				"&reportId=" + reportId + "&designFunId=rpt_list";
-		
+
 			var frm = Ext.get(frmid);
-			frm.show();
-			frm.setWidth(designPanel.getWidth());
-			frm.setHeight(designPanel.getHeight());
 			frm.dom.src = href + '&_dc=' + (new Date()).getTime();
+			frm.show();
 		},
 		
 		/**
