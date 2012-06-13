@@ -44,7 +44,9 @@ public class DataImpBO extends BusinessObject {
 	 */
 	public String onDataImp(RequestContext request) {
 		//当前功能ID
-		String funId = request.getFunID();
+		String impFunId = request.getRequestValue("impFunId");
+		//当前导入定义序号，处理一个功能有多个数据导入模板的问题
+		String impIndex = request.getRequestValue("impIndex");
 		//上传的导入数据文件
 		FileItem impFile = (FileItem) request.getRequestObject("import_file");
 		if (impFile == null) {
@@ -66,7 +68,7 @@ public class DataImpBO extends BusinessObject {
 		Map<String,String> userInfo = request.getUserInfo();
 		
 		//解析数据，执行导入
-		List<String> lsImpKeys = dataImp(ins, funId, fkValue, userInfo);
+		List<String> lsImpKeys = dataImp(ins, impFunId, impIndex, fkValue, userInfo);
 		if (lsImpKeys == null || lsImpKeys.isEmpty()) return _returnFaild;
 		
 		request.getRequestMap().put(IMP_KEYIDS, lsImpKeys);
@@ -76,15 +78,17 @@ public class DataImpBO extends BusinessObject {
 	/**
 	 * 执行数据导入，方便测试。
 	 * @param ins
-	 * @param funId
+	 * @param impFunId
+	 * @param impIndex
 	 * @param fkValue
 	 * @param userInfo
 	 * @return
 	 */
-	public List<String> dataImp(InputStream ins, String funId, String fkValue, Map<String,String> userInfo) {
-		Map<String,String> mpImp = DataImpUtil.queryImp(funId);
+	public List<String> dataImp(InputStream ins, String impFunId, String impIndex, 
+			String fkValue, Map<String,String> userInfo) {
+		Map<String,String> mpImp = DataImpUtil.queryImp(impFunId, impIndex);
 		if (mpImp.isEmpty()) {
-			setMessage("没有找到【{0}】功能的数据导入定义！", funId);
+			setMessage("没有找到【{0}】功能的数据导入定义！", impFunId);
 			return null;
 		}
 		//模板文件类型：xls, csv
@@ -118,7 +122,7 @@ public class DataImpBO extends BusinessObject {
 		insertSql = insertSql.replaceFirst(DataImpUtil.FKEYID_REGEX, DataImpUtil.addChar(fkValue));
 		
 		//解析数据，执行导入
-		List<String> lsImpKeys = importData(parser, impId, insertSql, funId);
+		List<String> lsImpKeys = importData(parser, impId, insertSql, impFunId);
 		if (lsImpKeys == null || lsImpKeys.isEmpty()) {
 			setMessage("执行数据导入操作失败！");
 			return null;

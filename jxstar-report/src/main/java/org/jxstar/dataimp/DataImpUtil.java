@@ -210,8 +210,12 @@ public class DataImpUtil {
 	}
 	
 	//取数据导入的SQL
-	public static Map<String,String> queryImp(String funId) {
-		String sql = "select tpl_type, insert_sql, imp_id from imp_list where fun_id = ?";
+	public static Map<String,String> queryImp(String funId, String impIndex) {
+		String sql = "select tpl_type, insert_sql, tpl_file, imp_id, fun_id from imp_list where fun_id = ? ";
+		if (impIndex != null && impIndex.length() > 0) {
+			sql += " and imp_index = " + impIndex;
+		}
+		sql += " order by imp_index";
 		
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(funId);
@@ -263,7 +267,8 @@ public class DataImpUtil {
 	
 	//取新增SQL的参数列表
 	public static List<Map<String,String>> queryField(String impId) {
-		String sql = "select field_name, data_type, data_src, is_must, field_title, field_pos from imp_field where imp_id = ? order by field_no";
+		String sql = "select field_name, data_type, data_src, is_must, field_title, field_pos " +
+				"from imp_field where imp_id = ? order by field_no";
 		
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(impId);
