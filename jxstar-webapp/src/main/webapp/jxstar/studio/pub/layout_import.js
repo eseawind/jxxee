@@ -2,18 +2,11 @@
  * Copyright 2011 Guangzhou Donghong Software Technology Inc.
  * Licensed under the www.jxstar.org
  */
- 
-/**
- * 报表设计器功能布局。
- * 
- * @author TonyTan
- * @version 1.0, 2010-01-01
- */
 
 Jxstar.currentPage = function() {
-	var ReportDesigner = {
+	var ImportDesigner = {
 		/**
-		 * 当前报表ID
+		 * 当前定义ID
 		 **/
 		reportId:'',
 		
@@ -43,7 +36,7 @@ Jxstar.currentPage = function() {
 			} 
 			
 			//创建设计面板
-			var frmid = "frm_designer_report";
+			var frmid = "frm_designer_import";
 			designPanel = new Ext.Container({
 				border:false,
 				autoScroll:false,
@@ -59,8 +52,9 @@ Jxstar.currentPage = function() {
 			
 			//由于工具栏保存的事件对象是原self对象的，所以必须先删除再创建
 			tbar.add(
-				{text:jx.rpt.title, iconCls:'eb_save', handler:function(){self.showDetail('rpt_head');}},	//'报表标题'
-				{text:jx.rpt.area, iconCls:'eb_change', handler:function(){self.showDetail('rpt_area');}},	//'报表区域'
+				{text:'数据字段', iconCls:'eb_save', handler:function(){self.showImpField('imp_field');}},
+				{text:'数据关系', iconCls:'eb_change', handler:function(){self.showImpField('imp_relat');}},
+				{text:'新增SQL', iconCls:'eb_change', handler:function(){self.showImpList();}},
 				{xtype:'tbseparator'},
 				{text:jx.base.refresh, iconCls:'eb_refresh', handler:function(){self.reloadDesign();}}	//'刷新'
 			);
@@ -71,7 +65,7 @@ Jxstar.currentPage = function() {
 			
 			//加载设计文件
 			var href = Jxstar.path + "/jxstar/studio/pub/xls_html.jsp?user_id=" + Jxstar.session['user_id'] + 
-				"&reportId=" + reportId + "&designFunId=rpt_list";
+				"&reportId=" + reportId + "&designFunId=imp_list";
 		
 			var frm = Ext.get(frmid);
 			frm.show();
@@ -84,18 +78,18 @@ Jxstar.currentPage = function() {
 		 * 刷新设计信息
 		 **/
 		reloadDesign: function() {
-			var frm = Ext.get('frm_designer_report');
+			var frm = Ext.get('frm_designer_import');
 			var src = frm.dom.src;
 			frm.dom.src = src;
 		},
 		
 		/**
-		 * 显示报表标题定义界面
+		 * 显示数据字段定义
 		 **/
-		showDetail: function(detFunId) {
+		showImpField: function(funId) {
 			var self = this;
 			//过滤条件
-			var where_sql = detFunId + '.report_id = ?';
+			var where_sql = funId + '.imp_id = ?';
 			var where_type = 'string';
 			var where_value = self.reportId;
 			
@@ -105,7 +99,7 @@ Jxstar.currentPage = function() {
 				//显示数据
 				JxUtil.delay(500, function(){
 					//保存子表控件
-					self.layoutEl[detFunId] = grid;
+					self.layoutEl[funId] = grid;
 					//设置外键值
 					grid.fkValue = where_value;
 					Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type});
@@ -113,21 +107,58 @@ Jxstar.currentPage = function() {
 			};
 
 			//显示数据
-			var define = Jxstar.findNode(detFunId);
+			var define = Jxstar.findNode(funId);
 			Jxstar.showData({
 				filename: define.gridpage,
 				title: define.nodetitle,
-				pagetype: 'subeditgrid',
 				nodedefine: define,
-				width: 600,
-				height: 250,
+				pagetype: 'subeditgrid',
+				width: 650,
+				height: 350,
+				modal: false,
+				callback: hdcall
+			});
+		},
+		
+		/**
+		 * 显示数据导入定义
+		 **/
+		showImpList: function() {
+			var self = this;
+			var hdcall = function(page) {
+				self.layoutEl['imp_list'] = page;
+				//加载显示数据
+				var options = {
+					where_sql: 'imp_list.imp_id = ?',
+					where_type: 'string',
+					where_value: self.reportId,
+					callback: function(data) {
+						if (data.length > 0) {
+							var r = page.formNode.event.newRecord(data[0]);
+							
+							page.getForm().myRecord = r;
+							page.getForm().loadRecord(r);
+						}
+					}
+				};
+				Jxstar.queryData('imp_list', options);
+			};
+			
+			//显示数据
+			var define = Jxstar.findNode('imp_list');
+			Jxstar.showData({
+				filename: define.formpage,
+				title: define.nodetitle,
+				nodedefine: define,
+				width: 650,
+				height: 350,
 				modal: false,
 				callback: hdcall
 			});
 		}
 	};
-	//=============================ReportDesigner End===================================
-	var funid = 'rpt_list';
+	//=============================ImportDesigner End===================================
+	var funid = 'imp_list';
 
 	//创建TAB功能布局面板
 	var tabFunction = new Ext.TabPanel({
@@ -137,14 +168,14 @@ Jxstar.currentPage = function() {
 		activeTab:0,
 		items:[{
 			pagetype:'grid',
-			title: jx.rpt.define,	//'报表定义列表',
+			title: '导入定义列表',
 			autoScroll:true,
 			layout:'fit',
 			border:false,
 			iconCls:'tab_grid'
 		},{
 			pagetype:'reptdes',
-			title: jx.rpt.design,	//'报表设计器',
+			title: '模板设计器',
 			autoScroll:true,
 			layout:'fit',
 			border:true,
@@ -188,7 +219,7 @@ Jxstar.currentPage = function() {
 		var reportId = '';
 		var records = fgrid.getSelectionModel().getSelections();
 		if (records.length >= 1) {
-			reportId = records[0].get('rpt_list__report_id');
+			reportId = records[0].get('imp_list__imp_id');
 		} else {
 			if (pagetype != 'grid') {
 				JxHint.alert(jx.layout.selmain);	//'请选择一条主记录！'
@@ -197,10 +228,10 @@ Jxstar.currentPage = function() {
 		}
 		var activePanel = activeTab.getComponent(0);
 
-		//显示报表设计器
+		//显示模板设计器
 		if (pagetype == 'reptdes') {
 			var pe = tabFunction.getComponent(1);
-			ReportDesigner.render(reportId, pe);
+			ImportDesigner.render(reportId, pe);
 		}
 	});
 	
@@ -212,32 +243,16 @@ Jxstar.currentPage = function() {
 			if (win.ownerCt) win.ownerCt.close();
 		}
 	};
+	
 	//如果设计面板隐藏时，则需要关闭所有设计对话框
 	var closeWin = function(parent) {
-		delWin(parent, 'rpt_area');
-		delWin(parent, 'rpt_head');
+		delWin(parent, 'imp_field');
+		delWin(parent, 'imp_relat');
+		delWin(parent, 'imp_list');
 	};
 	var desPanel = tabFunction.getComponent(1);
 	desPanel.on('hide', closeWin);
 	desPanel.on('beforedestroy', closeWin);
-			   
-	var funLayout = new Ext.Panel({
-		border:false,
-		layout:'border',
-		items:[{
-			region:'west',
-			layout:'fit',
-			width:160,
-			split:true,
-			border:false
-		},{
-			region:'center',
-			layout:'fit',
-			border:false,
-			items:[tabFunction]
-		}]
-	});
-	Jxstar.createTree(funid, funLayout);
 
-	return funLayout;
+	return tabFunction;
 }
