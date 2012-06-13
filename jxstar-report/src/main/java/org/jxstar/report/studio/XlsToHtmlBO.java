@@ -28,11 +28,6 @@ import org.jxstar.util.resource.JsParam;
 public class XlsToHtmlBO extends BusinessObject {
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * 根据报表ID取报表模板文件
-	 * @param reportId -- 报表ID
-	 * @return
-	 */
 	public String loadHtml(RequestContext request) {	
 		String reportId = request.getRequestValue("reportId");
 		String realPath = request.getRequestValue(JsParam.REALPATH);
@@ -55,17 +50,34 @@ public class XlsToHtmlBO extends BusinessObject {
 			return _returnFaild;
 		}
 		
+		byte[] datas = loadHtml(reportId, realPath);
+		if (datas == null) return _returnFaild;
+		
+		try {
+			request.setReturnBytes(datas);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return _returnSuccess;
+	}
+	
+	/**
+	 * 根据报表ID取报表模板文件
+	 * @param reportId -- 报表ID
+	 * @return
+	 */
+	public byte[] loadHtml(String reportId, String realPath) {	
 		//取报表定义信息
 		Map<String,String> mpReport = ReportDao.getReport(reportId);
 		if (mpReport.isEmpty()) {//"报表定义信息为空，报表ID为【{0}】！"
 			setMessage(JsMessage.getValue("xlstohtmlbo.error02"), reportId);
-			return _returnFaild;
+			return null;
 		}
 		String rptFile = mpReport.get("report_file");
 		if (rptFile == null || rptFile.length() == 0) {
 			//"报表模板文件没有设置，报表ID为【{0}】！"
 			setMessage(JsMessage.getValue("xlstohtmlbo.error03"), reportId);
-			return _returnFaild;
+			return null;
 		}
 		
 		rptFile = realPath + "/report/xls" + rptFile;
@@ -80,7 +92,7 @@ public class XlsToHtmlBO extends BusinessObject {
 		} catch (ReportException e) {
 			e.printStackTrace();
 			setMessage(e.getMessage());
-			return _returnFaild;
+			return null;
 		}
 		
 		//添加表头字段位置信息
@@ -97,12 +109,12 @@ public class XlsToHtmlBO extends BusinessObject {
 		//_log.showDebug(sbHtml.toString());
 		
 		try {
-			request.setReturnBytes(sbHtml.toString().getBytes("utf-8"));
+			return sbHtml.toString().getBytes("utf-8");
 		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
 		
-		return _returnSuccess;
+		return null;
 	}
 	
 	//取设置字段位置信息
