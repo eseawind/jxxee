@@ -5,11 +5,15 @@ package org.jxstar.dataimp.parse;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Calendar;
+import java.util.Date;
 
 import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFDateUtil;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.jxstar.util.DateUtil;
 
 /**
  * 解析导入文件XLS中的数据
@@ -90,7 +94,15 @@ public class XlsDataParser implements DataParser {
 			if (cell != null) {
 				int itype = cell.getCellType();
 				if (HSSFCell.CELL_TYPE_NUMERIC == itype) {
-					return Double.toString(cell.getNumericCellValue());
+					if (HSSFDateUtil.isCellDateFormatted(cell)) { //处理单元格中的日期值  
+				        double d = cell.getNumericCellValue();   
+				        Date date = HSSFDateUtil.getJavaDate(d);
+				        Calendar cal = Calendar.getInstance();
+				        cal.setTime(date);
+				        return DateUtil.calendarToDate(cal);
+				    } else {
+				    	return Double.toString(cell.getNumericCellValue());
+				    }
 				} else {
 					return cell.getStringCellValue();
 				}
