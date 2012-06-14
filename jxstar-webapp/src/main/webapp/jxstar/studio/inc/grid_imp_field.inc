@@ -14,4 +14,20 @@
 				seldiv.positionField = 'imp_field__field_pos';
 			}
 		});
+	};
+	
+	config.eventcfg = {
+	
+		createField: function(){
+			var self = this;
+			var fkValue = self.grid.fkValue;
+			var hdcall = function() {
+				self.grid.getStore().reload();
+			};
+			
+			var params = 'funid=imp_field&imp_id='+ fkValue +'&pagetype=editgrid&eventcode=createfield';
+			
+			//发送请求
+			Request.postRequest(params, hdcall);
+		}
 	};

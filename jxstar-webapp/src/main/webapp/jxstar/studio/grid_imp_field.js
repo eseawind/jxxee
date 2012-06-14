@@ -6,11 +6,21 @@
 	var yesnoData = Jxstar.findComboData('yesno');
 
 	var cols = [
-	{col:{header:'序号', width:41, sortable:true, renderer:JxUtil.formatInt()}, field:{name:'imp_field__field_no',type:'int'}},
-	{col:{header:'字段名称', width:113, sortable:true}, field:{name:'imp_field__field_name',type:'string'}},
-	{col:{header:'字段标题', width:122, sortable:true}, field:{name:'imp_field__field_title',type:'string'}},
-	{col:{header:'来源', width:66, sortable:true, align:'center',
-		editable:false,
+	{col:{header:'序号', width:41, sortable:true, align:'right',
+		editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.NumberField({
+			maxLength:12
+		}),renderer:JxUtil.formatInt()}, field:{name:'imp_field__field_no',type:'int'}},
+	{col:{header:'*字段名称', width:97, sortable:true, editable:true, hcss:'color:#0000ff;',
+		editor:new Ext.form.TextField({
+			maxLength:50, allowBlank:false
+		})}, field:{name:'imp_field__field_name',type:'string'}},
+	{col:{header:'字段标题', width:111, sortable:true, editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.TextField({
+			maxLength:50
+		})}, field:{name:'imp_field__field_title',type:'string'}},
+	{col:{header:'*来源', width:66, sortable:true, defaultval:'1', align:'center',
+		editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
 				fields:['value','text'],
@@ -30,9 +40,12 @@
 					return impsrcData[i][1];
 			}
 		}}, field:{name:'imp_field__data_src',type:'string'}},
-	{col:{header:'位置', width:57, sortable:true}, field:{name:'imp_field__field_pos',type:'string'}},
-	{col:{header:'数据类型', width:65, sortable:true, align:'center',
-		editable:false,
+	{col:{header:'位置', width:57, sortable:true, editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.TextField({
+			maxLength:20
+		})}, field:{name:'imp_field__field_pos',type:'string'}},
+	{col:{header:'*数据类型', width:65, sortable:true, align:'center',
+		editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
 				fields:['value','text'],
@@ -52,8 +65,8 @@
 					return datatypeData[i][1];
 			}
 		}}, field:{name:'imp_field__data_type',type:'string'}},
-	{col:{header:'必填?', width:55, sortable:true, align:'center',
-		editable:false,
+	{col:{header:'必填?', width:55, sortable:true, defaultval:'0', align:'center',
+		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
 				fields:['value','text'],
@@ -74,7 +87,28 @@
 			}
 		}}, field:{name:'imp_field__is_must',type:'string'}},
 	{col:{header:'主键', width:100, sortable:true, hidden:true}, field:{name:'imp_field__field_id',type:'string'}},
-	{col:{header:'定义ID', width:100, sortable:true, hidden:true}, field:{name:'imp_field__imp_id',type:'string'}}
+	{col:{header:'定义ID', width:100, sortable:true, hidden:true}, field:{name:'imp_field__imp_id',type:'string'}},
+	{col:{header:'非新增值', width:65, sortable:true, defaultval:'0', align:'center',
+		editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.ComboBox({
+			store: new Ext.data.SimpleStore({
+				fields:['value','text'],
+				data: yesnoData
+			}),
+			emptyText: jx.star.select,
+			mode: 'local',
+			triggerAction: 'all',
+			valueField: 'value',
+			displayField: 'text',
+			editable:false,
+			value: yesnoData[0][0]
+		}),
+		renderer:function(value){
+			for (var i = 0; i < yesnoData.length; i++) {
+				if (yesnoData[i][0] == value)
+					return yesnoData[i][1];
+			}
+		}}, field:{name:'imp_field__is_param',type:'string'}}
 	];
 	
 	config.param = {
@@ -101,6 +135,22 @@
 				seldiv.positionField = 'imp_field__field_pos';
 			}
 		});
+	};
+	
+	config.eventcfg = {
+	
+		createField: function(){
+			var self = this;
+			var fkValue = self.grid.fkValue;
+			var hdcall = function() {
+				self.grid.getStore().reload();
+			};
+			
+			var params = 'funid=imp_field&imp_id='+ fkValue +'&pagetype=editgrid&eventcode=createfield';
+			
+			//发送请求
+			Request.postRequest(params, hdcall);
+		}
 	};
 		
 	return new Jxstar.GridNode(config);
