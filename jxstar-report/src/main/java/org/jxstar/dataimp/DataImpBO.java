@@ -74,10 +74,11 @@ public class DataImpBO extends BusinessObject {
 		
 		//解析数据，执行导入
 		List<String> lsImpKeys = dataImp(ins, impFunId, impIndex, fkValue, userInfo);
-		
+		_log.showDebug("..........all lsImpKeys:" + lsImpKeys.toString());
+		_log.showDebug("..........all valid info:" + _validInfo.toString());
 		//把校验信息返回到前台
 		if (_validInfo.length() > 0) {
-			this.setReturnData("{valueInfo:'" + _validInfo.toString() + "'}");
+			setReturnData("{valueInfo:'" + _validInfo.toString() + "'}");
 		}
 		
 		if (lsImpKeys == null || lsImpKeys.isEmpty()) return _returnFaild;
