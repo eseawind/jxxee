@@ -126,7 +126,7 @@ public class FileAction extends Action {
 		
 		//数据格式字节，说明是需要返回文件
 		String dataType = request.getParameter("dataType");
-		if (dataType != null && (dataType.equals("byte") || dataType.equals("xls"))) {			
+		if (dataType != null && (dataType.equals("byte") || dataType.equals("xls"))) {
 			String type = requestContext.getRequestValue("ContentType");
 			String fileName = requestContext.getRequestValue("Attachment");
 			
@@ -164,6 +164,8 @@ public class FileAction extends Action {
 			}
 			return null;
 		} else {
+			//把请求对象中的响应结果反馈到响应对象中
+			ActionHelper.contextToResponse(requestContext, responseContext);
 			responseContext.setSuccessed(true);
 			return responseContext;	
 		}
