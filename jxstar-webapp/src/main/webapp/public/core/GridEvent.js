@@ -1223,6 +1223,85 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			tabPanel.activate(tab);
 		};
 		viewPicture(url);
+	},
+	
+	/**
+	* public 
+	* 导入excel数据
+	**/
+	impExcel: function(imp_index) {
+		var impIndex = '';//功能导入定义序号
+		if (Ext.isNumber(imp_index) || Ext.isString(imp_index)) {
+			impIndex = imp_index;
+		}
+		
+		var nodeid = this.define.nodeid;
+		var queryForm = new Ext.form.FormPanel({
+			layout:'form', 
+			labelAlign:'right',
+			labelWidth:80,
+			border:false, 
+			baseCls:'x-plain',
+			autoHeight: true,
+			bodyStyle: 'padding: 20px 10px 0 10px;',
+			defaults: {
+				anchor: '95%',
+				allowBlank: false,
+				msgTarget: 'side'
+			},
+			items: [{
+				xtype: 'fileuploadfield',
+				useType: 'file',
+				fieldLabel: jx.event.selfile,	//选择文件
+				name: 'import_file',
+				buttonText: '',
+				buttonCfg: {
+					iconCls: 'upload_icon'
+				}
+			}]
+		});
+
+		//创建对话框
+		var self = this;
+		var win = new Ext.Window({
+			title:jx.event.uptitle,	//上传附件
+			layout:'fit',
+			width:400,
+			height:130,
+			resizable: false,
+			modal: true,
+			closeAction:'close',
+			items:[queryForm],
+
+			buttons: [{
+				text:'下载模板',
+				handler:function(){
+					var params = 'funid=imp_list&impFunId='+ nodeid +'&pagetype=grid&eventcode=downtpl&impIndex='+ impIndex;
+					Request.fileDown(params);
+				}
+			},{
+				text:jx.base.ok,
+				handler:function(){
+					var form = queryForm.getForm();
+					if (!form.isValid()) return;
+					
+					//当前功能外键值
+					var fkValue = self.grid.fkValue;
+					//上传参数
+					var params = 'funid=sysevent&pagetype=grid&eventcode=impexcel&fkValue='+ fkValue +'&impFunId='+ nodeid + '&impIndex='+ impIndex;
+					var hdCall = function() {
+						win.close();
+						self.grid.getStore().reload();
+					};
+					//上传附件
+					Request.fileRequest(form, params, hdCall);
+				}
+			},{
+				text:jx.base.cancel,
+				handler:function(){win.close();}
+			}]
+		});
+		win.show();
 	}
 });
 

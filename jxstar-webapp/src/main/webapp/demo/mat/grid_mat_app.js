@@ -2,6 +2,7 @@
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 
 	var auditData = Jxstar.findComboData('audit');
+	var apptypeData = Jxstar.findComboData('apptype');
 
 	var cols = [
 	{col:{header:'记录状态', width:73, sortable:true, align:'center',
@@ -29,6 +30,27 @@
 	{col:{header:'申请日期', width:100, sortable:true, renderer:function(value) {
 			return value ? value.format('Y-m-d') : '';
 		}}, field:{name:'mat_app__app_date',type:'date'}},
+	{col:{header:'申请类型', width:100, sortable:true, align:'center',
+		editable:false,
+		editor:new Ext.form.ComboBox({
+			store: new Ext.data.SimpleStore({
+				fields:['value','text'],
+				data: apptypeData
+			}),
+			emptyText: jx.star.select,
+			mode: 'local',
+			triggerAction: 'all',
+			valueField: 'value',
+			displayField: 'text',
+			editable:false, allowBlank:false,
+			value: apptypeData[0][0]
+		}),
+		renderer:function(value){
+			for (var i = 0; i < apptypeData.length; i++) {
+				if (apptypeData[i][0] == value)
+					return apptypeData[i][1];
+			}
+		}}, field:{name:'mat_app__app_type',type:'string'}},
 	{col:{header:'项目名称', width:183, sortable:true}, field:{name:'mat_app__project_name',type:'string'}},
 	{col:{header:'预算金额(万元)', width:100, sortable:true, renderer:JxUtil.formatNumber(6)}, field:{name:'mat_app__app_money',type:'float'}},
 	{col:{header:'申请人', width:74, sortable:true}, field:{name:'mat_app__app_user',type:'string'}},

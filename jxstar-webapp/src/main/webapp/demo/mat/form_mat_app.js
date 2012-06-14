@@ -2,6 +2,7 @@
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 	
 	var auditData = Jxstar.findComboData('audit');
+	var apptypeData = Jxstar.findComboData('apptype');
 	var items = [{
 		height: '97%',
 		width: '97%',
@@ -47,6 +48,18 @@
 							JxSelect.createSelectWin(selcfg, this, 'node_mat_app_form');
 						}},
 					{xtype:'textfield', fieldLabel:'申请单号', name:'mat_app__app_code', readOnly:true, anchor:'100%', maxLength:20},
+					{xtype:'combo', fieldLabel:'申请类型', name:'mat_app__app_type', defaultval:'1',
+						anchor:'100%', editable:false, allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*',
+						store: new Ext.data.SimpleStore({
+							fields:['value','text'],
+							data: apptypeData
+						}),
+						emptyText: jx.star.select,
+						mode: 'local',
+						triggerAction: 'all',
+						valueField: 'value',
+						displayField: 'text',
+						value: apptypeData[0][0]},
 					{xtype:'hidden', fieldLabel:'申请人ID', name:'mat_app__app_userid', defaultval:'fun_getUserId()', anchor:'100%'},
 					{xtype:'hidden', fieldLabel:'申请部门ID', name:'mat_app__dept_id', defaultval:'fun_getDeptId()', anchor:'100%'}
 				]
@@ -59,7 +72,7 @@
 					{xtype:'datefield', fieldLabel:'申请日期', name:'mat_app__app_date', defaultval:'fun_getToday()', format:'Y-m-d', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%'},
 					{xtype:'textfield', fieldLabel:'申请人', name:'mat_app__app_user', defaultval:'fun_getUserName()', readOnly:true, anchor:'100%', maxLength:20},
 					{xtype:'textarea', fieldLabel:'申请理由', name:'mat_app__app_cause', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', width:'100%', height:48, maxLength:200},
-					{xtype:'textarea', fieldLabel:'效益分析', name:'mat_app__app_analyse', width:'100%', height:48, maxLength:200},
+					{xtype:'textarea', fieldLabel:'效益分析', name:'mat_app__app_analyse', width:'100%', height:72, maxLength:200},
 					{xtype:'hidden', fieldLabel:'主键', name:'mat_app__app_id', anchor:'100%'}
 				]
 			}
