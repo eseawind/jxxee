@@ -110,6 +110,25 @@ public class DataImpUtil {
 	}
 	
 	/**
+	 * 完善日期值：如果是yyyy/mm/dd则把/转换为-；如果是yyyy-mm样式，则添加-dd；
+	 * @param value
+	 * @return
+	 */
+	public static String repDateValue(String value) {
+		if (value == null || value.length() == 0) return "";
+		
+		value = value.replace('/', '-');
+		String[] vs = value.split("-");
+		if (vs.length == 2) {
+			value = value + "-01";
+		} else if (vs.length == 1) {
+			value = value + "-01-01";
+		}
+		
+		return value;
+	}
+	
+	/**
 	 * 取编码值
 	 * @param funId
 	 * @return

@@ -5,6 +5,7 @@ package org.jxstar.dataimp;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -16,6 +17,7 @@ import org.jxstar.dataimp.parse.TxtDataParser;
 import org.jxstar.dataimp.parse.XlsDataParser;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.util.MapUtil;
+import org.jxstar.util.StringValidator;
 import org.jxstar.util.factory.FactoryUtil;
 
 /**
@@ -28,6 +30,9 @@ public class DataImpBO extends BusinessObject {
 	private static final long serialVersionUID = 1L;
 	//返回到环境变量中的导入数据的主键值队列
 	private static final String IMP_KEYIDS = "imp_keyids";
+	
+	//返回到前台的不合格数据信息，已经新增的数据不做回滚
+	private StringBuilder _validInfo = new StringBuilder();
 
 	/**
 	 * 根据功能ID找到数据导入定义信息：构建表头数据定义对象、表格数据定义对象、关联关系定义对象、新增数据SQL对象；
@@ -69,8 +74,14 @@ public class DataImpBO extends BusinessObject {
 		
 		//解析数据，执行导入
 		List<String> lsImpKeys = dataImp(ins, impFunId, impIndex, fkValue, userInfo);
-		if (lsImpKeys == null || lsImpKeys.isEmpty()) return _returnFaild;
 		
+		//把校验信息返回到前台
+		if (_validInfo.length() > 0) {
+			this.setReturnData("{valueInfo:'" + _validInfo.toString() + "'}");
+		}
+		
+		if (lsImpKeys == null || lsImpKeys.isEmpty()) return _returnFaild;
+
 		request.getRequestMap().put(IMP_KEYIDS, lsImpKeys);
 		return _returnSuccess;
 	}
@@ -132,6 +143,14 @@ public class DataImpBO extends BusinessObject {
 	}
 	
 	/**
+	 * 返回导入数据过程中数据校验错误
+	 * @return
+	 */
+	public String getValidInfo() {
+		return _validInfo.toString();
+	}
+	
+	/**
 	 * 解析数据，根据定义，执行导入
 	 * @return
 	 */
@@ -170,6 +189,7 @@ public class DataImpBO extends BusinessObject {
 		param.setUseParse(true);
 		
 		//开始导入数据
+		int index = 1;
 		for (Map<String,String> mpData : gridData) {
 			_log.showDebug("--------------------- start import new data ---------------------");
 			Map<String,String> relatData = null;
@@ -177,11 +197,10 @@ public class DataImpBO extends BusinessObject {
 				relatData = DataImpUtil.queryRelat(lsRelatSql, formData, mpData);
 			}
 			
-			//解析SQL中的主键、编码、常量
-			//String sql = ImpUtil.parseInsertSQL(funId, fkValue, baseSql, userInfo);
+			//解析SQL中的主键、编码
+			String keyId = "";
 			if (isNewKeyId) {
-				String keyId = DataImpUtil.getKeyValue(funId);
-				lsImpKeys.add(keyId);
+				keyId = DataImpUtil.getKeyValue(funId);
 				param.addStringValue(keyId);
 			}
 			if (isNewCode) {
@@ -189,40 +208,87 @@ public class DataImpBO extends BusinessObject {
 			}
 			
 			//取新增SQL的参数：如果是表头数据则从formData取值；如果是表格数据则从gridData取值；如果是关系数据则从relat取值
+			//同时检查导入字段值的有效性：必填项、数值、日期格式
+			boolean isValid = true;
 			for (Map<String,String> mpField : lsField) {
 				String value = "";
-				String srcType = mpField.get("data_src");
-				String field_name = mpField.get("field_name");
-				String data_type = mpField.get("data_type");
 				String is_must = mpField.get("is_must");
+				String data_src = mpField.get("data_src");
 				
-				if (srcType.equals("1")) {
+				String data_type = mpField.get("data_type");
+				String field_name = mpField.get("field_name");
+				String field_title = mpField.get("field_title");
+				
+				if (data_src.equals("1")) {
 					value = MapUtil.getValue(mpData, field_name);
-				} else if (srcType.equals("2")) {
+				} else if (data_src.equals("2")) {
 					value = MapUtil.getValue(formData, field_name);
-				} else if (srcType.equals("3")) {
+				} else if (data_src.equals("3")) {
 					if (relatData != null && !relatData.isEmpty()) {
 						value = MapUtil.getValue(relatData, field_name);
 					}
 				}
-				_log.showDebug("..........field_name={0}, data_type={1}, data_src={2}, value={3}", field_name, data_type, srcType, value);
-				if (is_must.equals("1") && value.length() == 0) {
-					_log.showDebug("..........field_name:{0} value is empty!!!", field_name);
-					return lsImpKeys;
+				_log.showDebug("..........field_name={0}, data_type={1}, data_src={2}, value={3}", field_name, data_type, data_src, value);
+				//日期值修补
+				if (data_type.equals("date") && value.length() > 0) {
+					value = DataImpUtil.repDateValue(value);
 				}
 				
-				param.addValue(value);
-				param.addType(data_type);
+				//字段值有效性校验
+				isValid = validValue(field_title, value, data_type, is_must, index);
+				if (isValid) {
+					param.addValue(value);
+					param.addType(data_type);
+				} else {//不合法则退出，继续下一条检查
+					break;
+				}
+			}
+			//数据校验合格才执行新增操作，校验不合格则继续处理下一条，把所有合格的记录导入系统
+			if (isValid) {
+				boolean bret = _dao.update(param);
+				if (!bret) {//执行失败则退出，原来新增记录继续有效
+					return lsImpKeys;
+				} else {
+					lsImpKeys.add(keyId);
+				}
 			}
 			
-			//执行新增操作
-			boolean bret = _dao.update(param);
+			//清除新增参数
 			param.clearParam();
-			
-			if (!bret) return lsImpKeys;
+			index++;
 		}
 		
 		return lsImpKeys;
+	}
+	
+	//字段值有效性校验
+	private boolean validValue(String fieldtitle, String value, String datatype, String ismust, int row) {
+		//必填项校验
+		if (ismust.equals("1") && value.length() == 0) {
+			String msg = MessageFormat.format("第【{0}】行，字段【{1}】的值必须填写；", row, fieldtitle);
+			_validInfo.append(msg);
+			_log.showDebug(msg);
+			return false;
+		}
+		//数值校验
+		if ((datatype.equals("double") || datatype.equals("int")) && value.length() > 0) {
+			if (!StringValidator.validValue(value, StringValidator.DOUBLE_TYPE)) {
+				String msg = MessageFormat.format("第【{0}】行，字段【{1}】的值必须是数值类型；", row, fieldtitle);
+				_validInfo.append(msg);
+				_log.showDebug(msg);
+				return false;
+			}
+		}
+		//日期校验
+		if (datatype.equals("date") && value.length() > 0) {
+			if (!StringValidator.validValue(value, StringValidator.DATE_TYPE)) {
+				String msg = MessageFormat.format("第【{0}】行，字段【{1}】的值必须是日期类型(YYYY-MM-DD)；", row, fieldtitle);
+				_validInfo.append(msg);
+				_log.showDebug(msg);
+				return false;
+			}
+		}
+		return true;
 	}
 	
 	/**
