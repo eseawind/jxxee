@@ -27,6 +27,10 @@ public class DataImpBOTest extends AbstractTest {
 	public static void main(String[] args) {
 		init("D:/works/jxstar/jxstar-webapp/src/main/webapp");
 
+		dataImp();
+	}
+
+	public static void dataImp() {
 		DataImpBO impbo = new DataImpBO();
 		String funId = "mat_app";
 		String fkValue = "";
@@ -36,14 +40,14 @@ public class DataImpBOTest extends AbstractTest {
 		
 		FileInputStream ins = null;
 		try {
-			ins = new FileInputStream(new File("d:/tpl_mat_app.csv"));
+			ins = new FileInputStream(new File("d:/imp_mat_app1.xls"));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		List<String> lsKeys = impbo.dataImp(ins, funId, "", fkValue, userInfo);
+		List<String> lsKeys = impbo.dataImp(ins, funId, "1", fkValue, userInfo);
 		System.out.println(".............success imp:" + lsKeys);
+		System.out.println("..........all valid info:" + impbo.getValidInfo());
 	}
-
 }
