@@ -1289,7 +1289,10 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 					var fkValue = self.grid.fkValue;
 					//上传参数
 					var params = 'funid=sysevent&pagetype=grid&eventcode=impexcel&fkValue='+ fkValue +'&impFunId='+ nodeid + '&impIndex='+ impIndex;
-					var hdCall = function() {
+					var hdCall = function(data) {
+						if (Ext.isEmpty(data) == false) {
+							JxHint.alert(data.valueInfo);
+						}
 						win.close();
 						self.grid.getStore().reload();
 					};
