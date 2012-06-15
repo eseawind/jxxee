@@ -794,7 +794,7 @@ public class ReportXlsUtil extends ReportUtil {
 		}
 		_log.showDebug("---------image cells=["+firstRow+","+firstCol+","+lastRow+","+lastCol+"]");
 		//图片输出要比单元格的高与宽偏5个值，保留单元的边框，宽度1023表示填充满，高度255表示填充满
-		HSSFClientAnchor anchor = new HSSFClientAnchor(5, 5, 1023, 255,   
+		HSSFClientAnchor anchor = new HSSFClientAnchor(10, 5, 1013, 250,   
 									(short)firstCol, firstRow, (short)lastCol, lastRow);
 		anchor.setAnchorType(HSSFClientAnchor.MOVE_AND_RESIZE);   
 		
