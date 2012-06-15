@@ -6,6 +6,8 @@
  */
 package org.jxstar.report.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -26,7 +28,6 @@ import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.util.CellRangeAddress;
-
 import org.jxstar.service.BoException;
 import org.jxstar.service.define.FunDefineDao;
 import org.jxstar.service.studio.AttachBO;
@@ -360,13 +361,19 @@ public class ReportXlsUtil extends ReportUtil {
 			if (cell == null) cell = row.createCell(posi[1]);
 			//填充单元格内容
 			if (!strStyle.equals("image")) {
-				cell.setCellValue(strValue.trim());
-				//处理单元格类型，方便表格中的计算公式生效
-				if (strStyle.equals("int") || strStyle.indexOf("number") >= 0) {
-					if (strValue.length() == 0) strValue = "0";
-					cell.setCellValue(Double.parseDouble(strValue));
+				if (strStyle.equals("barcode")) {
+					if (!printBarcode(strValue, cell)) {
+						cell.setCellValue(JsMessage.getValue("report.xlsutil.noimage"));
+					}
 				} else {
 					cell.setCellValue(strValue.trim());
+					//处理单元格类型，方便表格中的计算公式生效
+					if (strStyle.equals("int") || strStyle.indexOf("number") >= 0) {
+						if (strValue.length() == 0) strValue = "0";
+						cell.setCellValue(Double.parseDouble(strValue));
+					} else {
+						cell.setCellValue(strValue.trim());
+					}
 				}
 			} else {
 				//如果填充图片不成功能，则填写文字
@@ -608,15 +615,21 @@ public class ReportXlsUtil extends ReportUtil {
 		//取来源表单中的图片对象
 		List<HSSFPicture> lsSrcPicture = getAllPicture(srcSheet);
 		_log.showDebug("----------source picture size:" + lsSrcPicture.size());
+		if (lsSrcPicture.isEmpty()) return;
 		
 		//取所有子图形数据，如果是主从报表且明细数据占多页时，则会报空指针错误
 		List<HSSFPictureData> lsPicData = null;
 		try {
 			lsPicData = srcBook.getAllPictures();
 		} catch(Exception e) {
-			//e.printStackTrace();
-			_log.showWarn("由于表单明细有多页，造成临时表的图片数据取不到，只能采用原表第1个图替代！");
+			_log.showWarn("当临时book中有动态创建的图片时，执行getAllPictures会报错，采用复制一个新的临时book的方法可以解决！");
 			
+			HSSFWorkbook tmpBook = copyWorkbook(srcBook);
+			if (tmpBook != null) {
+				lsPicData = tmpBook.getAllPictures();
+				tmpBook = null;
+			}
+			/* 下面的处理方法不能解决模板中有多个图片的问题
 			//原表中也没有图片，则不处理图片复制了
 			lsPicData = destBook.getAllPictures();
 			if (lsPicData == null || lsPicData.isEmpty()) return;
@@ -626,12 +639,13 @@ public class ReportXlsUtil extends ReportUtil {
 			for (int i = 0, n = lsSrcPicture.size(); i < n; i++) {
 				destData.add(lsPicData.get(0));
 			}
-			lsPicData = destData;
+			lsPicData = destData;*/
 		}
 		if (lsPicData == null || lsPicData.isEmpty()) return;
 		_log.showDebug("----------source data size:" + lsPicData.size());
 		
-		//data数量可能大于图片数量
+		//图片数据对象数量可能大于图片控件数量；
+		//一个图片数据与一个图片控件是匹配的才能正确显示，图片控件来自sheet、图片数据来自book
 		if (lsSrcPicture.size() > lsPicData.size()) {
 			_log.showWarn("图片数量与数据数量不符！");
 			return;
@@ -670,6 +684,22 @@ public class ReportXlsUtil extends ReportUtil {
 			
 			destDraw.createPicture(anchor, index);
 		}
+	}
+	
+	/**
+	 * 输出条码到打印模板文件中
+	 * @param value
+	 * @param cell
+	 * @return
+	 */
+	private static boolean printBarcode(String value, HSSFCell cell) {
+		byte[] bytes = JxBarcodeUtil.createBarcode(value);
+		if (bytes == null || bytes.length == 0) return false;
+		
+		//输出图片到指定位置
+		addImageToSheet(cell, bytes);
+		
+		return true;
 	}
 	
 	/**
@@ -775,13 +805,49 @@ public class ReportXlsUtil extends ReportUtil {
 		}
 		
 		//插入新图片，返回的新图片序号无效
-        sheet.getWorkbook().addPicture(bytes, HSSFWorkbook.PICTURE_TYPE_JPEG);
+		sheet.getWorkbook().addPicture(bytes, HSSFWorkbook.PICTURE_TYPE_JPEG);
+        
 		//上面代码中新建图片的序号没有考虑原有图片数量，所以取原图片数量+1作为新图片的序号
 		List<HSSFPicture> lsPicture = getAllPicture(sheet);
 		int index = lsPicture.size() + 1;
 		_log.showDebug("---------new image index="+index);
         
         draw.createPicture(anchor, index);
+	}
+	
+	/**
+	 * 复制一个book用于读取图片数据，这种方法效率比较低，需要序列化workbook对象，解决POI的BUG：
+	 * tmpBook.addPicture(bytes, HSSFWorkbook.PICTURE_TYPE_JPEG);
+	 * lsPicData = tmpBook.getAllPictures();//执行它时报错
+	 * java.lang.NullPointerException
+		org.apache.poi.hssf.record.AbstractEscherHolderRecord.decode(AbstractEscherHolderRecord.java:260)
+		org.apache.poi.hssf.usermodel.HSSFWorkbook.getAllPictures(HSSFWorkbook.java:1571)
+		org.jxstar.report.util.ReportXlsUtil.addImageToSheet(ReportXlsUtil.java:816)
+	 * @param datas
+	 * @return
+	 */
+	private static HSSFWorkbook copyWorkbook(HSSFWorkbook srcBook) {
+		byte[] datas = new byte[0];
+		
+		ByteArrayInputStream ins = null;
+		ByteArrayOutputStream ons = new ByteArrayOutputStream();
+		try {
+			try {
+				srcBook.write(ons);
+				ons.flush();
+				datas = ons.toByteArray();
+				if (datas != null && datas.length > 0) {
+					ins = new ByteArrayInputStream(datas);
+					return new HSSFWorkbook(ins);
+				}
+			} finally {
+				ons.close();
+				if (ins != null) ins.close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		} 
+		return null;
 	}
 	
 	/**
