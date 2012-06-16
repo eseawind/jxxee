@@ -205,7 +205,7 @@ public class DataImpBO extends BusinessObject {
 				param.addStringValue(keyId);
 			}
 			if (isNewCode) {
-				param.addStringValue(DataImpUtil.getCodeValue(funId));
+				param.addStringValue(DataImpUtil.getCodeValue(funId, mpData));
 			}
 			
 			//取新增SQL的参数：如果是表头数据则从formData取值；如果是表格数据则从gridData取值；如果是关系数据则从relat取值
