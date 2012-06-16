@@ -13,6 +13,7 @@ import org.jxstar.dao.DaoParam;
 import org.jxstar.service.define.DefineDataManger;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
+import org.jxstar.util.StringUtil;
 import org.jxstar.util.config.SystemVar;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.log.Log;
@@ -213,6 +214,11 @@ public class CodeCreator {
 			retVal = DateUtil.getDateValue(format.substring(1));
 		} else {
 			retVal = MapUtil.getValue(mpValue, format);
+			//如果没有取到值，则采用无表名的字段取值
+			if (retVal.length() == 0) {
+				String field = StringUtil.getNoTableCol(format);
+				retVal = MapUtil.getValue(mpValue, field);
+			}
 		}
 		
 		return retVal;
