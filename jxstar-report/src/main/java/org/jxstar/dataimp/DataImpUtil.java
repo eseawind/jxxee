@@ -129,13 +129,14 @@ public class DataImpUtil {
 	}
 	
 	/**
-	 * 取编码值
+	 * 取编码值，支持自定义编码规则
 	 * @param funId
+	 * @param mpData
 	 * @return
 	 */
-	public static String getCodeValue(String funId) {
+	public static String getCodeValue(String funId, Map<String,String> mpData) {
 		CodeCreator codeCreator = CodeCreator.getInstance();
-		return codeCreator.createCode(funId);
+		return codeCreator.createCode(funId, mpData);
 	}
 	
 	/**
