@@ -31,13 +31,12 @@ public class ImpFieldBO extends BusinessObject {
 		
 		Map<String,String> mpImp = DataImpUtil.queryImpById(impId);
 		String funId = MapUtil.getValue(mpImp, "fun_id");
-		String table = DataImpUtil.getTableName(funId);
-		if (table == null || table.length() == 0) {
-			setMessage("没有找到数据导入功能的数据表定义！");
+		if (funId == null || funId.length() == 0) {
+			setMessage("没有找到数据导入功能的功能ID！");
 			return _returnFaild;
 		}
 		
-		if (!insertField(table, impId, userId)) {
+		if (!insertField(funId, impId, userId)) {
 			setMessage("自动创建数据字段失败！");
 			return _returnFaild;
 		}
@@ -46,10 +45,10 @@ public class ImpFieldBO extends BusinessObject {
 	}
 	
 	//新增数据字段
-	private boolean insertField(String table_name, String imp_id, String user_id) {
-		List<Map<String,String>> lsField = queryField(table_name);
+	private boolean insertField(String funId, String imp_id, String user_id) {
+		List<Map<String,String>> lsField = queryField(funId);
 		if (lsField.isEmpty()) {
-			_log.showDebug("当前表【{0}】没有字段定义！", table_name);
+			_log.showDebug("当前功能【{0}】没有字段定义！", funId);
 			return false;
 		}
 		
@@ -77,11 +76,11 @@ public class ImpFieldBO extends BusinessObject {
 		return true;
 	}
 	
-	//根据表名取基本字段信息
-	private List<Map<String,String>> queryField(String tableName) {
-		String sql = "select col_code, col_name, data_type from v_field_info where table_name = ?";
+	//根据功能ID取字段列表的信息
+	private List<Map<String,String>> queryField(String funId) {
+		String sql = "select col_code, col_name, data_type from FUN_COL where fun_id = ? order by col_index";
 		DaoParam param = _dao.createParam(sql);
-		param.addStringValue(tableName);
+		param.addStringValue(funId);
 		return _dao.query(param);
 	}
 }
