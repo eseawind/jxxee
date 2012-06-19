@@ -107,6 +107,7 @@ public class RuleUtil {
 		destSql = parseConstant(destSql, userInfo);
 		//解析目标SQL中的外键值
 		destSql = destSql.replaceFirst(FKEYID_REGEX, addChar(forKeyId));
+		String baseSql = new String(destSql);
 		
 		//新增记录
 		for (int i = 0, n = srcListData.size(); i < n; i++) {
@@ -151,6 +152,7 @@ public class RuleUtil {
 			}
 			
 			retKeyId += newKeyID + ";";
+			destSql = baseSql;//用于替换新的主键与编码
 		}
 		retKeyId = retKeyId.substring(0, retKeyId.length()-1);
 		_log.showDebug("------------retKeyId=" + retKeyId);
@@ -208,6 +210,7 @@ public class RuleUtil {
 			
 			//解析目标SQL中的常量
 			destSql = parseConstant(destSql, userInfo);
+			String baseSql = new String(destSql);
 			//新增记录
 			for (int i = 0, n = srcListData.size(); i < n; i++) {
 				Map<String, String> mpValue = srcListData.get(i);
@@ -249,6 +252,7 @@ public class RuleUtil {
 					_log.showWarn("execute update faild!");
 					return false;
 				}
+				destSql = baseSql;//用于替换新的主键与编码
 			}
 		}
 		
