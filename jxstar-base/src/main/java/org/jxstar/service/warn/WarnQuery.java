@@ -61,12 +61,12 @@ public class WarnQuery extends BusinessObject {
 			
 			//取功能定义信息
 			Map<String,String> mpFun = manger.getFunData(funId);
-			//取功能表名
-			String tableName = mpFun.get("table_name");
-			if (tableName.length() == 0) continue;
+			//取功能from子句
+			String fromSql = mpFun.get("from_sql");
+			if (fromSql.length() == 0) continue;
 			
 			//取记录条数
-			String cnt = queryCnt(tableName, whereAll);
+			String cnt = queryCnt(fromSql, whereAll);
 			if (!cnt.equals("0")) {
 				sbJson.append("{fun_id:'").append(funId).append("', warn_id:'").append(warnId);
 				sbJson.append("', warn_num:'").append(cnt).append("', warn_name:'").append(warnName);
@@ -82,9 +82,9 @@ public class WarnQuery extends BusinessObject {
 	}
 	
 	//取当前记录条数
-	private String queryCnt(String tableName, String where) {
-		StringBuilder sql = new StringBuilder("select count(*) as cnt from ");
-		sql.append(tableName);
+	private String queryCnt(String fromSql, String where) {
+		StringBuilder sql = new StringBuilder("select count(*) as cnt ");
+		sql.append(fromSql);
 		if (where.length() > 0) {
 			sql.append(" where ").append(where);
 		}
