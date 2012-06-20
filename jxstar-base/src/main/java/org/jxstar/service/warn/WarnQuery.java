@@ -92,7 +92,7 @@ public class WarnQuery extends BusinessObject {
 		DaoParam param = _dao.createParam(sql.toString());
 		Map<String,String> mp = _dao.queryMap(param);
 		
-		return mp.get("cnt");
+		return MapUtil.getValue(mp, "cnt", "0");
 	}
 	
 	//是否有功能权限
