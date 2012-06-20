@@ -445,6 +445,11 @@ public class SysDataUtil {
 				tables[i] = strTmp;
 			}
 		}
+		//处理left join时，取不到表名的问题，直接取主表名
+		if (tables.length == 1 && !tables[0].equals(mainTable)) {
+			tables[0] = mainTable;
+		}
+		
 		return tables;
 	}
 	
