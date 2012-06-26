@@ -39,7 +39,7 @@ public class MetaData {
 		StringBuilder sbsel = new StringBuilder();
 		sbsel.append("select table_name, table_space, table_title from v_table_info ");
 		if (notExists) {
-			sbsel.append("where table_name not in (select lcase(table_name) from dm_tablecfg)");
+			sbsel.append("where table_name not in (select table_name from dm_tablecfg)");
 		}
 		
 		DaoParam param = _dao.createParam(sbsel.toString());
