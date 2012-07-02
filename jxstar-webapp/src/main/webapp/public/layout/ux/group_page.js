@@ -16,8 +16,8 @@ JxGroupPage = {};
 	funId:'',
 	selchars:[],
 	selnums:[],
-	charfields:'',
-	numfields:'',
+	charfields:'', //统计分类字段，带表名，防止多表列名重复
+	numfields:'',  //统计数据字段，带表名，防止多表列名重复
 	groupPage:null,
 	statGrid:null,
 	statTool:null,
@@ -100,7 +100,7 @@ JxGroupPage = {};
 			var text = chars[i].colname;
 			var field = chars[i].colcode.split('__')[1];
 			
-			charfields += field + ',';
+			charfields += chars[i].colcode.replace('__', '.') + ',';
 			
 			self.selchars[i] = [field, text];
 			cols[f++] = {name:field, type:'string'};
@@ -117,9 +117,9 @@ JxGroupPage = {};
 			var text = nums[i].colname;
 			var field = nums[i].colcode
 			if (field != 'recordnum') {
+				numfields += field.replace('__', '.') + ',';
 				field = field.split('__')[1];
-				numfields += field + ',';
-			}			
+			}
 			
 			self.selnums[i] = [field, text];
 			cols[f++] = {name:field};
