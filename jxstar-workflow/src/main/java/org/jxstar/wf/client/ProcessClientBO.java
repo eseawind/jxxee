@@ -256,12 +256,13 @@ public class ProcessClientBO extends BusinessObject {
 		ProcessContext[] retContexts = new ProcessContext[tasks.length];
 		for (int i = 0, n = tasks.length; i < n; i++) {
 			//检验任务状态是否为初始化
-			//String runState = tasks[i].getRunState();
+			String taskState = tasks[i].getRunState();
 			//if (!runState.equals(StatusCode.TASK_CREATED)) {
 			//由于多人审批节点的任务实例会执行多次，所以采用分配消息的状态来判断
 			String taskId = tasks[i].getTaskId();
 			String runState = taskDao.queryAssignState(taskId, userId);
-			if (!runState.equals("0")) {
+			//添加taskState判断，是支持“退回”操作，因为退回时当前人是没有分配消息
+			if (!runState.equals("0") && !taskState.equals("0")) {
 				//"分配任务【{0}】已执行完成，不需要处理！"
 				throw new WfException(JsMessage.getValue("processclientbo.donot"), 
 						tasks[i].getTaskId());
