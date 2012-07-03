@@ -432,17 +432,22 @@ public abstract class AbstractTotal implements ReportTotal {
 		Map<String,String> mpTotal = FactoryUtil.newMap();
 		boolean isTotal = false;
 
+		String sumTitle = "";
 		List<Map<String,String>> lsDetail = TotalUtil.queryColumn(reportId);
 		for (int i = 0, n = lsDetail.size(); i < n; i++) {
 			mpItem = lsDetail.get(i);
 			isstat = MapUtil.getValue(mpItem, "is_stat", "0");
 			colcode = mpItem.get("col_code");
 
+			//第一个显示字段，且不是统计字段显示'合计'
 			if (!isstat.equals("1")) {
-				if (i == 0)
-					mpTotal.put(colcode, "合计");
-				else
+				String isshow = MapUtil.getValue(mpItem, "is_show", "0");
+				if (isshow.equals("1") && sumTitle.length() == 0) {
+					sumTitle = "合计";
+					mpTotal.put(colcode, sumTitle);
+				} else {
 					mpTotal.put(colcode, "");
+				}
 				continue;
 			}
 			
