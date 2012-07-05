@@ -87,4 +87,16 @@ public class ProcessUtil {
 		param.addStringValue(dataId);
 		return _dao.update(param);
 	}
+	
+	/**
+	 * 取流程注册数
+	 * @return
+	 */
+	public static int getFlowNum() {
+		String sql = "select count(*) as cnt from wf_process";
+		DaoParam param = _dao.createParam(sql);
+		Map<String,String> mp = _dao.queryMap(param);
+		
+		return Integer.parseInt(mp.get("cnt"));
+	}
 }

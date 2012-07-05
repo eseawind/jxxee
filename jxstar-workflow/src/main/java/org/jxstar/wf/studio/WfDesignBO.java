@@ -18,6 +18,7 @@ import org.jxstar.util.MapUtil;
 import org.jxstar.util.StringUtil;
 import org.jxstar.util.key.KeyCreator;
 import org.jxstar.util.resource.JsMessage;
+import org.jxstar.wf.util.ProcessUtil;
 
 /**
  * 工作流定义业务处理类。
@@ -58,17 +59,27 @@ public class WfDesignBO extends BusinessObject {
 		String userId = request.getUserInfo().get("user_id");
 		String processId = request.getRequestValue("process_id");
 		
-		//许可检测
-		int code = SafeManager.getInstance().validCode();
-		if (code > 0) {
-			setMessage(JsMessage.getValue("license.notvalid"), code);
-			return _returnFaild;
+		//----------------------------许可检测-----------------------------
+		SafeManager safe = SafeManager.getInstance();
+		String verName = safe.getVerName();
+		//学习版不检测合法性，其它版本都检测
+		if (!verName.equals("SE")) {
+			int code = safe.checkCode();
+			if (code > 0) {
+				setMessage(JsMessage.getValue("license.notvalid"), code);
+				return _returnFaild;
+			}
 		}
-		//企业版才可以使用此功能
-		if (!SafeManager.getInstance().isEE()) {
-			setMessage(JsMessage.getValue("license.notee"));
-			return _returnFaild;
+		//企业版不控制注册数，其它版本都控制
+		if (!verName.equals("EE")) {
+			int flowNum = safe.getNum(2);//注册流程数
+			int regNum = ProcessUtil.getFlowNum();
+			if (flowNum < regNum) {
+				setMessage(JsMessage.getValue("license.flownum", flowNum));
+				return _returnFaild;
+			}
 		}
+		//-----------------------------------------------------------------
 
 		String[] nodeIds = getValues(request, "nodeIds");
 		String[] nodeTypes = getValues(request, "nodeTypes");
