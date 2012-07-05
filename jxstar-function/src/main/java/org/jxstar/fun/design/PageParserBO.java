@@ -11,6 +11,7 @@ import java.util.Map;
 import org.jxstar.fun.design.parser.FormPageParser;
 import org.jxstar.fun.design.parser.GridPageParser;
 import org.jxstar.fun.design.parser.PageParser;
+import org.jxstar.fun.design.parser.PageParserUtil;
 import org.jxstar.security.SafeManager;
 import org.jxstar.service.BoException;
 import org.jxstar.service.BusinessObject;
@@ -41,12 +42,28 @@ public class PageParserBO extends BusinessObject {
 			_log.showWarn(JsMessage.getValue("formdisignbo.paramnull"));
 			return _returnFaild;
 		}
-		//许可检测
-		int code = SafeManager.getInstance().validCode();
-		if (code > 0) {
-			setMessage(JsMessage.getValue("license.notvalid"), code);
-			return _returnFaild;
+		
+		//----------------------------许可检测-----------------------------
+		SafeManager safe = SafeManager.getInstance();
+		String verName = safe.getVerName();
+		//学习版不检测合法性，其它版本都检测
+		if (!verName.equals("SE")) {
+			int code = safe.checkCode();
+			if (code > 0) {
+				setMessage(JsMessage.getValue("license.notvalid"), code);
+				return _returnFaild;
+			}
 		}
+		//企业版不控制注册数，其它版本都控制
+		if (!verName.equals("EE")) {
+			int funNum = safe.getNum(1);//注册功能数
+			int regNum = PageParserUtil.getFunNum();
+			if (funNum < regNum) {
+				setMessage(JsMessage.getValue("license.funnum", funNum));
+				return _returnFaild;
+			}
+		}
+		//-----------------------------------------------------------------
 		
 		//取功能定义信息
 		Map<String,String> mpFun = FunDefineDao.queryFun(funcId);
