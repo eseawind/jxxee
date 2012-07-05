@@ -14,7 +14,6 @@ import org.jxstar.control.action.RequestContext;
 import org.jxstar.report.ReportException;
 import org.jxstar.report.util.ReportDao;
 import org.jxstar.report.util.XlsToHtml;
-import org.jxstar.security.SafeManager;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.util.resource.JsMessage;
 import org.jxstar.util.resource.JsParam;
@@ -35,18 +34,6 @@ public class XlsToHtmlBO extends BusinessObject {
 		if (reportId == null || reportId.length() == 0) {
 			//"报表定义ID为空！"
 			setMessage(JsMessage.getValue("xlstohtmlbo.error01"));
-			return _returnFaild;
-		}
-		
-		//许可检测
-		int code = SafeManager.getInstance().validCode();
-		if (code > 0) {
-			setMessage(JsMessage.getValue("license.notvalid"), code);
-			return _returnFaild;
-		}
-		//企业版才可以使用此功能
-		if (!SafeManager.getInstance().isEE()) {
-			setMessage(JsMessage.getValue("license.notee"));
 			return _returnFaild;
 		}
 		
