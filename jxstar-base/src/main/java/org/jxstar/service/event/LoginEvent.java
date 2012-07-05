@@ -6,13 +6,19 @@
  */
 package org.jxstar.service.event;
 
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
 import org.jxstar.control.action.RequestContext;
+import org.jxstar.dao.DaoParam;
+import org.jxstar.security.LicenseInfo;
 import org.jxstar.security.Password;
+import org.jxstar.security.SafeManager;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.util.SysUserUtil;
+import org.jxstar.util.DateUtil;
+import org.jxstar.util.config.SystemVar;
 import org.jxstar.util.resource.JsMessage;
 import org.jxstar.util.resource.JsParam;
 
@@ -24,14 +30,37 @@ import org.jxstar.util.resource.JsParam;
  */
 public class LoginEvent extends BusinessObject {
 	private static final long serialVersionUID = 4418303228808369943L;
-
+	
 	/**
 	 * 用户登陆系统的方法.
 	 * 
 	 * @return boolean
 	 */
 	public String login(RequestContext requestContext) {
-
+		//---------------------------东宏许可-------------------------------
+		SafeManager safe = SafeManager.getInstance();
+		//学习版与企业版不判断合法性，项目版判断
+		String verName = safe.getVerName();
+		if (verName.equals("PE") || verName.equals("RE")) {
+			int code = safe.checkCode();
+			if (code > 0) {
+				setMessage(JsMessage.getValue("license.notvalid"), code);
+				return _returnFaild;
+			}
+		}
+		int logNum = loginNum();
+		//企业版不控制用户数，其它版本都控制
+		if (!verName.equals("EE")) {
+			int userNum = safe.getNum(3);//注册用户数
+			if (logNum > userNum) {
+				setMessage(JsMessage.getValue("loginbm.limituser", userNum));
+				return _returnFaild;
+			}
+		}
+		//------------------------------用户许可------------------------------
+		if (userCheck(logNum) == false) return _returnFaild;
+		//--------------------------------------------------------------------
+		
 		String sUserCode = requestContext.getRequestValue("user_code");
 		String sUserPass = requestContext.getRequestValue("user_pass");
 		_log.showDebug("login user code = " + sUserCode);
@@ -125,5 +154,73 @@ public class LoginEvent extends BusinessObject {
 		sbUser.append("role_id:'" + mpUser.get("role_id") + "'}");
 		
 		return sbUser.toString();
+	}
+	
+	/**
+	 * 取当前在线用户数
+	 * @return
+	 */
+	private int loginNum() {
+		String sql = "select count(*) as cnt from sys_user_login";
+		DaoParam param = _dao.createParam(sql);
+		Map<String,String> mp = _dao.queryMap(param);
+		
+		return Integer.parseInt(mp.get("cnt"));
+	}
+	
+	/**
+	 * 序号号是机器序列号的加密值；试用期日期是yyyy-mm-dd的加密值
+	 * @param logNum
+	 * @return
+	 */
+	private boolean userCheck(int logNum) {
+		//判断在线用户数，值加密
+		String sysNum = SystemVar.getValue("license.user.num");
+		if (sysNum.length() > 0) {
+			sysNum = Password.decodeNum(sysNum);
+		}
+		if (sysNum.length() == 0) sysNum = "1";
+		_log.showDebug(".............user.num=" + sysNum);
+		try {
+			if (logNum > Integer.parseInt(sysNum)) {
+				setMessage(JsMessage.getValue("loginbm.limituser", sysNum));
+				return false;
+			}
+		} catch(Exception e) {
+			_log.showError(e);
+			setMessage(JsMessage.getValue("loginbm.limiterror", sysNum));
+			return false;
+		}
+		
+		//判断序列号是否合法，值加密
+		String serialNo = SystemVar.getValue("license.user.serial");
+		if (serialNo.length() > 0) {
+			//取到机器序列号
+			String key = LicenseInfo.readKey();
+			//值加密
+			key = Password.encrypt(key);
+			_log.showDebug(".............serial.key=" + key);
+			if (serialNo.equals(key)) {
+				return true;
+			}
+		}
+		
+		//判断试用期，值加密
+		Date curDate = new Date();
+		String endTime = SystemVar.getValue("license.user.endtime");
+		if (endTime.length() == 0) {
+			endTime = DateUtil.getToday();
+		} else {
+			//值解密
+			endTime = Password.decrypt(endTime);
+		}
+		_log.showDebug(".............end.time=" + endTime);
+		Date endDate = DateUtil.strToCalendar(endTime).getTime();
+		if (curDate.compareTo(endDate) > 0) {
+			setMessage(JsMessage.getValue("loginbm.limittime", endTime));
+			return false;
+		}
+		
+		return true;
 	}
 }
