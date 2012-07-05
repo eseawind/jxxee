@@ -182,13 +182,8 @@ Jxstar.currentPage = function() {
 		wsql = 'module_id not like ?';
 		wvalue = '1010%';
 		wtype = 'string';
-	} else {
-		if (Jxstar.systemVar.verType != 'EE') {
-			wsql = 'module_id <> ? and module_id <> ?';
-			wvalue = '10100003;10100004';
-			wtype = 'string;string';
-		}
 	}
+	
 	if (wsql.length > 0) {
 		var loader = tree.getLoader();
 		loader.baseParams.where_sql = wsql;

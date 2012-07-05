@@ -1,5 +1,6 @@
 ﻿<%@ page contentType="text/html; charset=UTF-8"%>
 <%@ page import="org.jxstar.util.config.SystemVar" %>
+<%@ page import="org.jxstar.security.LicenseVar" %>
 <%
 	String contextpath = request.getContextPath();
 	String curLangType = "zh";//java.util.Locale.getDefault().getLanguage();
@@ -11,11 +12,15 @@
 	String indexBottom = SystemVar.getValue("index.bottom", "");
 	
 	String verNo = SystemVar.getValue("sys.version.no", "");
-	String verType = SystemVar.getValue("sys.version.type", "");
+	String verType = LicenseVar.getValue(LicenseVar.VERSION_TYPE, "SE");
 	String useCase = SystemVar.getValue("page.query.case", "0");
 	
 	if (svnNum.length() == 0 && verNo.length() == 0) {
-		response.sendRedirect(contextpath+"/error.jsp");
+		response.sendRedirect(contextpath+"/error.jsp?errorCode=index.dbnostart");
+	}
+	String invalid = LicenseVar.getValue(LicenseVar.INVALID, "0");
+	if (invalid.equals("1")) {
+		response.sendRedirect(contextpath+"/error.jsp?errorCode=index.licinvalid");
 	}
 	
 	String loginCss = "resources/css/login.css?verno=" + svnNum;
