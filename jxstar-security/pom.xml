@@ -11,12 +11,4 @@
   <artifactId>commons-security</artifactId>
   <version>1.0</version>
   <name>commons-security</name>
-  
-  <dependencies>
- 	<dependency>
-		<groupId>${project.parent.groupId}</groupId>
-		<artifactId>jxstar-base</artifactId>
-		<version>${project.parent.version}</version>
-	</dependency>
-  </dependencies>
 </project>
