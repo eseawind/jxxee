@@ -15,7 +15,6 @@ import java.util.Map;
 
 import org.jxstar.control.action.RequestContext;
 import org.jxstar.dao.DaoParam;
-import org.jxstar.security.SystemUtil;
 import org.jxstar.service.control.ServiceController;
 import org.jxstar.service.define.DefineDataManger;
 import org.jxstar.task.SystemTask;
@@ -23,6 +22,7 @@ import org.jxstar.task.TaskException;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.StringUtil;
+import org.jxstar.util.SystemUtil;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.factory.SystemFactory;
 import org.jxstar.util.key.KeyCreator;
