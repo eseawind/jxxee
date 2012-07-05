@@ -22,21 +22,19 @@ public class CheckLicThread extends Thread {
 		SafeManager manger = SafeManager.getInstance();
 		
 		while(true && !this.isInterrupted()) {
-			//等待检查间隔时间，10分钟检查一次
-			try {
-				sleep(10*60*1000);
-			} catch (InterruptedException e) {
-				//e.printStackTrace();
-				return;//关闭异常信息，避免泄露信息
-			}
 			//取网络时间
 			Date netDate = NetTime.getNetTime();
-			//String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(netDate);
-			//System.out.println("....................百度时间：" + time);
 			//如检查为非法，则会自动修改非法标志
 			manger.validCode(netDate);
 			//检查平台版本类型
 			manger.updateEE();
+			
+			//等待检查间隔时间，10分钟检查一次
+			try {
+				sleep(10*60*1000);
+			} catch (InterruptedException e) {
+				return;//关闭异常信息，避免泄露信息
+			}
 		}
 	}
 }

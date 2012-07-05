@@ -17,9 +17,6 @@ import java.io.ObjectOutputStream;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.jxstar.util.DateUtil;
-import org.jxstar.util.config.SystemVar;
-
 
 /**
  * 安全管理工具类。
@@ -66,18 +63,18 @@ public class SafeManager {
 	}
 	
 	/**
-	 * 是否为企业版本
+	 * 获取版本号
 	 * @return
 	 */
-	public boolean isEE() {
+	public String getVerName() {
 		License lic = readLicense("");
-		if (lic == null) return false;
+		if (lic == null) return "SE";
 		
-		if (SafeUtil.encode(lic.versionType).equals("EE")) {
-			return true;
+		String verName = SafeUtil.encode(lic.versionType);
+		if (verName == null || verName.length() == 0) {
+			return "SE";
 		}
-		
-		return false;
+		return verName;
 	}
 	
 	/**
@@ -85,8 +82,32 @@ public class SafeManager {
 	 * @return
 	 */
 	public void updateEE() {
-		String type = isEE() ? "EE" : "SE";
-		SystemVar.setValue("sys.version.type", type);
+		LicenseVar.setValue(LicenseVar.VERSION_TYPE, getVerName());
+	}
+	
+	/**
+	 * 读取控制范围数量，如果没有设置，则缺省值为1
+	 * @param type 1 功能数 2 流程数 3 用户数
+	 * @return
+	 */
+	public int getNum(int type) {
+		License lic = readLicense("");
+		if (lic != null) {
+			int[] bs = null;
+			if (type == 1) {
+				bs = lic.funNum;
+			} else if (type == 2) {
+				bs = lic.flowNum;
+			} else {
+				bs = lic.userNum;
+			}
+			
+			String num = SafeUtil.encode(bs);
+			if (num == null || num.length() == 0) 
+				return 1;
+			return Integer.parseInt(num);
+		}
+		return 1;
 	}
 
 	/**
@@ -95,7 +116,7 @@ public class SafeManager {
 	 */
 	public boolean writeLicense(License lic) {
 		//取输出文件的路径
-		String path = SystemVar.getValue("license.create.path", "d:/");
+		String path = LicenseVar.getValue(LicenseVar.CREATE_PATH, "d:/");
 		
 		path += "license.dat";
 		
@@ -157,7 +178,7 @@ public class SafeManager {
 			return 103;
 		}
 		
-		Calendar end = DateUtil.strToCalendar(SafeUtil.encode(lic.tmpEnd));
+		Calendar end = SafeUtil.strToCalendar(SafeUtil.encode(lic.tmpEnd));
 		//如果当前时间超过了结束时间，则算无效
 		if (curDate.compareTo(end.getTime()) > 0) {
 			return 104;
@@ -215,6 +236,10 @@ public class SafeManager {
 			return 0;
 		}
 		
+		//学习版不检测序列号
+		String verName = SafeUtil.encode(lic.versionType);
+		if (verName.equals("SE")) return code;
+		
 		//检测序列号是否合法
 		code = validSerial(lic);
 		if (code > 0) {
@@ -231,7 +256,7 @@ public class SafeManager {
 	 */
 	public License readLicense(String path) {
 		if (path == null || path.length() == 0) {
-			path = SystemVar.REALPATH + "/WEB-INF/classes/license.dat";
+			path = LicenseVar.getValue(LicenseVar.REAL_PATH) + "/WEB-INF/classes/license.dat";
 		}
 		
 		ObjectInput in = null;
@@ -263,7 +288,7 @@ public class SafeManager {
 	 */
 	private boolean writeLicense(License lic, String path) {
 		if (path == null || path.length() == 0) {
-			path = SystemVar.REALPATH + "/WEB-INF/classes/license.dat";
+			path = LicenseVar.getValue(LicenseVar.REAL_PATH) + "/WEB-INF/classes/license.dat";
 		}
 		
 		ObjectOutput out = null;

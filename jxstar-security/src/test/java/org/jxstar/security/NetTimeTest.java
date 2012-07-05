@@ -10,8 +10,6 @@ package org.jxstar.security;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.jxstar.util.config.SystemVar;
-
 /**
  * 取网络时间的测试类。
  *
@@ -28,7 +26,7 @@ public class NetTimeTest {
 		
 		System.out.println("--------nettime=" + NetTime.getNetTime());
 		
-		SystemVar.REALPATH = "d:\\tomcat6\\webapps\\jxstar";
+		LicenseVar.setValue(LicenseVar.REAL_PATH, "d:\\tomcat6\\webapps\\jxstar");
 		Date netDate = NetTime.getNetTime();
 		String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(netDate);
 		System.out.println("....................百度时间：" + time);

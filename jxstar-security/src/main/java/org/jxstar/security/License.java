@@ -23,7 +23,7 @@ public class License implements Serializable {
 	public int[] website;		//开发商网址，如：www.dhsdp.com
 	public int[] productName;	//产品名称，如：东宏软件开发平台
 	public int[] versionNo;		//版本号，如：V1.0
-	public int[] versionType;	//版本类型，如：EE|SE
+	public int[] versionType;	//版本类型，如：EE|RE|SE
 	public int[] customer;		//客户名称，如：中国石油公司
 	public int[] serialNum;		//许可数量，如：5
 	
@@ -36,4 +36,8 @@ public class License implements Serializable {
 	public int[] serialNo;		//序列号
 	public int[] serialValid;	//合法标志，如：1, 0为非法
 
+	//控制范围
+	public int[] funNum;		//控制注册功能数量
+	public int[] flowNum;		//控制注册流程数量
+	public int[] userNum;		//控制在线用户数量
 }

@@ -8,7 +8,7 @@
 package org.jxstar.security;
 
 import org.jxstar.util.SystemUtil;
-import org.jxstar.util.config.SystemVar;
+
 
 /**
  * 
@@ -37,6 +37,5 @@ public class LicenseKeyTest {
 		
 		String key = LicenseKey.getLocalKey();
 		System.out.println("key:" + key);
-		SystemVar.setValue("license.service.key", key);
 	}
 }

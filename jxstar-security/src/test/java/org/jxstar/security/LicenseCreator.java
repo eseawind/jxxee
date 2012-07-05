@@ -29,17 +29,21 @@ public class LicenseCreator {
 		lic.developer = SafeUtil.decode("广州市东宏软件科技有限公司");
 		lic.website = SafeUtil.decode("www.jxstar.org");
 		lic.productName = SafeUtil.decode("东宏软件开发平台");
-		lic.versionNo = SafeUtil.decode("V1.0.3.2");
-		lic.versionType = SafeUtil.decode("EE");
+		lic.versionNo = SafeUtil.decode("V1.0.3.4");
+		lic.versionType = SafeUtil.decode("SE");
 		lic.customer = SafeUtil.decode("广州市东宏软件科技有限公司");
 		lic.serialNum = SafeUtil.decode("10");
 		
-		lic.tmpStart = SafeUtil.decode("2012-02-22 16:53:02");
-		lic.tmpEnd = SafeUtil.decode("2012-08-22 16:53:02");
+		lic.tmpStart = SafeUtil.decode("2012-02-22");
+		lic.tmpEnd = SafeUtil.decode("2012-11-01");
 		lic.tmpValid = SafeUtil.decode("1");
 		
-		lic.serialNo = SafeUtil.decode("41462F4E493036513644413235412D3799");
+		lic.serialNo = SafeUtil.decode("");
 		lic.serialValid = SafeUtil.decode("1");
+		
+		lic.funNum = SafeUtil.decode("150");
+		lic.flowNum = SafeUtil.decode("5");
+		lic.userNum = SafeUtil.decode("1");
 		
 		mng.writeLicense(lic);
 		

@@ -38,6 +38,10 @@ public class LicenseReader {
 		str += "serialNo: " + SafeUtil.encode(lic.serialNo) + ";\n";
 		str += "serialValid: " + SafeUtil.encode(lic.serialValid) + ";\n";
 		
+		str += "funNum: " + SafeUtil.encode(lic.funNum) + ";\n";
+		str += "flowNum: " + SafeUtil.encode(lic.flowNum) + ";\n";
+		str += "userNum: " + SafeUtil.encode(lic.userNum) + ";\n";
+		
 		System.out.println("--readFile=\n" + str);
 	}
 }

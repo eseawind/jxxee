@@ -7,7 +7,6 @@
 
 package org.jxstar.security;
 
-import org.jxstar.util.SystemUtil;
 
 /**
  * 许可服务序列号生成器。
@@ -23,7 +22,7 @@ public class LicenseKey {
 	 */
 	public static String getLocalKey() {
 		String mac = null;
-		String os = SystemUtil.getOSName();
+		String os = System.getProperty("os.name").toLowerCase();
 		if(os.startsWith("windows")){
 			mac = SafeUtil.getWindowsAddr();
 		} else {

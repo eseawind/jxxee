@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.Calendar;
 
 /**
  * 安全许可相关的工具方法。
@@ -147,5 +148,32 @@ public class SafeUtil {
 		}
 		
 		return retbytes;
+	}
+	
+	/**
+	 * yyyy-mm-dd 字符串转换日历对象
+	 * @param strDate
+	 * @return
+	 */
+	public static Calendar strToCalendar(String strDate) {
+		Calendar calendar = Calendar.getInstance();
+		if (strDate == null || strDate.length() == 0) return calendar;
+		//只取日期部分，不要时间
+		String[] ss = strDate.split(" ");
+		if (ss.length > 1) {
+			strDate = ss[0];
+		}
+		
+		//年、月、日
+		int year = 0, month = 0, day = 0;
+		String[] sd = strDate.split("-");
+		if (sd.length > 0) year = Integer.parseInt(sd[0]);
+		if (sd.length > 1) month = Integer.parseInt(sd[1]) - 1;
+		if (sd.length > 2) day = Integer.parseInt(sd[2]);
+		
+		//设置时间值
+		calendar.set(year, month, day);
+	
+		return calendar;
 	}
 }
