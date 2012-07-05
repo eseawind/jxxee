@@ -11,4 +11,12 @@
   <artifactId>jxstar-base</artifactId>
   <version>1.0</version>
   <name>jxstar-base</name>
+  
+  <dependencies>
+ 	<dependency>
+		<groupId>${project.parent.groupId}</groupId>
+		<artifactId>commons-security</artifactId>
+		<version>${project.parent.version}</version>
+	</dependency>
+  </dependencies>
 </project>
