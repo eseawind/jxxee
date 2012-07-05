@@ -9,9 +9,10 @@ package org.jxstar.task.load;
 
 import org.jxstar.fun.design.templet.ElementTemplet;
 import org.jxstar.fun.design.templet.PageTemplet;
-import org.jxstar.security.CheckLicThread;
+import org.jxstar.security.LicenseVar;
 import org.jxstar.security.SafeManager;
 import org.jxstar.task.SystemLoader;
+import org.jxstar.util.config.SystemVar;
 import org.jxstar.util.resource.JsParam;
 
 /**
@@ -25,9 +26,16 @@ public class DesignTempletLoader extends SystemLoader {
 	
 	//许可检测，并启动时间检测线程
 	private boolean copyright() {
-		CheckLicThread thread = new CheckLicThread();
-		thread.start();
+		//设置许可路径
+		String createPath = SystemVar.getValue(LicenseVar.CREATE_PATH, "d:/");
+		LicenseVar.setValue(LicenseVar.CREATE_PATH, createPath);
+		LicenseVar.setValue(LicenseVar.REAL_PATH, SystemVar.REALPATH);
 		
+		//启动许可检测线程，意义不大
+		//CheckLicThread thread = new CheckLicThread();
+		//thread.start();
+		
+		//获取许可试用期结束时间
 		String endTime = _safe.getEndTime();
 		if (endTime == null || endTime.length() == 0) {
 			_safe.setTmpValid("0");
@@ -36,10 +44,20 @@ public class DesignTempletLoader extends SystemLoader {
 			_log.showDebug("jxstar load " + endTime);
 		}
 		
+		//获取许可文件中的版本类型
 		_safe.updateEE();
-		int code = _safe.validCode();
-		if (code > 0) return false;
 		
+		//检查许可是否合法，学习版不检测
+		String verType = LicenseVar.getValue(LicenseVar.VERSION_TYPE, "SE");
+		if (!verType.equals("SE")) {
+			int code = _safe.validCode();
+			if (code > 0) {
+				LicenseVar.setValue(LicenseVar.INVALID, "1");
+				return false;
+			}
+		}
+		
+		LicenseVar.setValue(LicenseVar.INVALID, "0");
 		return true;
 	}
 

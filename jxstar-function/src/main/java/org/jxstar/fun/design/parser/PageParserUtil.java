@@ -61,4 +61,16 @@ public class PageParserUtil {
 		
 		return _dao.queryMap(paramCtl);
 	}
+	
+	/**
+	 * 取注册功能数量
+	 * @return
+	 */
+	public static int getFunNum() {
+		String sql = "select count(*) as cnt from fun_base";
+		DaoParam param = _dao.createParam(sql);
+		Map<String,String> mp = _dao.queryMap(param);
+		
+		return Integer.parseInt(mp.get("cnt"));
+	}
 }
