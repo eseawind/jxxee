@@ -72,6 +72,8 @@ JxGroupExt = {};
 		var b = 0, c = 0;
 		for (var i = 0, n = mycols.length; i < n; i++) {
 			var mc = mycols[i].col, mf = mycols[i].field;
+			if (mc == null || mf == null) continue;
+			
 			var fn = mf.name, len = fn.length;
 			if (mc && mf && (fn.substring(len-2) != 'id')) {
 				var h = mc.header;
