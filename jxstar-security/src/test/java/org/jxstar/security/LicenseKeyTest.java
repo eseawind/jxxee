@@ -22,7 +22,7 @@ public class LicenseKeyTest {
 	* 测试用的main方法.
 	*/
 	public static void main(String[] argc) {
-		String os = SystemUtil.getOSName();
+		String os = System.getProperty("os.name").toLowerCase();
 		System.out.println("OS Tyepe:"+os);
 		
 		if(os.startsWith("windows")){
