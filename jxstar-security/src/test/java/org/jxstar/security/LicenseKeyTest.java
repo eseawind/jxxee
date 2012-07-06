@@ -7,7 +7,6 @@
 
 package org.jxstar.security;
 
-import org.jxstar.util.SystemUtil;
 
 
 /**
