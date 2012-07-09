@@ -175,7 +175,7 @@ public class TreeQuery extends BusinessObject {
 		String where = mpTree.get("self_where");
 		if (where.length() > 0) {
 			if (sbwhere.length() > 0) sbwhere.append(" and ");
-			sbwhere.append(" (" + where + ") ");
+			sbwhere.append(" (" + parseWhere(where, userId) + ") ");
 		}
 		
 		//添加数据权限控制where子句
@@ -255,7 +255,7 @@ public class TreeQuery extends BusinessObject {
 		//添加定义的where子句
 		String where = mpTree.get("self_where");
 		if (where.length() > 0) {
-			treesql.append(" and (" + where + ") ");
+			treesql.append(" and (" + parseWhere(where, userId) + ") ");
 		}
 		
 		//添加数据权限控制where子句
@@ -576,5 +576,15 @@ public class TreeQuery extends BusinessObject {
 		}
 		//系统默认树形数据4为一级
 		return Integer.toString(parentId.length()/4+1);
+	}
+	
+	/**
+	 * 解析树形过滤SQL中的常量，方便扩展自定义函数。
+	 * @param selfWhere
+	 * @param userId
+	 * @return
+	 */
+	private String parseWhere(String selfWhere, String userId) {
+		return selfWhere.replaceAll("\\{CURUSERID\\}", userId);
 	}
 }
