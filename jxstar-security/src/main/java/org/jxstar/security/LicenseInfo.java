@@ -29,18 +29,19 @@ public class LicenseInfo {
 		License lic = mng.readLicense("");
 		
 		String str = "";
-		str += "用户信息：" + str(lic.customer);
-		str += "序列代号：" + str(lic.serialNo);
-		str += "平台厂家：" + str(lic.developer);
-		str += "平台网站：" + str(lic.website);
-		str += "平台名称：" + str(lic.productName);
-		str += "版本类型：" + str(lic.versionType);
-		str += "参考日期：" + str(lic.tmpEnd);
+		str += "<p>用户信息：" + str(lic.customer);
+		str += "<p>序列代号：" + str(lic.serialNo);
+		str += "<p>平台厂家：" + str(lic.developer);
+		str += "<p>平台网站：" + str(lic.website);
+		str += "<p>平台名称：" + str(lic.productName);
+		str += "<p>版本类型：" + str(lic.versionType);
+		str += "<p>版本代号：" + str(lic.versionNo);
+		str += "<p>参考日期：" + str(lic.tmpEnd);
 		
 		return str;
 	}
 	
 	private static String str(int[] s) {
-		return SafeUtil.encode(s) + "<p>";
+		return SafeUtil.encode(s) + "</p>";
 	}
 }
