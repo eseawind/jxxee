@@ -103,6 +103,9 @@ public class KeyCreator {
 				return "9999";
 			}
 		}
+		if (maxVal.length() > 4) {
+			maxVal = maxVal.substring(maxVal.length()-4, maxVal.length());
+		}
 		maxVal = "0000" + (Long.parseLong(maxVal) + 1);
 		String treeID = parentID + maxVal.substring(maxVal.length()-4, maxVal.length());
 		
