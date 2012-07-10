@@ -62,6 +62,7 @@ public class StringUtil {
 		strVal = strVal.replaceAll("\r", "\\\\r");
 		strVal = strVal.replaceAll("\n", "\\\\n");
 		strVal = strVal.replaceAll("'", "\\\\'");
+		strVal = strVal.replaceAll("\"", "\\\\\"");
 		return strVal;
 	}
 	
