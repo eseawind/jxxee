@@ -88,10 +88,19 @@ public class DaoUtil {
 			// 取得结果集的单元信息
 			ResultSetMetaData rsmd = rs.getMetaData();
 			int columnNum = rsmd.getColumnCount();
+			//允许查询输出最多数据条数
+			String sMaxNum = SystemVar.getValue("db.query.maxnum", "50000");
+			int count = 0, maxNum = Integer.parseInt(sMaxNum);
 
 			// 列数为0,返回空的ArrayList
 			String strVal = null, strCol = null;
 			while (rs.next()) {
+				count++;
+				if (count > maxNum) {
+					_log.showError("query data num more max [{0}]!!", maxNum);
+					break;
+				}
+				
 				map = FactoryUtil.newMap();
 				for (int i = 1; i <= columnNum; i++) {
 					strCol = rsmd.getColumnName(i).toLowerCase();
@@ -246,6 +255,10 @@ public class DaoUtil {
 			throw new SQLException("getRsToJson(): astrCol param is null! ");
 		}
 		if (astrCol.length == 0) return "";
+		
+		//允许查询输出最多数据条数
+		String sMaxNum = SystemVar.getValue("db.query.maxnum", "50000");
+		int count = 0, maxNum = Integer.parseInt(sMaxNum);
 
 		//取字段的数据类型值 
 		ResultSetMetaData rsmd = rs.getMetaData();
@@ -254,6 +267,12 @@ public class DaoUtil {
 		try {
 			String strVal = null;
 			while (rs.next()) {
+				count++;
+				if (count > maxNum) {
+					_log.showError("query data num more max [{0}]!!", maxNum);
+					break;
+				}
+
 				sbJson.append("{");
 				//组织一行数据
 				for (int i = 1, n = astrCol.length; i <= n; i++) {
