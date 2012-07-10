@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.jxstar.report.Report;
 import org.jxstar.report.ReportException;
 import org.jxstar.report.util.ReportFactory;
+import org.jxstar.util.MapUtil;
 
 /**
  * 输出html报表Action类。
@@ -44,6 +45,9 @@ public class ReportHtmlAction extends Action {
         String reportType = mpReport.get("report_type");
         //报表自定义处理类
         String className = mpReport.get("custom_class");
+        //打印方式：0 预览 1 直接打印
+        String printMode = MapUtil.getValue(mpParam, "printMode", "0");
+        _log.showDebug("------printMode=" + printMode);
         
         if (className.length() == 0) {
             className = ReportFactory.getReportHtml(reportType);
@@ -60,8 +64,10 @@ public class ReportHtmlAction extends Action {
             String js = (String) report.output();
             _log.showDebug("------js=" + js);
             response.getWriter().println(js);
-        
-            response.getWriter().println("f_window_print();");
+            
+            if (printMode.equals("1")) {
+            	response.getWriter().println("f_window_print();");
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ReportException e) {

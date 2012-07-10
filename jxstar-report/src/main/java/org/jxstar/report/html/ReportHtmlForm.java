@@ -26,7 +26,7 @@ public class ReportHtmlForm extends ReportHtml {
         //报表区域ID
         String areaId = _mpMainArea.get("area_id");
         
-        StringBuffer sbRet = new StringBuffer();
+        StringBuilder sbRet = new StringBuilder();
         //获取javascript变量声明
         sbRet.append(ReportHtmlUtil.defineHead());
 
@@ -44,7 +44,7 @@ public class ReportHtmlForm extends ReportHtml {
 
                 sbRet.append(ReportHtmlUtil.fillForm(mpValue, _lsMainCol, _mpUser, "newTblObj", i + 1, _lsMainRecord.size()));
                 sbRet.append(ReportHtmlUtil.fillCheckInfo(funId, areaId, "newTblObj", mpValue, _mpUser));
-                sbRet.append(ReportHtmlUtil.fillHead("tblobj" ,_lsHeadInfo, _mpUser));
+                sbRet.append(ReportHtmlUtil.fillHead("newTblObj" ,_lsHeadInfo, _mpUser));
             }
         }
         

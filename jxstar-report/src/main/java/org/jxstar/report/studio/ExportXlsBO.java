@@ -25,6 +25,7 @@ import org.jxstar.service.define.FunDefineDao;
 import org.jxstar.service.util.WhereUtil;
 import org.jxstar.util.StringFormat;
 import org.jxstar.util.StringUtil;
+import org.jxstar.util.config.SystemVar;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.resource.JsMessage;
 
@@ -58,11 +59,21 @@ public class ExportXlsBO extends BusinessObject {
 		} catch (BoException e) {
 			_log.showError(e);
 			setMessage(e.getMessage());
+			return _returnFaild;
 		}
 		_log.showDebug("==========exp file where sql=" + where_sql);
 		
+		String fromSql = mpDefine.get("from_sql");
+		//控制一次最多导出数据条数
+		String maxExpNum = SystemVar.getValue("report.exp.num", "50000"); 
+		int dataNum = queryDataNum(fromSql, where_sql, where_type, where_value);
+		if (dataNum > Integer.parseInt(maxExpNum)) {
+			setMessage(JsMessage.getValue("exportxlsbo.maxnum", maxExpNum));
+			return _returnFaild;
+		}
+		
 		//构建查询SQL
-		String sql = "select " + selfield + ' ' + mpDefine.get("from_sql");
+		String sql = "select " + selfield + ' ' + fromSql;
 		if (where_sql != null && where_sql.length() > 0) {
 			sql += " where " + where_sql;
 		}
@@ -100,11 +111,6 @@ public class ExportXlsBO extends BusinessObject {
 		
 		for (int i = 0, n = lsData.size(); i < n; i++) {
 			Map<String,String> mpData = lsData.get(i);
-			
-			if (i > 100000) {//"导出数据行数超出了最大行数：{0}！"
-				_log.showWarn(JsMessage.getValue("exportxlsbo.maxnum", 100000));
-				break;
-			}
 			
 			HSSFRow hfRow = sheet.createRow(i+3);
 			HSSFCell sfCell = hfRow.createCell(0);
@@ -301,6 +307,27 @@ public class ExportXlsBO extends BusinessObject {
 		}
 		
 		return lsname;
+	}
+	
+	//统计查询记录条数。
+	private int queryDataNum(String fromSql, String whereSql, 
+			String where_type, String where_value) {
+		if (fromSql == null || fromSql.length() == 0) return 0;
+		
+		String sql = "select count(*) as cnt " + fromSql;
+		if (whereSql != null && whereSql.length() > 0) {
+			sql += " where " + whereSql;
+		}
+		
+		DaoParam param = _dao.createParam(sql);
+		if (where_type != null && where_type.length() > 0) {
+			param.setType(where_type);
+			param.setValue(where_value);
+		}
+		
+		Map<String,String> mp = _dao.queryMap(param);
+		
+		return Integer.parseInt(mp.get("cnt"));
 	}
 
 	/**

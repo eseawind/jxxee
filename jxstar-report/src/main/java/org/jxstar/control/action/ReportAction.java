@@ -214,10 +214,22 @@ public class ReportAction extends Action {
 			throw new ReportException(JsMessage.getValue("reportaction.error03"));
 		mpRet.put("printType", printType);
 		
+		//打印方式：0 预览 1 直接打印
+		String printMode = getRequestValue(request, "printMode");
+		mpRet.put("printMode", printMode);
+		
 		String reportId = getRequestValue(request, "reportId");
 		//"初始化出错：报表定义ID不能为空！"
-		if (reportId.length() == 0) 
-			throw new ReportException(JsMessage.getValue("reportaction.error04"));
+		if (reportId.length() == 0) {
+			//是否打印缺省报表：0 否 1 是
+			String isDefault = getRequestValue(request, "isDefault");
+			if (isDefault.equals("1")) {
+				reportId = ReportDao.getDefReportId(funid);
+			}
+			if (reportId.length() == 0) {
+				throw new ReportException(JsMessage.getValue("reportaction.error04"));
+			}
+		}
 		mpRet.put("reportId", reportId);
 		
 		String orderSql = getRequestValue(request, "orderSql");

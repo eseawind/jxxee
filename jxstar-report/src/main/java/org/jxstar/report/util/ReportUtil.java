@@ -6,13 +6,16 @@
  */
 package org.jxstar.report.util;
 
+import java.util.List;
 import java.util.Map;
 
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
+import org.jxstar.report.ReportException;
 import org.jxstar.service.define.FunDefineDao;
 import org.jxstar.util.StringFormat;
 import org.jxstar.util.StringUtil;
+import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.log.Log;
 
 /**
@@ -23,6 +26,7 @@ import org.jxstar.util.log.Log;
  */
 public class ReportUtil {
     protected static Log _log = Log.getInstance();
+	
     /**
      * 取主键值
      * @param funId -- 功能ID
@@ -132,4 +136,58 @@ public class ReportUtil {
 
         return ret;
     }
+    
+	/**
+	 * 取统计字段
+	 * @param lsField -- 所有字段信息
+	 * @return
+	 */
+    protected static List<Map<String,String>> getStatField(List<Map<String,String>> lsField) {
+		List<Map<String,String>> lsRet = FactoryUtil.newList();
+		if (lsField == null) return lsRet;
+
+		Map<String,String> mpField = null;
+		String isstat = null;
+		for (int i = 0, n = lsField.size(); i < n; i++) {
+			mpField = lsField.get(i);
+
+			isstat = mpField.get("is_stat");
+			if (isstat.trim().equals("1")) lsRet.add(mpField);
+		}
+
+		return lsRet;
+	}
+    
+	/**
+	 * 计算报表输出页数
+	 * 
+	 * @param nums -- 总记录行数
+	 * @param pageSize -- 每页行数
+	 * @return
+	 */
+    public static int calPageNum(int nums, int pageSize) {
+		int ret = 0;
+		if (pageSize == 0) pageSize = 1;
+		int mod = nums % pageSize;
+
+		ret = nums / pageSize;
+		if (mod != 0 || nums == 0) {
+			ret++;
+		}
+
+		return ret;
+	}
+	
+	/**
+	 * 取当前数据区域中第一行数据的位置
+	 * @param areaId
+	 * @return
+	 */
+    public static int getFirstRows(String areaId) {
+		String colRows = ReportDao.getColRows(areaId);
+		int[] pos = getPosition(colRows);
+		if (pos.length != 2) return -1;
+		
+		return pos[0];
+	}
 }

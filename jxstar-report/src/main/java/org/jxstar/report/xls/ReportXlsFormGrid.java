@@ -92,10 +92,8 @@ public class ReportXlsFormGrid extends ReportXls {
 		//取主键字段名
 		strPKCol = StringUtil.getNoTableCol(strPKCol);
 		
-		//String user_id = _mpUser.get("user_id");
 		String pkval = mpData.get(strPKCol.toLowerCase());
 		Map<String, List<Map<String,String>>> mpSubRecord = 
-			//getSubRecord(pkval, strPKCol, _lsSubArea, user_id, _pageSql, _pageSqlValue, _pageSqlType);
 			getSubRecord(pkval, strPKCol, _lsSubArea);
 		int maxPage = getMaxPageBySubRecord(mpSubRecord, _lsSubArea);
 
@@ -136,7 +134,7 @@ public class ReportXlsFormGrid extends ReportXls {
 				String not_page = mpField.get("not_page");
 				if (not_page.equals("1")) {
 					if (insertSheetRow(sheet, strAreaID, lsRecord.size(), pageSize)) {
-					//修改为只输出1也，而且每页的行数为当前记录 数
+					//修改为只输出1页，而且每页的行数为当前记录 数
 						maxPage = 1;
 						pageSize = lsRecord.size();
 					}
@@ -167,7 +165,7 @@ public class ReportXlsFormGrid extends ReportXls {
 
 		return sheet;
 	}
-
+	
 	/**
 	 * 返回明细记录的页数，以页数最多的哪个明细为准。
 	 * 
@@ -176,10 +174,12 @@ public class ReportXlsFormGrid extends ReportXls {
 	 * @return
 	 * @throws ReportException
 	 */
-	private static int getMaxPageBySubRecord(
+	public static int getMaxPageBySubRecord(
 			Map<String, List<Map<String,String>>> mpSubRecord, 
 			List<Map<String,String>> lsSubArea) throws ReportException {
 		int ret = 0;
+		if (lsSubArea == null || lsSubArea.isEmpty()) return ret;
+		if (mpSubRecord == null || mpSubRecord.isEmpty()) return ret;
 
 		for (int i = 0, n = lsSubArea.size();i < n; i++) {
 			Map<String,String> mpValue = lsSubArea.get(i);
@@ -206,12 +206,13 @@ public class ReportXlsFormGrid extends ReportXls {
 	 * @return
 	 * @throws ReportException
 	 */
-	private static Map<String, List<Map<String,String>>> getSubRecord(String keyID, 
+	public static Map<String, List<Map<String,String>>> getSubRecord(String keyID, 
 									String pkcol, 
 									List<Map<String,String>> lsSubArea) throws ReportException {
 		Map<String, List<Map<String,String>>> ret = FactoryUtil.newMap();
 
-		if (lsSubArea.isEmpty()) return ret;
+		if (lsSubArea == null || lsSubArea.isEmpty()) return ret;
+		if (keyID == null || pkcol == null) return ret;
 
 		for (int i = 0, n = lsSubArea.size(); i < n; i++) {
 			Map<String,String> mpField = lsSubArea.get(i);
@@ -219,22 +220,13 @@ public class ReportXlsFormGrid extends ReportXls {
 			String sql = mpField.get("data_sql");
 			String areaName = mpField.get("area_name");
 			String tableName = mpField.get("main_table");
-			//String funid = mpField.get("fun_id");
 			String subFkcol = mpField.get("sub_fkcol");
-			//String isUseWhere = mpField.get("is_use_where");
-			//String dataWhere = "";
 			
 			if (subFkcol == null || subFkcol.length() == 0) {
 				subFkcol = pkcol;
 			} else {
 				subFkcol = StringUtil.getNoTableCol(subFkcol);
 			}
-			
-			//if (isUseWhere == null) isUseWhere = "";
-			/*if (funid == null) funid = "";
-			if (funid.length() > 0) {
-				dataWhere = SysDataUtil.getDataWhere(userid, funid);
-			}*/
 		
 			String strWhere = mpField.get("data_where");
 			String strOrder = mpField.get("data_order");
@@ -243,14 +235,9 @@ public class ReportXlsFormGrid extends ReportXls {
 			String dsName = mpField.get("ds_name");
 
 			sql += " where (" + tableName + "." + subFkcol + " = '"+keyID+"')";
-			/*if (isUseWhere.equals("1")) {
-				if (orgWhereSQL.length() > 0) 
-					sql += " and (" + orgWhereSQL + ")";
-			}*/
 			if(strWhere.length() > 0) {
 				sql += " and (" + strWhere + ")";
 			}
-			//if (dataWhere.length() > 0) sql += " and ("+dataWhere+")";
 		
 			if (strGroup.length() > 0) {
 				sql += " group by " + strGroup;
@@ -263,13 +250,6 @@ public class ReportXlsFormGrid extends ReportXls {
 		
 			DaoParam param = _dao.createParam(sql);
 			param.setDsName(dsName);
-			
-			/*if (isUseWhere.equals("1")) {
-				if (orgWhereValue.length() > 0) {
-					param.setType(orgWhereType);
-					param.setValue(orgWhereValue);
-				}
-			}*/
 			List<Map<String,String>> lsTmpRs = _dao.query(param);
 		
 			_log.showDebug(areaName + "[" + keyID + "] " + "data size = " + lsTmpRs.size());

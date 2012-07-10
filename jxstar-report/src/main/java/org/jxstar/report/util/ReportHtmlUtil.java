@@ -6,12 +6,14 @@
  */
 package org.jxstar.report.util;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.StringUtil;
+import org.jxstar.util.factory.FactoryUtil;
 
 /**
  * 输出html报表的工具类。
@@ -188,6 +190,167 @@ public class ReportHtmlUtil extends ReportUtil {
 
         return sbRet.toString();
     }
+    
+    /**
+     * 填写grid格式的html报表
+     * @param lsData -- 记录值
+     * @param lsField -- 字段信息
+     * @param mpUser -- 当前用户
+     * @param jsTblObj -- 当前javascript中使用的table对象
+     * @param pageSize -- 每页记录数
+     * @param pos -- 偏移行数
+     * @param curPage -- 当前页号，用于输出页码信息
+     * @param sumPage -- 总页数，用于输出页码信息
+     * @return
+     */
+	public static String fillGrid(
+			List<Map<String,String>> lsData,
+			List<Map<String,String>> lsField,
+			Map<String, String> mpUser,
+			String jsTblObj,
+			int pageSize, int pos, int curPage, int sumPage) {
+		StringBuffer sbRet = new StringBuffer();
+		
+		if (lsField == null || lsData == null) {
+			_log.showWarn("data is null or field is null!");
+			return sbRet.toString();
+		}
+		
+		if (lsField.isEmpty() || lsData.isEmpty()) {
+			_log.showDebug("data is empty or field is null!");
+			return sbRet.toString();
+		}
+		
+		String strValue = null;				//每个格的信息内容
+		Map<String,String> mpData = null;	//每条记录数据
+		Map<String,String> mpField = null;	//每条个字段的信息
+		
+		int posi = (pageSize > 0 && pos >= 0)?pos:0;
+		int cnt = (pageSize <= 0)?lsData.size():pageSize + posi;
+		int[] posis = new int[2];
+		int index = 0, rowIndex = 0;
+		int currRow = 0;
+		int cntCol = 1; //合计列的位置
+		String strStyle = null, strColName = null, strColCode = null, strColTag = null;
+		
+		//用于每页小计
+		List<Map<String,String>> lsStatCol = getStatField(lsField);
+		String isOutZero = "0";
+		Map<String,String> mpStat = null, mpStatValue = FactoryUtil.newMap();
+		String strCol = null;
+		BigDecimal bdStat = null;
+		boolean isStatCol = false;
+		//用于每页小计
+		
+		for (rowIndex = posi, index = 0; rowIndex < cnt; rowIndex++, index++) {
+			if (lsData.size() <= rowIndex) break;					//如果rowIndex大于记录数
+			mpData = lsData.get(rowIndex);
+			
+			for (int i = 0, n = lsField.size(); i < n; i++ ) {
+				mpField = lsField.get(i);
+				isOutZero = mpField.get("is_outzero");
+				if (isOutZero == null) isOutZero = "1";
+				strStyle = mpField.get("format");					//字段格式
+				
+				strColName = mpField.get("display");				//字段名称
+				strColCode = mpField.get("col_code").toLowerCase();	//字段编码
+				strColTag = mpField.get("combo_code");				//标签
+				
+				posis = getPosition(mpField.get("col_pos"));
+				if (posis.length != 2) {
+					_log.showWarn(strColName + " ["+mpField.get("col_pos")+"] position is error!");
+					continue;
+				}
+				currRow = posis[0] + index;
+				
+				//设置指定坐标位置
+				posis[0] = posis[0] + index;
+				sbRet.append("posi[0] = " + posis[0] + ";\r\n");
+				sbRet.append("posi[1] = " + posis[1] + ";\r\n");
+				
+				if (strColCode.equalsIgnoreCase("{CURUSERNAME}")) {
+				//当前用户
+					strValue = MapUtil.getValue(mpUser, "user_name");
+				} else if (strColCode.equalsIgnoreCase("{CURDATE}")) {
+				//当前日期
+					strValue = convertValue(DateUtil.getTodaySec(), strStyle);
+				} else if (strColCode.equalsIgnoreCase("{CURDEPTNAME}")) {
+				//当前部门
+					strValue = MapUtil.getValue(mpUser, "dept_name");
+				} else if (strColCode.equalsIgnoreCase("{NUMBER}")) {
+				//输出序号
+					strValue = Integer.toString(rowIndex+1);
+					cntCol = (short)posis[1];
+				} else if (strColCode.equalsIgnoreCase("{CURPAGENUM}")) {
+				//当前所在页数
+					strValue = Integer.toString(curPage);
+				} else if (strColCode.equalsIgnoreCase("{CURSUMPAGE}")) {
+				//当前共页数
+					strValue = Integer.toString(sumPage);
+				} else {
+				//设置cell的显示值
+					strValue = mpData.get(strColCode);
+					//如果已经设置了0值不输出，并且当前值就是0，则输出空字符串
+					strValue = (strValue != null)?strValue:"";
+					strValue = (strValue.equalsIgnoreCase("null"))?"":strValue;
+				
+					//真实值与显示值
+					strValue = getComboTitle(strValue, strColTag);
+					//转换数据格式
+					strValue = convertValue(strValue, strStyle);
+					if (isOutZero.equals("0")) strValue = getZeroOut(strValue, strStyle);
+				}
+
+	            //设置当前字段内容
+	            sbRet.append("cellValue = \"" + StringUtil.strForJson(strValue) + "\";\r\n");
+	            sbRet.append("f_setCellValueByPos(posi ,cellValue ,"+jsTblObj+");\r\n");
+				
+				if (!lsStatCol.isEmpty()) {
+					for (int iStat = 0, statNum = lsStatCol.size(); iStat < statNum; iStat++) {
+						mpStat = lsStatCol.get(iStat);
+						
+						if (mpStat.isEmpty()) continue;
+						strCol = ( mpStat.get("col_code")).toLowerCase();					
+						if (strColCode.equalsIgnoreCase(strCol)) {
+							isStatCol = true;
+					
+							if (mpStatValue.get(strCol) == null) bdStat = new BigDecimal("0");
+							else bdStat = new BigDecimal(mpStatValue.get(strCol));
+					
+							if (strValue.length() == 0) strValue = "0";
+							mpStatValue.put(strCol, bdStat.add(new BigDecimal(strValue)).toString());
+						}
+					}
+				}
+			}
+		}
+
+		//填写每页小计
+		if (isStatCol == true) {
+			currRow ++;
+			sbRet.append("posi[0] = " + currRow + ";\r\n");
+			sbRet.append("posi[1] = " + cntCol + ";\r\n");
+            sbRet.append("cellValue = \"小计\";\r\n");
+            sbRet.append("f_setCellValueByPos(posi ,cellValue ,"+jsTblObj+");\r\n");
+			
+			for (int i = 0, colNum = lsStatCol.size(); i < colNum; i ++){
+				mpField = lsStatCol.get(i);
+				posis = getPosition(mpField.get("col_pos"));
+				
+				strColCode = (mpField.get("col_code")).toLowerCase();
+				strValue = mpStatValue.get(strColCode);
+				strStyle = mpField.get("format");
+				strValue = convertValue(strValue, strStyle);
+				
+				sbRet.append("posi[0] = " + currRow + ";\r\n");
+				sbRet.append("posi[1] = " + posis[1] + ";\r\n");
+	            sbRet.append("cellValue = \""+ strValue +"\";\r\n");
+	            sbRet.append("f_setCellValueByPos(posi ,cellValue ,"+jsTblObj+");\r\n");
+			}
+		}
+
+		return sbRet.toString();
+	}
 
     /**
      * 先找该报表是否有审批信息报表输出定义，取定义信息；

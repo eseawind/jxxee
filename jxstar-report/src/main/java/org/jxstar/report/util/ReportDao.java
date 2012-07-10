@@ -185,6 +185,23 @@ public class ReportDao {
 
 		return _dao.queryMap(param);
 	}
+	
+	/**
+	 * 取当前功能的缺省报表
+	 * @param funId
+	 * @return
+	 */
+	public static String getDefReportId(String funId) {
+		String sql = "select report_id from rpt_list where is_default = '1' and (fun_id like ? or fun_id = ?)";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue("%," + funId + ",%");
+		param.addStringValue(funId);
+
+		Map<String,String> mp = _dao.queryMap(param);
+		if (mp.isEmpty()) return "";
+		
+		return mp.get("report_id");
+	}
 
 	/**
 	 * 获取报表主区域信息

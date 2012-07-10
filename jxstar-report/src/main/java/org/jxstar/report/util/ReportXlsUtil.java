@@ -34,6 +34,7 @@ import org.jxstar.service.studio.AttachBO;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.StringUtil;
+import org.jxstar.util.config.SystemVar;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.resource.JsMessage;
 
@@ -233,11 +234,9 @@ public class ReportXlsUtil extends ReportUtil {
 				if (!lsStatCol.isEmpty()) {
 					for (int iStat = 0, statNum = lsStatCol.size(); iStat < statNum; iStat++) {
 						mpStat = lsStatCol.get(iStat);
-						//_log.showDebug("mpStat = " + mpStat.toString());
-					
+						
 						if (mpStat.isEmpty()) continue;
 						strCol = ( mpStat.get("col_code")).toLowerCase();
-						//_log.showDebug("strCol = " + strCol + " | strValue = " + strValue);						
 						if (strColCode.equalsIgnoreCase(strCol)) {
 							isStatCol = true;
 					
@@ -245,8 +244,6 @@ public class ReportXlsUtil extends ReportUtil {
 							else bdStat = new BigDecimal( mpStatValue.get(strCol));
 					
 							if (strValue.length() == 0) strValue = "0";
-							//_log.showDebug("bdStat.add(new BigDecimal(strValue)) = " + bdStat.add(new BigDecimal(strValue)));
-					
 							mpStatValue.put(strCol, bdStat.add(new BigDecimal(strValue)).toString());
 						}
 					}
@@ -933,66 +930,13 @@ public class ReportXlsUtil extends ReportUtil {
 	 */
 	public static boolean isAllowOut(HSSFSheet sheet) {
 		boolean ret = true;
+		String maxXlsNum = SystemVar.getValue("report.xls.num", "50000"); 
 		
-		if (sheet.getPhysicalNumberOfRows() > 50000) {
-			_log.showWarn("报表输出行数超出了最大行数：50000！");
+		if (sheet.getPhysicalNumberOfRows() > Integer.parseInt(maxXlsNum)) {
+			_log.showWarn("EXCEL报表输出行数超出了最大行数：{0}！", maxXlsNum);
 			ret = false;
 		}
 
 		return ret;
-	}
-
-	/**
-	 * 计算报表输出页数
-	 * 
-	 * @param nums -- 总记录行数
-	 * @param pageSize -- 每页行数
-	 * @return
-	 */
-	public static int calPageNum(int nums, int pageSize) {
-		int ret = 0;
-		if (pageSize == 0) pageSize = 1;
-		int mod = nums % pageSize;
-
-		ret = nums / pageSize;
-		if (mod != 0 || nums == 0) {
-			ret++;
-		}
-
-		return ret;
-	}
-	
-	/**
-	 * 取当前数据区域中第一行数据的位置
-	 * @param areaId
-	 * @return
-	 */
-	public static int getFirstRows(String areaId) {
-		String colRows = ReportDao.getColRows(areaId);
-		int[] pos = getPosition(colRows);
-		if (pos.length != 2) return -1;
-		
-		return pos[0];
-	}
-	
-	/**
-	 * 取统计字段
-	 * @param lsField -- 所有字段信息
-	 * @return
-	 */
-	private static List<Map<String,String>> getStatField(List<Map<String,String>> lsField) {
-		List<Map<String,String>> lsRet = FactoryUtil.newList();
-		if (lsField == null) return lsRet;
-
-		Map<String,String> mpField = null;
-		String isstat = null;
-		for (int i = 0, n = lsField.size(); i < n; i++) {
-			mpField = lsField.get(i);
-
-			isstat = mpField.get("is_stat");
-			if (isstat.trim().equals("1")) lsRet.add(mpField);
-		}
-
-		return lsRet;
 	}
 }

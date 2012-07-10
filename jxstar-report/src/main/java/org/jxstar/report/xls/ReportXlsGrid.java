@@ -46,7 +46,7 @@ public class ReportXlsGrid extends ReportXls {
 		String not_page = _mpMainArea.get("not_page");
 		if (not_page.equals("1")) {
 			if (insertSheetRow(sheet, pageSize)) {
-			//修改为只输出1也，而且每页的行数为当前记录 数
+			//修改为只输出1页，而且每页的行数为当前记录 数
 				pageNum = 1;
 				pageSize = _lsMainRecord.size();
 			}
