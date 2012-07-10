@@ -157,6 +157,19 @@ JxPrint = {};
 		//取选择的数据范围
 		var printScope = form.findField('printScope').getGroupValue();
 		
+		this.exePrint(pageNode, funId, reportId, printType, printScope, '0');
+	},
+	
+	/**
+	* public 直接打印需要调用的公共方法。
+	* 
+	**/
+	exePrint: function(pageNode, funId, reportId, printType, printScope, printMode) {
+		reportId = reportId||'';
+		printType = printType||'xls';
+		printScope = printScope||'select';
+		printMode = printMode||'0';
+		
 		var whereSql = '';
 		var whereValue = '';
 		var whereType = '';
@@ -178,7 +191,10 @@ JxPrint = {};
 		//请求参数
 		var e = encodeURIComponent; //编码
 		var params = 'funid='+ funId +'&reportId='+ reportId +'&printType='+  printType+'&whereSql='+
-					 e(whereSql) +'&whereValue='+ e(whereValue) +'&whereType='+ whereType;
+					 e(whereSql) +'&whereValue='+ e(whereValue) +'&whereType='+ whereType +'&printMode='+printMode;
+		if (reportId.length == 0) {
+			params += '&isDefault=1';
+		}
 		params += '&user_id=' + Jxstar.session['user_id'];
 		//发送后台请求
 		var href = Jxstar.path + "/reportAction.do?" + params;

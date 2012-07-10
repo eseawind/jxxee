@@ -1305,6 +1305,30 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			}]
 		});
 		win.show();
+	},
+	
+	/**
+	* public 
+	* 直接打印
+	* printMode -- 输出模式：0 预览，1 直接打印
+	* printType -- 输出类型：html|xls
+	* printScope -- 输出范围：select 选择，query 当前查询结果
+	* reportId -- 报表定义ID：空表示取缺省报表，非空表示取指定报表
+	**/
+	dirPrint: function(printMode, printScope, printType, reportId) {
+		if (!Ext.isString(printMode)) {
+			printMode = '0'
+		}
+		
+		printMode = printMode||'0';
+		printScope = printScope||'select';
+		printType = printType||'html';
+		reportId = reportId||'';
+		
+		var pageNode = this.grid.gridNode;
+		var funId = this.define.nodeid;
+		//pageNode, funId, reportId, printType, printScope, printMode
+		JxPrint.exePrint(pageNode, funId, reportId, printType, printScope, printMode);
 	}
 });
 

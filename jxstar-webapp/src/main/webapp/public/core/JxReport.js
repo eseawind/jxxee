@@ -36,6 +36,30 @@ function f_insertTable(tblContent, tblobj) {
 }
 
 /**
+* 插入一个新的row
+* tblObj -- 插入记录的表格
+* copyIndex -- 拷贝行位置
+* rows -- 需要插入的行数
+*/
+function f_insertRow(tblObj, copyIndex, rows) {
+	var copyRow = f_getRow(tblObj, copyIndex-1);
+	for (var i = 0; i < rows; i++) {
+		var newRow = tblObj.insertRow(copyIndex);
+		newRow.style.width = copyRow.style.width;
+		newRow.style.height = copyRow.style.height;
+		newRow.className = copyRow.className;
+		
+		var cells = copyRow.cells;
+		for (var j = 0; j < cells.length; j++) {
+			var newCell = newRow.insertCell(j);
+			newCell.style.width = cells[j].style.width;
+			newCell.style.height = cells[j].style.height;
+			newCell.className = cells[j].className;
+		}
+	}
+}
+
+/**
 *	设置新table的style属性
 */
 function setTblStyle(oldTbl, newTbl) {
@@ -249,7 +273,5 @@ function f_getCell(trObj, colIndex) {
 *	报表打印
 */
 function f_window_print() {
-	//alert(tblobj.style.height);
-	//window.print();
-	//alert('ok');
+	window.print();
 }
