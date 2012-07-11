@@ -523,7 +523,10 @@ JxUtil = {};
 				JxHint.alert(String.format(jx.star.nopage, nodeId));	//'没有定义【{0}】功能页面信息！'
 				return false;
 			}
-			
+			//缺省审批界面，如果为空则是form
+			if (Ext.isEmpty(define.showform)) {
+				define.showform = 'form';
+			}
 			//构建页面参数
 			var pkcol = define.pkcol.replace('__', '.');
 			var pageParam = {

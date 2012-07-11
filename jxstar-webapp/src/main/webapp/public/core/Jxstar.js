@@ -103,10 +103,8 @@ Ext.ns('Jxstar');
 			var funTab = mainTab.getComponent('fun_' + define.nodeid);
 			
 			//如果是审批界面，功能标题上添加'--审批'
-			if (pageParam && pageParam.showType && pageParam.showType.length > 0) {
-				if (pageParam.pageType && pageParam.pageType == 'check') {
-					funTitle += '--' + jx.base.check;	//审批
-				}
+			if (isCheck) {
+				funTitle += '--' + jx.base.check;	//审批
 				if (funTab != null) {//如果已显示，则先删除该功能再显示
 					mainTab.remove(funTab, true);
 					funTab = null;
