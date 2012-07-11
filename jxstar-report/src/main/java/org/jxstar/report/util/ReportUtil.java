@@ -11,7 +11,6 @@ import java.util.Map;
 
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
-import org.jxstar.report.ReportException;
 import org.jxstar.service.define.FunDefineDao;
 import org.jxstar.util.StringFormat;
 import org.jxstar.util.StringUtil;
