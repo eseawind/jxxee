@@ -47,8 +47,9 @@ public class FunDefineBO extends BusinessObject {
 			return _returnFaild;
 		}
 		
-		String insertSql = "insert into fun_base(fun_id, module_id, reg_type, add_date, add_userid) " + 
-					 "values(?, ?, 'main', ?, ?)";
+		String insertSql = "insert into fun_base(fun_id, module_id, reg_type, ds_name, " +
+				"is_userinfo, init_show, show_form, is_query, add_date, add_userid) " + 
+				"values(?, ?, 'main', 'default', '1', '1', 'form', '1', ?, ?)";
 		DaoParam param = _dao.createParam(insertSql);
 		param.setDsName(DefineName.DESIGN_NAME);
 		param.addStringValue(funId);

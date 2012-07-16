@@ -45,6 +45,8 @@ public class GridPageParser extends PageParser {
 			if (ret.length() > 0) {//去掉换行符，不然前台取不到文件
 				ret = ret.trim();
 			}
+		} else if (name.equals("funAttr")) {
+			ret = FunAttrParser.parseAttr(_funid, "grid");
 		} else {
 			ret = _elementTpl.get(name);
 		}
