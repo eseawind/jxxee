@@ -90,7 +90,7 @@ public class ConditionJson {
 			String isshow = mpColumn.get("is_show");
 			String title = mpColumn.get("col_name");
 			if (isshow.equals("1") && title.length() > 0) {
-				sbColumn.append("{text:'"+ title +":'},");
+				sbColumn.append("{text:'"+ title +":', xtype:'tbtext'},");
 			}
 			
 			//拼接字符串
