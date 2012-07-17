@@ -11,10 +11,12 @@ import java.util.Map;
 
 import org.jxstar.control.action.RequestContext;
 import org.jxstar.dao.DaoParam;
+import org.jxstar.dao.JsonDao;
 import org.jxstar.service.BoException;
 import org.jxstar.service.BusinessEvent;
 import org.jxstar.service.define.FunDefineDao;
 import org.jxstar.service.define.FunctionDefine;
+import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.StringUtil;
@@ -33,18 +35,18 @@ public class AuditEvent extends BusinessEvent {
 	/**
 	 * 执行提交方法
 	 */
-	public String audit(RequestContext requestContext) {
+	public String audit(RequestContext request) {
 		try {
-			init(requestContext);
+			init(request);
 		} catch (BoException e) {
 			_log.showError(e);
 			return _returnFaild;
 		}
 		
 		//取复核值：1 表示复核，0 表示取消复核
-		String auditVal = requestContext.getRequestValue("auditvalue", "1");
+		String auditVal = request.getRequestValue("auditvalue", "1");
 		
-		String[] asKey = requestContext.getRequestValues(JsParam.KEYID);
+		String[] asKey = request.getRequestValues(JsParam.KEYID);
 		if (asKey == null || asKey.length == 0) {
 			//找不到提交记录的键值！
 			setMessage(JsMessage.getValue("functionbm.auditkeynull"));
@@ -78,7 +80,9 @@ public class AuditEvent extends BusinessEvent {
 			if (!checkDetailData(sKeyID)) return _returnFaild;	
 			
 			//给汇总字段赋值
-			statColValue(sKeyID);
+			SubStatBO statbo = new SubStatBO();
+			statbo.exeStat(sKeyID, _funID);
+			
 			sKeyID = value + sKeyID;
 			DaoParam param = _dao.createParam(auditSql);
 			param.setValue(sKeyID).setType(type).setDsName(_dsName);
@@ -88,6 +92,13 @@ public class AuditEvent extends BusinessEvent {
 				setMessage(JsMessage.getValue("functionbm.auditfaild"));
 				return _returnFaild;				
 			}
+		}
+		
+		//如果是form页面，则取最新的数据到前台
+		String pageType = request.getPageType();
+		if (pageType.indexOf("form") >= 0) {
+			String json = formJson(asKey[0]);
+			setReturnData(json);
 		}
 		
 		return _returnSuccess;
@@ -144,46 +155,21 @@ public class AuditEvent extends BusinessEvent {
 	}
 	
 	/**
-	 * 给汇总字段赋值
-	 * 
-	 * @param sKeyID - 当前记录ID
+	 * 取最新的数据返回到前台
+	 * @param key
+	 * @return
 	 */
-	private void statColValue(String sKeyID) {
-		//获取统计字段定义信息
-		List<Map<String, String>> lsStatCol = FunDefineDao.queryStatCol(_funID);
-		if (lsStatCol == null || lsStatCol.isEmpty()) return; 
-			
-		for (int i = 0; i < lsStatCol.size(); i++) {
-			Map<String,String> mpStatCol = lsStatCol.get(i);
-			String sUpdateCol = (String) mpStatCol.get("col_code");
-			String sStatTable = (String) mpStatCol.get("stat_tables");
-			String sStatCol   = (String) mpStatCol.get("stat_col");
-			String sStatFkcol = (String) mpStatCol.get("stat_fkcol");
-			String sStatWhere = (String) mpStatCol.get("stat_where");
-			
-			StringBuilder sbStatSQL = new StringBuilder("select sum("+sStatCol+") as val ");
-				sbStatSQL.append(" from ").append(sStatTable);
-				sbStatSQL.append(" where ").append(sStatWhere);
-				sbStatSQL.append(" and "+sStatFkcol+" = ?");
-			_log.showDebug("stat col sql=" + sbStatSQL.toString());
-			
-			DaoParam param = _dao.createParam(sbStatSQL.toString());
-			param.setValue(sKeyID).setDsName(_dsName);
-			Map<String,String> mpSum = _dao.queryMap(param);
-			if (mpSum != null && !mpSum.isEmpty()) {
-				String sVal = (String) mpSum.get("val");
-				_log.showDebug("update stat col val:{0}", sVal+";"+sKeyID);
-				
-				StringBuilder sbUpdate = new StringBuilder("update ");
-					sbUpdate.append(_tableName + " set ");
-					sbUpdate.append(sUpdateCol + " = ? where ");
-					sbUpdate.append(_pkColName + " = ? ");
-				_log.showDebug("update stat col sql=" + sbUpdate.toString());
-				
-				DaoParam param1 = _dao.createParam(sbUpdate.toString());
-				param1.addStringValue(sVal).addStringValue(sKeyID).setDsName(_dsName);
-				_dao.update(param1);
-			}
-		}
+	private String formJson(String key) {
+		String select = _funObject.getSelectSQL();
+		StringBuilder sbsql = new StringBuilder(select);
+		sbsql.append(" where ").append(_pkColName).append(" = ? ");
+		
+		String[] cols = ArrayUtil.getGridCol(sbsql.toString());
+		DaoParam param = _dao.createParam(sbsql.toString());
+		param.setDsName(_dsName);
+		param.addStringValue(key);
+		
+		JsonDao jsonDao = JsonDao.getInstance();
+		return jsonDao.query(param, cols);
 	}
 }
