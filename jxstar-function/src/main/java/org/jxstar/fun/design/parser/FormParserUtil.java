@@ -123,14 +123,14 @@ public class FormParserUtil {
 			String title = element.getAttribute("title").trim();
 			boolean collapsed = element.getAttribute("collapsed").trim().equalsIgnoreCase("true");
 			boolean collapsible = element.getAttribute("collapsible").trim().equalsIgnoreCase("true");
-			boolean border = !(element.getAttribute("border").trim().equalsIgnoreCase("false"));
+			//boolean border = !(element.getAttribute("border").trim().equalsIgnoreCase("false"));
 			//如果form设置了title说明是fieldset控件
 			StringBuilder sbset = new StringBuilder();
 			if (title.length() > 0) {
 				sbset.append("\r\n\t\t\t");
-				sbset.append("border:"+ border +",\r\n\t\t\t");
-				sbset.append("xtype:'panel',\r\n\t\t\t");
-				sbset.append("baseCls:'xf-panel', iconCls:'sub_title',\r\n\t\t\t");
+				sbset.append("border:true,\r\n\t\t\t");
+				sbset.append("xtype:'fieldset',\r\n\t\t\t");
+				//sbset.append("baseCls:'xf-panel', iconCls:'sub_title',\r\n\t\t\t");
 				sbset.append("title:'"+ title +"',\r\n\t\t\t");
 				sbset.append("collapsible:"+ collapsible +",\r\n\t\t\t");
 				sbset.append("collapsed:"+ collapsed +",");
