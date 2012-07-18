@@ -17,7 +17,7 @@ public class SubStatBOTest extends AbstractTest {
 		init("d:/tomcat6/webapps/jxstar_ee");
 		
 		SubStatBO stat = new SubStatBO();
-		stat.exeStat("jxstar7432767", "mat_app");
+		stat.subStat("jxstar7432767", "mat_app");
 		String ret = stat.getReturnData();
 		System.out.println("........return data:" + ret);
 	}

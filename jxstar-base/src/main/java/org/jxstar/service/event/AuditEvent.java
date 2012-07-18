@@ -6,7 +6,6 @@
  */
 package org.jxstar.service.event;
 
-import java.util.List;
 import java.util.Map;
 
 import org.jxstar.control.action.RequestContext;
@@ -14,7 +13,6 @@ import org.jxstar.dao.DaoParam;
 import org.jxstar.dao.JsonDao;
 import org.jxstar.service.BoException;
 import org.jxstar.service.BusinessEvent;
-import org.jxstar.service.define.FunDefineDao;
 import org.jxstar.service.define.FunctionDefine;
 import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.DateUtil;
@@ -81,7 +79,7 @@ public class AuditEvent extends BusinessEvent {
 			
 			//给汇总字段赋值
 			SubStatBO statbo = new SubStatBO();
-			statbo.exeStat(sKeyID, _funID);
+			statbo.subStat(sKeyID, _funID);
 			
 			sKeyID = value + sKeyID;
 			DaoParam param = _dao.createParam(auditSql);
