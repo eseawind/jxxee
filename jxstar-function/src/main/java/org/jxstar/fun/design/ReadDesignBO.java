@@ -9,12 +9,10 @@ package org.jxstar.fun.design;
 import java.util.List;
 import java.util.Map;
 
-
-import org.jxstar.dao.util.BigFieldUtil;
 import org.jxstar.fun.design.parser.GridPageParser;
 import org.jxstar.fun.design.parser.PageParser;
+import org.jxstar.fun.design.parser.PageParserUtil;
 import org.jxstar.service.BusinessObject;
-import org.jxstar.service.define.DefineName;
 import org.jxstar.service.define.FunDefineDao;
 
 /**
@@ -44,7 +42,7 @@ public class ReadDesignBO extends BusinessObject {
 		}
 		
 		//先从数据中读取
-		String designPage = readDesignPage(funcId, "form");
+		String designPage = PageParserUtil.readDesign(funcId, "form");
 		
 		//如果没有则创建缺省设计信息
 		if (designPage.length() == 0) {
@@ -191,18 +189,5 @@ public class ReadDesignBO extends BusinessObject {
 		sbfield.append("visible='"+ visible +"' xtype='"+ col_control +"'/>");
 		
 		return sbfield.toString();
-	}
-	
-	/**
-	 * 取功能的页面设计信息
-	 * @param funcId
-	 * @param pageType
-	 * @return
-	 */
-	private String readDesignPage(String funcId, String pageType){
-		String sql = "select page_content from fun_design " +
-				"where fun_id = '"+ funcId +"' and page_type = '"+ pageType +"' ";
-		
-		return BigFieldUtil.readStream(sql, "page_content", DefineName.DESIGN_NAME);
 	}
 }

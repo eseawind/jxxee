@@ -388,10 +388,7 @@ public class FormParserUtil {
 		String retJs = _elementTpl.get(ctlType).trim();
 		
 		//处理字段长度
-		if (ctlType.equals("text") || ctlType.equals("area") || 
-				ctlType.equals("number") || ctlType.equals("combowin") || ctlType.equals("selectwin")) {
-			retJs = retJs.replace("maxLength:100", "maxLength:"+datalen);
-		}
+		retJs = retJs.replace("maxLength:100", "maxLength:"+datalen);
 		
 		//处理字段控件显示宽度
 		String anchor = mpColumn.get("anchor");
@@ -478,6 +475,11 @@ public class FormParserUtil {
 			retJs = retJs.replaceAll("\\{funid\\}", _funId);
 			String config = wincfg.configJson(_funId, colCode);
 			retJs = retJs.replaceAll("\\{config\\}", config);
+		}
+		
+		//处理智能选择控件
+		if (ctlType.equals("combosel")) {
+			retJs = retJs.replaceAll("\\{funid\\}", _funId);
 		}
 		
 		return retJs;

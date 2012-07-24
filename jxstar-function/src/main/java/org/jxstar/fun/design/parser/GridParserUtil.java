@@ -43,7 +43,7 @@ public class GridParserUtil {
 		//取字段定义对象
 		ColumnDefine colDefine = FunDefineDao.queryColDefine(funId);
 		
-		//取设计信息：字段编号、显示宽度、是否显示
+		//取功能字段定义信息 
 		List<Map<String,String>> lsDesign = FunDefineDao.queryCol(funId);
 		if (lsDesign.isEmpty()) return retCol;
 		
@@ -208,12 +208,9 @@ public class GridParserUtil {
 		
 		String fieldCode = mpColumn.get("col_code");
 		//处理字段长度
-		if (ctlType.equals("text") || ctlType.equals("area") || 
-				ctlType.equals("number") || ctlType.equals("combowin") || ctlType.equals("selectwin")) {
-			String code = StringUtil.getNoTableCol(fieldCode);
-			String datalen = MapUtil.getValue(_fieldLen, code, "100");			
-			retJs = retJs.replace("maxLength:100", "maxLength:"+datalen);
-		}
+		String code = StringUtil.getNoTableCol(fieldCode);
+		String datalen = MapUtil.getValue(_fieldLen, code, "100");
+		retJs = retJs.replace("maxLength:100", "maxLength:"+datalen);
 		
 		//处理数据样式
 		String format = mpColumn.get("format_id");
@@ -238,6 +235,12 @@ public class GridParserUtil {
 			retJs = retJs.replaceAll("\\{funid\\}", funid);
 			String config = wincfg.configJson(funid, fieldCode);
 			retJs = retJs.replaceAll("\\{config\\}", config);
+		}
+		
+		//处理智能选择控件
+		if (ctlType.equals("combosel")) {
+			retJs = retJs.replaceAll("\\{funid\\}", funid);
+			retJs = retJs.replaceAll("\\{col_code\\}", fieldCode.replace(".", "__"));
 		}
 		
 		return retJs;

@@ -32,8 +32,7 @@ public class ComboDefine extends BusinessObject {
 	 */
 	public String configJson(String funid, String fieldCode) {
 		//查找字段定义信息
-		String sqlCol = "select col_id, control_name from fun_col where " +
-				"(col_control = 'combowin' or col_control = 'selectwin') and fun_id = ? and col_code = ?";
+		String sqlCol = "select col_id, control_name from fun_col where fun_id = ? and col_code = ?";
 		DaoParam paramCol = _dao.createParam(sqlCol);
 		paramCol.setDsName(DefineName.DESIGN_NAME);
 		paramCol.addStringValue(funid).addStringValue(fieldCode);
@@ -80,6 +79,8 @@ public class ComboDefine extends BusinessObject {
 		sbJson.append("isShowData:'"+ MapUtil.getValue(mpExt, "is_showdata") +"', ");
 		sbJson.append("isMoreSelect:'"+ MapUtil.getValue(mpExt, "is_moreselect") +"',");
 		sbJson.append("isReadonly:'"+ MapUtil.getValue(mpExt, "is_readonly") +"',");
+		sbJson.append("queryField:'"+ MapUtil.getValue(mpExt, "query_field") +"',");
+		sbJson.append("likeType:'"+ MapUtil.getValue(mpExt, "like_type") +"',");
 		sbJson.append("fieldName:'"+ fieldCode +"'");
 		sbJson.append("}");
 		

@@ -8,6 +8,8 @@ package org.jxstar.fun.design.parser;
 
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jxstar.util.factory.FactoryUtil;
 
@@ -65,6 +67,7 @@ public class GridPageParser extends PageParser {
 	
 	/**
 	 * 解析设计数据，格式：{n:colname,w:width,h:hidden}-{}-...
+	 * 以前用-分割，现在用{}匹配，防止某些字段名或表名中含-
 	 * @return
 	 */
 	private List<Map<String,String>> parseDesignData(String data) {
@@ -74,9 +77,12 @@ public class GridPageParser extends PageParser {
 			return lsData;
 		}
 		
-		String[] datas = data.split("-");
-		for (int i = 0, n = datas.length; i < n; i++) {
-			String param = datas[i].substring(1, datas[i].length()-1);
+		Pattern p = Pattern.compile("\\{[^}]+\\}");
+		Matcher m = p.matcher(data);
+		while (m.find()) {
+			String param = m.group();
+			param = param.substring(1, param.length()-1);
+			
 			String[] params = param.split(",");
 			
 			Map<String,String> mp = FactoryUtil.newMap();
@@ -88,7 +94,7 @@ public class GridPageParser extends PageParser {
 			
 			lsData.add(mp);
 		}
-		//_log.showDebug("design data=" + lsData.toString());
+		
 		return lsData;
 	}
 }
