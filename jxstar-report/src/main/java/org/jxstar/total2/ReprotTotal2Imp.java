@@ -14,7 +14,7 @@ import org.jxstar.util.factory.FactoryUtil;
  * @version 1.0, 2011-11-30
  */
 public class ReprotTotal2Imp extends AbstractTotal2 {
-
+	
 	/**
 	 * 输出统计数据
 	 */

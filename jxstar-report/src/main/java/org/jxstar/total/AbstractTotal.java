@@ -68,7 +68,7 @@ public abstract class AbstractTotal implements ReportTotal {
 	 * @return
 	 * @throws ReportException
 	 */
-	private List<Map<String,String>> queryAssort(
+	protected List<Map<String,String>> queryAssort(
 			List<Map<String,String>> lsData, 
 			Map<String,String> mpArea) throws ReportException {
 		List<Map<String,String>> lsRet = FactoryUtil.newList(), lsTmp = null;
@@ -125,7 +125,7 @@ public abstract class AbstractTotal implements ReportTotal {
 	 * @return [sql, value, type]
 	 * @throws ReportException
 	 */
-	private String[] getAreaSQL(Map<String,String> mpArea, 
+	protected String[] getAreaSQL(Map<String,String> mpArea, 
 			Map<String,String> paramData) throws ReportException {
 		StringBuilder sbsql = new StringBuilder();
 
