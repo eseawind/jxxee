@@ -159,6 +159,9 @@ public class FunDefineBO extends BusinessObject {
 			sbItem.append("subfunid:'"+mpfun.get("subfun_id")+"', ");
 			sbItem.append("showform:'"+mpfun.get("show_form")+"', ");
 			sbItem.append("first:'"+mpfun.get("first_field")+"', ");
+			//添加扩展属性
+			sbItem.append(getFunAttr(funid));
+			
 			sbItem.append("isarch:'"+mpfun.get("is_archive")+"'");
 			
 			if (i < n-1) {
@@ -248,5 +251,29 @@ public class FunDefineBO extends BusinessObject {
 		//保存新的设计文件
 		String usql = "update fun_design set page_content = ? where design_id = '"+ designId +"'";
 		return BigFieldUtil.updateStream(usql, pageContent, DefineName.DESIGN_NAME);
+	}
+	
+	/**
+	 * 取当前功能是否设置了扩展属性
+	 * @param funId
+	 * @return
+	 */
+	private String getFunAttr(String funId) {
+		String sql = "select attr_name, attr_value from fun_attr where is_fun = '1' and fun_id = ?";
+		DaoParam param = _dao.createParam(sql);
+		param.setDsName(DefineName.DESIGN_NAME);
+		param.addStringValue(funId);
+		
+		List<Map<String,String>> lsAttr = _dao.query(param);
+		if (lsAttr.isEmpty()) return "";
+		
+		StringBuilder sb = new StringBuilder();
+		for (Map<String,String> mpAttr : lsAttr) {
+			String name = mpAttr.get("attr_name");
+			String value = mpAttr.get("attr_value");
+			sb.append(name + ":" + value + ", ");
+		}
+		
+		return sb.toString();
 	}
 }
