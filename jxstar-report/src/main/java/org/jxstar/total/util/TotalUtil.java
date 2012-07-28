@@ -53,29 +53,37 @@ public class TotalUtil {
 	 * @param mpData -- 数据
 	 * @param areaId -- 区域ID
 	 */
-	public static Map<String, String> writeZero(Map<String, String> mpData, String areaId) {
-		List<Map<String,String>> lsDet = TotalDao.queryDetail(areaId);
-		if (lsDet.isEmpty()) return mpData;
+	public static List<Map<String, String>> writeZero(
+			List<Map<String, String>> lsData, String areaId) {
+		List<Map<String,String>> lsField = TotalDao.queryTotalField(areaId);
+		if (lsField.isEmpty()) return lsData;
 		
-		for (int i = 0, n = lsDet.size(); i < n; i++) {
-			Map<String,String> mpDet = lsDet.get(i);
+		for (Map<String,String> mpData : lsData) {
+			writeZero(mpData, lsField);
+		}
+		return lsData;
+	}
+	public static Map<String, String> writeZero(Map<String, String> mpData, String areaId) {
+		List<Map<String,String>> lsField = TotalDao.queryTotalField(areaId);
+		if (lsField.isEmpty()) return mpData;
+		
+		return writeZero(mpData, lsField);
+	}
+	private static Map<String, String> writeZero(Map<String, String> mpData, 
+			List<Map<String,String>> lsField) {
+		for (Map<String,String> mpField : lsField) {
+			String col_code = mpField.get("col_code");
+			String is_outzero = mpField.get("is_outzero");
 			
-			String col_code = mpDet.get("col_code");
-			String format = mpDet.get("format");
-			String is_outzero = mpDet.get("is_outzero");
-			
-			if (format.indexOf("number") >= 0 || format.equals("int")) {
+			String value = MapUtil.getValue(mpData, col_code, "0");
+			if (value.equals("0")) {
 				if (is_outzero.equals("1")) {
-					String value = MapUtil.getValue(mpData, col_code);
-					if (value.length() == 0) {
-						mpData.put(col_code, "0");
-					}
+					mpData.put(col_code, "0");
 				} else {
-					String value = MapUtil.getValue(mpData, col_code);
-					if (value.equals("0")) {
-						mpData.put(col_code, "");
-					}
+					mpData.put(col_code, "");
 				}
+			} else {
+				mpData.put(col_code, value);
 			}
 		}
 		return mpData;

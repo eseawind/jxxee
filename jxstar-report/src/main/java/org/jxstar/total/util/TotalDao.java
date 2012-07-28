@@ -39,7 +39,7 @@ public class TotalDao {
 	/**
 	 * 查询统计区域定义信息
 	 * @param reportId -- 报表定义ID
-	 * @param type -- 区域分类[assort|query]
+	 * @param type -- 区域分类[assort|query|cross]
 	 * @return
 	 */
 	public static List<Map<String,String>> queryTotalArea(String reportId, String type) {
@@ -97,6 +97,20 @@ public class TotalDao {
 	 */
 	public static List<Map<String,String>> queryTotalParam(String areaId) {
 		String sql = "select "+ _field_param +" from rpt_param where area_id = ? order by param_index";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(areaId);
+		
+		return _dao.query(param);
+	}
+	
+	/**
+	 * 取得区域的统计字段
+	 * @param areaId
+	 * @return
+	 */
+	public static List<Map<String,String>> queryTotalField(String areaId) {
+		String sql = "select "+ _field_param +" from rpt_detail where (format = 'int' or  format like 'number%') " +
+				"and area_id = ? order by col_index";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(areaId);
 		
