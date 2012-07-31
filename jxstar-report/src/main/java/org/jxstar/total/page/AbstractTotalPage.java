@@ -120,9 +120,7 @@ public abstract class AbstractTotalPage extends BusinessObject {
 			String width = MapUtil.getValue(mpcol, "col_width", "100");
 			if (Integer.parseInt(width) <= 0) width = "100";
 			
-			String colcode = mpcol.get("col_code");
-			sbJson.append("{col_code:'" + colcode + "',");
-			sbJson.append("id:'" + colcode + "',");
+			sbJson.append("{col_code:'" + mpcol.get("col_code") + "',");
 			sbJson.append("display:'" + mpcol.get("display") + "',");
 			sbJson.append("format:'" + MapUtil.getValue(mpcol, "format", "text") + "',");
 			sbJson.append("combo_code:'" + mpcol.get("combo_code") + "',");
