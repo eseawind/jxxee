@@ -30,14 +30,18 @@ public class DealExpress {
 			
 			//express, col_code
 			for (Map<String,String> mpExp : lsExpress) {
-				String col_code = mpExp.get("col_code");
-				mpExp.put("col_code", DealUtil.fieldFlag(col_code, typeId));
+				//构建一个新的字段列
+				Map<String,String> mpCol = FactoryUtil.newMap();
+				mpCol.putAll(mpExp);
 				
-				String express = mpExp.get("express");
+				String col_code = mpCol.get("col_code");
+				mpCol.put("col_code", DealUtil.fieldFlag(col_code, typeId));
+				
+				String express = mpCol.get("express");
 				//把[field_name]类型的字段名都添加__typeId
-				mpExp.put("express", pareseExpress(express, typeId));
+				mpCol.put("express", pareseExpress(express, typeId));
 				
-				lsRet.add(mpExp);
+				lsRet.add(mpCol);
 			}
 		}
 		

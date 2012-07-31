@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
-import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.dao.pool.DataSourceConfig;
 import org.jxstar.report.ReportException;
@@ -13,10 +12,8 @@ import org.jxstar.total.util.Expression;
 import org.jxstar.total.util.TotalDao;
 import org.jxstar.total.util.TotalUtil;
 import org.jxstar.util.MapUtil;
-import org.jxstar.util.StringFormat;
 import org.jxstar.util.StringValidator;
 import org.jxstar.util.factory.FactoryUtil;
-import org.jxstar.util.log.Log;
 
 /**
  * 统计报表实现的抽象类。
@@ -32,7 +29,7 @@ public abstract class AbstractTotal2 extends AbstractTotal {
 	 * @return List
 	 * @throws ReportException
 	 */
-	protected List<Map<String,String>> getCrossData(String reportId) throws ReportException {
+	public List<Map<String,String>> getCrossData(String reportId) throws ReportException {
 		List<Map<String,String>> lsData = FactoryUtil.newList();
 		List<Map<String,String>> lsArea =  TotalDao.queryTotalArea(reportId, "cross");
 
@@ -71,17 +68,30 @@ public abstract class AbstractTotal2 extends AbstractTotal {
 		
 		//取横向分类ID字段
 		String xTypeField = DealUtil.getTypeField(reportId, "cross");
-		
 		//取纵向分类ID字段
 		String yTypeField = DealUtil.getTypeField(reportId, "assort");
+		//取横向分类数据是否不输出空行
+		boolean isNotOutX = DealUtil.isNotOut(reportId, "cross");
+		//取纵向分类数据是否不输出空行
+		boolean isNotOutY = DealUtil.isNotOut(reportId, "assort");
 		
 		//统计数据
 		List<Map<String,String>> lsTotalData = totalArea(mpArea);
 		
 		//重新组合统计数据
 		if (!lsYTypeData.isEmpty() && !lsXTypeData.isEmpty()) {
-			if (xTypeField.length() == 0 || yTypeField.length() == 0) {
-				throw new ReportException("二维动态统计报表的分类区域中的类型ID字段不能为空！");
+			if (xTypeField.length() == 0) {
+				throw new ReportException("二维动态统计报表的横向分类区域中的【分类标示字段】不能为空！");
+			}
+			if (yTypeField.length() == 0) {
+				throw new ReportException("二维动态统计报表的纵向分类区域中的【分类标示字段】不能为空！");
+			}
+			
+			if (isNotOutX) {
+				lsXTypeData = DealUtil.removeEmpty(xTypeField, lsTotalData, lsXTypeData);
+			}
+			if (isNotOutY) {
+				lsYTypeData = DealUtil.removeEmpty(yTypeField, lsTotalData, lsYTypeData);
 			}
 			
 			DealDataXY dealXY = new DealDataXY(
@@ -95,7 +105,10 @@ public abstract class AbstractTotal2 extends AbstractTotal {
 			lsRet = dealXY.returnTotalData();
 		} else if (!lsYTypeData.isEmpty()) {
 			if (yTypeField.length() == 0) {
-				throw new ReportException("二维动态统计报表的分类区域中的类型ID字段不能为空！");
+				throw new ReportException("二维动态统计报表的纵向分类区域中的【分类标示字段】不能为空！");
+			}
+			if (isNotOutY) {
+				lsYTypeData = DealUtil.removeEmpty(yTypeField, lsTotalData, lsYTypeData);
 			}
 			
 			DealDataY dealY = new DealDataY(
@@ -173,7 +186,7 @@ public abstract class AbstractTotal2 extends AbstractTotal {
 		if (!lsXTypeData.isEmpty()) {
 			String xTypeField = DealUtil.getTypeField(reportId, "cross");
 			if (xTypeField.length() > 0) {
-				DealExpress.dealExpress(xTypeField, lsExpress, lsXTypeData);
+				lsExpress = DealExpress.dealExpress(xTypeField, lsExpress, lsXTypeData);
 			}
 		}
 		
@@ -193,26 +206,73 @@ public abstract class AbstractTotal2 extends AbstractTotal {
 
 		return lsData;
 	}
+	
+	/**
+	 * 计算纵向最后一行的合计值
+	 * @param reportId
+	 * @param lsData
+	 * @param lsXTypeData
+	 * @return
+	 */
+	protected List<Map<String,String>> calcSumBottom(String reportId, 
+			List<Map<String,String>> lsData,
+			List<Map<String,String>> lsXTypeData) {
+		//添加横向分类区域中的合计值，如果lsXTypeData为空，则不执行此方法
+		Map<String,String> mpTotal = FactoryUtil.newMap();
+		String field = DealUtil.getTypeField(_reportId, "cross");
+		for (Map<String,String> mpXType : lsXTypeData) {
+			String typeId = mpXType.get(field);
+			mpTotal = calcSumXType(_reportId, typeId, mpTotal, lsData);
+		}
+		
+		String sumTitle = "", isstat, isshow, colcode;
+		//添加合计行标题
+		if (!mpTotal.isEmpty()) {
+			List<Map<String,String>> lsDetail = TotalUtil.queryColumn(reportId);
+			for (Map<String,String> mpDetail : lsDetail) {
+				//如果是统计字段，则计算合计值了
+				isstat = MapUtil.getValue(mpDetail, "is_stat", "0");
+				if (isstat.equals("1")) continue;
+				
+				isshow = MapUtil.getValue(mpDetail, "is_show", "0");
+				colcode = MapUtil.getValue(mpDetail, "col_code");
+				
+				if (isshow.equals("1") && sumTitle.length() == 0) {
+					sumTitle = "合计";
+					mpTotal.put(colcode, sumTitle);
+				} else {
+					mpTotal.put(colcode, "");
+				}
+			}
+		}
+		
+		if (!mpTotal.isEmpty()) {
+			lsData.add(mpTotal);
+		}
+		
+		return lsData;
+	}
 
 	/**
 	 * 处理各区域中的合计字段数据
 	 * @param reportId -- 报表ID
-	 * @param lsData -- 统计数据
 	 * @param typeId -- 横向分类ID值
+	 * @param mpTotal -- 最后一行统计数据
+	 * @param lsData -- 统计数据
 	 * @return
 	 */
-	protected List<Map<String,String>> calcSumItem(String reportId, 
-			List<Map<String,String>> lsData,
-			String typeId) {
+	protected Map<String,String> calcSumXType(String reportId, 
+			String typeId, 
+			Map<String,String> mpTotal,
+			List<Map<String,String>> lsData) {
 		Map<String,String> mpItem = null, mpRet = null;
 		String isstat = null, colcode = null, value = null, express = null;
 		BigDecimal bdResult = null;
-
-		Map<String,String> mpTotal = FactoryUtil.newMap();
+		//标记有统计字段，为true才添加合计行
 		boolean isTotal = false;
 
-		String sumTitle = "";
-		List<Map<String,String>> lsDetail = TotalUtil.queryColumn(reportId);
+		String areaId = DealUtil.getTotalAreaId(reportId);
+		List<Map<String,String>> lsDetail = TotalDao.queryTotalField(areaId);
 		for (int i = 0, n = lsDetail.size(); i < n; i++) {
 			mpItem = lsDetail.get(i);
 			isstat = MapUtil.getValue(mpItem, "is_stat", "0");
@@ -221,18 +281,6 @@ public abstract class AbstractTotal2 extends AbstractTotal {
 			//添加横向分类ID值，因为横向动态列的字段名不同
 			if (isstat.equals("1") && typeId != null && typeId.length() > 0) {
 				colcode = DealUtil.fieldFlag(colcode, typeId);
-			}
-
-			//第一个显示字段，且不是统计字段显示'合计'
-			if (!isstat.equals("1")) {
-				String isshow = MapUtil.getValue(mpItem, "is_show", "0");
-				if (isshow.equals("1") && sumTitle.length() == 0) {
-					sumTitle = "合计";
-					mpTotal.put(colcode, sumTitle);
-				} else {
-					mpTotal.put(colcode, "");
-				}
-				continue;
 			}
 			
 			//带除法的表达式不能直接求和			
@@ -253,11 +301,10 @@ public abstract class AbstractTotal2 extends AbstractTotal {
 				bdResult = bdResult.add(new BigDecimal(value));
 				isTotal = true;
 			}
-			//_log.showDebug("..................bdResult.toString() = " + bdResult.toString());
 			mpTotal.put(colcode, bdResult.toString());
 		}
-		//_log.showDebug("..................mpTotal = " + mpTotal.toString());
-		//带除法的表达式按算法求和			
+		
+		//带除法的表达式要等其他值都计算后再执行除法求值		
 		if (isTotal == true) {
 			for (int i = 0, n = lsDetail.size(); i < n; i++) {
 				mpItem = lsDetail.get(i);
@@ -266,9 +313,10 @@ public abstract class AbstractTotal2 extends AbstractTotal {
 				colcode = mpItem.get("col_code");
 				
 				//给表达式中的字段添加“__类别ID”
-				if (typeId != null && typeId.length() == 0) {
+				if (typeId != null && typeId.length() > 0) {
 					express = DealExpress.pareseExpress(express, typeId);
 					colcode = DealUtil.fieldFlag(colcode, typeId);
+					_log.showDebug("...........deal express=" + express);
 				}
 				
 				//计算表达式的值
@@ -276,9 +324,59 @@ public abstract class AbstractTotal2 extends AbstractTotal {
 				mpTotal.put(colcode, value);
 			}
 		}
-		_log.showDebug(".................mpTotal = " + mpTotal.toString());
-		if (isTotal == true) lsData.add(mpTotal);
-
+		
+		return mpTotal;
+	}
+	
+	/**
+	 * 添加横向分类的合计值
+	 * @param reportId
+	 * @param lsData
+	 * @param lsYTypeData
+	 * @return
+	 */
+	protected List<Map<String,String>> addCrossSum(String reportId, 
+			List<Map<String,String>> lsData,
+			List<Map<String,String>> lsYTypeData) {
+		//取统计区域ID
+		List<Map<String,String>> lsArea =  TotalDao.queryTotalArea(reportId, "query");
+		Map<String,String> mpArea = lsArea.get(0);
+		String areaId = mpArea.get("area_id");
+		
+		List<Map<String,String>> lsField =  TotalDao.queryTotalField(areaId);
+		
+		//处理每一行数据，把同一个字段的值累计和，作为合计值
+		for (Map<String,String> mpData : lsData) {
+			
+			for (Map<String,String> mpField : lsField) {
+				String col_code = mpField.get("col_code");
+				
+				String sum_value = sumCrossValue(col_code, mpData);
+				
+				mpData.put(DealUtil.sumFieldFlag(col_code), sum_value);
+			}
+		}
+		
 		return lsData;
+	}
+	
+	//求横向合计值
+	private String sumCrossValue(String colcode, Map<String,String> mpData) {
+		BigDecimal bdResult = new BigDecimal(0);
+		for (String key : mpData.keySet()) {
+			if (key.indexOf(colcode + DealUtil.FIELD_FLAG) == 0) {
+				String value = mpData.get(key);
+				
+				if (value == null || value.length() == 0) continue;
+
+				if (!StringValidator
+					.validValue(value, StringValidator.DOUBLE_TYPE))
+					continue;
+
+				bdResult = bdResult.add(new BigDecimal(value));
+			}
+		}
+		
+		return bdResult.toString();
 	}
 }

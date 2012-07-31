@@ -21,30 +21,40 @@ public class ReprotTotal2Imp extends AbstractTotal2 {
 	public List<Map<String,String>> outputTotal() throws ReportException {
 		List<Map<String,String>> lsRet = FactoryUtil.newList();
 		//返回纵向分类数据
-		List<Map<String,String>> lsAssort = getAssortData(_reportId);
+		List<Map<String,String>> lsYTypeData = getAssortData(_reportId);
+		_log.showDebug("---------yType_data=\n\r" + DealUtil.listToStr(lsYTypeData));
 		
 		//返回横向分类数据
-		List<Map<String,String>> lsCross = getCrossData(_reportId); //2 add
+		List<Map<String,String>> lsXTypeData = getCrossData(_reportId); 
+		_log.showDebug("---------xType_data=\n\r" + DealUtil.listToStr(lsXTypeData));
 		
 		//获取各区域统计数据
-		lsRet = getTotalData(_reportId, lsAssort, lsCross);
-
+		lsRet = getTotalData(_reportId, lsYTypeData, lsXTypeData);
+		_log.showDebug("---------yType_data=\n\r" + DealUtil.listToStr(lsYTypeData));
+		_log.showDebug("---------xType_data=\n\r" + DealUtil.listToStr(lsXTypeData));
+		
+		
 		//处理各区域中的表达式字段数据
-		lsRet = calcTotalData(_reportId, lsRet, lsCross); //2 add
+		lsRet = calcTotalData(_reportId, lsRet, lsXTypeData); 
+		
+		//处理横向分类的合计区域数据 
+		if (DealUtil.hasCrossSum(_reportId)) {
+			lsRet = addCrossSum(_reportId, lsRet, lsYTypeData);
+			//添加横向合计标题
+			Map<String,String> mpTitle = FactoryUtil.newMap();
+			String field = DealUtil.getTypeField(_reportId, "cross");
+			mpTitle.put(field, DealUtil.SUM_FLAG);
+			lsXTypeData.add(mpTitle);
+		}
 
 		//处理纵向各区域中的合计字段数据
-		if (lsCross.isEmpty()) {
-			lsRet = calcSumItem(_reportId, lsRet, "");
-		} else {//2 add
-			for (Map<String,String> mpCross : lsCross) {
-				String field = DealUtil.getTypeField(_reportId, "cross");
-				String typeId = mpCross.get(field);
-				lsRet = calcSumItem(_reportId, lsRet, typeId);
-			}
+		if (lsXTypeData.isEmpty()) {
+			lsRet = calcSumItem(_reportId, lsRet);
+		} else {
+			lsRet = calcSumBottom(_reportId, lsRet, lsXTypeData);
 		}
+		_log.showDebug("---------total_data=\n\r" + DealUtil.listToStr(lsRet));
 		
-		//处理横向分类的合计区域数据 //2 add
-
 		return lsRet;
 	}
 
