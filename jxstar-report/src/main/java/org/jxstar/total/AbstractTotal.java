@@ -430,6 +430,7 @@ public abstract class AbstractTotal implements ReportTotal {
 		BigDecimal bdResult = null;
 
 		Map<String,String> mpTotal = FactoryUtil.newMap();
+		//标记有统计字段，为true才添加合计行
 		boolean isTotal = false;
 
 		String sumTitle = "";

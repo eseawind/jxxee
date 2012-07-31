@@ -109,7 +109,7 @@ public class TotalDao {
 	 * @return
 	 */
 	public static List<Map<String,String>> queryTotalField(String areaId) {
-		String sql = "select "+ _field_param +" from rpt_detail where (format = 'int' or  format like 'number%') " +
+		String sql = "select "+ _field_detail +" from rpt_detail where (format = 'int' or  format like 'number%') " +
 				"and area_id = ? order by col_index";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(areaId);
@@ -137,7 +137,7 @@ public class TotalDao {
 	 * @return
 	 */
 	public static List<Map<String,String>> queryExpress(String reportId) {
-		String sql = "select express, col_code from rpt_detail where area_id in " +
+		String sql = "select express, col_code, format from rpt_detail where area_id in " +
 				"(select area_id from rpt_area where report_id = ?) and express > ' '";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(reportId);
@@ -147,12 +147,13 @@ public class TotalDao {
 	
 	/**
 	 * 获取统计条件页面参数
+	 * 改为去掉：and area_type = 'assort'，只要是主区域就可以，动态统计可能没有分类区域 
 	 * @param reportId
 	 * @return
 	 */
 	public static List<Map<String,String>> queryRequestParam(String reportId) {
 		String sql = "select "+ _field_param +" from rpt_param where data_src = 'request' and " +
-				"area_id in (select area_id from rpt_area where is_main = '1' and area_type = 'assort' and report_id = ?) " +
+				"area_id in (select area_id from rpt_area where is_main = '1' and report_id = ?) " +
 				"order by param_index";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(reportId);

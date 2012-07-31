@@ -10,6 +10,8 @@ import org.jxstar.total.ReportTotal;
 import org.jxstar.total.ReprotTotalImp;
 import org.jxstar.total.util.TotalDao;
 import org.jxstar.total.util.TotalUtil;
+import org.jxstar.total2.DealUtil;
+import org.jxstar.total2.ReprotTotal2Imp;
 import org.jxstar.util.factory.FactoryUtil;
 
 /**
@@ -40,6 +42,8 @@ public class TotalExecuteBO extends BusinessObject {
 		}
 		//取报表定义ID
 		String reportId = mpReport.get("report_id");
+		//报表类型
+		String reportType = mpReport.get("report_type");
 		
 		//取前台请求参数
 		Map<String,Object> mpRequest = request.getRequestMap();
@@ -47,7 +51,12 @@ public class TotalExecuteBO extends BusinessObject {
 		
 		//取统计数据
 		List<Map<String, String>> lsRet = FactoryUtil.newList();
-		ReportTotal total = new ReprotTotalImp();
+		ReportTotal total = null;
+		if (reportType.equals("total2")) {
+			total = new ReprotTotal2Imp();
+		} else {
+			total = new ReprotTotalImp();
+		}
 		try {
 			total.initTotal(mpRequest);
 			lsRet = total.outputTotal();
@@ -57,9 +66,18 @@ public class TotalExecuteBO extends BusinessObject {
 			return _returnFaild;
 		}
 		
+		//把统计数据中没有的动态分类列都删除掉，返回json对象[field1, field2...]
+		String delcols = "";
+		if (!lsRet.isEmpty()) {
+			delcols = DealUtil.retRemoveColumn(reportId, lsRet.get(0));
+			if (delcols.length() > 0) {
+				delcols = ",delcols:" + delcols;
+			}
+		}
+		
 		//转换统计数据为JSON
 		String data = TotalUtil.listToJson(lsRet);
-		String json = "{total:"+lsRet.size()+",root:"+ data +"}";
+		String json = "{total:"+lsRet.size()+",root:"+ data + delcols +"}";
 		//_log.showDebug("...................total json=" + json);
 		setReturnData(json);
 		
