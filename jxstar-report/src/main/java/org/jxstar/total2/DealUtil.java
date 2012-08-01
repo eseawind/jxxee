@@ -181,6 +181,34 @@ public class DealUtil {
 	}
 	
 	/**
+	 * 构建数据钻取的查询参数条件，参数有：
+	 * where_sql:显示where
+	 * where_type:string;string...
+	 * where_value:[param_name1];[param_name2]...
+	 * xfield:
+	 * yfield:
+	 * @param areaId
+	 * @return
+	 */
+	public static String getDrillParam(String areaId, String reportId) {
+		Map<String,String> mpDrill = TotalDao.queryDrill(areaId);
+		if (mpDrill.isEmpty()) return "";
+		
+		String xfield = getTypeField(reportId, "cross");
+		String yfield = getTypeField(reportId, "assort");
+		
+		StringBuilder sbRet = new StringBuilder();
+		sbRet.append("{fun_id:'" + mpDrill.get("fun_id") + "',");
+		sbRet.append("where_sql:'" + mpDrill.get("where_sql") + "',");
+		sbRet.append("where_type:'" + mpDrill.get("where_type") + "',");
+		sbRet.append("where_value:'" + mpDrill.get("where_value") + "',");
+		sbRet.append("xfield:'" + xfield + "',");
+		sbRet.append("yfield:'" + yfield + "'}");
+		
+		return sbRet.toString();
+	}
+	
+	/**
 	 * 取得动态统计数据区域ID
 	 * @param reportId
 	 * @return
