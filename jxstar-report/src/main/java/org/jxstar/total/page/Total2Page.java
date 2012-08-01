@@ -39,6 +39,9 @@ public class Total2Page extends AbstractTotalPage {
 			lsCol.addAll(TotalDao.queryDetail(areaId));
 		}
 		
+		//数据钻取参数
+		String drillParam = "";
+		
 		//找统计区域的显示字段
 		List<Map<String,String>> lsTotalField = null;
 		List<Map<String,String>> lsTotalArea =  TotalDao.queryTotalArea(reportId, "query");
@@ -49,6 +52,8 @@ public class Total2Page extends AbstractTotalPage {
 			
 			//如果没有定义纵向分类，则统计区域可能存在分类字段，需要添加到字段列表中
 			addTextField(areaId, lsCol);
+			
+			drillParam = DealUtil.getDrillParam(areaId, reportId);
 		}
 		if (lsTotalField == null || lsTotalField.isEmpty()) {
 			throw new ReportException("没有定义统计区域的显示字段！");
@@ -82,6 +87,7 @@ public class Total2Page extends AbstractTotalPage {
 				String typeId = mpType.get(typeField);
 				String typeTitle = mpType.get(titleField);
 				
+				boolean drilled = false;
 				for (Map<String,String> mpField : lsTotalField) {
 					//构建一个新的字段列
 					Map<String,String> mpCol = FactoryUtil.newMap();
@@ -94,6 +100,12 @@ public class Total2Page extends AbstractTotalPage {
 					//如果统计字段只有一个，则直接采用横向分类值作为标题
 					if (lsTotalField.size() == 1) {
 						mpCol.put("display", typeTitle);
+					}
+					
+					//如果有数据钻取参数，则添加；每个区域只第一个字段添加
+					if (drillParam != null && drillParam.length() > 0 && !drilled) {
+						mpCol.put("drillparam", drillParam);
+						drilled = true;
 					}
 					
 					//添加总列表中

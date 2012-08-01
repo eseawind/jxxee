@@ -9,7 +9,9 @@ import java.util.Map;
 import org.jxstar.report.ReportException;
 import org.jxstar.total.util.TotalDao;
 import org.jxstar.total.util.TotalUtil;
+import org.jxstar.total2.DealUtil;
 import org.jxstar.util.MapUtil;
+import org.jxstar.util.factory.FactoryUtil;
 
 /**
  * 构建普通统计报表显示数据的页面对象需要的JSON数据。
@@ -25,7 +27,26 @@ public class TotalPage extends AbstractTotalPage {
 	 */
 	@Override
 	public String columnJson(String reportId) throws ReportException {
-		List<Map<String,String>> lsCol = TotalUtil.queryColumn(reportId);
+		List<Map<String,String>> lsCol = FactoryUtil.newList();
+		List<Map<String,String>> lsArea = TotalDao.queryArea(reportId);
+		
+		for (int i = 0, n = lsArea.size(); i < n; i++) {
+			Map<String,String> mpArea = lsArea.get(i);
+			
+			String areaId = mpArea.get("area_id");
+			String areaType = mpArea.get("area_type");
+			List<Map<String, String>> lsDet = TotalDao.queryDetail(areaId);
+			
+			//如果统计区域，且定义了数据钻取参数，则需要添加到字段定义信息
+			if (areaType.equals("query") && lsDet.size() > 0) {
+				String drillParam = DealUtil.getDrillParam(areaId, reportId);
+				if (drillParam.length() > 0) {
+					lsDet.get(0).put("drillparam", drillParam);
+				}
+			}
+			
+			lsCol.addAll(lsDet);
+		}
 		if (lsCol.isEmpty()) {
 			throw new ReportException("没有定义统计报表的列信息！");
 		}

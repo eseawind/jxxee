@@ -115,12 +115,29 @@ public abstract class AbstractTotalPage extends BusinessObject {
 		for (int i = 0, n = lsCol.size(); i < n; i++) {
 			Map<String,String> mpcol = lsCol.get(i);
 			String is_show = MapUtil.getValue(mpcol, "is_show", "0");
-			if (is_show.equals("0")) continue;
+			//if (is_show.equals("0")) continue;
 			
 			String width = MapUtil.getValue(mpcol, "col_width", "100");
 			if (Integer.parseInt(width) <= 0) width = "100";
 			
+			//添加数据钻取参数信息
+			String drillparam = "";
+			if (mpcol.containsKey("drillparam")) {
+				drillparam = mpcol.get("drillparam");
+				if (drillparam != null && drillparam.length() > 0) {
+					drillparam = "drillparam:" + drillparam + ",";
+				}
+			}
+			
+			//添加隐藏域
+			String hidden = "";
+			if (is_show.equals("0")) {
+				hidden = "hidden:true,ishidden:true,";
+			}
+			
 			sbJson.append("{col_code:'" + mpcol.get("col_code") + "',");
+			sbJson.append(drillparam);
+			sbJson.append(hidden);
 			sbJson.append("display:'" + mpcol.get("display") + "',");
 			sbJson.append("format:'" + MapUtil.getValue(mpcol, "format", "text") + "',");
 			sbJson.append("combo_code:'" + mpcol.get("combo_code") + "',");
