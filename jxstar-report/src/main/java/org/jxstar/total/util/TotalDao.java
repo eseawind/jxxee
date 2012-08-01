@@ -118,6 +118,19 @@ public class TotalDao {
 	}
 	
 	/**
+	 * 获取数据钻取定义信息
+	 * @param areaId
+	 * @return
+	 */
+	public static Map<String,String> queryDrill(String areaId) {
+		String sql = "select where_sql, where_type, where_value, fun_id from rpt_drill where area_id = ?";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(areaId);
+		
+		return _dao.queryMap(param);
+	}
+	
+	/**
 	 * 获取该区域需要显示的列数据
 	 * @param areaId
 	 * @return
