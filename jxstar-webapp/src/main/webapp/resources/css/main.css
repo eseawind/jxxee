@@ -90,10 +90,10 @@
     -khtml-user-select:text!important;
     -webkit-user-select:text!important;
 }
+.menu_bg{background:url(../images/menu_body.png) left top repeat-y;}
 .x-tree-node div.one-menu{
     background:#eee url(../images/menu-bg.gif) repeat-x;
     margin-top:1px;
-    border-top:1px solid #ddddff;
     border-bottom:1px solid #8DB2E3;
     padding-top:2px;
     padding-bottom:1px;
@@ -102,6 +102,10 @@
     padding-top:1px;
 	margin-bottom:1px;
 }
+.x-tree-node-ct-ext{
+    border-bottom:1px solid #8DB2E3;
+}
+
 .one-menu .x-tree-node-icon {display:none;}
 .two-menu .x-tree-node-icon {display:none;}
 .three-menu .x-tree-ec-icon{display:none;}
@@ -216,12 +220,13 @@ td.ux-grid-hd-group-cell {/* ux.ColumnHeaderGroup */
 }
 .top_south {
 	color:#FF9900;
-	float:left;
-	width:20%;
+	width:100%;
+	float:right;
 	font-size: 13px;
 	font-weight:bold;
-	text-align:left;
-	padding-top:6px;
+	text-align:right;
+	margin-bottom:4px;
+	padding-right:10px;
 }
 .active {color:#FF9900;}
 .top_btn_home{background-image:url( ../images/icons/button/btn_home.gif) !important;}

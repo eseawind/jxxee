@@ -19,17 +19,21 @@
 	//构建顶部的管理按钮
 	var chgcolor = 'onmouseover="this.style.color=\'#ff9900\';" onmouseout="this.style.color=\'#ffffff\';" class="top-menu-text"';
 	var btnHtml = 
-		'<table border="0" cellspacing="0" cellpadding="0" style="font-size:12px;float:right;"><tr><td>' +
+		'<table border="0" cellspacing="0" cellpadding="0" style="font-size:12px;float:right;">' + 
+		'<tr><td>' + 
+		'<div class="top_south" id="main_hint">' + jx.base.welcome + ' ' + JxDefault.getUserName() +' ['+ JxDefault.getDeptName() +']</div>' +
+		'</td></tr>' + 
+		'<tr><td>' +
 		'<span class="top-menu-img eb_pass"></span><a href="#" '+ chgcolor +' onclick="JxUtil.setPass(JxDefault.getUserId());">修改密码</a>' +
 		'<span class="top-menu-img eb_online"></span><a href="#" '+ chgcolor +' onclick="JxUtil.onLineUser();">在线用户</a>' +
 		'<span class="top-menu-img eb_logout"></span><a href="#" '+ chgcolor +' onclick="JxUtil.logout();">退出系统</a>' +
-		'</td></tr></table>';
+		'</td></tr>' +
+		'</table>';
 	
 	/*--------------------创建首页头部区域-----------------------*/
 	var topHtml = 
 		"<div class='top_bg'>" + 
-			"<div class='top_north' id='main_menu'>"+ btnHtml +"</div>" + 
-			"<div class='top_south' id='main_hint'>" + jx.base.welcome + ' ' + JxDefault.getUserName() +" ["+ JxDefault.getDeptName() +"]</div>" + 
+			"<div class='top_north' id='main_menu'>"+ btnHtml +"</div>"
 		"</div>";
 
 	var imgpath = './resources/images/top-app.png';
@@ -37,7 +41,7 @@
     var topPanel = new Ext.Panel({
 		region:'north',
         layout:'border',
-		height:48,
+		height:50,
 		border:true,
 	    items:
 		[{
@@ -98,6 +102,7 @@
 		region:'west',
 		title:'功能菜单',
 		iconCls:'main-menu-tree',
+		bodyCssClass:'menu_bg',
 		margins:'2 0 5 5',
 		split:true,
 		width:180,
@@ -130,6 +135,15 @@
 	treeMenu.on('click', function(node){
 		if (node.isLeaf()) { 
 			Jxstar.createNode(node.id);	
+		}
+	});
+	//给展开的菜单区域添加底部边框
+	treeMenu.on('expandnode', function(node) {
+		if (node.id.length == 4 && !node.isLast()) {
+			var ct = Ext.get(node.getUI().ctNode);
+			if (!ct.hasClass('x-tree-node-ct-ext')) {
+				ct.addClass('x-tree-node-ct-ext');
+			}
 		}
 	});
 

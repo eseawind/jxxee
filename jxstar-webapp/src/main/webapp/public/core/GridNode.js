@@ -497,6 +497,24 @@ Jxstar.GridNode.prototype = {
 				tbar.doLayout();
 			}
 			
+			//如果是单元选择模式，则增加选项“是否行选”
+			var sm = self.page.getSelectionModel();
+			if (sm instanceof Ext.grid.CellSelectionModel) {
+				var setSelMode = function(cb, checked){
+					var grid = self.page;
+					
+					grid.selModel.destroy();
+					if (checked) {
+						grid.selModel = new Ext.grid.RowSelectionModel();
+					} else {
+						grid.selModel = new Ext.grid.CellSelectionModel();
+					}
+					
+					grid.selModel.init(grid);
+				};
+				tbar.add('-', {xtype:'checkbox', boxLabel:'是否行选', handler:setSelMode}); 
+			}
+			
 			if (tbar.items != null && tbar.items.getCount() == 1) {
 				tbar.hide();
 			} else {

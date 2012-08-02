@@ -397,7 +397,14 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		//添加记录
 		this.grid.stopEditing();
 		store.insert(0, record);
-		this.grid.startEditing(0, 0);
+		
+		//第一个可编辑列的位置
+		var starti = 1;
+		var sm = this.grid.getSelectionModel();
+		if (sm instanceof Ext.grid.CheckboxSelectionModel) {
+			starti = 2;
+		}
+		this.grid.startEditing(0, starti);
 		
 		if (this.fireEvent('beforecreate', this) == false) return;
 	},
