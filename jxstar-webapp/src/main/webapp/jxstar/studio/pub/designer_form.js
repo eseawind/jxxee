@@ -98,9 +98,9 @@ Jxstar.currentPage = {
 	/**
 	 * 初始化列与字段的宽度
 	 **/
-	initWidth: function(colsnum) {
+	initWidth: function(colnums) {
 		var self = this;
-		self.colnums = colsnum;
+		self.colnums = colnums;
 		if (self.colnums == 2) {
 			self.initsize.colw = 340;
 			self.initsize.fieldw = 320;
@@ -164,7 +164,7 @@ Jxstar.currentPage = {
 		var extMenu = [
 			{text:jx.fun.ctlprop, handler:function(){self.updateProp();}},		//'控件属性'
 			{text:jx.fun.delctl, handler:function(){self.deleteComponent();}},	//'删除控件'
-			{text: 'form cols', menu:{items: [									//'设置表单列数'
+			{text:jx.fun.colnums, id:'menu_colnums', menu:{items: [					//'显示几列'
              {text:'2 cols', checked: true, group: 'colsnum', checkHandler: onItemClick},
              {text:'3 cols', checked: false, group: 'colsnum', checkHandler: onItemClick}
              ]}
@@ -183,6 +183,7 @@ Jxstar.currentPage = {
 			{text:jx.fun.synprop, iconCls:'eb_refresh', handler:function(){self.updateDesign();}},	//'同步属性'
 			{text:jx.fun.setfld, iconCls:'eb_empty', handler:function(){self.selectField();}},		//'设置字段'
 			{text:jx.fun.addlay, iconCls:'eb_form', handler:function(){self.createLayout(4, self.colnums);}},	//'添加布局'
+			{text:jx.fun.setattr, iconCls:'eb_setattr', handler:function(){self.setattr();}},
 			{xtype:'tbfill'},
 			{xtype:'tbseparator'},
 			{text:jx.fun.addctl, iconCls: 'eb_menu', menu: compMenu},		//'添加控件…'
@@ -237,6 +238,39 @@ Jxstar.currentPage = {
 		//发送请求
 		Request.postRequest(params, null);
 	},
+	
+	//private 设置属性
+	setattr: function() {
+		var self = this;
+		//过滤条件
+		var loadcfg = {
+			where_sql: 'fun_attr.attr_type = ? and fun_attr.fun_id = ?',
+			where_type: 'string;string',
+			where_value: 'form;'+self.nodeId
+		};
+		
+		//加载数据
+		var hdcall = function(grid) {
+			//显示数据
+			JxUtil.delay(500, function(){
+				//设置属性类型与功能ID
+				grid.fkValue = self.nodeId;
+				grid.attr_type = 'form';
+				Jxstar.loadData(grid, loadcfg);
+			});
+		};
+
+		//显示数据
+		var define = Jxstar.findNode('fun_attrdes');
+		Jxstar.showData({
+			filename: define.gridpage,
+			title: define.nodetitle,
+			width: 760,
+			height: 350,
+			nodedefine: define,
+			callback: hdcall
+		});
+	},
 
 	/**
 	 * 保存设计文件，处理方法：
@@ -265,7 +299,7 @@ Jxstar.currentPage = {
 		}
 		
 		filecont = "<?xml version='1.0' encoding='utf-8'?>\r";
-		filecont += "<page state='design'>\r";
+		filecont += "<page state='design' colnums='"+ self.colnums +"'>\r";
 		filecont += pageXML;
 		filecont += "</page>";
 		
@@ -326,6 +360,16 @@ Jxstar.currentPage = {
 			var pageDom = xdoc.getElementsByTagName("page").item(0);
 
 			var state = self.readAttrVal(pageDom, 'state', 'default');
+			//设置缺省显示几列
+			var colnums = self.readAttrVal(pageDom, 'colnums', '2');
+			self.initWidth(colnums)
+			var colmenu = Ext.getCmp('menu_colnums').menu;
+			if (colnums == '3') {
+				colmenu.get(1).setChecked(true);
+			} else {
+				colmenu.get(0).setChecked(true);
+			}
+			
 			//初始化控件ID序号
 			self.compnum = 0;
 
@@ -446,8 +490,8 @@ Jxstar.currentPage = {
 		if (isform) {
 			winTitle = jx.fun.setset;	//'设置FieldSet属性';
 			propSrc = {
-				//id: self.readAttrVal(curdom, 'id', ''),
 				title: self.readAttrVal(curdom, 'title', ''),
+				border: self.readAttrVal(curdom, 'border', 'true') == 'true',
 				collapsible: self.readAttrVal(curdom, 'collapsible', 'false') == 'true',
 				collapsed: self.readAttrVal(curdom, 'collapsed', 'false') == 'true'
 			};
@@ -457,7 +501,6 @@ Jxstar.currentPage = {
 		var isfield = curel.hasClass('fdes-fielditem');
 		if (isfield) {
 			propSrc = {
-				//id: self.readAttrVal(curdom, 'id', ''),
 				xtype: self.readAttrVal(curdom, 'xtype', ''),
 				title: self.readAttrVal(curdom, 'title', ''),
 				colcode: self.readAttrVal(curdom, 'colcode', ''),
@@ -489,7 +532,7 @@ Jxstar.currentPage = {
 					var src = propsGrid.getSource();
 					
 					if (isfield || isform) curdom.setAttribute('title', src.title);
-					//curdom.setAttribute('colwidth', src.colwidth);
+					if (isform) curdom.setAttribute('border', src.border.toString());
 					if (isform) curdom.setAttribute('collapsible', src.collapsible.toString());
 					if (isform) curdom.setAttribute('collapsed', src.collapsed.toString());
 					if (isfield) curdom.setAttribute('xtype', src.xtype);
@@ -856,14 +899,14 @@ Jxstar.currentPage = {
 			var h = self.readAttrVal(node, 'height', self.initsize.formh);
 			
 			var id = 'form-comp'+self.compnum;
-			//var id = self.readAttrVal(node, 'id', defid);
 			var title = self.readAttrVal(node, 'title', '');
+			var border = self.readAttrVal(node, 'border', '');
 			var collapsible = self.readAttrVal(node, 'collapsible', '');
 			var collapsed = self.readAttrVal(node, 'collapsed', '');
 
 			var html = 
 				'<div id="'+id+'" class="fdes-formitem x-unselectable" style="top:'+y+';left:'+x+';width:'+w+';height:'+h+
-				';" title="'+title+'" collapsible="'+collapsible+'" collapsed="'+collapsed+'">F</div>';
+				';" title="'+title+'" border="'+border+'" collapsible="'+collapsible+'" collapsed="'+collapsed+'">F</div>';
 
 			self.addCompHtml(id, html);
 			
@@ -1020,6 +1063,7 @@ Jxstar.currentPage = {
 
 			var id = self.readAttrVal(formitems[i], 'id');
 			var title = self.readAttrVal(formitems[i], 'title');
+			var border = self.readAttrVal(formitems[i], 'border');
 			var collapsible = self.readAttrVal(formitems[i], 'collapsible');
 			var collapsed = self.readAttrVal(formitems[i], 'collapsed');
 			
@@ -1028,7 +1072,7 @@ Jxstar.currentPage = {
 			if (colXML.length == 0) return '';
 			
 			formcont += "\t<formitem x='"+ x +"' y='"+ y +"' width='"+ w +"' height='"+ h +
-						"' id='"+ id +"' title='"+ title +"' collapsible='"+ collapsible +
+						"' id='"+ id +"' title='"+ title +"' border='"+ border +"' collapsible='"+ collapsible +
 						"' collapsed='"+ collapsed +"'>\r";
 			formcont += colXML;
 			formcont += "\t</formitem>\r";

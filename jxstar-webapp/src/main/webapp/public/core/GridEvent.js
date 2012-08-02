@@ -105,7 +105,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	**/
 	impType: function() {
 		var self = this;
-		var records = self.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(self.grid);
 		if (!JxUtil.selected(records)) return;
 		
 		//取数据类别ID
@@ -144,7 +144,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	* 自定义通用事件
 	**/
 	customEvent : function(eventCode) {	
-		var records = this.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(this.grid);
 		if (!JxUtil.selected(records)) return;
 		
 		if (this.fireEvent('beforecustom', this, eventCode) == false) return;
@@ -183,7 +183,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	**/
 	showForm : function() {
 		var store = this.grid.getStore();
-		var records = this.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(this.grid);
 		if (!JxUtil.selectone(records)) return;
 
 		//显示表单数据
@@ -200,7 +200,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		if (url == null || url.length == 0) return;
 		
 		var store = this.grid.getStore();
-		var records = this.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(this.grid);
 		if (!JxUtil.selectone(records)) return;
 
 		//显示表单数据
@@ -252,7 +252,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	checkAudit: function(auditval) {
 		if (auditval == null) auditval = '1';
 		
-		var records = this.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(this.grid);
 		for (var i = 0; i < records.length; i++) {
 			var auditcol = this.define.auditcol;
 			if (Ext.isEmpty(auditcol)) return false;
@@ -281,7 +281,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	* 删除事件
 	**/
 	del : function() {
-		var records = this.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(this.grid);
 		if (!JxUtil.selected(records)) return;
 
 		if (this.checkAudit()) return;
@@ -300,9 +300,6 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 
 			//删除后要处理的内容
 			var endcall = function(data) {
-				/*for (var i = 0; i < records.length; i++) {
-					self.grid.getStore().remove(records[i]);
-				}*/
 				//重新加载数据
 				self.grid.getStore().reload();
 
@@ -341,7 +338,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	baseAudit : function(auditval) {
 		var keyids = [];
 		var cm = this.grid.getColumnModel();
-		var records = this.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(this.grid);
 		if (!JxUtil.selected(records)) return;
 		
 		//检查必填附件字段的值
@@ -440,14 +437,47 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 
 		return record;
 	},
-
+	
+	/**
+	* private
+	* 明细表格删除、保存记录后统计子表数据更新到主表中。
+	* 工具方法，与GridEvent类无关。
+	**/
+	substat : function(subGrid) {
+		var params = 'funid=sysevent&pagetype=subgrid&eventcode=substat';
+		//取外键值
+		var fkv = subGrid.fkValue ? subGrid.fkValue : '';
+		if (Ext.isEmpty(fkv)) return;
+		params += '&fkValue=' + fkv;
+		
+		//添加主功能ID
+		var pfunId = subGrid.gridNode.parentNodeId;
+		if (Ext.isEmpty(pfunId)) return;
+		params += '&pfunid=' + pfunId;
+		
+		//把统计结果写到主表单中
+		var endcall = function(data) {
+			if (Ext.isEmpty(data)) return;
+			
+			//取到主表单对象
+			var form = JxUtil.getParentForm(subGrid);
+			if (!Ext.isEmpty(form)) {
+				Ext.iterate(data, function(key, value){
+					form.oset(key, value);
+				});
+			}
+		};
+		
+		//发送请求
+		Request.postRequest(params, endcall);
+	},
 
 	/**
 	* public
 	* GRID编辑删除事件
 	**/
 	editDelete : function() {
-		var records = this.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(this.grid);
 		if (!JxUtil.selected(records)) return;
 
 		if (this.checkAudit()) return;
@@ -477,9 +507,10 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 
 			//删除后要处理的内容
 			var endcall = function(data) {
-				/*for (var i = 0; i < records.length; i++) {
-					self.grid.getStore().remove(records[i]);
-				}*/
+				//统计主表中的统计字段值
+				if (self.grid.gridNode.param.substat) {
+					self.substat(self.grid);
+				}
 				self.fireEvent('afterdelete', self, data);
 				
 				//重新加载数据
@@ -500,7 +531,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	* GRID编辑复制事件
 	**/
 	editCopy : function() {
-		var records = this.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(this.grid);
 		if (!JxUtil.selected(records)) return;
 
 		if (this.fireEvent('beforecopy', this) == false) return;
@@ -531,6 +562,10 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 
 			//复制后刷新数据
 			var endcall = function(data) {
+				//统计主表中的统计字段值
+				if (self.grid.gridNode.param.substat) {
+					self.substat(self.grid);
+				}
 				self.fireEvent('aftercopy', self, data);
 				
 				self.grid.getStore().reload();
@@ -608,6 +643,12 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			}
 			params += '&fkValue=' + fkv;
 		}
+		//添加主功能ID
+		var pfunId = this.grid.gridNode.parentNodeId;
+		if (!Ext.isEmpty(pfunId)) {
+			params += '&pfunid=' + pfunId;
+		}
+		
 		//添加树型参数
 		var attr = self.grid.treeNodeAttr;
 		if (attr) {
@@ -625,21 +666,12 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		//保存后要处理的内容
 		var self = this;
 		var endcall = function(data) {
-			/*if (data) {
-				//把新增的记录ID写到界面上
-				Ext.each(data, function(item) {
-					//JxHint.alert(item + ':' + item.index + ':' + item.keyid);
-					//保存时没有值
-					if (item.keyid != null) {
-						var pkcol = self.define.pkcol;
-						var record = mrow[item.index];
-						record.set(pkcol, item.keyid);
-					}
-				});
-			}*/
 			//复核数据修改
 			store.commitChanges();
-			
+			//统计主表中的统计字段值
+			if (self.grid.gridNode.param.substat) {
+				self.substat(self.grid);
+			}
 			self.fireEvent('aftersave', self, data);
 
 			//重新加载数据
@@ -657,7 +689,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	viewHtmlReport : function() {
 		var self = this;
 		var funid = self.define.nodeid;
-		var records = self.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(self.grid);
 		if (!JxUtil.selectone(records)) return;
 			
 		var viewReport = function (reportId) {
@@ -716,7 +748,12 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		if (this.fireEvent('beforeimport', this) == false) return;
 		
 		//取路由定义信息，格式：{srcNodeId:"sys_event",whereSql:"fun_id='sysevent'",whereType:"",whereValue:""}
-		var route = RuleData[this.define.nodeid][0];
+		var routes = RuleData[this.define.nodeid];
+		if (!routes || routes.length == 0) { 
+			JxHint.alert('没有定义导入SQL、或者没有生成SQL规则文件！');
+			return false;
+		}
+		var route = routes[0];
 		var srcNodeId = route.srcNodeId;
 		var layout = route.layout;
 		var whereSql = route.whereSql||'';
@@ -809,7 +846,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	**/
 	imp : function() {
 		var self = this;
-		var records = self.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(self.grid);
 		if (!JxUtil.selected(records)) return;
 
 		//按钮不可用
@@ -839,6 +876,10 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 
 			var destGrid = self.grid.destGrid;
 			if (destGrid != null) {
+				//统计主表中的统计字段值
+				if (destGrid.gridNode.param.substat) {
+					self.substat(destGrid);
+				}
 				destGrid.getStore().reload();
 			}
 			
@@ -865,7 +906,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	* 选择记录，执行双击事件
 	**/
 	selRecord: function() {
-		var records = this.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(this.grid);
 		if (!JxUtil.selected(records)) return;
 		
 		this.grid.fireEvent('rowclick', this.grid);
@@ -896,7 +937,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			//取来源数据字段名称，如图片字段
 			dataField = attachField || '';
 		} else {
-			var records = this.grid.getSelectionModel().getSelections();
+			var records = JxUtil.getSelectRows(this.grid);
 			if (!JxUtil.selectone(records)) return;
 			var pkcol = this.define.pkcol;
 			
@@ -1004,7 +1045,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	* 管理图文资料
 	**/
 	upload : function() {
-		var records = this.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(this.grid);
 		if (!JxUtil.selectone(records)) return;
 		
 		var self = this;
@@ -1081,7 +1122,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	**/
 	agree: function() {
 		var self = this;
-		var records = self.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(self.grid);
 		if (!JxUtil.selected(records)) return;
 
 		var hdcall = function() {
@@ -1111,7 +1152,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	* 弹出完成分配任务界面。
 	**/
 	check: function() {
-		var records = this.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(this.grid);
 		if (!JxUtil.selected(records)) return;
 		
 		//审批确定后会刷新该表格，在check_work.js文件中用到了这个全局变量。
@@ -1187,7 +1228,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	**/
 	showWorkFlow: function(funId, fileName) {
 		var self = this;
-		var records = self.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(self.grid);
 		if (!JxUtil.selected(records)) return;//如果选择了多条，缺省取第1条记录
 		
 		var dataId = records[0].get(self.define.pkcol);
@@ -1202,7 +1243,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	**/
 	showPicture: function() {
 		var self = this;
-		var records = self.grid.getSelectionModel().getSelections();
+		var records = JxUtil.getSelectRows(self.grid);
 		if (!JxUtil.selected(records)) return;
 		
 		var funId = self.define.nodeid;

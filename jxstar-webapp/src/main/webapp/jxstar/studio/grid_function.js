@@ -13,18 +13,13 @@
 			maxLength:50, allowBlank:false
 		})}, field:{name:'fun_base__fun_name',type:'string'}},
 	{col:{header:'业务表名', width:126, sortable:true, editable:true, hcss:'color:#3039b4;',
-		editor:new Ext.form.TriggerField({
-			maxLength:50,
-			editable:true,
+		editor:new Ext.form.ComboBox({
+			maxLength:50, name:'fun_base__table_name', 
+			editable:true, hcss:'color:#3039b4;',
 			triggerClass:'x-form-search-trigger', 
-			onTriggerClick: function() {
-				if (this.menu == null) {
-					var selcfg = {pageType:'combogrid', nodeId:'sel_table', layoutPage:'', sourceField:'dm_table.table_name', targetField:'fun_base.table_name', whereSql:"", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',fieldName:'fun_base.table_name'};
-					this.menu = Jxstar.createComboMenu(this);
-					JxSelect.createComboGrid(selcfg, this.menu, 'node_sys_fun_base_editgrid');
-				}
-				this.menu.show(this.el);
-			}
+			listeners:{afterrender: function(combo) {
+				JxSelect.initCombo('sys_fun_base', combo, 'node_sys_fun_base_editgrid');
+			}}
 		})}, field:{name:'fun_base__table_name',type:'string'}},
 	{col:{header:'功能序号', width:74, sortable:true, align:'right',
 		editable:true, hcss:'color:#3039b4;',
@@ -80,7 +75,7 @@
 			triggerClass:'x-form-search-trigger', 
 			onTriggerClick: function() {
 				if (this.menu == null) {
-					var selcfg = {pageType:'combogrid', nodeId:'fun_layout', layoutPage:'', sourceField:'funall_layout.layout_path', targetField:'fun_base.layout_page', whereSql:"", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',fieldName:'fun_base.layout_page'};
+					var selcfg = {pageType:'combogrid', nodeId:'fun_layout', layoutPage:'', sourceField:'funall_layout.layout_path', targetField:'fun_base.layout_page', whereSql:"", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',queryField:'',likeType:'',fieldName:'fun_base.layout_page'};
 					this.menu = Jxstar.createComboMenu(this);
 					JxSelect.createComboGrid(selcfg, this.menu, 'node_sys_fun_base_editgrid');
 				}
@@ -102,7 +97,7 @@
 			triggerClass:'x-form-search-trigger', 
 			onTriggerClick: function() {
 				if (this.menu == null) {
-					var selcfg = {pageType:'combogrid', nodeId:'sel_field', layoutPage:'', sourceField:'v_field_info.col_code', targetField:'fun_base.pk_col', whereSql:"v_field_info.table_name = ?", whereValue:'[fun_base.table_name]', whereType:'string', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',fieldName:'fun_base.pk_col'};
+					var selcfg = {pageType:'combogrid', nodeId:'sel_field', layoutPage:'', sourceField:'v_field_info.col_code', targetField:'fun_base.pk_col', whereSql:"v_field_info.table_name = ?", whereValue:'[fun_base.table_name]', whereType:'string', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',queryField:'',likeType:'',fieldName:'fun_base.pk_col'};
 					this.menu = Jxstar.createComboMenu(this);
 					JxSelect.createComboGrid(selcfg, this.menu, 'node_sys_fun_base_editgrid');
 				}
@@ -116,7 +111,7 @@
 			triggerClass:'x-form-search-trigger', 
 			onTriggerClick: function() {
 				if (this.menu == null) {
-					var selcfg = {pageType:'combogrid', nodeId:'sel_field', layoutPage:'', sourceField:'v_field_info.col_code', targetField:'fun_base.fk_col', whereSql:"v_field_info.table_name = ?", whereValue:'[fun_base.table_name]', whereType:'string', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',fieldName:'fun_base.fk_col'};
+					var selcfg = {pageType:'combogrid', nodeId:'sel_field', layoutPage:'', sourceField:'v_field_info.col_code', targetField:'fun_base.fk_col', whereSql:"v_field_info.table_name = ?", whereValue:'[fun_base.table_name]', whereType:'string', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',queryField:'',likeType:'',fieldName:'fun_base.fk_col'};
 					this.menu = Jxstar.createComboMenu(this);
 					JxSelect.createComboGrid(selcfg, this.menu, 'node_sys_fun_base_editgrid');
 				}
@@ -130,7 +125,7 @@
 			triggerClass:'x-form-search-trigger', 
 			onTriggerClick: function() {
 				if (this.menu == null) {
-					var selcfg = {pageType:'combogrid', nodeId:'sel_field', layoutPage:'', sourceField:'v_field_info.col_code', targetField:'fun_base.code_col', whereSql:"v_field_info.table_name = ?", whereValue:'[fun_base.table_name]', whereType:'string', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',fieldName:'fun_base.code_col'};
+					var selcfg = {pageType:'combogrid', nodeId:'sel_field', layoutPage:'', sourceField:'v_field_info.col_code', targetField:'fun_base.code_col', whereSql:"v_field_info.table_name = ?", whereValue:'[fun_base.table_name]', whereType:'string', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',queryField:'',likeType:'',fieldName:'fun_base.code_col'};
 					this.menu = Jxstar.createComboMenu(this);
 					JxSelect.createComboGrid(selcfg, this.menu, 'node_sys_fun_base_editgrid');
 				}
@@ -143,6 +138,20 @@
 		})}, field:{name:'fun_base__code_prefix',type:'string'}},
 	{col:{header:'子功能ID', width:60, sortable:true, hidden:true}, field:{name:'fun_base__subfun_id',type:'string'}},
 	{col:{header:'有效记录值', width:60, sortable:true, hidden:true, defaultval:'1', align:'center',
+		editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.ComboBox({
+			store: new Ext.data.SimpleStore({
+				fields:['value','text'],
+				data: auditvData
+			}),
+			emptyText: jx.star.select,
+			mode: 'local',
+			triggerAction: 'all',
+			valueField: 'value',
+			displayField: 'text',
+			editable:false,
+			value: auditvData[0][0]
+		}),
 		renderer:function(value){
 			for (var i = 0; i < auditvData.length; i++) {
 				if (auditvData[i][0] == value)
@@ -164,6 +173,20 @@
 	{col:{header:'初始显示', width:100, sortable:true, hidden:true, defaultval:'1'}, field:{name:'fun_base__init_show',type:'string'}},
 	{col:{header:'显示查询', width:100, sortable:true, hidden:true, defaultval:'1'}, field:{name:'fun_base__is_query',type:'string'}},
 	{col:{header:'审批界面类型', width:100, sortable:true, hidden:true, align:'center',
+		editable:false,
+		editor:new Ext.form.ComboBox({
+			store: new Ext.data.SimpleStore({
+				fields:['value','text'],
+				data: showformData
+			}),
+			emptyText: jx.star.select,
+			mode: 'local',
+			triggerAction: 'all',
+			valueField: 'value',
+			displayField: 'text',
+			editable:false,
+			value: showformData[0][0]
+		}),
 		renderer:function(value){
 			for (var i = 0; i < showformData.length; i++) {
 				if (showformData[i][0] == value)
@@ -182,17 +205,11 @@
 		funid: 'sys_fun_base'
 	};
 	
+	
 	config.eventcfg = {
 
 		createFun: function(){
-			var self = this;
-			
-			var attr = self.grid.treeNodeAttr;
-			if(attr == null || !attr.leaf ) {
-				JxHint.alert('必须选择最底层模块，才能新增功能！');
-				return;
-			}
-			
+			var self = this;						var attr = self.grid.treeNodeAttr;			if(attr == null || !attr.leaf ) {				JxHint.alert('必须选择最底层模块，才能新增功能！');				return;			}			
 			var hintcall = function(btn, text) {
 				if (btn != 'ok') return;
 

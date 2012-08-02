@@ -73,6 +73,20 @@
 			maxLength:25
 		})}, field:{name:'rpt_area__ds_name',type:'string'}},
 	{col:{header:'统计区域?', width:100, sortable:true, hidden:true, defaultval:'0', align:'center',
+		editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.ComboBox({
+			store: new Ext.data.SimpleStore({
+				fields:['value','text'],
+				data: yesnoData
+			}),
+			emptyText: jx.star.select,
+			mode: 'local',
+			triggerAction: 'all',
+			valueField: 'value',
+			displayField: 'text',
+			editable:false,
+			value: yesnoData[0][0]
+		}),
 		renderer:function(value){
 			for (var i = 0; i < yesnoData.length; i++) {
 				if (yesnoData[i][0] == value)
@@ -102,7 +116,11 @@
 		editor:new Ext.form.Checkbox(),
 		renderer:function(value) {
 			return value=='1' ? jx.base.yes : jx.base.no;
-		}}, field:{name:'rpt_area__not_page',type:'string'}}
+		}}, field:{name:'rpt_area__not_page',type:'string'}},
+	{col:{header:'分类标示字段', width:100, sortable:true, hidden:true}, field:{name:'rpt_area__type_field',type:'string'}},
+	{col:{header:'分类标题字段', width:100, sortable:true, hidden:true}, field:{name:'rpt_area__type_field_title',type:'string'}},
+	{col:{header:'是否输出合计', width:100, sortable:true, hidden:true}, field:{name:'rpt_area__has_sum',type:'string'}},
+	{col:{header:'不输出空行', width:100, sortable:true, hidden:true}, field:{name:'rpt_area__is_notout',type:'string'}}
 	];
 	
 	config.param = {
@@ -113,6 +131,7 @@
 		isshow: '0',
 		funid: 'rpt_area'
 	};
+	
 	
 	config.eventcfg = {
 		//显示明细表的数据
@@ -150,6 +169,53 @@
 				width: 400,
 				height: 350,
 				modal: false,
+				callback: hdcall
+			});
+		},
+		
+		showDrill: function(){
+			var records = this.grid.getSelectionModel().getSelections();
+			if (!JxUtil.selectone(records)) return;
+			var area_id = records[0].get('rpt_area__area_id');
+			var area_type = records[0].get('rpt_area__area_type');
+			if (area_type != 'query') {
+				JxHint.alert('只有统计数据区域才可以定义数据钻取规则！');
+				return;
+			}
+			
+			//加载Form数据
+			var hdcall = function(page) {
+				//设置外键键
+				page.getForm().fkName = 'rpt_drill__area_id';
+				page.getForm().fkValue = area_id;
+				
+				//加载显示数据
+				var options = {
+					where_sql: 'rpt_drill.area_id = ?',
+					where_type: 'string',
+					where_value: area_id,
+					callback: function(data) {
+						//如果没有数据则执行新增
+						if (data.length == 0) {
+							page.formNode.event.create();
+						} else {
+							var r = page.formNode.event.newRecord(data[0]);
+							
+							page.getForm().myRecord = r;
+							page.getForm().loadRecord(r);
+						}
+					}
+				};
+				Jxstar.queryData('rpt_drill', options);
+			};
+			
+			//显示数据
+			var define = Jxstar.findNode('rpt_drill');
+			Jxstar.showData({
+				filename: define.formpage,
+				title: define.nodetitle,
+				width: 600,
+				height: 250,
 				callback: hdcall
 			});
 		},

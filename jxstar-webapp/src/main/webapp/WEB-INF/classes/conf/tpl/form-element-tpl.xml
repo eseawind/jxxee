@@ -2,12 +2,13 @@
 <elements>
 	<element name='var_items'><![CDATA[
 	var items = [{
-		height: '97%',
-		width: '97%',
-		border: false,
-		layout: 'form',
-		style: 'padding:10px;',
-		items: [{formitems}]
+		width:'97%',
+		border:false,
+		layout:'form',
+		autoHeight:true,
+		xtype:'container',
+		style:'padding:5 10 5 10;',
+		items:[{formitems}]
 	}];
 	]]>
 	</element>
@@ -15,7 +16,8 @@
 	<element name='formitem'><![CDATA[
 		{
 			anchor:'100%',
-			border: false,
+			border:false,
+			xtype:'container',
 			layout:'column',{fieldset}
 			autoHeight:true,
 			items:[{columnitems}
@@ -27,6 +29,7 @@
 	<element name='columnitem'><![CDATA[
 			{
 				border:false,
+				xtype:'container',
 				columnWidth:{colwidth},
 				layout:'form',
 				style: 'padding-left:10px;',
@@ -42,7 +45,7 @@
 	</element>
 	
 	<element name='file'><![CDATA[
-		{xtype:'fileuploadfield', fieldLabel:'{col_name}', name:'{col_code}', defaultval:'', allowBlank:true, readOnly:true, anchor:'{anchor}', maxLength:100}
+		{xtype:'fileuploadfield', fieldLabel:'{col_name}', name:'{col_code}', defaultval:'', allowBlank:true, readOnly:true, anchor:'{anchor}'}
 	]]>
 	</element>
 
@@ -78,6 +81,16 @@
 							}
 							this.menu.show(this.el);
 						}}
+	]]>
+	</element>
+	
+	<element name='combosel'><![CDATA[
+				{xtype:'combo', fieldLabel:'{col_name}', name:'{col_code}', defaultval:'',
+						anchor:'{anchor}', readOnly:false, triggerClass:'x-form-search-trigger',
+						maxLength:100, allowBlank:true, editable:true,
+						listeners:{afterrender: function(combo) {
+							JxSelect.initCombo('{funid}', combo, 'node_{funid}_form');
+						}}}
 	]]>
 	</element>
 

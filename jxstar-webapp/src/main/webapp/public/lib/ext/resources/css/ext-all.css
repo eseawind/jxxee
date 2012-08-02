@@ -3758,7 +3758,7 @@ a.x-menu-item {
     overflow:auto;
     position:relative; /* for calculating scroll offsets */
     zoom:1;
-    overflow-x:hidden;
+    /*overflow-x:hidden;*/  /*modify by tanzb 2012-07-19 for combo remote query*/
 }
 
 .x-combo-list-hd {

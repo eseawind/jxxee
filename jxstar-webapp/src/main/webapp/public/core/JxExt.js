@@ -243,6 +243,38 @@ Ext.form.BasicForm.prototype.fieldItems = function() {
 /**
  * 新增方法：保证修改字段值后不标记为脏数据。
  **/
+Ext.form.ComboBox.prototype.restrictHeight = function(){
+	this.innerList.dom.style.height = '';
+	var inner = this.innerList.dom,
+		pad = this.list.getFrameWidth('tb') + (this.resizable ? this.handleHeight : 0) + this.assetHeight,
+		h = Math.max(inner.clientHeight, inner.offsetHeight, inner.scrollHeight),
+		ha = this.getPosition()[1]-Ext.getBody().getScroll().top,
+		hb = Ext.lib.Dom.getViewHeight()-ha-this.getSize().height,
+		space = Math.max(ha, hb, this.minHeight || 0)-this.list.shadowOffset-pad-5;
+
+	h = Math.min(h, space, this.maxHeight);
+	
+	//如果是IE，当有X方向的滚动条时显示不全了，则添加高度18，其它浏览器添加1
+	if (Ext.isIE) {
+		var cw = inner.clientWidth, ow = inner.offsetWidth;
+		if (cw < ow) {
+			h += 18;
+		}
+	} else {
+		h += 1;
+	}
+	//add by tony.tan
+
+	this.innerList.setHeight(h);
+	this.list.beginUpdate();
+	this.list.setHeight(h+pad);
+	this.list.alignTo.apply(this.list, [this.el].concat(this.listAlign));
+	this.list.endUpdate();
+};
+
+/**
+ * 新增方法：保证修改字段值后不标记为脏数据。
+ **/
 Ext.form.Field.prototype.osetValue = function(value){
 	this.setValue(value);
 	this.originalValue = value;

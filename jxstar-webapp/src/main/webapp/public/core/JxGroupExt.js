@@ -34,6 +34,36 @@ JxGroupExt = {};
 	statCombo: null,
 	
 	/**
+	 * public 构建统计方案在高级查询面板中
+	 */
+	showCaseInQuery: function(mainNode, queryGrid) {
+		var self = this;
+		var fbar = queryGrid.fbar;
+		
+		//去掉自定义选项
+		self.initStas = [['0', '--统计方案--']];
+		var stas = self.initStas;
+		var staid = JxUtil.newId() + '_sta';
+		var stacb = Jxstar.createCombo(staid, stas, 100);
+		fbar.add(stacb);
+		stacb.on('beforeselect', function(combo, record){
+			var val = record.get('value');
+			var oldv = combo.getValue();//防止重复点击
+			
+			if (val != oldv && val == '1') {
+				self.caseWin(mainNode);
+			} else if (val != oldv && val != '0') {
+				self.exeStat(mainNode, val);
+			}
+		});
+		stacb.on('select', function(combo, record){
+			combo.setValue('0');
+		});
+		//加载统计方案
+		self.loadStaCase(mainNode, stacb);
+	},
+	
+	/**
 	 * public 构建查询方案选项控件
 	 */
 	showCase: function(nodeg) {
@@ -186,7 +216,7 @@ JxGroupExt = {};
 		}
 		
 		if (!window.JxGroupPage) {//动态同步加载该对象
-			JxUtil.loadJS('/public/layout/ux/group_page.js', false);
+			JxUtil.loadJS('/public/layout/ux/group_page.js', true);
 		}
 		var page = JxGroupPage.createPage(statId, nodeg);
 		var	win = new Ext.Window({
@@ -216,8 +246,8 @@ JxGroupExt = {};
 		var endcall = function(data) {
 			//alert(Ext.encode(data));
 			//刷新统计方案
-			var qrycase = data.root, iqs = self.initStas;
-			var qrys = [iqs[0], iqs[1]];
+			var qrycase = data.root;
+			var qrys = []; qrys = qrys.concat(self.initStas);
 			Ext.each(qrycase, function(item){
 				qrys[qrys.length] = [item.sys_stat__stat_id, item.sys_stat__stat_name];
 			});

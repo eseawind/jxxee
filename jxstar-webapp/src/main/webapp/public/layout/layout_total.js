@@ -19,8 +19,8 @@ Jxstar.currentPage = function(define, pageParam) {
 	
 	//动态加载JS文件
 	if (!window.JxTotalGrid) {
-		JxUtil.loadJS('/public/layout/ux/total_grid.js', false);
-		JxUtil.loadJS('/public/lib/ext/ux/ColumnHeaderGroup.js', false);
+		JxUtil.loadJS('/public/layout/ux/total_grid.js', true);
+		JxUtil.loadJS('/public/lib/ext/ux/ColumnHeaderGroup.js', true);
 	}
 	//创建临时数据面板，从后台到数据后将替换模板内容
 	var tmpPanel = new Ext.Panel({border:false,layout:'fit'});

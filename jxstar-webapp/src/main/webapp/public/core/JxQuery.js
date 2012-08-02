@@ -16,7 +16,7 @@ JxQuery = {};
 	Ext.apply(JxQuery, {
 	//当前功能ID
 	funid: '',
-	//历史表格
+	//查询方案表格
 	gridHis: null,
 	//查询条件明细表格
 	gridDet: null,
@@ -33,7 +33,7 @@ JxQuery = {};
 	queryWindow: function(queryData, pageNode) {
 		var self = this;
 		self.funid = pageNode.nodeId;
-		//历史条件表格对象
+		//查询方案表格
 		self.gridHis = self.historyGrid(queryData);
 		//查询明细表格对象
 		self.gridDet = self.conditionGrid(pageNode);
@@ -55,12 +55,31 @@ JxQuery = {};
 			}]
 		});
 		
+		//选择查询方案的第一条记录
+		JxUtil.delay(800, function(){
+			var cnt = self.gridHis.getStore().getCount();
+			if (cnt > 0) {
+				self.gridHis.getSelectionModel().selectRow(0);
+				self.gridHis.fireEvent('rowclick', self.gridHis, 0);
+			}
+		});
+		
+		//用于构建统计方案的查询条件，在对象关闭的时需要销毁
+		pageNode.condGrid = self.gridDet;
+		//添加统计方案
+		JxGroupExt.showCaseInQuery(pageNode, self.gridDet);
+		
+		queryLayout.on('beforedestroy', function(){
+			pageNode.condGrid = null;
+			delete pageNode.condGrid;
+		});
+		
 		return queryLayout;
 	},
 	
 	/**
 	* private
-	* 创建历史查询条件表格
+	* 创建查询方案表格
 	* queryData -- 查询数据格式，该表字段数据都提取到前台
 	* 		[{query_id:'', query_name:'', is_share:'', user_id:''},{},...]
 	**/
@@ -86,49 +105,87 @@ JxQuery = {};
 		}
 		queryStore.loadData(data);
 
+		//删除查询方案
+		var del_case = function() {
+			var s = JxUtil.getSelectRows(self.gridHis);
+			if (!JxUtil.selectone(s)) return false;
+			
+			var userid = s[0].get('user_id');
+			if (userid.length > 0 && userid != JxDefault.getUserId()) {
+				JxHint.alert(jx.query.deluser);//只能删除本人创建的条件！
+				return false;
+			}
+			
+			var hdcall = function() {
+				var queryid = s[0].get('query_id');
+				var params = 'funid=sysevent&pagetype=grid&eventcode=cond_delete';
+				params += '&query_id='+queryid;
+				
+				Request.postRequest(params, function() {
+					queryStore.remove(s[0]);
+					//如果有记录，则选第一条，否则清除右边的条件
+					var cnt = queryStore.getCount();
+					if (cnt > 0) {
+						self.gridHis.getSelectionModel().selectRow(0);
+						self.gridHis.fireEvent('rowclick', self.gridHis, 0);
+					} else {
+						self.storeDet.removeAll();
+						self.gridDet.fkValue = '';
+					}
+				});
+			};
+			//'确定删除选择的记录吗？'
+			Ext.Msg.confirm(jx.base.hint, jx.event.delyes, function(btn) {
+				if (btn == 'yes') hdcall();
+			});
+		};
+		//保存查询方案
+		var save_case = function() {
+			var self = this;
+			//请求参数
+			var params = 'funid=sysevent&pagetype=grid&eventcode=cond_case';
+			
+			//组织查询条件明细信息
+			queryStore.each(function(item) {
+				params += '&query_name=' + item.get('query_name') + '&is_share=' + item.get('is_share') + '&query_id=' + item.get('query_id');
+			});
+			var hdCall = function() {
+				queryStore.commitChanges();
+			};
+			
+			//发送后台请求
+			Request.postRequest(params, hdCall);
+		};
+		
 		var queryTool = new Ext.Toolbar({deferHeight:true, 
 			items:[
-				{text:jx.base.del, iconCls:'eb_delete', handler: function(){
-					var s = self.gridHis.getSelectionModel().getSelections();
-					if (!JxUtil.selectone(s)) return false;
-					
-					var userid = s[0].get('user_id');
-					if (userid.length > 0 && userid != JxDefault.getUserId()) {
-						JxHint.alert(jx.query.deluser);//只能删除本人创建的条件！
-						return false;
-					}
-					
-					var hdcall = function() {
-						var queryid = s[0].get('query_id');
-						var params = 'funid=sysevent&pagetype=grid&eventcode=cond_delete';
-						params += '&query_id='+queryid;
-						
-						Request.postRequest(params, function() {
-							queryStore.remove(s[0]);
-						});
-					};
-					//'确定删除选择的记录吗？'
-					Ext.Msg.confirm(jx.base.hint, jx.event.delyes, function(btn) {
-						if (btn == 'yes') hdcall();
-					});
-				}}
+				{text:jx.base.del, iconCls:'eb_delete', handler: del_case},
+				{text:jx.base.save, iconCls:'eb_save', handler: save_case}
 			]
 		});
 		
-		var queryGrid = new Ext.grid.GridPanel({
+		var sm = new Ext.grid.RowSelectionModel();
+		var queryGrid = new Ext.grid.EditorGridPanel({
 			store: queryStore,
 			columns: [
-				{header: jx.query.hiscond, width: 140, sortable: true, dataIndex: 'query_name'},	//"历史查询条件" "公有?"
-				{header: jx.query.pub, width: 40, sortable: true, dataIndex: 'is_share', renderer:function(value) {
-					return value=='1' ? jx.base.yes : jx.base.no;	//'是' : '否';
-				}},
+				{header: jx.query.casename, width: 140, dataIndex: 'query_name', editable:true, hcss:'color:#3039b4;', 
+					editor:new Ext.form.TextField({
+						maxLength:50, allowBlank:false
+					})
+				},
+				{header: jx.query.pub, width: 50, dataIndex: 'is_share', editable:true, hcss:'color:#3039b4;',
+					editor:new Ext.form.Checkbox(),
+					renderer:function(value) {return value=='1' ? jx.base.yes : jx.base.no;}
+				},
 				{header: "query_id", hidden:true, dataIndex: 'query_id'},
 				{header: "user_id", hidden:true, dataIndex: 'user_id'}
 			],
 			tbar: queryTool,
 			
+			sm: sm,
 			frame:false,
 			border:true,
+			enableHdMenu: false,
 			stripeRows: true,
 			columnLines: true,
 			viewConfig: {forceFit:true}
@@ -138,6 +195,7 @@ JxQuery = {};
 		queryGrid.on('rowclick', function(g, n, e){
 			var record = g.getStore().getAt(n);
 			if (record == null) return false;
+			var queryid = record.get('query_id');
 			
 			//加载明细数据
 			var hdCall = function(condata) {
@@ -153,13 +211,14 @@ JxQuery = {};
 					item[4] = condata.root[i].right_brack;
 					item[5] = condata.root[i].andor;
 					item[6] = condata.root[i].coltype;
+					item[7] = condata.root[i].col_no;
 					data[i] = item;
 				}
 				self.storeDet.loadData(data);
 				self.gridDet.getView().refresh();
+				self.gridDet.fkValue = queryid;
 			};
 			
-			var queryid = record.get('query_id');
 			var params = 'funid=queryevent&eventcode=cond_qrydet';
 			params += '&query_id='+queryid;
 			Request.dataRequest(params, hdCall);
@@ -170,9 +229,10 @@ JxQuery = {};
 		
 	/**
 	* private
-	* 保存查询条件
+	* 保存查询条件；如果有选择的查询方案，则直接保存，否则弹出窗口另存
+	* isother -- 是否另存 true|false
 	**/
-	saveQuery: function(self) {
+	saveQuery: function(self, isother) {
 		var cnt = self.storeDet.getCount();
 		if (cnt == 0) {
 			JxHint.alert(jx.query.condempty);	//'查询条件为空，不能保存！'
@@ -188,6 +248,13 @@ JxQuery = {};
 			}
 		}
 		
+		//如果有查询Id，则直接保存，否则弹出窗口填写方案名称
+		var queryId = self.gridDet.fkValue;
+		if (queryId != null && queryId.length > 0 && !isother) {
+			self.saveQueryFn(queryId);
+			return;
+		}
+		
 		var queryForm = new Ext.form.FormPanel({
 				layout:'form', 
 				labelAlign:'right',
@@ -197,7 +264,7 @@ JxQuery = {};
 				baseCls:'x-plain',
 				items:[
 					{xtype:'checkbox', fieldLabel:jx.query.share, name:'is_share'},		//'是否共享?'
-					{xtype:'textfield', fieldLabel:jx.query.condname, name:'query_name', //'条件名称'
+					{xtype:'textfield', fieldLabel:jx.query.casename, name:'query_name', //'查询方案名称'
 						allowBlank:false, labelSeparator:'*', anchor:'95%', labelStyle:'color:#0000ff;', maxLength:50}
 				]
 			});
@@ -216,15 +283,6 @@ JxQuery = {};
 			buttons: [{
 				text:jx.base.ok,	//'确定'
 				handler:function(){
-					//请求参数
-					var params = 'funid=sysevent&selfunid='+ self.funid;
-					params += '&pagetype=grid&eventcode=cond_save';
-					
-					//组织查询条件明细信息
-					self.storeDet.each(function(item) {
-						params += '&' + Ext.urlEncode(item.data);
-					});
-					
 					var form = queryForm.getForm();
 					//取条件名称
 					var isshare = form.findField('is_share').getValue();
@@ -235,24 +293,10 @@ JxQuery = {};
 					}
 					
 					//组织查询条件主表信息
-					params += '&is_share=' + isshare;
-					params += '&query_name=' + encodeURIComponent(qryname);
-					
-					//刷新查询条件表数据
-					var hdCall = function(data) {
-						data.query_name = qryname;
-						data.is_share = isshare;
-						data.user_id = JxDefault.getUserId();
-						
-						var r = new (self.gridHis.getStore().reader.recordType)(data);
-						self.gridHis.getStore().insert(0, r);
-						self.gridDet.getSelectionModel().selectRow(0);
-						
-						win.close();
-					};
-					
-					//发送后台请求
-					Request.postRequest(params, hdCall);
+					var param = '&is_share=' + isshare;
+					param += '&query_name=' + encodeURIComponent(qryname);
+					//保存查询条件
+					self.saveQueryFn('', param, win);
 				}
 			},{
 				text:jx.base.cancel,	//'取消'
@@ -260,6 +304,37 @@ JxQuery = {};
 			}]
 		});
 		win.show();
+	},
+	
+	//private 保存查询条件的方法
+	saveQueryFn: function(queryId, caseUrl, caseWin) {
+		var self = this;
+		//请求参数
+		var params = 'funid=sysevent&selfunid='+ self.funid;
+		params += '&pagetype=grid&eventcode=cond_save&query_id='+ queryId;
+		
+		//组织查询条件明细信息
+		self.storeDet.each(function(item) {
+			params += '&' + Ext.urlEncode(item.data);
+		});
+		
+		if (caseUrl) params += caseUrl;
+		
+		//刷新查询条件表数据
+		var hdCall = function(data) {
+			if (queryId.length == 0) {
+				data.user_id = JxDefault.getUserId();
+				var r = new (self.gridHis.getStore().reader.recordType)(data);
+				self.gridHis.getStore().insert(0, r);
+			}
+			self.gridHis.getSelectionModel().selectRow(0);
+			self.gridHis.fireEvent('rowclick', self.gridHis, 0);
+			
+			if (caseWin) caseWin.close();
+		};
+		
+		//发送后台请求
+		Request.postRequest(params, hdCall);
 	},
 	
 	/**
@@ -279,7 +354,8 @@ JxQuery = {};
 			   {name: 'cond_value'},
 			   {name: 'right_brack'},
 			   {name: 'andor'},
-			   {name: 'coltype'}
+			   {name: 'coltype'},
+			   {name: 'col_no'}
 			]
 		});
 		condStore.loadData(condData);
@@ -290,6 +366,8 @@ JxQuery = {};
 			saveText: jx.base.ok,		//'确定'
 			cancelText: jx.base.cancel	//'取消'
 		});
+		//覆盖该方法，可以不提交修改进入下一行，但会有脚本错误
+		//editor.isDirty = function(){return false};
 		
 		//复选模式
 		var sm = new Ext.grid.CheckboxSelectionModel();
@@ -321,6 +399,7 @@ JxQuery = {};
 		var andorCombo = Jxstar.createCombo(andorID, andorData);
 		
 		//监听字段选择的事件
+		var vIndex = 4;
 		fieldCombo.on('select', function(combo){
 			var field, coltype = 'string';
 			//更换字段查询值的输入控件
@@ -347,7 +426,7 @@ JxQuery = {};
 				}
 			}
 			//取原字段的值
-			var oldfield = editor.getComponent(4);
+			var oldfield = editor.getComponent(vIndex);
 			if (oldfield != null && oldfield.isXType('field')) {
 				var oldval = oldfield.getValue();
 				field.setValue(oldval);
@@ -356,8 +435,8 @@ JxQuery = {};
 			//聚焦全选字段值
 			field.selectOnFocus = true;
 			//先删除原对象，再更新为新对象
-			editor.remove(editor.getComponent(4), true);
-			editor.insert(4, field);
+			editor.remove(editor.getComponent(vIndex), true);
+			editor.insert(vIndex, field);
 			editor.verifyLayout();
 
 			//更换字段查询条件的缺省值
@@ -370,7 +449,7 @@ JxQuery = {};
 		//创建列对象
 		var cm = new Ext.grid.ColumnModel([sm,
 			//"左括号"
-			{id:'left_brack', header:jx.query.left, width:40, dataIndex:'left_brack', hcss:'color:#004080;',
+			{id:'left_brack', header:'（', width:30, dataIndex:'left_brack', hcss:'color:#004080;',
 				editor:new Ext.form.TextField()
 			},//"列名*"
 			{id:'colcode', header:jx.query.colcode, width:130, dataIndex:'colcode', hcss:'color:#0000ff;',
@@ -397,7 +476,7 @@ JxQuery = {};
 					return Ext.isDate(value) ? value.format('Y-m-d') :value;
 				}
 			},//"右括号"
-			{id:'right_brack', header:jx.query.right, width:40, dataIndex:'right_brack', hcss:'color:#004080;',
+			{id:'right_brack', header:'）', width:30, dataIndex:'right_brack', hcss:'color:#004080;',
 				editor:new Ext.form.TextField()
 			},//"逻辑符"
 			{id:'andor', header:jx.query.andor, width:50, dataIndex:'andor', hcss:'color:#004080;',
@@ -409,6 +488,9 @@ JxQuery = {};
 					}
 				}
 			},
+			{id:'col_no', header:jx.query.colno, width:40, dataIndex:'col_no', hcss:'color:#004080;',
+				editor:new Ext.form.TextField()
+			},//"序号"
 			{id:'coltype', dataIndex:'coltype', hidden:true},
 			{id:'colname', dataIndex:'colname', hidden:true}
 		]);
@@ -422,7 +504,8 @@ JxQuery = {};
 				cond_value: '',
 				right_brack: '',
 				andor: andorData[0][0],
-				coltype: 'string'
+				coltype: 'string',
+				col_no: '0'
 			});
 			
 			editor.stopEditing();
@@ -452,7 +535,8 @@ JxQuery = {};
 			items:[
 				{text:jx.base.add, iconCls:'eb_add', handler:createQuery}, 	//'添加'
 				{text:jx.base.del, iconCls:'eb_delete', handler:deleteQuery}, 	//'删除'
-				{text:jx.query.savecond, iconCls:'eb_save', handler:function(){self.saveQuery(self);}}	//'保存查询'
+				{text:jx.base.save, iconCls:'eb_save', handler:function(){self.saveQuery(self);}},	//'保存'
+				{text:jx.query.save, iconCls:'eb_copy', handler:function(){self.saveQuery(self, true);}}	//'另存'
 			]
 		});
 		
@@ -483,9 +567,10 @@ JxQuery = {};
 		//创建底部工具栏
 		var buttons = [
 				{text:'查询', iconCls:'eb_qry', handler:executeQuery}, 
-				{text:'分组统计', iconCls:'eb_sum', handler:function(){
-					var query = self.getQuery(condStore);
-					JxGroup.showWindow(query, pageNode);
+				{text:'统计', iconCls:'eb_sum', handler:function(){
+					//var query = self.getQuery(condStore);
+					//JxGroup.showWindow(query, pageNode);
+					JxGroupExt.caseWin(pageNode);
 				}}
 			];
 			
@@ -499,7 +584,7 @@ JxQuery = {};
 			
 			frame:false,
 			border:true,
-			//clicksToEdit:1,
+			enableHdMenu: false,
 			stripeRows: true,
 			columnLines: true,
 			viewConfig: {forceFit:true},

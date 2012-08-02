@@ -38,6 +38,53 @@
 				callback: hdcall
 			});
 		},
+		
+		showDrill: function(){
+			var records = this.grid.getSelectionModel().getSelections();
+			if (!JxUtil.selectone(records)) return;
+			var area_id = records[0].get('rpt_area__area_id');
+			var area_type = records[0].get('rpt_area__area_type');
+			if (area_type != 'query') {
+				JxHint.alert('只有统计数据区域才可以定义数据钻取规则！');
+				return;
+			}
+			
+			//加载Form数据
+			var hdcall = function(page) {
+				//设置外键键
+				page.getForm().fkName = 'rpt_drill__area_id';
+				page.getForm().fkValue = area_id;
+				
+				//加载显示数据
+				var options = {
+					where_sql: 'rpt_drill.area_id = ?',
+					where_type: 'string',
+					where_value: area_id,
+					callback: function(data) {
+						//如果没有数据则执行新增
+						if (data.length == 0) {
+							page.formNode.event.create();
+						} else {
+							var r = page.formNode.event.newRecord(data[0]);
+							
+							page.getForm().myRecord = r;
+							page.getForm().loadRecord(r);
+						}
+					}
+				};
+				Jxstar.queryData('rpt_drill', options);
+			};
+			
+			//显示数据
+			var define = Jxstar.findNode('rpt_drill');
+			Jxstar.showData({
+				filename: define.formpage,
+				title: define.nodetitle,
+				width: 600,
+				height: 250,
+				callback: hdcall
+			});
+		},
 
 		showParam: function(){
 			this.showData('rpt_param');

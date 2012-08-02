@@ -132,7 +132,39 @@ Jxstar.currentPage = {
 			//发送请求
 			Request.postRequest(params, null);
 		};
+		
+		//设置属性
+		var setattr = function() {
+			//过滤条件
+			var loadcfg = {
+				where_sql: 'fun_attr.attr_type = ? and fun_attr.fun_id = ?',
+				where_type: 'string;string',
+				where_value: 'grid;'+nodeId
+			};
+			
+			//加载数据
+			var hdcall = function(grid) {
+				//显示数据
+				JxUtil.delay(500, function(){
+					//设置属性类型与功能ID
+					grid.fkValue = nodeId;
+					grid.attr_type = 'grid';
+					Jxstar.loadData(grid, loadcfg);
+				});
+			};
 
-		return {deletegd:deletegd, savegd:savegd, creategd:creategd};
+			//显示数据
+			var define = Jxstar.findNode('fun_attrdes');
+			Jxstar.showData({
+				filename: define.gridpage,
+				title: define.nodetitle,
+				width: 760,
+				height: 350,
+				nodedefine: define,
+				callback: hdcall
+			});
+		};
+
+		return {deletegd:deletegd, savegd:savegd, creategd:creategd, setattr:setattr};
 	}
 };

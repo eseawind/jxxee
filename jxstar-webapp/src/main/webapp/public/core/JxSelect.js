@@ -26,9 +26,9 @@ JxSelect = {};
 			whereSql: '',
 			whereValue: '',
 			whereType: ''
-		* targetId: 目标对象ID，可能是node_funid_editgrid或form
+		* targetFlag: 目标对象类别标识，可能是node_funid_editgrid或node_funid_form
 		*/
-		createSelectWin: function(config, parentField, targetId) {
+		createSelectWin: function(config, parentField, targetFlag) {
 			if(parentField.readOnly || parentField.disabled){
 				return;
 			}
@@ -81,7 +81,7 @@ JxSelect = {};
 					var whereValue = config.whereValue;
 					//解析查询参数值中的[]字段变量，如果在查询栏中使用，则会选择不到值
 					if (whereValue != null && whereValue.indexOf('[') >= 0) {
-						var tagRecord = self.selectTagRecord(parentField, targetId);
+						var tagRecord = self.selectTagRecord(parentField, targetFlag);
 						whereValue = JxUtil.parseWhereValue(whereValue, tagRecord);
 					}
 					//显示表格对象后再加载数据才稳定
@@ -90,7 +90,7 @@ JxSelect = {};
 					//添加选择数据的方法
 					selgrid.on('rowdblclick', function(grid, n, event){
 						//取选择的来源记录数据
-						var srcRecord = grid.getSelectionModel().getSelections();
+						var srcRecord = JxUtil.getSelectRows(grid);
 						if (srcRecord == null || srcRecord.length == 0) {
 						//如果选择的记录为空，则说明是清空选择的数据
 							var store = grid.getStore();
@@ -104,7 +104,7 @@ JxSelect = {};
 							self.setControlData(srcRecord[0], parentField, config.sourceField, config.targetField);
 						} else {
 							//取目标grid或form，根据ID查找
-							var tagRecord = self.selectTagRecord(parentField, targetId);
+							var tagRecord = self.selectTagRecord(parentField, targetFlag);
 							//给目标表赋值
 							self.setSelectData(srcRecord, tagRecord, config.isSame, config.sourceField, config.targetField)
 						}
@@ -139,9 +139,9 @@ JxSelect = {};
 			whereValue: '',
 			whereType: ''
 		* menuDiv: 右键菜单显示块
-		* targetId: 目标对象ID，可能是node_funid_editgrid或form
+		* targetFlag: 目标对象类别标识，可能是node_funid_editgrid或node_funid_form
 		*/
-		createComboGrid: function(config, menuDiv, targetId) {
+		createComboGrid: function(config, menuDiv, targetFlag) {
 			var self = this;
 			var nodeId = config.nodeId;
 			var parentField = menuDiv.parentField;
@@ -158,7 +158,7 @@ JxSelect = {};
 				//解析查询参数值中的[]字段变量，如果在查询栏中使用，则会选择不到值
 				var whereValue = config.whereValue;
 				if (whereValue != null && whereValue.indexOf('[') >= 0) {
-					var tagRecord = self.selectTagRecord(parentField, targetId);
+					var tagRecord = self.selectTagRecord(parentField, targetFlag);
 					whereValue = JxUtil.parseWhereValue(whereValue, tagRecord);
 				}
 				//显示表格对象后再加载数据才稳定
@@ -187,7 +187,7 @@ JxSelect = {};
 				});
 				menuDiv.on('destroy', function(){
 					config = null;
-					targetId = null;
+					targetFlag = null;
 					refreshData = null;
 				});
 				
@@ -197,7 +197,7 @@ JxSelect = {};
 					if (!menuDiv.isVisible()) return false;
 
 					//取选择的来源记录数据
-					var srcRecord = grid.getSelectionModel().getSelections();
+					var srcRecord = JxUtil.getSelectRows(grid);
 					if (srcRecord == null || srcRecord.length == 0) {
 					//如果选择的记录为空，则说明是清空选择的数据
 						var store = grid.getStore();
@@ -211,7 +211,7 @@ JxSelect = {};
 						self.setControlData(srcRecord[0], parentField, config.sourceField, config.targetField);
 					} else {
 						//取目标grid或form，根据ID查找
-						var tagRecord = self.selectTagRecord(parentField, targetId);
+						var tagRecord = self.selectTagRecord(parentField, targetFlag);
 						//给目标表赋值
 						self.setSelectData(srcRecord, tagRecord, config.isSame, config.sourceField, config.targetField)
 					}
@@ -232,15 +232,15 @@ JxSelect = {};
 		/**
 		* private 取目标grid或form，根据ID查找。选择窗口或下拉GRID控件使用。
 		* parentField -- 当前选择控件的字段对象
-		* targetId -- 当前选择控件所在的PanelID，现在取消通过Ext.getCmp(targetId)的方式找控件
+		* targetFlag -- 当前选择控件所在的PanelID，现在取消通过Ext.getCmp(targetFlag)的方式找控件
 		*/
-		selectTagRecord: function(parentField, targetId) {
+		selectTagRecord: function(parentField, targetFlag) {
 			var tagRecord;
-			if (targetId.indexOf('grid') >= 0) {
+			if (targetFlag.indexOf('grid') >= 0) {
 				var gdom = parentField.el.findParentNode('div.x-grid-panel');
 				var grid = Ext.getCmp(gdom.id);
 				if (grid) {
-					var selRecord = grid.getSelectionModel().getSelections();
+					var selRecord = JxUtil.getSelectRows(grid);
 					if (selRecord && selRecord.length > 0) {
 						tagRecord = selRecord[0];
 					}
@@ -383,6 +383,179 @@ JxSelect = {};
 			}
 		},
 		
+		//构建查询combo控件
+		initCombo: function(funId, combo, targetFlag) {
+			var self = this;
+			//继续添加初始参数
+			combo.pageSize = 10;
+			combo.minListWidth = 350;
+			combo.typeAhead = false;
+			combo.minChars = 0;
+			combo.itemSelector = 'div.search-item';
+			combo.queryParam = 'where_value';
+			combo.loadingText = '正在查询...';
+			combo.listEmptyText = '没有找到数据...';
+			
+			var colCode = combo.getName();
+			//从后台取设计信息，构建控件元素
+			//{selcfg:{},fields:[{name:'funall_default__func_name'},{}...],design:[{n:funall_default__func_name,w:165,h:false},{}...]}
+			//selcfg:{nodeId:'sys_dept', sourceField:'sys_dept.dept_name;dept_id', targetField:'mat_app.dept_name;sys_user.dept_id', 
+			//whereSql:"", whereValue:'', whereType:'', isSame:'0', queryField:'', likeType:''};
+			var endcall = function(data) {
+				//查询数据的功能ID
+				var config = data.selcfg;
+				if (!config || !data.fields) {
+					JxHint.alert(String.format('智能选择字段【{0}】定义信息为空！', colCode));
+					return;
+				}
+				
+				var qryFunId = config.nodeId;
+				var qf = config.queryField||'', sf = config.sourceField||'';
+				if (qf.length == 0 && sf.length == 0) {
+					JxHint.alert(String.format('智能选择字段【{0}】扩展信息中必须定义来源字段或者查询字段！', colCode));
+					return;
+				}
+					
+				var whereValue = config.whereValue;
+				//解析查询参数值中的[]字段变量，如果在查询栏中使用，则会选择不到值
+				if (whereValue != null && whereValue.indexOf('[') >= 0) {
+					var tagRecord = self.selectTagRecord(combo, targetFlag);
+					whereValue = JxUtil.parseWhereValue(whereValue, tagRecord);
+				}
+				config.whereValue = whereValue;
+				
+				//要支持可以查询多个字段的值
+				var qryParam = self.comboWhere(config);
+				
+				var e = encodeURIComponent;
+				var url = Jxstar.path + '/commonAction.do?eventcode=query_data&funid=queryevent&pagetype=grid';
+					url += '&query_funid='+ qryFunId +'&where_sql='+ e(qryParam.where_sql) +'&where_type='+ 
+						   qryParam.where_type +'&user_id='+Jxstar.session['user_id'];
+				
+				//创建数据对象
+				var store = new Ext.data.Store({
+					proxy: new Ext.data.HttpProxy({
+						method: 'POST',
+						url: url
+					}),
+					reader: new Ext.data.JsonReader({
+						root: 'data.root',
+						totalProperty: 'data.total'
+					}, data.fields)
+				});
+				combo.store = store;
+				
+				//计算合计表格宽度，构建字段
+				var ds = data.design, tw = 0, xt = [], j = 0;
+				Ext.each(ds, function(item) {
+					if (!item.h) {
+						tw += item.w;
+						xt[j++] = '<td style="width:'+ item.w +'px;">{'+ item.n +'}</td>';
+					}
+				});
+				
+				//根据查询功能的Grid设计文件解析出来
+				var tpl = new Ext.XTemplate(
+					'<tpl for="."><div class="search-item" style="width:'+ tw +'px;border-bottom:1px dotted #a3bae9;">',
+						'<table border=0 style="width:100%;font-size:12px;"><tr>',
+						xt.join(''),
+						'</tr></table>',
+					'</div></tpl>');
+				combo.tpl = tpl;
+				
+				//都采用类似查询
+				combo.on('beforequery', function(qe){
+					var lt = config.likeType;//匹配模式：all, left
+					var qv = '';
+					//一个值可以查询多个字段
+					for (var i = 0; i < qryParam.plen; i++) {
+						qv += ((lt == 'left') ? '':'%') + qe.query + '%;';
+					}
+					//组合查询值
+					var pv = qryParam.where_value;
+					if (qv.length > 0) {
+						qv = qv.substr(0, qv.length-1);
+						
+						if (pv && pv.length > 0) {
+							qv = pv + ';' + qv;
+						}
+					} else {
+						qv = pv;
+					}
+					qe.query = qv;
+				});
+				
+				//智能选择控件赋值
+				var setData = function(cb, record) {
+					//取选择字段的容器对象，根据它判断是在grid控件中还是在查询控件中
+					var fieldCt = cb.ownerCt;
+					//查询值或统计参数值的输入控件赋值
+					if (fieldCt && fieldCt.initialConfig.name && fieldCt.initialConfig.name.indexOf('_qv') > 0) {
+						self.setControlData(record, cb, config.sourceField, config.targetField);
+					} else {
+						//取目标grid或form，根据ID查找
+						var tagRecord = self.selectTagRecord(cb, targetFlag);
+						//给目标表赋值
+						self.setSelectData([record], tagRecord, config.isSame, config.sourceField, config.targetField)
+						
+						//如果是EditGrid，则需给combo赋值
+						if (targetFlag.indexOf('grid') >= 0) {
+							cb.setValue(tagRecord.get(cb.getName()));
+						}
+					}
+				};
+				
+				//选择记录赋值到表单中，记录当前选择的值
+				combo.on('select', function(cb, record, index){
+					setData(cb, record);
+					cb.selValue = cb.getValue();
+				});
+				//当没有选择时，原来有值了，所以需要记录此事件
+				combo.on('focus', function(cb){
+					cb.selValue = cb.getValue();
+				});
+				
+				//如果字段值为空，则清除选择记录;
+				//如果光标离开时的值与上次选择的值不同，则清空选择；要保证输入的值是选择的值
+				combo.on('blur', function(cb){
+					if (targetFlag.indexOf('form') >= 0) {
+						var value = cb.getValue();
+						if (value.length == 0 || (cb.selValue && cb.selValue != value)) {
+							var record = JxUtil.emptyRecord(store);
+							setData(cb, record);
+						}
+					}
+				});
+				
+				//处理EditGrid中，编辑完成时的数据校验
+				if (targetFlag.indexOf('grid') >= 0) {
+					var editor = combo.gridEditor;
+					if (editor) {
+						//如果不允许为空，清空值时不会执行此事件
+						editor.on('complete', function(ed, value, start){
+							var incb = ed.field;
+							if (value.length == 0 || (incb.selValue && incb.selValue != value)) {
+								var record = JxUtil.emptyRecord(store);
+								setData(incb, record);
+							}
+						});
+					}
+				}
+				
+				//EditGrid中，显示combo时会执行initList，所以需要重新绑定
+				if (combo.list) {
+					combo.view.tpl = combo.tpl;
+					combo.bindStore(store, true);
+				}
+			};
+			
+			//从后台取设计信息
+			var params = 'funid=queryevent&selfunid='+ funId;
+			params += '&colcode='+ colCode.replace('__', '.') +'&pagetype=grid&eventcode=query_selctl';
+			Request.postRequest(params, endcall);
+		},
+		
+		//private 支持取多条记录中某个字段的值
 		getValue: function(records, field) {
 			var isMore = (records.length > 1);
 			if (isMore) {
@@ -394,6 +567,52 @@ JxSelect = {};
 			} else {
 				return records[0].get(field);
 			}
+		},
+		
+		//private 构建智能查询的whereSql
+		comboWhere: function(config) {
+			var whereSql = config.whereSql;
+			var whereValue = config.whereValue;
+			var whereType = config.whereType;
+			
+			//解析查询字段的where
+			var qf = config.queryField, len = 0;
+			if (qf && qf.length > 0) {
+				var fs = qf.split(';'), where = '', type = '';
+				for (var i = 0; i < fs.length; i++) {
+					if (fs[i].length > 0) {
+						where += fs[i] + ' like ? or ';
+						type += 'string;';
+						len++;
+					}
+				}
+				
+				if (where.length > 0) {
+					if (whereSql.length > 0) whereSql = '(' + whereSql + ') and '
+					if (whereType.length > 0) whereType = whereType + ';';
+					
+					whereSql += '(' + where.substr(0, where.length - 4) + ')';
+					whereType += type.substr(0, type.length - 1);
+				}
+			} else {
+				//如果没有设置查询字段，则取来源字段的第一个字段
+				var sf = config.sourceField;
+				if (sf && sf.length > 0) {
+					qf = sf.split(';')[0];
+					if (qf.length > 0) {
+						if (whereSql.length > 0) whereSql = '(' + whereSql + ') and ';
+						whereSql = whereSql + qf + ' like ?';
+						
+						if (whereType.length > 0) whereType = whereType + ';';
+						whereType = whereType + 'string';
+						
+						len = 1;
+					}
+				}
+			}
+			
+			//传递plen，查询字段个数，用于构建whereValue
+			return {where_sql:whereSql, where_value:whereValue, where_type:whereType, plen:len};
 		}
 	});//Ext.apply
 

@@ -80,14 +80,14 @@ Jxstar.FormNode.prototype = {
 			return false;
 		}
 
-		
 		var tcfg = {deferHeight:true, items:[{text:' '}]};
 		//处理：FF下工具栏高度为27px，IE为29px，通过下面设置后为27px
 		if (Ext.isIE) tcfg.style = 'padding:1px;';
 		//创建工具栏
 		var tbar = new Ext.Toolbar(tcfg);
-
-		var form = new Ext.form.FormPanel({
+		
+		//表单控件的初始属性
+		var config = {
 			labelAlign: fm.labelAlign || 'right',
 			labelWidth: fm.labelWidth || 120,
 			border: true,
@@ -95,30 +95,26 @@ Jxstar.FormNode.prototype = {
 			frame: false,
 			tbar: tbar,
 			items: fm.items
+		};
+		
+		//添加其他扩展属性
+		var ocfg = self.param.pageConfig;
+		if (!Ext.isEmpty(ocfg)) {
+			Ext.apply(config, ocfg);
+		}
+		
+		//构建表单对象
+		var form = new Ext.form.FormPanel(config);
+		
+		//设置form的宽度
+		form.on('afterrender', function(page){
+			var width = fm.formWidth||800;
+			var fw = page.getWidth();
+			if (fw > width) {
+				page.getComponent(0).setWidth(width);
+			}
 		});
 
-		//取消表单的边框，原来padding值为6px
-		form.on('afterrender', function(fm){
-			fm.getEl().select('.x-panel-mc').setStyle('padding', '0');
-			fm.getEl().select('.x-panel-ml').setStyle('padding-left', '1px');
-			fm.getEl().select('.x-panel-mr').setStyle('padding', '0');
-			//如果记录表单的宽度超过1000，则设置为1000
-			var mywidth = (self.nodeId == 'sys_fun_base') ? 1000 : 800;
-			var fw = fm.getWidth();
-			if (fw > mywidth) {
-				fm.getComponent(0).setWidth(mywidth);
-			}
-			
-			//给所有字段添加change事件，处理字段修改标记。trigger控件的事件在select值后触发的form.set方法中处理。
-			fm.getForm().fieldItems().each(function(f){
-				var name = f.name;
-				if (name != null && name.length > 0) {
-					f.on('change', JxUtil.changeValue);
-					//添加CTRL+F1事件查看字段帮助说明
-					f.on('specialkey', JxUtil.specialKey);
-				}
-			});
-		});
 		//添加表单控件注销事件
 		form.on('beforedestroy', function(fm){
 			var my = fm.getForm();
@@ -264,6 +260,20 @@ Jxstar.FormNode.prototype = {
 	 **/
 	initPage: function(){
 		var self = this;
+		
+		//给所有字段添加change事件，处理字段修改标记。
+		self.page.getForm().fieldItems().each(function(f){
+			var name = f.name;
+			if (name != null && name.length > 0) {
+				f.on('change', JxUtil.changeValue);
+				//添加CTRL+F1事件查看字段帮助说明
+				f.on('specialkey', JxUtil.specialKey);
+			}
+		});
+		
+		//加载子表
+		JxFormSub.formShowSub(self);
+		
 		//自定义扩展
 		var fn = self.config.initpage;
 		if (typeof fn == 'function') {

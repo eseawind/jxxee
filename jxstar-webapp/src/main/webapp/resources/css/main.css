@@ -1,3 +1,68 @@
+/*处理form中的信息块、子表的信息块描述*/
+.x-fieldset {
+    border:1px solid #B5B8C8;
+    padding:4px;
+    margin-bottom:5px;
+    display:block;
+}
+.xf-panel-header, .xs-panel-header {
+    /*color:#15428b;*/
+    font-size:12px;
+    font-family:tahoma,arial,verdana,sans-serif;
+	line-height: 14px;
+	padding:2px;
+	background-color:#d0def0;
+	border:1px solid #C7C7C7;/*#ACE5C7;*/
+	border-bottom:0 none;
+	overflow:hidden;
+	background:#eee url(../images/header-bg.gif) repeat-x;
+}
+.xf-panel-header {
+	margin-top:5px;
+}
+.xf-panel-body, .xs-panel-body {
+    border:1px solid #C7C7C7;
+    border-top:0 none;
+    overflow:hidden;
+}
+.xf-panel-body {
+	padding:5px 5px 0 0;
+}
+.xf-panel-header-noborder, .xs-panel-header-noborder {
+    border-width:0;
+}
+.xf-panel-body-noborder, .xs-panel-body-noborder {
+    border-width:0;
+}
+.sub_panel {
+	padding:5px 10px;
+}
+.sub_title {background-image:url( ../images/icons/button/subtitle.gif) !important;}
+/*********************end subgrid******************/
+
+/***************grid bottom total use*************/
+.x-grid3-summary-row {
+    border-left:1px solid #fff;
+    border-right:1px solid #fff;
+    color:#333;
+    background: #f1f2f4;
+}
+.x-grid3-summary-row .x-grid3-cell-inner {
+    font-weight:bold;
+    padding-bottom:4px;
+}
+.x-grid3-cell-first .x-grid3-cell-inner {
+    padding-left:16px;
+}
+.x-grid-hide-summary .x-grid3-summary-row {
+    display:none;
+}
+.x-grid3-summary-msg {
+    padding:4px 16px;
+    font-weight:bold;
+}
+/***************grid bottom total use*************/
+
 .x-tab-panel-header, .x-tab-panel-footer {border-color:#DEECFD;}/*8DB2E3*/
 
 /*use to more sub tree node cls*/
@@ -172,6 +237,8 @@ td.ux-grid-hd-group-cell {/* ux.ColumnHeaderGroup */
 .tab_grid {background-image:url( ../images/icons/button/grid.gif) !important;}
 .tab_form {background-image:url( ../images/icons/button/form.gif) !important;}
 .tab_des{background-image:url( ../images/icons/fam/des.gif) !important;}
+.btn_sub{background-image:url( ../images/icons/sub.gif) !important;}
+.btn_plus{background-image:url( ../images/icons/plus.gif) !important;}
 
 .nav_fun {background-image:url( ../images/icons/fam/nav_fun.gif) !important;}
 .nav_msg {background-image:url( ../images/icons/fam/nav_msg.gif) !important;}
@@ -195,8 +262,12 @@ td.ux-grid-hd-group-cell {/* ux.ColumnHeaderGroup */
 .flag_attach {background:url(../images/icons/button/attach_flag.gif) no-repeat;cursor:pointer;}
 .hd_button_add {background:url(../images/icons/fam/add.gif) no-repeat;cursor:pointer;}
 
+.eb_calc{background-image:url( ../images/icons/button/calc.gif) !important;}
+.eb_stat{background-image:url( ../images/icons/button/stat.gif) !important;}
+.eb_impexcel{background-image:url( ../images/icons/button/dataimp.gif) !important;}
+.eb_dirprint {background-image:url( ../images/icons/button/print.gif) !important;}
+.eb_setattr{background-image:url( ../images/icons/button/config.gif) !important;}
 .eb_showpic{background-image:url( ../images/icons/button/album.gif) !important;}
-.eb_dataImport{background-image:url( ../images/icons/button/selimp.gif) !important;}
 .eb_import{background-image:url( ../images/icons/button/import.gif) !important;}
 .eb_imp{background-image:url( ../images/icons/button/imp.gif) !important;}
 .eb_exp {background-image:url( ../images/icons/button/exp.gif) !important;}
@@ -236,8 +307,8 @@ td.ux-grid-hd-group-cell {/* ux.ColumnHeaderGroup */
 .eb_savegd {background-image:url( ../images/icons/button/save.gif) !important;}
 .eb_creategd {background-image:url( ../images/icons/button/change.gif) !important;}
 .eb_menu{background-image:url( ../images/icons/button/showm.gif) !important;}
-.eb_select{background-image:url( ../images/icons/fam/select.gif) !important;}
-.eb_clear{background-image:url( ../images/icons/fam/clear.gif) !important;}
+.eb_select{background-image:url( ../images/icons/button/select.gif) !important;}
+.eb_clear{background-image:url( ../images/icons/button/clear.gif) !important;}
 .eb_cancel{background-image:url( ../images/icons/button/btn_signout.gif) !important;}
 .eb_enable{background-image:url( ../images/icons/button/enable.gif) !important;}
 .eb_valid{background-image:url( ../images/icons/button/validate.gif) !important;}
@@ -248,6 +319,7 @@ td.ux-grid-hd-group-cell {/* ux.ColumnHeaderGroup */
 .eb_pass{background-image:url( ../images/icons/button/pass.gif) !important;}
 .eb_addpic{background-image:url( ../images/icons/button/image.gif) !important;}
 .eb_exesql{background-image:url( ../images/icons/button/btn_status.gif) !important;}
+.eb_dataimp{background-image:url( ../images/icons/button/dataimp.gif) !important;}
 
 .upload_icon{background-image:url( ../images/icons/button/image.gif) !important;}
 .eb_pattach {background-image:url( ../images/icons/button/upload.gif) !important;}

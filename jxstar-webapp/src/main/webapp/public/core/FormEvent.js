@@ -331,7 +331,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 			return;
 		}
 	
-		if (this.checkAudit()) return;
+		if (this.checkAudit('1', 'del')) return;
 		if (this.fireEvent('beforedelete', this) == false) return;
 
 		//删除提交
@@ -476,9 +476,16 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 	* private
 	* 提交时：检查是否存在已复核的记录；取消时：检查是否存在未复核记录
 	**/
-	checkAudit: function(auditval) {
-		if (auditval == null) auditval = '1';
+	checkAudit: function(auditval, srctype) {
+		if (Ext.isEmpty(auditval)) auditval = '1';
+		if (Ext.isEmpty(srctype)) srctype = 'audit';
 
+		//数据校验，删除时不用检查
+		if (srctype != 'del' && !this.form.isValid()) {
+			JxHint.alert(jx.event.datavalid);	//'请确保输入的数据正确完整！'
+			return true;
+		}
+		
 		var auditcol = this.define.auditcol;
 		if (Ext.isEmpty(auditcol)) return false;
 		var record = this.form.myRecord;
@@ -493,11 +500,6 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		} else {
 			if (state != '0' && state != '2' && state != '6'){//暂时调整为审批中的记录可以保存修改
 				JxHint.alert(jx.event.curaudit1);	//'当前记录已复核，不能操作！'
-				return true;
-			}
-			//数据校验
-			if (!this.form.isValid()) {
-				JxHint.alert(jx.event.datavalid);	//'请确保输入的数据正确完整！'
 				return true;
 			}
 		}
@@ -557,10 +559,14 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 			
 			//提交后要处理的内容
 			var endcall = function(data) {
-				var auditcol = self.define.auditcol;
-				self.form.findField(auditcol).osetValue(auditval);
-				record.set(auditcol, auditval);
-				record.commit();
+				//重新加载数据
+				if (!Ext.isEmpty(data)) {
+					Ext.iterate(data, function(key, value){
+						record.set(key, value);
+					});
+					record.commit();
+					self.form.loadRecord(record);
+				}
 
 				self.fireEvent('afteraudit', self, data);
 				//清除脏标记，设置最新的原始值

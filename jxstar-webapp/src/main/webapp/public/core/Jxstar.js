@@ -788,7 +788,7 @@ Ext.ns('Jxstar');
 			}
 
 			//显示统计数据
-			JxUtil.viewSumData(grid);
+			Jxstar.viewSumData(grid);
 			
 			//处理表格记录是否有附件的标志
 			JxAttach.viewAttachFlag(grid);
@@ -823,23 +823,14 @@ Ext.ns('Jxstar');
 			var sumData = grid.getStore().reader.jsonData.data.sum;
 			
 			if (sumData != null && sumData.length > 0) {
-				/*sumData = sumData[0];
-				for(var key in sumData){
-					var val = sumData[key];
-					totalText += cm.getColumnById(key).header + '=' + val + ' ';
-				}
-				JxHint.alert(totalText);*/
-				var bbar = grid.getBottomToolbar();
-				var bsum = bbar.getEl().prev();
 				if (grid.jxsum) {
-					grid.jxsum.refresh(sumData[0]);
+					grid.jxsum.refresh({data: sumData[0]});
 				} else {
 					var sum = new Jxstar.JxSum();
 					sum.init(grid);
-					var vh = sum.doRender(sumData[0]);
-					bbar.getEl().insertHtml('beforeBegin', vh);
-					//重新显示表格
-					grid.doLayout();
+					var markup = sum.renderSummary({data: sumData[0]});
+					var body = grid.getView().mainBody;
+					body.insertHtml('beforeEnd', markup);
 				}
 			}
 		},

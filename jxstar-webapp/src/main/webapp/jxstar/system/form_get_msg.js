@@ -4,18 +4,21 @@
 	var msgtypeData = Jxstar.findComboData('msgtype');
 	var msgstateData = Jxstar.findComboData('msgstate');
 	var items = [{
-		height: '97%',
-		width: '97%',
-		border: false,
-		layout: 'form',
-		style: 'padding:10px;',
-		items: [{
+		width:'97%',
+		border:false,
+		layout:'form',
+		autoHeight:true,
+		xtype:'container',
+		style:'padding:5 10 5 10;',
+		items:[{
 			anchor:'100%',
-			border: false,
+			border:false,
+			xtype:'container',
 			layout:'column',
 			autoHeight:true,
 			items:[{
 				border:false,
+				xtype:'container',
 				columnWidth:0.495,
 				layout:'form',
 				style: 'padding-left:10px;',
@@ -40,6 +43,7 @@
 				]
 			},{
 				border:false,
+				xtype:'container',
 				columnWidth:0.495,
 				layout:'form',
 				style: 'padding-left:10px;',
@@ -65,11 +69,13 @@
 			]
 		},{
 			anchor:'100%',
-			border: false,
+			border:false,
+			xtype:'container',
 			layout:'column',
 			autoHeight:true,
 			items:[{
 				border:false,
+				xtype:'container',
 				columnWidth:0.99,
 				layout:'form',
 				style: 'padding-left:10px;',
@@ -86,7 +92,8 @@
 		funid: 'get_msg'
 	};
 
-	config.eventcfg = {				back: function() {			var msgType = this.form.findField('plet_msg__msg_type').getValue();			if (msgType != 'man') {				JxHint.alert(jx.sys.noman);	//'不是个人发送的消息，不能回复！'				return false;			}			//发件人ID			var fromUserId = this.form.findField('plet_msg__from_userid').getValue();			//发件人			var fromUserName = this.form.findField('plet_msg__from_user').getValue();						//打开发送消息的对话框后新增记录			var hdcall = function(page) {				page.formNode.event.create();				//回复发件人				page.getForm().set('plet_msg__to_userid', fromUserId);				page.getForm().set('plet_msg__to_user', fromUserName);			};						Jxstar.showData({				filename: '/jxstar/system/form_send_msg.js',				pagetype: 'sendform',				title: jx.plet.sendmsg,	//'发送消息'				callback: hdcall			});		},				showfun: function() {			var funId = this.form.findField('plet_msg__fun_id').getValue();			var dataId = this.form.findField('plet_msg__data_id').getValue();					if (funId.length > 0 && dataId.length > 0) {				JxUtil.showFormData(funId, dataId);			}		},				//取发出消息的附件		uploadWhereParam: function() {			var options = {};			var keyid = this.getPkField().getValue();			if (keyid == null || keyid.length == 0) return;						options.where_sql = 'sys_attach.data_id = ? and sys_attach.table_name = ?';			options.where_type = 'string;string';			options.where_value = keyid.substr(0, keyid.length-1)+';plet_msg';			return options;		}	};
+	
+	config.eventcfg = {				back: function() {			var msgType = this.form.findField('plet_msg__msg_type').getValue();			if (msgType != 'man') {				JxHint.alert(jx.sys.noman);	//'不是个人发送的消息，不能回复！'				return false;			}			//发件人ID			var fromUserId = this.form.findField('plet_msg__from_userid').getValue();			//发件人			var fromUserName = this.form.findField('plet_msg__from_user').getValue();						//打开发送消息的对话框后新增记录			var hdcall = function(page) {				page.formNode.event.create();				//回复发件人				page.getForm().set('plet_msg__to_userid', fromUserId);				page.getForm().set('plet_msg__to_user', fromUserName);			};						Jxstar.showData({				filename: '/jxstar/system/form_send_msg.js',				pagetype: 'sendform',				title: jx.plet.sendmsg,	//'发送消息'				callback: hdcall			});		},				showfun: function() {			var funId = this.form.findField('plet_msg__fun_id').getValue();			var dataId = this.form.findField('plet_msg__data_id').getValue();					if (funId.length > 0 && dataId.length > 0) {				JxUtil.showFormData(funId, dataId);			}		},				//取发出消息的附件		uploadWhereParam: function() {			var options = {};			var keyid = this.getPkField().getValue();			if (keyid == null || keyid.length == 0) return;			var keyids = keyid.split('-');						options.where_sql = 'sys_attach.data_id = ? and sys_attach.table_name = ?';			options.where_type = 'string;string';			options.where_value = keyids[0]+';plet_msg';			return options;		}	};
 	
 	return new Jxstar.FormNode(config);
 }

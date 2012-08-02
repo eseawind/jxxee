@@ -28,6 +28,7 @@
 	};
 	
 	
+	
 		
 	return new Jxstar.GridNode(config);
 }

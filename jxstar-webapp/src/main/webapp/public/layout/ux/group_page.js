@@ -180,9 +180,26 @@ JxGroupPage = {};
 		var opt = srcGrid.getStore().lastOptions.params || {};
 		var e = encodeURIComponent;
 		
+		var where_sql = opt.where_sql;
+		var where_value = opt.where_value;
+		var where_type = opt.where_type;
+		var query_type = opt.query_type;
+		//如果是来自高级查询，则直接从查询条件表中取条件
+		var condGrid = self.pageNode.condGrid;
+		if (condGrid) {
+			var store = condGrid.getStore();
+			var query = JxQuery.getQuery(store);
+			if (query) {
+				where_sql = query[0];
+				where_value = query[1];
+				where_type = query[2];
+				query_type = '1';
+			}
+		}
+		
 		var params = 'funid=queryevent&query_funid='+ self.funId + '&pagetype=grid&eventcode=group_stat';
-		params += '&where_sql='+ e(opt.where_sql||'') + '&where_value='+ e(opt.where_value||'');
-		params += '&where_type='+(opt.where_type||'') + '&query_type=' + opt.query_type||'0';
+		params += '&where_sql='+ e(where_sql||'') + '&where_value='+ e(where_value||'');
+		params += '&where_type='+(where_type||'') + '&query_type=' + query_type||'0';
 		params += '&charfield='+self.charfields+'&numfield='+self.numfields + '&user_id='+Jxstar.session['user_id'];
 		
 		return params;

@@ -336,9 +336,10 @@ Request = {};
 		* 表格中的数据导出到xls文件中
 		* grid -- 数据表格
 		* fileName -- excel文件名
+		* includeHidden -- 是否包含隐藏字段
 		**/
-		exportCSV: function(grid, fileName) {
-			var content = JxUtil.gridToCSV(grid, true);
+		exportCSV: function(grid, fileName, includeHidden) {
+			var content = JxUtil.gridToCSV(grid, Ext.isEmpty(includeHidden) ? true : includeHidden);
 			var fd = Ext.get('frmDummy');
 			if (!fd) {
 				fd = Ext.DomHelper.append(Ext.getBody(), {

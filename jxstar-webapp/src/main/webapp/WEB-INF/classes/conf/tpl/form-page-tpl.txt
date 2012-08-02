@@ -8,6 +8,7 @@ Jxstar.currentPage = function() {
 		funid: '<param:fun_id/>'
 	};
 
+	<element:funAttr/>
 	<element:incPage/>
 	
 	return new Jxstar.FormNode(config);

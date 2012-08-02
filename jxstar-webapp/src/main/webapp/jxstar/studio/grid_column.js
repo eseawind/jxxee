@@ -77,18 +77,13 @@
 			}
 		}}, field:{name:'fun_col__col_control',type:'string'}},
 	{col:{header:'控件名称', width:100, sortable:true, editable:true, hcss:'color:#3039b4;',
-		editor:new Ext.form.TriggerField({
-			maxLength:20,
-			editable:false,
+		editor:new Ext.form.ComboBox({
+			maxLength:20, name:'fun_col__control_name', 
+			editable:true, hcss:'color:#3039b4;',
 			triggerClass:'x-form-search-trigger', 
-			onTriggerClick: function() {
-				if (this.menu == null) {
-					var selcfg = {pageType:'combogrid', nodeId:'sel_combo', layoutPage:'', sourceField:'v_combo_control.control_code', targetField:'fun_col.control_name', whereSql:"", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'1',fieldName:'fun_col.control_name'};
-					this.menu = Jxstar.createComboMenu(this);
-					JxSelect.createComboGrid(selcfg, this.menu, 'node_sys_fun_col_editgrid');
-				}
-				this.menu.show(this.el);
-			}
+			listeners:{afterrender: function(combo) {
+				JxSelect.initCombo('sys_fun_col', combo, 'node_sys_fun_col_editgrid');
+			}}
 		})}, field:{name:'fun_col__control_name',type:'string'}},
 	{col:{header:'*数据样式', width:70, sortable:true, defaultval:'text', align:'center',
 		editable:true, hcss:'color:#0000ff;',
@@ -128,7 +123,7 @@
 			triggerClass:'x-form-search-trigger', 
 			onTriggerClick: function() {
 				if (this.menu == null) {
-					var selcfg = {pageType:'combogrid', nodeId:'sys_default', layoutPage:'', sourceField:'funall_default.func_name', targetField:'fun_col.default_value', whereSql:"func_name like 'fun_%'", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',fieldName:'fun_col.default_value'};
+					var selcfg = {pageType:'combogrid', nodeId:'sys_default', layoutPage:'', sourceField:'funall_default.func_name', targetField:'fun_col.default_value', whereSql:"func_name like 'fun_%'", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',queryField:'',likeType:'',fieldName:'fun_col.default_value'};
 					this.menu = Jxstar.createComboMenu(this);
 					JxSelect.createComboGrid(selcfg, this.menu, 'node_sys_fun_col_editgrid');
 				}
@@ -149,6 +144,7 @@
 		isshow: '0',
 		funid: 'sys_fun_col'
 	};
+	
 	
 	config.initpage = function(gridNode){		var grid = gridNode.page;		//表格编辑后事件		grid.on('afteredit', function(event) {			if (event.field == 'fun_col__data_type') {				var r = event.record;				var datatype = r.get('fun_col__data_type');				if (datatype == 'string') {					r.set('fun_col__col_control', 'text');					r.set('fun_col__format_id', 'text');				} else if (datatype == 'int') {					r.set('fun_col__col_control', 'number');					r.set('fun_col__format_id', 'int');				} else if (datatype == 'double') {					r.set('fun_col__col_control', 'number');					r.set('fun_col__format_id', 'number');				} else if (datatype == 'date') {					r.set('fun_col__col_control', 'date');					r.set('fun_col__format_id', 'date');				}			}		});	};	config.eventcfg = {		
 		dataImportParam: function() {			var pg = JxUtil.getParentGrid(this.grid);			var records = pg.getSelectionModel().getSelections();			if (!JxUtil.selectone(records)) return;			var funId = records[0].get('fun_base__fun_id');			var tableName = records[0].get('fun_base__table_name');						var options = {				whereSql: 'table_name = ? and col_code not in (select col_code from fun_col where fun_id = ?)',				whereValue: tableName+';'+funId,				whereType: 'string;string'			};			return options;		},

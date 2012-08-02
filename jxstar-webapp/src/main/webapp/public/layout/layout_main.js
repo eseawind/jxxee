@@ -59,7 +59,7 @@ Jxstar.currentPage = function(define, pageParam) {
 	
 	//取子功能ID
 	var subfunid = define.subfunid;
-	if (subfunid != null && subfunid.length > 0) {
+	if (subfunid != null && subfunid.length > 0 && !define.showFormSub) {
 		var subfunids = subfunid.split(',');
 		for (var i = 0, n = subfunids.length; i < n; i++) {
 			var subid = subfunids[i];

@@ -16,11 +16,12 @@ JxFormSub = {};
 	
 	//添加显示明细表的panel
 	formAddSub: function(config) {
-		var define = Jxstar.findNode(config.param.funid);
+		var fm = config.param;
+		var define = Jxstar.findNode(fm.funid);
 		var subfunid = define.subfunid;
 		if (subfunid == null || subfunid.length == 0) return;
 		
-		var cfgitems = config.param.items;
+		var cfgitems = fm.items;
 		var subfunids = subfunid.split(',');
 		for (var i = 0, n = subfunids.length; i < n; i++) {
 			var subid = subfunids[i];
@@ -28,21 +29,18 @@ JxFormSub = {};
 			
 			var subdefine = Jxstar.findNode(subid);
 			var subtitle = subdefine.nodetitle;
-			cfgitems[cfgitems.length] = {
-				border: false,
-				width: 800,
-				style: 'padding:10px;',
-				items:[{
-					border:true,
-					xtype:'fieldset',
-					title:subtitle,
-					collapsible:true,
-					collapsed: (i > 0),//第一个明细表展开，后面的关闭
-					items:[
-						{xtype:'panel', border:false, style: 'padding:0 8 0 8px;', layout:'fit', cls:'form_subpanel', data:subid, height:180}
-					]
-				}]
+			
+			//标志此功能在form中显示
+			//在GridNode.js中构建表格时不带边框，而且分页工具栏显示在顶部。
+			subdefine.showInForm = true;
+			
+			var subcfg = {
+				title:subtitle, baseCls:'xs-panel', iconCls:'sub_title', data:subid, 
+				cls:'sub_panel', border:true, layout:'fit', collapsible:true, 
+				collapsed:false, width:'100%', height:230
 			};
+			Ext.apply(subcfg, fm.subConfig);
+			cfgitems[cfgitems.length] = subcfg;
 		}
 	},
 	
@@ -50,9 +48,10 @@ JxFormSub = {};
 	formShowSub: function(formNode) {
 		var fevent = formNode.event;
 		var page = formNode.page;
+		var fm = formNode.param;
 		
 		//取明细表的panel
-		var subps = page.find('cls', 'form_subpanel');
+		var subps = page.find('cls', 'sub_panel');
 		if (subps == null || subps.length == 0) return;
 		
 		//创建明细表对象
@@ -74,11 +73,6 @@ JxFormSub = {};
 			var showsub = function(){
 				for (var i = 0, n = subps.length; i < n; i++) {
 					var subgrid = subps[i].getComponent(0);
-					if (subgrid.body && subgrid.body.hasClass('x-subgrid') == false) {
-						subgrid.body.addClass('x-subgrid');
-						var tbar = subgrid.getTopToolbar();
-						if (tbar) tbar.addClass('x-subgrid');
-					}
 					if (pkvalue == null || pkvalue.length == 0) {
 						subgrid.getStore().removeAll();
 						subgrid.fkValue = '';
@@ -86,6 +80,18 @@ JxFormSub = {};
 					} else {
 						subgrid.enable();
 						Jxstar.loadSubData(subgrid, pkvalue);
+					}
+					
+					//可以调整明细表的大小
+					if (fm.subResizable) {
+						var re = new Ext.Resizable(subps[i].el, {
+							minHeight: 180, minWidth: 600,
+							listeners:{resize:function(r, w, h){
+								r.innerCmp.setWidth(w);
+								r.innerCmp.setHeight(h);
+							}}
+						});
+						re.innerCmp = subps[i];
 					}
 					
 					//如果主记录已提交，则明细表的按钮不能使用

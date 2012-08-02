@@ -55,7 +55,7 @@ Jxstar.currentPage = function(define, pageParam) {
 		});
 		
 		var fpageType = isCheck ? 'chkform' : 'form';
-		Jxstar.createPage(funid, 'formpage', newtab, {pageType:fpageType});
+		Jxstar.createPage(funid, 'formpage', newtab, {pageType:fpageType, showSub:true});
 	}
 
 	tabGridForm.on('beforetabchange', function(tabPanel, newTab, currentTab){

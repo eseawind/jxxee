@@ -78,7 +78,6 @@ JxUtil = {};
 		loadJxData: function() {
 			JxUtil.loadJS('/public/data/NodeDefine.js', true);
 			JxUtil.loadJS('/public/data/RuleData.js', true);
-			//JxUtil.loadJS('/public/data/TreeData.js', true);
 			JxUtil.loadJS('/public/locale/combo-lang-'+ JxLang.type +'.js', true);
 		},
 	
@@ -205,6 +204,14 @@ JxUtil = {};
 			if (!grid || grid.isXType('grid') == false) return null;
 			
 			return grid;
+		},
+		
+		//根据form在的子表取到父form对象
+		getParentForm: function(subGrid) {
+			var form = subGrid.findParentByType('form');
+			if (Ext.isEmpty(form)) return null;
+			
+			return form.getForm();
 		},
 		
 		//在功能区域的表格或表单中取到布局页面中的树形控件
@@ -713,7 +720,9 @@ JxUtil = {};
 			var cm = grid.getColumnModel();
 			var colCount = cm.getColumnCount();
 			for (var i = 0; i < colCount; i++) {
-				title += cm.getColumnHeader(i) + ',';
+				if (cm.getDataIndex(i).length > 0 && (includeHidden || !cm.isHidden(i))) {
+					title += cm.getColumnHeader(i) + ',';
+				}
 			}
 			if (title.length > 0) {
 				title = title.substr(0, title.length-1);
@@ -904,6 +913,24 @@ JxUtil = {};
 			
 			var value = whereValue.replace(re, fn);
 			return value;
+		},
+		
+		/**
+		* 取表格中选择的记录；可编辑表格中的选择方式不同。
+		*/
+		getSelectRows : function(g) {
+			var records = [];
+			var selModel = g.getSelectionModel();
+			if (selModel.getSelections) {
+				records = selModel.getSelections();
+			} else {
+				var pos = selModel.getSelectedCell();
+				if (pos == null) return records;
+				
+				var record = g.getStore().getAt(pos[0]);
+				if (record) records = [record];
+			}
+			return records;
 		},
 	
 		/**

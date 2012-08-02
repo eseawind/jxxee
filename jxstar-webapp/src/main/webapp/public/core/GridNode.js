@@ -190,8 +190,15 @@ Jxstar.GridNode.prototype = {
 		};
 		store.on('beforeload', dataModify);
 		
+		//在JxFormSub.formAddSub中给值，formsub不带边框
+		var borded = true;
+		if (self.state == '0' && self.define.showInForm) {
+			borded = false;
+		}
+		
 		//配置信息
 		var config = {
+			border: borded,
 			loadMask: true,
 			columnLines: true,	//显示列分隔线
 			store: store,
@@ -203,11 +210,7 @@ Jxstar.GridNode.prototype = {
 
 			clicksToEdit:1		//单击编辑数据
 		};
-		//显示查询过滤器
-		/*if (self.state == '0' && self.param.hasQuery === '1') {
-			var filter = new Jxstar.JxFilter();
-			config.plugins = [filter];
-		}*/
+
 		//添加扩展插件
 		if (self.param.plugins != null) {
 			config.plugins = self.param.plugins;
@@ -224,7 +227,8 @@ Jxstar.GridNode.prototype = {
 		}
 
 		//设计状态不需要分页栏
-		if (self.state == '0' && self.pageType.indexOf('notool') < 0 && !self.param.hidePageTool) {
+		if (self.state == '0' && self.pageType.indexOf('notool') < 0 && 
+			!self.param.hidePageTool && !self.define.showInForm) {
 			config.bbar = new Ext.PagingToolbar({
 				deferHeight:true,
 				pageSize: Jxstar.pageSize,
@@ -234,6 +238,12 @@ Jxstar.GridNode.prototype = {
 				displayMsg: '共 {2} 条',	//'显示 {0} -- {1}  共 {2} 条'
 				emptyMsg: jx.node.datano		//'没有记录'
 			});
+		}
+		
+		//添加其他扩展属性
+		var ocfg = self.param.pageConfig;
+		if (!Ext.isEmpty(ocfg)) {
+			Ext.apply(config, ocfg);
 		}
 
 		//创建表对象
@@ -283,12 +293,7 @@ Jxstar.GridNode.prototype = {
 			//加载数据所花的时间
 			Jxstar.et = (new Date()).getTime(); 
 			var useTime = Jxstar.et - Jxstar.st;
-			JxHint.hint('use time(ms): ' + useTime); 
-			/*if (useTime >= 5000) {
-				//'页面加载时间超过{0}ms，请您关闭浏览器重启应用系统！'
-				var msg = String.format(jx.node.limittime, useTime);
-				alert(msg);
-			}*/
+			JxHint.hint('use time(ms): ' + useTime);
 			
 			//每次加载数据后，IE强制回收内存
 			if(Ext.isIE){CollectGarbage();}
@@ -315,7 +320,7 @@ Jxstar.GridNode.prototype = {
 		});
 		
 		//设置单选模式
-		if (self.selectModel == 'row' || (noCheck && self.selectModel != 'check')) {
+		if (self.selectModel == 'row' || noCheck) {
 			grid.getSelectionModel().singleSelect = true;
 		}
 
@@ -471,12 +476,25 @@ Jxstar.GridNode.prototype = {
 				//判断是采用原公共查询还是采用新的查询模式
 				if (Jxstar.systemVar.useCase == '1') {
 					JxQueryExt.showCase(self);
-					if (',grid,editgrid,query,'.indexOf(','+self.pageType+',') >= 0) {
+					if (self.param.showStat) {
 						JxGroupExt.showCase(self);
 					}
 				} else {
 					Jxstar.createSimpleQuery(self);
 				}
+			}
+			
+			//添加分页栏
+			if (self.state == '0' && self.define.showInForm) {
+				var pagetool = new Ext.PagingToolbar({
+					border:false,
+					style:'padding:0;border-width:0;background:transparent repeat-x 0 -1px;',//去掉工具栏中顶部的白线，与占位高度
+					store:self.page.getStore(),
+					pageSize:Jxstar.pageSize
+				});
+				tbar.add('-', pagetool); 
+				pagetool.inputItem.setHeight(18);
+				tbar.doLayout();
 			}
 			
 			if (tbar.items != null && tbar.items.getCount() == 1) {
