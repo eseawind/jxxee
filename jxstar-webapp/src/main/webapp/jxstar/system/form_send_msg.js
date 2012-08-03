@@ -66,7 +66,7 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
-					{xtype:'textarea', fieldLabel:'消息内容', name:'plet_msg__content', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', width:'100%', height:96, maxLength:500}
+					{xtype:'textarea', fieldLabel:'消息内容', name:'plet_msg__content', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', width:'100%', height:72, maxLength:500}
 				]
 			}
 			]

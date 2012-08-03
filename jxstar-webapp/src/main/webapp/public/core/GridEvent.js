@@ -405,6 +405,12 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			starti = 2;
 		}
 		this.grid.startEditing(0, starti);
+		//标记新增的记录为选择记录，不然表格编辑中取不到当前选择的tagRecord
+		if (sm instanceof Ext.grid.CellSelectionModel) {
+			sm.select(0, starti);
+		} else {
+			sm.selectFirstRow();
+		}
 		
 		if (this.fireEvent('beforecreate', this) == false) return;
 	},

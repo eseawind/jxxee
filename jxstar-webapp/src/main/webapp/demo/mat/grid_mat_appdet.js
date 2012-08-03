@@ -45,7 +45,7 @@
 		funid: 'mat_appdet'
 	};
 	
-	config.param.selectModel = 'cell';
+	config.param.selectModel = 'nocheck';
 	config.param.substat = true;
 
 	config.initpage = function(gridNode) {

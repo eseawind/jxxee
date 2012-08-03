@@ -256,6 +256,9 @@ JxSelect = {};
 					tagRecord = form.getForm();
 				}
 			}
+			if (Ext.isEmpty(tagRecord)) {//'没有找到目标记录对象，不能选择！'
+				JxHint.alert(jx.star.notag);
+			}
 			
 			return tagRecord;
 		},
@@ -404,15 +407,15 @@ JxSelect = {};
 			var endcall = function(data) {
 				//查询数据的功能ID
 				var config = data.selcfg;
-				if (!config || !data.fields) {
-					JxHint.alert(String.format('智能选择字段【{0}】定义信息为空！', colCode));
+				if (!config || !data.fields) {//'智能选择字段【{0}】定义信息为空！'
+					JxHint.alert(String.format(jx.star.selnot, colCode));
 					return;
 				}
 				
 				var qryFunId = config.nodeId;
 				var qf = config.queryField||'', sf = config.sourceField||'';
-				if (qf.length == 0 && sf.length == 0) {
-					JxHint.alert(String.format('智能选择字段【{0}】扩展信息中必须定义来源字段或者查询字段！', colCode));
+				if (qf.length == 0 && sf.length == 0) {//'智能选择字段【{0}】扩展信息中必须定义来源字段或者查询字段！'
+					JxHint.alert(String.format(jx.star.selsrc, colCode));
 					return;
 				}
 					

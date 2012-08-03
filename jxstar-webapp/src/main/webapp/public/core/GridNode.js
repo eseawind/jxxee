@@ -499,7 +499,7 @@ Jxstar.GridNode.prototype = {
 			
 			//如果是单元选择模式，则增加选项“是否行选”
 			var sm = self.page.getSelectionModel();
-			if (sm instanceof Ext.grid.CellSelectionModel) {
+			if (self.state == '0' && sm instanceof Ext.grid.CellSelectionModel) {
 				var setSelMode = function(cb, checked){
 					var grid = self.page;
 					

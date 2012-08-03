@@ -13,7 +13,7 @@
 	padding:2px;
 	background-color:#d0def0;
 	border:1px solid #C7C7C7;/*#ACE5C7;*/
-	border-bottom:0 none;
+	/*border-bottom:0 none;*/
 	overflow:hidden;
 	background:#eee url(../images/header-bg.gif) repeat-x;
 }
@@ -319,9 +319,21 @@ td.ux-grid-hd-group-cell {/* ux.ColumnHeaderGroup */
 .eb_valid{background-image:url( ../images/icons/button/validate.gif) !important;}
 .eb_prop{background-image:url( ../images/icons/button/properties.gif) !important;}
 .eb_win{background-image:url( ../images/icons/button/window.gif) !important;}
-.eb_logout{background-image:url( ../images/icons/button/logout.gif) !important;}
-.eb_online{background-image:url( ../images/icons/button/online.gif) !important;}
-.eb_pass{background-image:url( ../images/icons/button/pass.gif) !important;}
+.eb_logout{
+	background-image:url( ../images/icons/button/logout.gif);
+	_background: none;
+	_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,src='./resources/images/icons/button/logout.gif');
+}
+.eb_pass{
+	background-image:url( ../images/icons/button/pass.gif);
+	_background: none;
+	_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,src='./resources/images/icons/button/pass.gif');
+}
+.eb_online{
+	background-image:url( ../images/icons/button/online.gif);
+	_background: none;
+	_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,src='./resources/images/icons/button/online.gif');
+}
 .eb_addpic{background-image:url( ../images/icons/button/image.gif) !important;}
 .eb_exesql{background-image:url( ../images/icons/button/btn_status.gif) !important;}
 .eb_dataimp{background-image:url( ../images/icons/button/dataimp.gif) !important;}

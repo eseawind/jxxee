@@ -44,6 +44,8 @@
 	margin:0 auto;
 	background-image: url(../images/login/logo.png);
 	background-repeat: no-repeat;
+	_background: none;
+	_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,src='./resources/images/login/logo.png');
 }
 .login_div table{ line-height:32px; top:65px; width:500px; position:relative;}
 .login_div table th{ width:50px; text-align:right; font-weight:lighter; font-size:12px;}
