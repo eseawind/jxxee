@@ -91,11 +91,7 @@
 		},
 		
 		showField: function(){
-			this.showData('rpt_detail');
-		},
-		
-		showWfField: function(){
-			this.showData('rpt_detailwf');
+			this.showData('total_detail');
 		}
 	};
 	
