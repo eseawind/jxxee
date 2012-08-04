@@ -1,5 +1,1791 @@
-/*
+﻿/*!
  * Copyright 2011 Guangzhou Donghong Software Technology Inc.
  * Licensed under the www.jxstar.org
  */
-Jxstar.currentPage={parentEl:null,layoutEl:null,nodeId:"",compnum:0,colnums:2,designItems:null,designDDs:[],designResizes:[],initpos:{formx:10,formy:35,formi:10,colx:5,coly:5,coli:20,fieldx:5,fieldy:5,fieldi:8},initsize:{formw:720,formh:380,colw:220,colh:360,fieldw:200,fieldh:22},bgsize:{cols:6,rows:50,width:120,height:30},destroy:function(){var a=this;Ext.each(a.designDDs,function(b){b.unreg();b=null});Ext.each(a.designResizes,function(b){b.destroy(true);b=null});a.designDDs=null;a.designResizes=null},initWidth:function(b){var a=this;a.colnums=b;if(a.colnums==2){a.initsize.colw=340;a.initsize.fieldw=320}else{a.initsize.colw=220;a.initsize.fieldw=200}},render:function(d,p){var q=this;q.nodeId=d;q.initWidth(q.colnums);var f=p.getTopToolbar();var l=p.getComponent(0);if(l){l.removeAll(true);l.destroy();l=null;f.removeAll(true);f.add({text:" "})}l=new Ext.Panel({id:"des_form_panel",border:false});p.add(l);l.on("beforedestroy",function(){q.destroy();return true});var k=[{text:jx.fun.addrow,iconCls:"eb_add",handler:function(){q.createComponent("fdes-formitem")}},{text:jx.fun.addcol,iconCls:"eb_add",handler:function(){q.createComponent("fdes-columnitem")}},{text:jx.fun.addfld,iconCls:"eb_add",handler:function(){q.createComponent("fdes-fielditem")}}];var o=function(j){var i=j.text.split(" ")[0];q.initWidth(i)};var a=[{text:jx.fun.ctlprop,handler:function(){q.updateProp()}},{text:jx.fun.delctl,handler:function(){q.deleteComponent()}},{text:jx.fun.colnums,id:"menu_colnums",menu:{items:[{text:"2 cols",checked:true,group:"colsnum",checkHandler:o},{text:"3 cols",checked:false,group:"colsnum",checkHandler:o}]}},"-",{text:jx.wfx.exp,iconCls:"eb_exp",handler:function(){q.exportDesign()}}];f.add({text:jx.base.save,iconCls:"eb_save",handler:function(){q.saveDesign()}},{text:jx.fun.pub,iconCls:"eb_change",handler:function(){q.createPage()}},{text:jx.base.del,iconCls:"eb_delete",handler:function(){q.deleteDesign()}},{xtype:"tbseparator"},{text:jx.fun.synprop,iconCls:"eb_refresh",handler:function(){q.updateDesign()}},{text:jx.fun.setfld,iconCls:"eb_empty",handler:function(){q.selectField()}},{text:jx.fun.addlay,iconCls:"eb_form",handler:function(){q.createLayout(4,q.colnums)}},{text:jx.fun.setattr,iconCls:"eb_setattr",handler:function(){q.setattr()}},{xtype:"tbfill"},{xtype:"tbseparator"},{text:jx.fun.addctl,iconCls:"eb_menu",menu:k},{text:jx.wfx.extdo,iconCls:"eb_menu",menu:a});p.doLayout();q.parentEl=l.el;q.layoutEl=Ext.get(l.el.findParent("div.x-panel-body",2));var b=q.bgsize.height*q.bgsize.rows;q.parentEl.insertHtml("beforeEnd",'<div id="maincanvas" class="fdes-canvas x-unselectable" style="height:'+b+'px;"></div>');var c="";for(var h=0;h<q.bgsize.cols;h++){for(var g=0;g<q.bgsize.rows;g++){var n=10+g*q.bgsize.height;var e=10+h*q.bgsize.width;c+='<div class="fdes-grid x-unselectable" style="top:'+n+"px;left:"+e+'px;"></div>'}}q.parentEl.insertHtml("beforeEnd",c);var m=q.parentEl.getWidth();q.parentEl.insertHtml("beforeEnd",'<div id="maincanvas_tmp" class="fdes-canvas-bg x-unselectable" style="width:'+m+"px;height:"+b+'px;"></div>');q.initDd();q.readDesign()},createPage:function(){var a="funid=sys_fun_base&eventcode=createfd";a+="&selfunid="+this.nodeId+"&selpagetype=form&projectpath="+Jxstar.session.project_path;Request.postRequest(a,null)},setattr:function(){var a=this;var b={where_sql:"fun_attr.attr_type = ? and fun_attr.fun_id = ?",where_type:"string;string",where_value:"form;"+a.nodeId};var c=function(e){JxUtil.delay(500,function(){e.fkValue=a.nodeId;e.attr_type="form";Jxstar.loadData(e,b)})};var d=Jxstar.findNode("fun_attrdes");Jxstar.showData({filename:d.gridpage,title:d.nodetitle,width:760,height:350,nodedefine:d,callback:c})},saveDesign:function(){var a=this;a.clearSelectDivs();a.designItems=a.queryDesignItems();var g="";var b=Ext.get("maincanvas");var d=this.formItemToXML(b);if(d.length==0){return}if(a.hasNoSaveItem(a.designItems)){JxHint.alert(jx.fun.tip01);return}g="<?xml version='1.0' encoding='utf-8'?>\r";g+="<page state='design' colnums='"+a.colnums+"'>\r";g+=d;g+="</page>";var c=encodeURIComponent;var f="funid=sys_fun_base&eventcode=savefd";f+="&selfunid="+this.nodeId+"&selpagetype=form";f+="&content="+c(g);Request.postRequest(f,null)},exportDesign:function(){var a=Jxstar.path+"/jxstar/studio/pub/exp_form_design.jsp?funid="+this.nodeId;document.getElementById("frmhidden").src=a},reloadDesign:function(){var a=this;var b=function(){a.parentEl.select("div.fdes-fielditem, div.fdes-columnitem, div.fdes-formitem").remove();a.readDesign()};Ext.Msg.confirm(jx.base.hint,jx.fun.tip02,function(c){if(c=="yes"){b()}})},readDesign:function(){var b=(new Date()).getTime();var c=this;var d=function(j){if(j==null||j.length==0){JxHint.alert(jx.fun.tip03);return false}var f=Request.loadXML(j);var h=f.getElementsByTagName("page").item(0);var k=c.readAttrVal(h,"state","default");var g=c.readAttrVal(h,"colnums","2");c.initWidth(g);var i=Ext.getCmp("menu_colnums").menu;if(g=="3"){i.get(1).setChecked(true)}else{i.get(0).setChecked(true)}c.compnum=0;c.parseFormXML(h,k);c.insertCompHtml();var a=(new Date()).getTime();JxHint.hint("use time(ms): "+(a-b))};var e="funid=sys_fun_base&eventcode=query_formdes";e+="&selfunid="+this.nodeId+"&colnums="+this.colnums;Request.dataRequest(e,d,{type:"xml",wait:true})},deleteDesign:function(){var a=this;var b=function(){var c="funid=sys_fun_base&eventcode=deletefd";c+="&selfunid="+a.nodeId+"&selpagetype=form";Request.postRequest(c,function(){a.parentEl.select("div.fdes-fielditem, div.fdes-columnitem, div.fdes-formitem").remove();a.readDesign()})};Ext.Msg.confirm(jx.base.hint,jx.fun.tip04,function(c){if(c=="yes"){b()}})},updateDesign:function(){var a=this;var d=0;var b=function(j){var l=a.parentEl.query("div.fdes-fielditem");for(var k=0,e=l.length;k<e;k++){var p=l[k];var m=a.readAttrVal(p,"colcode","");if(m.length==0){continue}var h=j[m];if(h==null&&m.length>0){Ext.fly(p).remove();continue}var g=a.readAttrVal(p,"xtype","");if(h.xtype!=g&&g!="hidden"){if(!(h.xtype=="text"&&g=="area")){p.setAttribute("xtype",h.xtype);d++}}var o=a.readAttrVal(p,"title","");if(h.title!=o){p.setAttribute("title",h.title);p.innerHTML=h.title;d++}var f=a.readAttrVal(p,"visible","");if(h.visible=="false"&&f=="true"){p.setAttribute("visible",h.visible);Ext.fly(p).addClass("fdes-fieldhidden");d++}}JxHint.hint(String.format(jx.fun.syntip,d))};var c="funid=sys_fun_base&eventcode=query_field";c+="&selfunid="+a.nodeId;Request.dataRequest(c,b)},updateProp:function(){var j=this;if(j.selectDivs.length==0){JxHint.alert(jx.fun.tip05);return}if(j.selectDivs.length>1){JxHint.alert(jx.fun.tip06);return}var d=j.selectDivs[0];var c=Ext.fly(d);var e={};var g=jx.fun.setprop;var a=c.hasClass("fdes-formitem");if(a){g=jx.fun.setset;e={title:j.readAttrVal(d,"title",""),border:j.readAttrVal(d,"border","true")=="true",collapsible:j.readAttrVal(d,"collapsible","false")=="true",collapsed:j.readAttrVal(d,"collapsed","false")=="true"}}var h=c.hasClass("fdes-columnitem");if(h){return}var i=c.hasClass("fdes-fielditem");if(i){e={xtype:j.readAttrVal(d,"xtype",""),title:j.readAttrVal(d,"title",""),colcode:j.readAttrVal(d,"colcode",""),visible:j.readAttrVal(d,"visible","true")=="true"}}var f=new Ext.grid.PropertyGrid({border:false,width:300,source:e});f.getColumnModel().setColumnWidth(0,30);var b=new Ext.Window({title:g,layout:"fit",width:300,height:250,modal:true,closeAction:"close",items:[f],buttons:[{text:jx.base.ok,handler:function(){var k=f.getSource();if(i||a){d.setAttribute("title",k.title)}if(a){d.setAttribute("border",k.border.toString())}if(a){d.setAttribute("collapsible",k.collapsible.toString())}if(a){d.setAttribute("collapsed",k.collapsed.toString())}if(i){d.setAttribute("xtype",k.xtype)}if(i){d.setAttribute("colcode",k.colcode)}if(i){d.setAttribute("visible",k.visible.toString())}if(i){if(d.innerHTML!=k.title){d.innerHTML=k.title}if(k.visible==true||k.visible=="true"){Ext.fly(d).removeClass("fdes-fieldhidden")}else{Ext.fly(d).addClass("fdes-fieldhidden")}}b.close()}},{text:jx.base.cancel,handler:function(){b.close()}}]});b.show()},selectField:function(){var b=this;var a=function(j,i){var h=j.getStore();var g=h.getAt(i);var f=g.get("colcode");if(j.isSelected(i)){j.deselect(i);b.parentEl.select("div.fdes-fielditem[colcode="+f+"]").remove()}else{j.select(i);b.createComponent("fdes-fielditem",{colcode:f,xtype:g.get("xtype"),title:g.get("title"),visible:g.get("visible")})}};var e=function(k){var h=k.getStore();var g=b.parentEl.query("div.fdes-fielditem");for(var j=0,l=g.length;j<l;j++){var f=b.readAttrVal(g[j],"colcode");if(f.length>0){h.each(function(i){if(i.get("colcode")==f){k.select(i);return false}return true})}}};var c=function(h){var j=[];for(key in h){var g=h[key];if(g!==undefined){j[j.length]=[key,g.xtype,g.title,g.visible]}}var f=new Ext.data.ArrayStore({data:j,fields:["colcode","xtype","title","visible"]});var i=new Ext.ListView({store:f,style:"background-color:#fff;",hideHeaders:true,columns:[{header:jx.fun.name,dataIndex:"title",width:0.4},{header:jx.fun.code,dataIndex:"colcode",width:0.6}],listeners:{click:a,afterrender:e}});var k=new Ext.Window({title:jx.fun.selfld,layout:"fit",width:250,height:400,modal:true,closeAction:"close",items:[i]});k.show()};var d="funid=sys_fun_base&eventcode=query_field";d+="&selfunid="+b.nodeId;Request.dataRequest(d,c)},createLayout:function(m,k){var l=this;var e=l.initpos.formx;var c=l.getFormBottom()+10;var n=m*30+20;var g=l.initsize.formw;var b=l.createComponent("fdes-formitem",{left:e,top:c,width:g,height:n});for(var j=0;j<k;j++){var f=j*l.initsize.colw+j*20+e+5;var d=c+5;var h=l.initsize.colw;var a=m*30;var b=l.createComponent("fdes-columnitem",{left:f,top:d,width:h,height:a})}},getFormBottom:function(){var d=this;var b=d.parentEl.query("div.fdes-formitem");var a=0;for(var e=0,g=b.length;e<g;e++){var f=Ext.fly(b[e]);var c=f.getY()+f.getHeight();if(c>a){a=c}}if(a==0){a=25}else{a=a-d.parentEl.getY()}return a},createComponent:function(h,d){var g=this,d=d||{};var c="cust-comp"+g.compnum;var j=";top:"+(d.top||45)+"px;left:"+(d.left||750)+"px;";var b="",f="",a="",i=c;if(h=="fdes-formitem"){b="width:"+(d.width||g.initsize.formw)+";height:"+(d.height||g.initsize.formh)}else{if(h=="fdes-columnitem"){b="width:"+(d.width||g.initsize.colw)+";height:"+(d.height||g.initsize.colh)}else{if(d.title&&d.title.length>0){i=d.title;if(d.visible=="false"){f=" fdes-fieldhidden"}a+=' title="'+d.title+'"';a+=' colcode="'+d.colcode+'"';a+=' visible="'+d.visible+'"';a+=' xtype="'+d.xtype+'"'}b="width:"+g.initsize.fieldw+";height:"+g.initsize.fieldh}}var e="<div id="+c+' class="'+h+f+' x-unselectable" style="'+b+j+'"'+a+">"+i+"</div>";return g.createComponentByHtml(c,e)},createComponentByHtml:function(d,c){var a=this;a.compnum++;var b=a.parentEl.insertHtml("beforeEnd",c,true);a.addCompDD(b);return b},addCompHtml:function(b,a){this.compnum++;if(this.compHtml==undefined){this.compHtml=""}this.compHtml+=a},insertCompHtml:function(){var b=this;b.parentEl.insertHtml("beforeEnd",b.compHtml);var a="div.fdes-fielditem, div.fdes-columnitem, div.fdes-formitem";b.parentEl.select(a,true).each(b.addCompDD,b);b.compHtml=null;delete b.compHtml},addCompDD:function(c){var b=this;var a=new Ext.dd.DD(c.dom.id);a.setXConstraint(800,800,10);a.setYConstraint(1500,1500,10);b.designDDs.push(a);c.on("click",function(){var e=this,d=false;Ext.each(b.designResizes,function(g){if(g.getEl().id==e.id){d=true;return}});if(d){return}var f=new Ext.Resizable(e,{minWidth:120,minHeight:22});b.resizeForm(f);b.designResizes.push(f)});c.on("dblclick",function(){b.updateProp()});b.initClickEl(c)},resizeForm:function(c){var a=this;var b=c.getEl();if(b.hasClass("fdes-formitem")){c.on("beforeresize",function(e){var d=e.getEl();e.childCols=a.findChilds(d.dom,"div.fdes-columnitem");return true},a);c.on("resize",function(f,d,e){Ext.each(f.childCols,function(g){Ext.fly(g).setHeight(e-18)});f.childCols=null;return true},a)}},deleteComponent:function(){var a=this;if(a.selectDivs.length==0){JxHint.alert(jx.fun.tip07);return}Ext.each(a.selectDivs,function(b){Ext.fly(b).remove()});a.selectDivs=[]},parseFormXML:function(d,c){var k=this;var p=d.getElementsByTagName("formitem");var v=k.initpos.formx;var u=k.initpos.formy,a=u;for(var r=0,m=p.length;r<m;r++){if(c=="default"){u=(k.initsize.formh)*r+r*(k.initpos.formi)+a}var o=p.item(r);var f=k.readAttrVal(o,"x",v);var e=k.readAttrVal(o,"y",u);var j=k.readAttrVal(o,"width",k.initsize.formw);var t=k.readAttrVal(o,"height",k.initsize.formh);var l="form-comp"+k.compnum;var z=k.readAttrVal(o,"title","");var q=k.readAttrVal(o,"border","");var s=k.readAttrVal(o,"collapsible","");var b=k.readAttrVal(o,"collapsed","");var g='<div id="'+l+'" class="fdes-formitem x-unselectable" style="top:'+e+";left:"+f+";width:"+j+";height:"+t+';" title="'+z+'" border="'+q+'" collapsible="'+s+'" collapsed="'+b+'">F</div>';k.addCompHtml(l,g);k.parseColumnXML(o,c,f,e)}},parseColumnXML:function(r,e,b,a){var l=this;var d=r.getElementsByTagName("columnitem");var v=b+l.initpos.colx,c=v;var u=a+l.initpos.coly;for(var s=0,o=d.length;s<o;s++){if(e=="default"){v=(l.initsize.colw)*s+s*(l.initpos.coli)+c}var q=d.item(s);var g=l.readAttrVal(q,"x",v);var f=l.readAttrVal(q,"y",u);var k=l.readAttrVal(q,"width",l.initsize.colw);var t=l.readAttrVal(q,"height",l.initsize.colh);var m="col-comp"+l.compnum;var p=l.readAttrVal(q,"colwidth","0.33");var j='<div id="'+m+'" class="fdes-columnitem x-unselectable" style="top:'+f+";left:"+g+";width:"+k+";height:"+t+';" colwidth="'+p+'">C</div>';l.addCompHtml(m,j);l.parseFieldXML(q,e,g,f)}},parseFieldXML:function(d,f,k,j){var r=this;var a=d.getElementsByTagName("fielditem");var B=k+r.initpos.fieldx;var A=j+r.initpos.fieldy,b=A;for(var v=0,t=a.length;v<t;v++){if(f=="default"){A=(r.initsize.fieldh)*v+v*(r.initpos.fieldi)+b}var u=a.item(v);var o=r.readAttrVal(u,"x",B);var m=r.readAttrVal(u,"y",A);var q=r.readAttrVal(u,"width",r.initsize.fieldw);var z=r.readAttrVal(u,"height",r.initsize.fieldh);var s="field-comp"+r.compnum;var C=r.readAttrVal(u,"title");var l=r.readAttrVal(u,"colcode");var c=r.readAttrVal(u,"visible");var e=r.readAttrVal(u,"xtype");var g="";if(c=="false"){g="fdes-fieldhidden"}var p='<div id="'+s+'" class="fdes-fielditem x-unselectable '+g+'" style="top:'+m+";left:"+o+";width:"+q+";height:"+z+';" title="'+C+'" colcode="'+l+'" visible="'+c+'" xtype="'+e+'">'+C+"</div>";r.addCompHtml(s,p)}},queryDesignItems:function(){var c=this;var a=c.parentEl.query("div.fdes-formitem");var d=c.parentEl.query("div.fdes-columnitem");var b=c.parentEl.query("div.fdes-fielditem");return{form:a,column:d,field:b}},hasNoSaveItem:function(a){if(a.form.length>0){return true}if(a.column.length>0){return true}if(a.field.length>0){return true}return false},formItemToXML:function(r){var s=this;var k="";var a=s.findChilds(r,"div.fdes-formitem");if(a.length==0){JxHint.alert(jx.fun.tip08);return k}s.orderComponent(a,"y");if(!s.validCompRegion(a)){JxHint.alert(jx.fun.tip09);return k}for(var g=0,d=a.length;g<d;g++){var c=Ext.fly(a[g]);var p=c.getX()-s.parentEl.getX();var m=c.getY()-s.parentEl.getY();var q=c.getWidth();var j=c.getHeight();var b=s.readAttrVal(a[g],"id");var o=s.readAttrVal(a[g],"title");var e=s.readAttrVal(a[g],"border");var t=s.readAttrVal(a[g],"collapsible");var f=s.readAttrVal(a[g],"collapsed");var l=s.columnItemToXML(a[g]);if(l.length==0){return""}k+="\t<formitem x='"+p+"' y='"+m+"' width='"+q+"' height='"+j+"' id='"+b+"' title='"+o+"' border='"+e+"' collapsible='"+t+"' collapsed='"+f+"'>\r";k+=l;k+="\t</formitem>\r";s.designItems.form.remove(a[g])}return k},columnItemToXML:function(o){var p=this;var f="";var c=p.findChilds(o,"div.fdes-columnitem");if(c.length==0){JxHint.alert(jx.fun.tip10);return f}p.orderComponent(c,"x");if(!p.validCompRegion(c)){JxHint.alert(jx.fun.tip11);return f}for(var g=0,d=c.length;g<d;g++){var b=Ext.fly(c[g]);var l=b.getX()-p.parentEl.getX();var k=b.getY()-p.parentEl.getY();var m=b.getWidth();var j=b.getHeight();var a=p.readAttrVal(c[g],"id");var e=(m/(p.initsize.formw)).toFixed(2);if(e>=0.9){e=0.99}else{if(e>=0.6){e=0.66}else{if(e>0.45&&e<0.6){e=0.495}else{e=0.33}}}f+="\t\t<columnitem x='"+l+"' y='"+k+"' width='"+m+"' height='"+j+"' id='"+a+"' colwidth='"+e+"'>\r";f+=p.fieldItemToXML(c[g]);f+="\t\t</columnitem>\r";p.designItems.column.remove(c[g])}return f},fieldItemToXML:function(s){var t=this;var l="";var c=t.findChilds(s,"div.fdes-fielditem");t.orderComponent(c,"y");for(var j=0,d=c.length;j<d;j++){var b=Ext.fly(c[j]);var q=b.getX()-t.parentEl.getX();var o=b.getY()-t.parentEl.getY();var r=b.getWidth();var k=b.getHeight();var a=t.readAttrVal(c[j],"id");var p=t.readAttrVal(c[j],"title");var m=t.readAttrVal(c[j],"colcode");var f=t.readAttrVal(c[j],"visible","true");var e=t.readAttrVal(c[j],"xtype");var g=100;if(r<t.initsize.fieldw-30){g=parseInt(r*100/(t.initsize.fieldw))}if(k>(t.initsize.fieldh*1.5)){e="area"}if(f!="true"){e="hidden"}else{if(e=="hidden"){e="text"}}l+="\t\t\t<fielditem x='"+q+"' y='"+o+"' width='"+r+"' height='"+k+"' id='"+a+"' title='"+p+"' colcode='"+m+"' visible='"+f+"' xtype='"+e+"' anchor='"+g+"'/>\r";t.designItems.field.remove(c[j])}return l},readAttrVal:function(c,b,a){var d=c.getAttribute(b)||"";if(d.length==0){d=a||""}return d},orderComponent:function(a,h){var e,b,k=0;for(var g=0,c=a.length;g<c;g++){if(h=="x"){k=Ext.fly(a[g]).getX()}else{k=Ext.fly(a[g]).getY()}for(var f=g+1,d=a.length;f<d;f++){if(h=="x"){b=Ext.fly(a[f]).getX()}else{b=Ext.fly(a[f]).getY()}if(k>b){e=a[g];a[g]=a[f];a[f]=e;k=b}}}},validCompRegion:function(d){for(var l=0,e=d.length;l<e;l++){var s=Ext.fly(d[l]);var b=s.getX();var q=s.getY();var f=b+s.getWidth();var r=q+s.getHeight();for(var k=l+1,g=d.length;k<g;k++){var h=Ext.fly(d[k]);var a=h.getX();var p=h.getY();var c=a+h.getWidth();var o=p+h.getHeight();if((b<a&&f>a)&&(q<p&&r>p)){return false}if((q<p&&r>p)&&(b<c&&f>c)){return false}if((b<c&&f>c)&&(q<o&&r>o)){return false}if((q<o&&r>o)&&(b<a&&f>a)){return false}}}return true},findChilds:function(l,u){var r=this;var w=[],t=0;var j=Ext.fly(l);var o=j.getY();var q=o+j.getHeight();var a=j.getX();var b=a+j.getWidth();var h=r.parentEl.query(u);for(var v=0,s=h.length;v<s;v++){var f=Ext.fly(h[v]);var d=f.getX();var c=f.getY();var e=f.getWidth();var p=f.getHeight();var k=d+e/2;var g=c+p/2;if(k>=a&&k<=b&&g>=o&&g<=q){w[t++]=h[v]}}return w},selectDivs:[],selectDowned:false,selectOldXY:[],moveDowned:false,moveDownEl:null,moveOldX:0,moveOldY:0,moreDivPos:null,initDd:function(){var a=this;a.parentEl.on("mousedown",a.moreMouseDown,a);a.parentEl.on("mouseup",a.moreMouseUp,a);a.parentEl.on("mousemove",a.moreMouseMove,a)},moreMouseDown:function(f){var c=this;c.parentEl.select("#select_flag_div").remove();c.selectDowned=true;if(Ext.isIE){c.parentEl.dom.onselectstart=function(){return false}}var d=f.getXY();var b=c.parentEl.getXY();var a=d[0]-b[0];var g=d[1]-b[1];c.selectOldXY=[a,g];c.parentEl.insertHtml("afterBegin",'<div id="select_flag_div" class="fdes-selectdiv" style="left:'+a+"px;top:"+g+'px;"></div>')},moreMouseUp:function(d){var a=this;if(!a.selectDowned){return}a.clearSelectDivs();if(Ext.isIE){a.parentEl.dom.onselectstart=null}var c=a.parentEl.first("#select_flag_div");var b=a.findChilds(c,"div.fdes-fielditem, div.fdes-columnitem, div.fdes-formitem");a.flagSelectDivs(b);c.remove()},moreMouseMove:function(g){var l=this;if(!l.selectDowned){return}var c=l.parentEl.first("#select_flag_div");var m=g.getXY();var d=l.parentEl.getXY();var j=m[0]-d[0],i=m[1]-d[1];var b=l.selectOldXY[0],a=l.selectOldXY[1];var k=Math.abs(j-b);var f=Math.abs(i-a);c.setWidth(k);c.setHeight(f);if(j>b&&i<a){c.setTop(i)}else{if(j<b&&i<a){c.setTop(i);c.setLeft(j)}else{if(j<b&&i>a){c.setLeft(j)}}}},selectCss:function(d){var c=this.selectDivs;for(var b=0,e=c.length;b<e;b++){var a=Ext.fly(c[b]);if(d){a.addClass("fdes-selectcomp")}else{a.removeClass("fdes-selectcomp")}}},flagSelectDivs:function(b){if(b==null||b.length==0){return}var a=this;a.selectCss(false);a.selectDivs=b;a.selectCss(true);a.selectXY();a.moreDivPos=a.getMoreDivPos()},clearSelectDivs:function(){var a=this;a.selectCss(false);a.selectDivs=[];a.moreDivPos=null;a.selectDowned=false},isSelectDiv:function(c){var b=this.selectDivs;for(var a=0,e=b.length;a<e;a++){var d=b[a];if(c.id==d.id){return true}}return false},selectXY:function(){var a=this;var c=a.selectDivs;for(var b=0,d=c.length;b<d;b++){a.saveOldXY(c[b])}},saveOldXY:function(e){var b=Ext.fly(e);var a=this.layoutEl.getScroll();if(a.top!=0){var d=b.getX()+a.left;var c=b.getY()+a.top;e.oldXY=[d,c]}else{e.oldXY=b.getXY()}},initClickEl:function(b){var a=this;b.on("mousedown",function(c){a.oneMouseDown(b,c)});b.on("mousemove",function(c){a.oneMouseMove(c)});b.on("mouseup",function(c){a.oneMouseUp(c)})},oneMouseDown:function(d,c){var a=this;var b=a.isSelectDiv(d.dom,a.selectDivs);if(b){if(c.ctrlKey){d.removeClass("fdes-selectcomp");a.selectDivs.remove(d.dom);a.moreDivPos=a.getMoreDivPos()}else{if(a.selectDivs.length>1){a.moveOldX=d.getX();a.moveOldY=d.getY();a.moveDowned=true;a.moveDownEl=d}}}else{a.oneClickEl(d,c)}},oneMouseMove:function(d){var m=this;if(!m.moveDowned){return}var j=m.layoutEl.getScroll();var l=m.moveDownEl;var p=l.getX()-m.moveOldX-j.left;var o=l.getY()-m.moveOldY-j.top;var g=m.validMoreDivX(p);var f=m.validMoreDivY(o);for(var c=0,a=m.selectDivs.length;c<a;c++){var k=m.selectDivs[c];var h=Ext.fly(k);var b=k.oldXY;if(g){h.setX(b[0]+p)}if(f){h.setY(b[1]+o)}}},oneMouseUp:function(b){var a=this;if(!a.moveDowned){return}a.selectXY();a.moreDivPos=a.getMoreDivPos();a.moveOldX=0;a.moveOldY=0;a.moveDownEl=null;a.moveDowned=false},oneClickEl:function(d,c){var b=this;if(!c.ctrlKey){b.clearSelectDivs()}var a=b.selectDivs.length;b.selectDivs[a]=d.dom;d.addClass("fdes-selectcomp");b.saveOldXY(d.dom);b.moreDivPos=b.getMoreDivPos()},getMoreDivPos:function(){var q=this;var o=1000000;for(var e=0,c=q.selectDivs.length;e<c;e++){var j=Ext.fly(q.selectDivs[e]);if(j.getX()<o){o=j.getX()}}var l=1000000;for(var e=0,c=q.selectDivs.length;e<c;e++){var j=Ext.fly(q.selectDivs[e]);if(j.getY()<l){l=j.getY()}}var p=0;for(var e=0,c=q.selectDivs.length;e<c;e++){var j=Ext.fly(q.selectDivs[e]);var k=j.getX()+j.getWidth();if(k>p){p=k}}var f=0;for(var e=0,c=q.selectDivs.length;e<c;e++){var j=Ext.fly(q.selectDivs[e]);var a=j.getY()+j.getHeight();if(a>f){f=a}}var b=p-o;var m=f-l;var d=q.parentEl.getXY();var h=o-d[0];var g=l-d[1];return{x:h,y:g,width:b,height:m}},validMoreDivX:function(e){var b=this;var c=0;var d=b.parentEl.getWidth();var f=b.moreDivPos.x;var a=b.moreDivPos.width;if((f+e)<c){return false}if((f+a+e)>(c+d)){return false}return true},validMoreDivY:function(d){var a=this;var b=0;var f=a.parentEl.getHeight()-20;var e=a.moreDivPos.y;var c=a.moreDivPos.height;return true}};
+
+/**
+ * form表单设计器
+ *
+ * 注意：各种布局元素都不能加边框，firefox会给加边框的对象计算宽度是加上边框的宽度
+ *       拖动控件时不要移动到画布外了，否则控件会丢失，现在还没处理好这个文件，框架的范围控制没有处理好scroll值。
+ * 页面控件保存时的处理规则：
+ * 1、先找到设计容器中所有的控件元素，包括：form, column, field，后面保存一个就去掉一个，剩下的就是位置不对的控件；
+ * 2、找到所有form控件，然后分别保存每个form布局内部的column，form布局不能重叠；
+ * 3、找到所有column控件，然后分别保存每个column布局内部的field，column布局不能重叠；
+ **/
+
+Jxstar.currentPage = {
+	/**
+	 * 设计面板容器，所有控件都放在此容器内。
+	 **/
+	parentEl: null,
+	
+	/**
+	 * 设计面板布局，是容器的父控件，用于取滚动条的距离。
+	 **/
+	layoutEl: null,
+
+	/**
+	 * 当前设计功能ID
+	 **/
+	nodeId: '',
+
+	/**
+	 * 布局元素ID序号，创建控件时用
+	 **/
+	compnum: 0,
+	
+	/**
+	 * 缺省显示的列数
+	 **/
+	colnums: 2,
+	
+	/**
+	 * 记录设计面板中所有的元素，保存的是DOM对象，格式：{form:[], column:[], field:[]}
+	 **/
+	designItems: null,
+	
+	/**
+	 * 记录设计面板中所有的元素的DD对象，关闭页面时销毁
+	 **/
+	designDDs: [],
+	
+	/**
+	 * 记录设计面板中所有的元素的Resize对象，关闭页面时销毁
+	 **/
+	designResizes: [],
+
+	/**
+	 * 布局元素初始位置，x表示left，y表示top，i表示间隔
+	 **/
+	initpos: {
+		formx:10, formy:35,  formi:10,
+		colx:5,	  coly:5,    coli:20,
+		fieldx:5, fieldy:5, fieldi:8
+	},
+
+	/**
+	 * 布局元素初始大小，w表示width，h表示height
+	 **/
+	initsize: {
+		formw:720,  formh:380,
+		colw: 220,   colh:360,
+		fieldw:200, fieldh:22
+	},
+	
+	/**
+	 * 设置画布背景的列数、行数、列宽、行高
+	 **/
+	bgsize: {cols:6, rows:50, width:120, height:30},
+	
+	/**
+	 * 销毁临时对象
+	 **/
+	destroy: function() {
+		var self = this;
+		Ext.each(self.designDDs, function(item){
+			item.unreg();
+			item = null;
+		});
+		Ext.each(self.designResizes, function(item){
+			item.destroy(true);
+			item = null;
+		});
+		self.designDDs = null;
+		self.designResizes = null;
+	},
+	
+	/**
+	 * 初始化列与字段的宽度
+	 **/
+	initWidth: function(colnums) {
+		var self = this;
+		self.colnums = colnums;
+		if (self.colnums == 2) {
+			self.initsize.colw = 340;
+			self.initsize.fieldw = 320;
+		} else {
+			self.initsize.colw = 220;
+			self.initsize.fieldw = 200;
+		}
+	},
+
+	/**
+	 * 显示设计器
+	 * nodeId -- 功能ID
+	 * parent -- 设计面板的容器对象
+	 **/
+	render: function(nodeId, parent) {
+		var self = this;
+		//参数初始化
+		self.nodeId = nodeId;
+		
+		//设置列的缺省宽度
+		self.initWidth(self.colnums);
+		
+		//设计面板的工具栏
+		var tbar = parent.getTopToolbar();
+		//检查parent中是否有设计面板
+		var designPanel = parent.getComponent(0);
+		if (designPanel) {
+			//删除所有子控件
+			designPanel.removeAll(true);
+			//删除设计对象，考虑要重新加载事件
+			designPanel.destroy();
+			designPanel = null;
+			
+			//删除所有新增按钮
+			tbar.removeAll(true);
+			tbar.add({text:' '});//chrome中用于布局
+		} 
+		//创建设计面板，用于处理滚动条
+		designPanel = new Ext.Panel({
+			id: 'des_form_panel',
+			border: false
+		});
+		parent.add(designPanel);
+		//销毁临时对象
+		designPanel.on('beforedestroy', function(){
+			self.destroy();
+			return true;
+		});
+		
+		//添加控件菜单
+		var compMenu = [
+			{text:jx.fun.addrow, iconCls:'eb_add', handler:function(){self.createComponent('fdes-formitem');}},		//'添加一行'
+			{text:jx.fun.addcol, iconCls:'eb_add', handler:function(){self.createComponent('fdes-columnitem');}},	//'添加一列'
+			{text:jx.fun.addfld, iconCls:'eb_add', handler:function(){self.createComponent('fdes-fielditem');}}		//'添加字段'
+		];
+		
+		var onItemClick = function(item){
+			var num = item.text.split(' ')[0];
+			self.initWidth(num);
+	    };
+		var extMenu = [
+			{text:jx.fun.ctlprop, handler:function(){self.updateProp();}},		//'控件属性'
+			{text:jx.fun.delctl, handler:function(){self.deleteComponent();}},	//'删除控件'
+			{text:jx.fun.colnums, id:'menu_colnums', menu:{items: [					//'显示几列'
+             {text:'2 cols', checked: true, group: 'colsnum', checkHandler: onItemClick},
+             {text:'3 cols', checked: false, group: 'colsnum', checkHandler: onItemClick}
+             ]}
+			},
+			'-',
+			//{text:jx.wfx.imp, iconCls:'eb_imp', handler:function(){JxHint.alert('演示版功能暂不提供！');}},	//'导入设计'
+			{text:jx.wfx.exp, iconCls:'eb_exp', handler:function(){self.exportDesign();}}	//'导出设计'
+		];
+		
+		//由于工具栏保存的事件对象是原self对象的，所以必须先删除再创建
+		tbar.add(
+			{text:jx.base.save, iconCls:'eb_save', handler:function(){self.saveDesign();}},			//'保存'
+			{text:jx.fun.pub, iconCls:'eb_change', handler:function(){self.createPage();}},			//'发布'
+			{text:jx.base.del, iconCls:'eb_delete', handler:function(){self.deleteDesign();}},		//'删除'
+			{xtype:'tbseparator'},
+			{text:jx.fun.synprop, iconCls:'eb_refresh', handler:function(){self.updateDesign();}},	//'同步属性'
+			{text:jx.fun.setfld, iconCls:'eb_empty', handler:function(){self.selectField();}},		//'设置字段'
+			{text:jx.fun.addlay, iconCls:'eb_form', handler:function(){self.createLayout(4, self.colnums);}},	//'添加布局'
+			{text:jx.fun.setattr, iconCls:'eb_setattr', handler:function(){self.setattr();}},
+			{xtype:'tbfill'},
+			{xtype:'tbseparator'},
+			{text:jx.fun.addctl, iconCls: 'eb_menu', menu: compMenu},		//'添加控件…'
+			{text:jx.wfx.extdo, iconCls: 'eb_menu', menu: extMenu}			//'扩展操作…'
+		);
+
+		//必须要刷新布局，否则取不到el
+		parent.doLayout();
+		//parent.getEl().setStyle('border-left-width', '1px');
+		self.parentEl = designPanel.el;
+		//取设计面板的父对象，用于取滚动条的距离
+		self.layoutEl = Ext.get(designPanel.el.findParent('div.x-panel-body', 2));
+		
+		//计算画布背景的高度
+		var bgheight = self.bgsize.height * self.bgsize.rows;
+		
+		//显示设计画布
+		self.parentEl.insertHtml('beforeEnd', 
+						'<div id="maincanvas" class="fdes-canvas x-unselectable" style="height:'+ bgheight +'px;"></div>');
+
+		//显示设计画布中的网格
+		var vhtml = '';
+		for (var i = 0; i < self.bgsize.cols; i++) {
+			for (var j = 0; j < self.bgsize.rows; j++) {
+				var stop = 10+j*self.bgsize.height;
+				var sleft = 10+i*self.bgsize.width;
+				vhtml += '<div class="fdes-grid x-unselectable" style="top:'+stop+'px;left:'+sleft+'px;"></div>';
+			}
+		}
+		self.parentEl.insertHtml('beforeEnd', vhtml);
+		
+		//添加一个覆盖整个设计面板的DIV，用于处理底部的鼠标事件
+		var maxw = self.parentEl.getWidth();
+		self.parentEl.insertHtml('beforeEnd', 
+						'<div id="maincanvas_tmp" class="fdes-canvas-bg x-unselectable" style="width:'+ maxw +'px;height:'+ bgheight +'px;"></div>');
+		
+		//初始化控件选择对象
+		self.initDd();
+		
+		//加载设计文件
+		self.readDesign();
+	},
+
+	/**
+	 * 根据设计信息创建文件
+	 **/
+	createPage: function() {
+		//设置请求的参数
+		var params = 'funid=sys_fun_base&eventcode=createfd';
+		params += '&selfunid='+this.nodeId+'&selpagetype=form&projectpath=' + Jxstar.session['project_path'];
+		
+		//发送请求
+		Request.postRequest(params, null);
+	},
+	
+	//private 设置属性
+	setattr: function() {
+		var self = this;
+		//过滤条件
+		var loadcfg = {
+			where_sql: 'fun_attr.attr_type = ? and fun_attr.fun_id = ?',
+			where_type: 'string;string',
+			where_value: 'form;'+self.nodeId
+		};
+		
+		//加载数据
+		var hdcall = function(grid) {
+			//显示数据
+			JxUtil.delay(500, function(){
+				//设置属性类型与功能ID
+				grid.fkValue = self.nodeId;
+				grid.attr_type = 'form';
+				Jxstar.loadData(grid, loadcfg);
+			});
+		};
+
+		//显示数据
+		var define = Jxstar.findNode('fun_attrdes');
+		Jxstar.showData({
+			filename: define.gridpage,
+			title: define.nodetitle,
+			width: 760,
+			height: 350,
+			nodedefine: define,
+			callback: hdcall
+		});
+	},
+
+	/**
+	 * 保存设计文件，处理方法：
+	 * 约定page第一层只能放formitem控件，formitem控件内只能放columnitem控件；
+	 * columnitem控件内只能放fielditem控件；
+	 * 子控件的中心点在那个控件内，则该子控件就算是它的子控件；
+	 **/
+	saveDesign: function() {
+		var self = this;
+		//清除选择控件的标志
+		self.clearSelectDivs();
+		
+		//记录设计页面中所有的设计控件，确保不遗漏控件
+		self.designItems = self.queryDesignItems();
+
+		//根据页面控件解析出设计文件
+		var filecont = "";
+		var canvasEl = Ext.get('maincanvas');
+		var pageXML = this.formItemToXML(canvasEl);
+		if (pageXML.length == 0) return;
+		
+		//判断是否有遗漏的控件没有解析到设计文件中
+		if (self.hasNoSaveItem(self.designItems)) {
+			JxHint.alert(jx.fun.tip01);//'有遗漏的页面控件没有保存，请调整到合理的位置保存！'
+			return;
+		}
+		
+		filecont = "<?xml version='1.0' encoding='utf-8'?>\r";
+		filecont += "<page state='design' colnums='"+ self.colnums +"'>\r";
+		filecont += pageXML;
+		filecont += "</page>";
+		
+		var e = encodeURIComponent; //编码, 处理isHexDigit异常
+		var params = 'funid=sys_fun_base&eventcode=savefd';
+			params += '&selfunid='+this.nodeId+'&selpagetype=form';
+			params += '&content='+ e(filecont);
+
+		//发送请求保存设计文件到数据库中
+		Request.postRequest(params, null);
+	},
+
+	/**
+	 * 导出设计文件
+	 * 
+	 **/
+	exportDesign: function() {
+		var href = Jxstar.path + "/jxstar/studio/pub/exp_form_design.jsp?funid=" + this.nodeId;
+		document.getElementById('frmhidden').src = href;
+	},
+	
+	/**
+	 * 重新加载设计文件
+	 * 
+	 **/
+	reloadDesign: function() {
+		var self = this;
+		var hdcall = function() {
+			//删除当前设计元素
+			self.parentEl.select('div.fdes-fielditem, div.fdes-columnitem, div.fdes-formitem').remove();
+
+			//重新加载设计文件
+			self.readDesign();
+		};
+		//'当前修改如果没有保存则会丢失，确定刷新？'
+		Ext.Msg.confirm(jx.base.hint, jx.fun.tip02, function(btn) {
+			if (btn == 'yes') hdcall();
+		});
+	},
+
+	/**
+	 * 读取设计文件，并解析为页面控件
+	 * 
+	 **/
+	readDesign: function() {
+		var a = (new Date()).getTime(); 
+		
+		var self = this;
+		//读取设计文件后的回调函数
+		var hdCall = function(xml) {
+			if (xml == null || xml.length == 0) {
+				JxHint.alert(jx.fun.tip03);//'没有读取到FORM的设计文件！'
+				return false;
+			}
+			
+			var xdoc = Request.loadXML(xml);
+
+			var pageDom = xdoc.getElementsByTagName("page").item(0);
+
+			var state = self.readAttrVal(pageDom, 'state', 'default');
+			//设置缺省显示几列
+			var colnums = self.readAttrVal(pageDom, 'colnums', '2');
+			self.initWidth(colnums)
+			var colmenu = Ext.getCmp('menu_colnums').menu;
+			if (colnums == '3') {
+				colmenu.get(1).setChecked(true);
+			} else {
+				colmenu.get(0).setChecked(true);
+			}
+			
+			//初始化控件ID序号
+			self.compnum = 0;
+
+			//生成所有form控件
+			self.parseFormXML(pageDom, state);
+			
+			//把元素添加到页面中
+			self.insertCompHtml();
+			
+			var b = (new Date()).getTime();
+			JxHint.hint('use time(ms): ' + (b-a)); 
+		};
+
+		//从数据库中读取设计文件，colnums指表单缺省显示几列
+		var params = 'funid=sys_fun_base&eventcode=query_formdes';
+			params += '&selfunid='+ this.nodeId +'&colnums=' + this.colnums;
+		Request.dataRequest(params, hdCall, {type:'xml', wait:true});
+	},
+
+	/**
+	 * 删除设计文件，再打开时则显示缺省设计
+	 **/
+	deleteDesign: function() {
+		var self = this;
+		var hdcall = function() {
+			var params = 'funid=sys_fun_base&eventcode=deletefd';
+				params += '&selfunid='+self.nodeId+'&selpagetype=form';
+
+			//发送请求保存设计文件到数据库中，删除后重新加载
+			Request.postRequest(params, function() {
+				//删除当前设计元素
+				self.parentEl.select('div.fdes-fielditem, div.fdes-columnitem, div.fdes-formitem').remove();
+
+				//重新加载设计文件
+				self.readDesign();
+			});
+		};
+		//'删除后将加载缺省设计，确定删除设计文件吗？'
+		Ext.Msg.confirm(jx.base.hint, jx.fun.tip04, function(btn) {
+			if (btn == 'yes') hdcall();
+		});
+	},
+	
+	/**
+	 * 同步fielditem控件的xtype\title\visible属性，以字段列表中的为依据，不存在的fielditem控件将删除；
+	 * 找到所有fielditem控件，分别检查每个控件与字段信息比较。
+	 **/
+	updateDesign: function() {
+		var self = this;
+		var propnum = 0;
+		//字段数据格式：{'colcode': {xtype:'', title:'', visible:''}, ...}
+		var hdCall = function(fds) {
+			//取所有fielditem控件
+			var fields = self.parentEl.query('div.fdes-fielditem');
+			//分别检查每个fielditem设计元素
+			for (var i = 0, n = fields.length; i < n; i++) {
+				var item = fields[i];
+				var colcode = self.readAttrVal(item, 'colcode', '');
+				if (colcode.length == 0) continue;
+				//根据字段名找到字段定义信息
+				var fieldData = fds[colcode];
+				//如果没有该字段，则删除控件
+				if (fieldData == null && colcode.length > 0) {
+					Ext.fly(item).remove();
+					continue;
+				}
+				
+				//同步属性
+				var xtype = self.readAttrVal(item, 'xtype', '');
+				if (fieldData.xtype != xtype && xtype != 'hidden') {
+					if (!(fieldData.xtype == 'text' && xtype == 'area')) {
+						item.setAttribute('xtype', fieldData.xtype);
+						propnum++;
+					}
+				}
+				var title = self.readAttrVal(item, 'title', '');
+				if (fieldData.title != title) {
+					item.setAttribute('title', fieldData.title);
+					item.innerHTML = fieldData.title;
+					propnum++;
+				}
+				var visible = self.readAttrVal(item, 'visible', '');
+				if (fieldData.visible == 'false' && visible == 'true') {
+					item.setAttribute('visible', fieldData.visible);
+					Ext.fly(item).addClass('fdes-fieldhidden');
+					propnum++;
+				}
+			}
+			
+			JxHint.hint(String.format(jx.fun.syntip, propnum));//'同步了【'+propnum+'】个属性'
+		};
+		
+		//从数据库中读取字段信息
+		var params = 'funid=sys_fun_base&eventcode=query_field';
+			params += '&selfunid='+ self.nodeId;
+		Request.dataRequest(params, hdCall);
+	},
+
+	/**
+	 * 修改属性，打开修改控件属性的对话框
+	 * 只有formitem与fielditem可以设置属性，formitem是设置fieldset属性。
+	 **/
+	updateProp: function() {
+		var self = this;
+		if (self.selectDivs.length == 0) {
+			JxHint.alert(jx.fun.tip05);//'当前没有选择的控件，请选择需要设置属性的控件！'
+			return;
+		}
+		if (self.selectDivs.length > 1) {
+			JxHint.alert(jx.fun.tip06);//'只能设置一个控件的属性，当前选择了多个控件！'
+			return;
+		}
+		var curdom = self.selectDivs[0];
+		var curel = Ext.fly(curdom);
+		var propSrc = {};
+		var winTitle = jx.fun.setprop;	//'设置字段控件属性';
+		var isform = curel.hasClass('fdes-formitem');
+		if (isform) {
+			winTitle = jx.fun.setset;	//'设置FieldSet属性';
+			propSrc = {
+				title: self.readAttrVal(curdom, 'title', ''),
+				border: self.readAttrVal(curdom, 'border', 'true') == 'true',
+				collapsible: self.readAttrVal(curdom, 'collapsible', 'false') == 'true',
+				collapsed: self.readAttrVal(curdom, 'collapsed', 'false') == 'true'
+			};
+		}
+		var iscolumn = curel.hasClass('fdes-columnitem');
+		if (iscolumn) return;
+		var isfield = curel.hasClass('fdes-fielditem');
+		if (isfield) {
+			propSrc = {
+				xtype: self.readAttrVal(curdom, 'xtype', ''),
+				title: self.readAttrVal(curdom, 'title', ''),
+				colcode: self.readAttrVal(curdom, 'colcode', ''),
+				visible: self.readAttrVal(curdom, 'visible', 'true') == 'true'
+			};
+		}
+		
+		//创建属性表格
+		var propsGrid = new Ext.grid.PropertyGrid({
+			border: false,
+			width: 300,
+			source: propSrc
+		});
+		propsGrid.getColumnModel().setColumnWidth(0, 30);
+
+		//创建对话框
+		var win = new Ext.Window({
+			title:winTitle,
+			layout:'fit',
+			width:300,
+			height:250,
+			modal:true,
+			closeAction:'close',
+			items:[propsGrid],
+
+			buttons: [{
+				text:jx.base.ok,	//'确定',
+				handler:function(){
+					var src = propsGrid.getSource();
+					
+					if (isfield || isform) curdom.setAttribute('title', src.title);
+					if (isform) curdom.setAttribute('border', src.border.toString());
+					if (isform) curdom.setAttribute('collapsible', src.collapsible.toString());
+					if (isform) curdom.setAttribute('collapsed', src.collapsed.toString());
+					if (isfield) curdom.setAttribute('xtype', src.xtype);
+					if (isfield) curdom.setAttribute('colcode', src.colcode);
+					if (isfield) curdom.setAttribute('visible', src.visible.toString());
+					//更新页面信息
+					if (isfield) {
+						if (curdom.innerHTML != src.title) {
+							curdom.innerHTML = src.title;
+						}
+						if (src.visible == true || src.visible == 'true') {
+							Ext.fly(curdom).removeClass('fdes-fieldhidden');
+						} else {
+							Ext.fly(curdom).addClass('fdes-fieldhidden');
+						}
+					}
+
+					win.close();
+				}
+			},{
+				text:jx.base.cancel,	//'取消',
+				handler:function(){win.close();}
+			}]
+		});
+		win.show();
+	},
+	
+	/**
+	 * 弹出字段列表对话框，设计面板上有的字段在列表中是选择状态，否则为非选择状态；
+	 * 点击列表中的字段，可以反转选择状态，并添加或删除设计面板上的字段控件。
+	 **/
+	selectField: function() {
+		var self = this;
+		//添加或删除设计页面上的字段
+		var clickField = function(list, index) {
+			var store = list.getStore();
+			var record = store.getAt(index);
+			var colcode = record.get('colcode');
+			//如果选择了就删除控件，否则添加控件
+			if (list.isSelected(index)) {
+				list.deselect(index);
+				self.parentEl.select('div.fdes-fielditem[colcode='+ colcode +']').remove();
+			} else {
+				list.select(index);
+				self.createComponent('fdes-fielditem', {
+					colcode:colcode, 
+					xtype:record.get('xtype'), 
+					title:record.get('title'), 
+					visible:record.get('visible')
+				});
+			}
+		};
+		//把设计面板中的所有字段标记为已选择
+		var flagSelect = function(list) {
+			var store = list.getStore();
+			var fields = self.parentEl.query('div.fdes-fielditem');
+			for (var i = 0, n = fields.length; i < n; i++) {
+				var colcode = self.readAttrVal(fields[i], 'colcode');
+				if (colcode.length > 0) {
+					store.each(function(r){
+						if (r.get('colcode') == colcode) {
+							list.select(r);
+							return false;
+						}
+						return true;
+					});
+				}
+			}
+		};
+	
+		//字段数据格式：{'colcode': {xtype:'', title:'', visible:''}, ...}
+		var hdCall = function(fds) {
+			//构建列表数据源，格式：[[colcode, xtype, title, visible],...]
+			var data = [];
+			for(key in fds){
+				var item = fds[key];
+                if(item !== undefined){
+                    data[data.length] = [key, item.xtype, item.title, item.visible];
+                }
+            }
+			var store = new Ext.data.ArrayStore({
+				data: data,
+				fields: ['colcode','xtype','title','visible']
+			});
+			//创建字段列表对象
+			var list = new Ext.ListView({
+				store: store,
+				style: 'background-color:#fff;',
+				hideHeaders: true,
+				columns: [{//'名称'
+					header: jx.fun.name, dataIndex: 'title', width:.4
+				},{//'代码'
+					header: jx.fun.code, dataIndex: 'colcode', width:.6
+				}],
+				listeners: {click: clickField, afterrender:flagSelect}
+			});
+			//创建对话框
+			var win = new Ext.Window({
+				title:jx.fun.selfld,	//'选择字段',
+				layout:'fit',
+				width:250,
+				height:400,
+				modal:true,
+				closeAction:'close',
+				items:[list]
+			});
+			win.show();
+		};
+		
+		//从数据库中读取字段信息
+		var params = 'funid=sys_fun_base&eventcode=query_field';
+			params += '&selfunid='+ self.nodeId;
+		Request.dataRequest(params, hdCall);
+	},
+	
+	/**
+	 * 批量创建布局元素，并设置为当前选择的控件。
+	 * 
+	 * rows -- 几行，一个背景格子的高度算一行
+	 * cols -- 几列，两个背景格子的宽度算一列，最多三列
+	 **/
+	createLayout: function(rows, cols) {
+		var self = this;
+		//var divs = [], m = 0;
+		
+		//form的xy坐标
+		var fx = self.initpos.formx;
+		var fy = self.getFormBottom() + 10;
+		
+		//创建一个form，高度为rows
+		var fh = rows*30 + 20;
+		var fw = self.initsize.formw;
+		var newEl = self.createComponent('fdes-formitem', {left:fx, top:fy, width:fw, height:fh});
+		//divs[m++] = newEl.dom;
+		
+		//创建cols个colum
+		for (var i = 0; i < cols; i++) {
+			var cx = i*self.initsize.colw + i*20 + fx + 5;
+			var cy = fy + 5;
+			var cw = self.initsize.colw;
+			var ch = rows*30;
+			var newEl = self.createComponent('fdes-columnitem', {left:cx, top:cy, width:cw, height:ch});
+			
+			//divs[m++] = newEl.dom;
+		}
+
+		//标志选择的控件
+		//self.flagSelectDivs(divs);
+	},
+	
+	/**
+	 * private 取最底部的form的底边位置
+	 **/
+	getFormBottom: function() {
+		var self = this;
+		var formItems = self.parentEl.query('div.fdes-formitem');
+		
+		var max = 0;
+		for (var i = 0, n = formItems.length; i < n; i++) {
+			var el = Ext.fly(formItems[i]);
+			
+			var bottom = el.getY() + el.getHeight();
+			if (bottom > max) max = bottom;
+		}
+		//如果没有form，则设置为35
+		if (max == 0) {
+			max = 25;
+		} else {
+			max = max - self.parentEl.getY();
+		}
+		
+		return max;
+	},
+
+	/**
+	 * 根据样式创建缺省布局元素，工具栏按钮创建控件时使用
+	 * 
+	 * cls -- CSS样式名
+	 * o -- 扩展参数对象，参数有：{left, top, width, height, colcode, title, visible, xtype}
+	 **/
+	createComponent: function(cls, o) {
+		var self = this, o = o||{};
+		var id = 'cust-comp' + self.compnum;
+		//新建控件的位置
+		var xy = ';top:'+ (o.top||45) +'px;left:'+ (o.left||750) +'px;';
+		
+		var style = '', hcls = '', prop = '', cont = id;
+		if (cls == 'fdes-formitem') {
+			style = 'width:' + (o.width||self.initsize.formw) + ';height:' + (o.height||self.initsize.formh);
+		} else if (cls == 'fdes-columnitem') {
+			style = 'width:' + (o.width||self.initsize.colw) + ';height:' + (o.height||self.initsize.colh);
+		} else {
+			//字段选择时用，添加新的字段控件
+			if (o.title && o.title.length > 0) {
+				cont = o.title;
+				if (o.visible == 'false') hcls = ' fdes-fieldhidden';
+				
+				prop += ' title="'+ o.title +'"';
+				prop += ' colcode="'+ o.colcode +'"';
+				prop += ' visible="'+ o.visible +'"';
+				prop += ' xtype="'+ o.xtype +'"';
+			}
+			style = 'width:' + self.initsize.fieldw + ';height:' + self.initsize.fieldh;
+		}
+
+		var html = '<div id='+id+' class="'+ cls + hcls +' x-unselectable" style="'+ style + xy +'"'+ prop +'>'+ cont +'</div>';
+		
+		return self.createComponentByHtml(id, html);
+	},
+	
+	/**
+	 * 根据html添加控件，并赋予可拖动与缩放的功能
+	 * 
+	 * id -- 控件ID
+	 * html -- 控件的html
+	 **/
+	createComponentByHtml: function(id, html) {
+		var self = this;
+		self.compnum++;
+		
+		//添加控件并取当前控件
+		var curEl = self.parentEl.insertHtml('beforeEnd', html, true);
+		//添加移动与缩放属性
+		self.addCompDD(curEl);
+		
+		return curEl;
+	},
+	
+	/**
+	 * 把readDesign方法中的元素对象的html添加到全局变量中
+	 **/
+	addCompHtml: function(id, html) {
+		this.compnum++;
+		if (this.compHtml == undefined) {
+			this.compHtml = '';
+		}
+		
+		//添加布局元素的html
+		this.compHtml += html;
+	},
+	
+	/**
+	 * 把readDesign方法中的元素对象添加页面中
+	 **/
+	insertCompHtml: function() {
+		var self = this;
+		self.parentEl.insertHtml('beforeEnd', self.compHtml);
+		
+		var selector = 'div.fdes-fielditem, div.fdes-columnitem, div.fdes-formitem';
+		//要添加true参数，否则取到的是fly共享对象
+		self.parentEl.select(selector, true).each(self.addCompDD, self);
+		
+		//清除临时全局变量
+		self.compHtml = null;
+		delete self.compHtml;
+	},
+	
+	/**
+	 * 给布局元素添加移动、缩放特性
+	 * el -- 元素
+	 **/
+	addCompDD: function(el) {
+		var self = this;
+		//创建拖动对象；暂时不处理限制移动范围，因为当设计面板的scroll.top大于0时，创建的控件移动有问题。
+		var dd = new Ext.dd.DD(el.dom.id);
+        dd.setXConstraint(800, 800, 10);
+        dd.setYConstraint(1500, 1500, 10);//modify by tony.tan, 原来的值是500，调整为1500，方面调整多字段界面。
+		self.designDDs.push(dd);
+		
+		//点击时，才创建可缩放对象，提供性能
+		el.on('click', function(){
+			var curEl = this, hasRe = false;
+			Ext.each(self.designResizes, function(item){
+				if (item.getEl().id == curEl.id) {
+					hasRe = true; return;
+				}
+			});
+			//如果已创建了缩放对象，则不用创建了
+			if (hasRe) return;
+			
+			var re = new Ext.Resizable(curEl, {minWidth:120, minHeight:22});
+			//调整form的高度，内部column高度自动调整
+			self.resizeForm(re);
+			self.designResizes.push(re);
+		});
+		
+		//双击时显示属性设置
+		el.on('dblclick', function(){self.updateProp();});
+		//处理单个控件的选择、拖动事件
+		self.initClickEl(el);
+	},
+	
+	/**
+	 * 根据form的调整高度，调整内部所有column的高度
+	 * re -- 缩放对象
+	 **/
+	resizeForm: function(re) {
+		var self = this;
+		var curEl = re.getEl();
+		if (curEl.hasClass('fdes-formitem')) {
+			//缩放前记住有哪些子控件
+			re.on('beforeresize', function(re){
+				var formEl = re.getEl();
+				re.childCols = self.findChilds(formEl.dom, 'div.fdes-columnitem');
+				return true;
+			}, self);
+			//缩放后调整子控件的高度
+			re.on('resize', function(re, w, h){
+				Ext.each(re.childCols, function(item){
+					Ext.fly(item).setHeight(h - 18);
+				});
+				re.childCols = null;
+				return true;
+			}, self);
+		}
+	},
+
+	/**
+	 * 删除控件
+	 **/
+	deleteComponent: function() {
+		var self = this;
+		if (self.selectDivs.length == 0) {
+			JxHint.alert(jx.fun.tip07);//'当前没有选择的控件，请选择需要删除的控件！'
+			return;
+		}
+
+		//var hdcall = function() {
+			Ext.each(self.selectDivs, function(item){
+				Ext.fly(item).remove();
+			});
+			self.selectDivs = [];
+		//}
+
+		//Ext.Msg.confirm('提示', '确定删除选择的控件吗？', function(btn) {
+		//	if (btn == 'yes') hdcall();
+		//});
+	},
+
+	/**
+	 * 生成页面中所有form控件
+	 * 
+	 * pageDom -- 页面元素
+	 * state -- 设计状态default|design
+	 **/
+	parseFormXML: function(pageDom, state) {
+		var self = this;
+		var formDoms = pageDom.getElementsByTagName("formitem");
+
+		var defx = self.initpos.formx;
+		var defy = self.initpos.formy, starty = defy;
+
+		//生成每个form控件
+		for (var i = 0, n = formDoms.length; i < n; i++) {
+			//初始状态自动计算form的y坐标
+			if (state == 'default') {
+				defy = (self.initsize.formh)*i + i*(self.initpos.formi) + starty;
+			}
+
+			var node = formDoms.item(i);
+			var x = self.readAttrVal(node, 'x', defx);
+			var y = self.readAttrVal(node, 'y', defy);
+			var w = self.readAttrVal(node, 'width', self.initsize.formw);
+			var h = self.readAttrVal(node, 'height', self.initsize.formh);
+			
+			var id = 'form-comp'+self.compnum;
+			var title = self.readAttrVal(node, 'title', '');
+			var border = self.readAttrVal(node, 'border', '');
+			var collapsible = self.readAttrVal(node, 'collapsible', '');
+			var collapsed = self.readAttrVal(node, 'collapsed', '');
+
+			var html = 
+				'<div id="'+id+'" class="fdes-formitem x-unselectable" style="top:'+y+';left:'+x+';width:'+w+';height:'+h+
+				';" title="'+title+'" border="'+border+'" collapsible="'+collapsible+'" collapsed="'+collapsed+'">F</div>';
+
+			self.addCompHtml(id, html);
+			
+			//生成form内的所有column控件
+			self.parseColumnXML(node, state, x, y);
+		}
+	},
+
+	/**
+	 * 生成form中所有column控件
+	 * 
+	 * formDom -- form设计信息
+	 * state -- 设计状态default|design
+	 * formx -- form元素的x坐标
+	 * formy -- form元素的y坐标
+	 **/
+	parseColumnXML: function(formDom, state, formx, formy) {
+		var self = this;
+		var columnDoms = formDom.getElementsByTagName("columnitem");
+		
+		var defx = formx + self.initpos.colx, startx = defx;
+		var defy = formy + self.initpos.coly;
+
+		//生成每个column控件
+		for (var i = 0, n = columnDoms.length; i < n; i++) {
+			//初始状态自动计算column的x坐标
+			if (state == 'default') {
+				defx = (self.initsize.colw)*i + i*(self.initpos.coli) + startx;
+			}
+
+			var node = columnDoms.item(i);
+			var x = self.readAttrVal(node, 'x', defx);
+			var y = self.readAttrVal(node, 'y', defy);
+			var w = self.readAttrVal(node, 'width', self.initsize.colw);
+			var h = self.readAttrVal(node, 'height', self.initsize.colh);
+			
+			var id = 'col-comp'+self.compnum;
+			//var id = self.readAttrVal(node, 'id', defid);
+			var colwidth = self.readAttrVal(node, 'colwidth', '0.33');
+
+			var html = 
+				'<div id="'+id+'" class="fdes-columnitem x-unselectable" style="top:'+y+';left:'+x+';width:'+w+';height:'+h+
+				';" colwidth="'+colwidth+'">C</div>';
+
+			self.addCompHtml(id, html);
+			
+			//生成column内的所有field控件
+			self.parseFieldXML(node, state, x, y);
+		}
+	},
+
+	/**
+	 * 生成页面中所有form控件
+	 * 
+	 * columnDom -- column设计信息
+	 * state -- 设计状态default|design
+	 * colx -- column元素的x坐标
+	 * coly -- column元素的y坐标
+	 **/
+	parseFieldXML: function(columnDom, state, colx, coly) {
+		var self = this;
+		var fieldDoms = columnDom.getElementsByTagName("fielditem");
+
+		var defx = colx + self.initpos.fieldx;
+		var defy = coly + self.initpos.fieldy, starty = defy;
+
+		//生成每个form控件
+		for (var i = 0, n = fieldDoms.length; i < n; i++) {
+			//初始状态自动计算field的y坐标
+			if (state == 'default') {
+				defy = (self.initsize.fieldh)*i + i*(self.initpos.fieldi) + starty;
+			}
+
+			var node = fieldDoms.item(i);
+			var x = self.readAttrVal(node, 'x', defx);
+			var y = self.readAttrVal(node, 'y', defy);
+			var w = self.readAttrVal(node, 'width', self.initsize.fieldw);
+			var h = self.readAttrVal(node, 'height', self.initsize.fieldh);
+			
+			var id = 'field-comp'+self.compnum;
+			//var id = self.readAttrVal(node, 'id', defid);
+			var title = self.readAttrVal(node, 'title');
+			var colcode = self.readAttrVal(node, 'colcode');
+			var visible = self.readAttrVal(node, 'visible');
+			var xtype = self.readAttrVal(node, 'xtype');
+
+			//修改隐藏字段的样式
+			var hiddenCls = '';
+			if (visible == 'false')	{
+				hiddenCls = 'fdes-fieldhidden';
+			}
+
+			var html =  
+				'<div id="'+id+'" class="fdes-fielditem x-unselectable '+hiddenCls+'" style="top:'+y+';left:'+x+';width:'+w+';height:'+h+
+				';" title="'+title+'" colcode="'+colcode+
+				'" visible="'+visible+'" xtype="'+xtype+'">'+ title +'</div>';
+
+			self.addCompHtml(id, html);
+		}
+	},
+	
+	/**
+	 * 取页面中所有页面控件，保存设计文件时用
+	 **/
+	queryDesignItems: function() {
+		var self = this;
+		var formItems = self.parentEl.query('div.fdes-formitem');
+		var columnItems = self.parentEl.query('div.fdes-columnitem');
+		var fieldItems = self.parentEl.query('div.fdes-fielditem');
+		
+		return {form:formItems, column:columnItems, field:fieldItems};
+	},
+	
+	/**
+	 * 判断是否所有控件都保存了
+	 * items -- 遗漏控件，格式：{form:[], column:[], field:[]}
+	 **/
+	hasNoSaveItem: function(items) {
+		if (items.form.length > 0) return true;
+		if (items.column.length > 0) return true;
+		if (items.field.length > 0) return true;
+		return false;
+	},
+	
+	/**
+	 * 取页面中所有form控件，暂时只考虑一层form控件
+	 * 
+	 * parent -- 画布控件
+	 **/
+	formItemToXML: function(parent) {
+		var self = this;
+		var formcont = "";
+		var formitems = self.findChilds(parent, 'div.fdes-formitem');
+		if (formitems.length == 0) {
+			JxHint.alert(jx.fun.tip08);//'没有找到FORM布局控件，不能保存！'
+			return formcont;
+		}
+		
+		//按y坐标值排序
+		self.orderComponent(formitems, 'y');
+		//判断form是否有重叠
+		if (!self.validCompRegion(formitems)) {
+			JxHint.alert(jx.fun.tip09);//'FORM布局控件有重叠，不能保存！'
+			return formcont;
+		}
+
+		//组合每个formitem的设计信息
+		for (var i = 0, n = formitems.length; i < n; i++) {
+			var fe = Ext.fly(formitems[i]);
+			var x = fe.getX() - self.parentEl.getX();
+			var y = fe.getY() - self.parentEl.getY();
+			var w = fe.getWidth();
+			var h = fe.getHeight();
+
+			var id = self.readAttrVal(formitems[i], 'id');
+			var title = self.readAttrVal(formitems[i], 'title');
+			var border = self.readAttrVal(formitems[i], 'border');
+			var collapsible = self.readAttrVal(formitems[i], 'collapsible');
+			var collapsed = self.readAttrVal(formitems[i], 'collapsed');
+			
+			//取一列的控件信息
+			var colXML = self.columnItemToXML(formitems[i]);
+			if (colXML.length == 0) return '';
+			
+			formcont += "\t<formitem x='"+ x +"' y='"+ y +"' width='"+ w +"' height='"+ h +
+						"' id='"+ id +"' title='"+ title +"' border='"+ border +"' collapsible='"+ collapsible +
+						"' collapsed='"+ collapsed +"'>\r";
+			formcont += colXML;
+			formcont += "\t</formitem>\r";
+			
+			//标记该控件已保存了
+			self.designItems.form.remove(formitems[i]);
+		}
+
+		return formcont;
+	},
+
+	/**
+	 * 取某form中所有column控件
+	 * parent -- form布局控件
+	 **/
+	columnItemToXML: function(parent) {
+		var self = this;
+		var colcont = "";
+		var colitems = self.findChilds(parent, 'div.fdes-columnitem');
+		if (colitems.length == 0) {
+			JxHint.alert(jx.fun.tip10);//'没有找到COLUMN布局控件，不能保存！'
+			return colcont;
+		}
+		
+		//按x坐标值排序
+		self.orderComponent(colitems, 'x');
+		//判断COLUMN是否有重叠
+		if (!self.validCompRegion(colitems)) {
+			JxHint.alert(jx.fun.tip11);//'COLUMN布局控件有重叠，不能保存！'
+			return colcont;
+		}
+
+		//组合每个columnitem的设计信息
+		for (var i = 0, n = colitems.length; i < n; i++) {
+			var fe = Ext.fly(colitems[i]);
+			var x = fe.getX() - self.parentEl.getX();
+			var y = fe.getY() - self.parentEl.getY();
+			var w = fe.getWidth();
+			var h = fe.getHeight();
+
+			var id = self.readAttrVal(colitems[i], 'id');
+			//var colwidth = self.readAttrVal(colitems[i], 'colwidth');
+
+			//重新计算列的宽度
+			var scale = (w/(self.initsize.formw)).toFixed(2);
+			if (scale >= 0.9) {
+				scale = 0.99;
+			} else if (scale >= 0.6) {
+				scale = 0.66;
+			} else if (scale > 0.45 && scale < 0.6) {
+				scale = 0.495;
+			} else {
+				scale = 0.33;
+			}
+
+			colcont += "\t\t<columnitem x='"+ x +"' y='"+ y +"' width='"+ w +"' height='"+ h +
+						"' id='"+ id +"' colwidth='"+ scale +"'>\r";
+
+			colcont += self.fieldItemToXML(colitems[i]);
+			
+			colcont += "\t\t</columnitem>\r";
+			
+			//标记该控件已保存了
+			self.designItems.column.remove(colitems[i]);
+		}
+
+		return colcont;
+	},
+
+	/**
+	 * 取某列中所有的输入控件
+	 * parent -- 列布局控件
+	 **/
+	fieldItemToXML: function(parent) {
+		var self = this;
+		var fieldcont = "";
+		var fielditems = self.findChilds(parent, 'div.fdes-fielditem');
+
+		//按y坐标值排序
+		self.orderComponent(fielditems, 'y');
+
+		//组合每个fielditem的设计信息
+		for (var i = 0, n = fielditems.length; i < n; i++) {
+			var fe = Ext.fly(fielditems[i]);
+			var x = fe.getX() - self.parentEl.getX();
+			var y = fe.getY() - self.parentEl.getY();
+			var w = fe.getWidth();
+			var h = fe.getHeight();
+
+			var id = self.readAttrVal(fielditems[i], 'id');
+			var title = self.readAttrVal(fielditems[i], 'title');
+			var colcode = self.readAttrVal(fielditems[i], 'colcode');
+			var visible = self.readAttrVal(fielditems[i], 'visible', 'true');
+			var xtype = self.readAttrVal(fielditems[i], 'xtype');
+
+			//计算控件宽度的比例，默认100%，如果宽度小于缺省值一定值时才计算比例
+			var anchor = 100;
+			if (w < self.initsize.fieldw-30) {
+				anchor = parseInt(w*100/(self.initsize.fieldw));
+			}
+
+			//如果控件的高度超过缺省值的1.5，则认为是area控件否则是text
+			if (h > (self.initsize.fieldh * 1.5)) {
+				xtype = 'area';
+			}
+
+			//判断是否隐藏控件
+			if (visible != 'true') {
+				xtype = 'hidden';
+			} else {
+				if (xtype == 'hidden') xtype = 'text';
+			}
+
+			fieldcont += "\t\t\t<fielditem x='"+ x +"' y='"+ y +"' width='"+ w +"' height='"+ h +
+						 "' id='"+ id +"' title='"+ title +"' colcode='"+ colcode +
+						 "' visible='"+ visible +"' xtype='"+ xtype +"' anchor='"+anchor+"'/>\r";
+						 
+			//标记该控件已保存了
+			self.designItems.field.remove(fielditems[i]);
+		}
+
+		return fieldcont;
+	},
+
+	/**
+	 * 读取对象指定属性的值
+	 * element -- 对象
+	 * attrName -- 属性名
+	 * defval -- 如果没有该属性或属性值为空的缺省值
+	 **/
+	readAttrVal: function(element, attrName, defval) {
+		var val = element.getAttribute(attrName) || '';
+		if (val.length == 0) val = defval||'';
+
+		return val;
+	},
+
+	/**
+	 * 根据控件的某个属性值排序
+	 * comps -- 控件数组
+	 **/
+	orderComponent: function(comps, flag) {
+		var mincomp, currval, minval = 0;
+		for (var i = 0, n = comps.length; i < n; i++) {
+			if (flag == 'x') {
+				minval = Ext.fly(comps[i]).getX();
+			} else {
+				minval = Ext.fly(comps[i]).getY();
+			}
+
+			for (var j = i+1, m = comps.length; j < m; j++) {
+				if (flag == 'x') {
+					currval = Ext.fly(comps[j]).getX();
+				} else {
+					currval = Ext.fly(comps[j]).getY();
+				}
+
+				if (minval > currval) {
+					mincomp = comps[i];
+					comps[i] = comps[j];
+					comps[j] = mincomp;
+					minval = currval;
+				}
+			}
+		}
+	},
+	
+	/**
+	 * 检查控件的边界不能重叠，判断重叠的方法：
+	 * 一个div任意相邻的两条边如果都在另一个div中，说明它们重叠。
+	 * comps -- 控件数组
+	 **/
+	validCompRegion: function(comps) {
+		for (var i = 0, n = comps.length; i < n; i++) {
+			var oneEl = Ext.fly(comps[i]);
+			var x1 = oneEl.getX();
+			var y1 = oneEl.getY();
+			var r1 = x1 + oneEl.getWidth();
+			var b1 = y1 + oneEl.getHeight();
+			
+			for (var j = i+1, m = comps.length; j < m; j++) {
+				var twoEl = Ext.fly(comps[j]);
+				var x2 = twoEl.getX();
+				var y2 = twoEl.getY();
+				var r2 = x2 + twoEl.getWidth();
+				var b2 = y2 + twoEl.getHeight();
+				
+				//判断左、上两条边在one中
+				if ((x1 < x2 && r1 > x2) &&
+					(y1 < y2 && b1 > y2)) {
+					return false;
+				}
+				//判断上、右条边在one中
+				if ((y1 < y2 && b1 > y2) &&
+					(x1 < r2 && r1 > r2)) {
+					return false;
+				}
+				//判断右、下条边在one中
+				if ((x1 < r2 && r1 > r2) &&
+					(y1 < b2 && b1 > b2)) {
+					return false;
+				}
+				//判断下、左条边在one中
+				if ((y1 < b2 && b1 > b2) &&
+					(x1 < x2 && r1 > x2)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	},
+	
+	/**
+	 * public，现在主要用于表单设计器中
+	 * 找某种类型的子元素，如果子控件的中心点在本元素内就算是它的子元素
+	 * parent -- 父元素
+	 * selector -- 查询匹配符
+	 **/
+	findChilds: function(parent, selector) {
+		var self = this;
+		//返回的子元素
+		var rets = [], m = 0;
+		var parentEl = Ext.fly(parent);
+
+		//取父元素的top与bottom的值
+		var topMin = parentEl.getY();
+		var topMax = topMin + parentEl.getHeight();
+		
+		//取父元素的left与right的值
+		var leftMin = parentEl.getX();
+		var leftMax = leftMin + parentEl.getWidth();
+		
+		//取className的所有子元素
+		var childs = self.parentEl.query(selector);
+
+		//判断是否父控件内
+		for (var i = 0, n = childs.length; i < n; i++) {
+			var childEl = Ext.fly(childs[i]);
+
+			var cx = childEl.getX();
+			var cy = childEl.getY();
+			var cw = childEl.getWidth();
+			var ch = childEl.getHeight();
+			
+			//计算子控件的中心点位置
+			var rx = cx + cw/2;
+			var ry = cy + ch/2;
+
+			if (rx >= leftMin && rx <= leftMax && 
+				ry >= topMin && ry <= topMax) {
+				rets[m++] = childs[i];
+			}
+		}
+
+		return rets;
+	},
+	
+	//===========================下面是一个独立的类，为了调用方便放到一个文件中了===================================
+	//使用了上面的参数有：
+	//parentEl -- 作为容器对象
+	//findChilds -- 取指定控件位置内的控件
+	/**
+	 * 当前批量选择的控件，是dom对象数组
+	 **/
+	selectDivs: [],
+	
+	/**
+	 * 记录是否开始多选控件的状态，
+	 * 在mousemove，并按住Ctrl键时，设置值为true，mouseup时设置为false
+	 **/
+	selectDowned: false,
+	
+	/**
+	 * 记录开始多选时的鼠标位置
+	 **/
+	selectOldXY: [],
+	
+	/**
+	 * 记录是否开始拖动选择的状态，
+	 * 在mousemove，并按住Ctrl键时，设置值为true，mouseup时设置为false
+	 **/
+	moveDowned: false,
+	
+	/**
+	 * 当前点击拖动的控件，是Element对象
+	 **/
+	moveDownEl: null,
+	
+	/**
+	 * 记录开始拖动时的鼠标位置
+	 **/
+	moveOldX: 0,
+	moveOldY: 0,
+	
+	/**
+	 * 记录批量选择的控件外围位置，{x, y, width, height}
+	 **/
+	moreDivPos: null,
+	
+	/**
+	 * 初始化，给容器添加事件
+	 **/
+	initDd: function() {
+		var self = this;
+		//添加批量选择控件的事件
+		self.parentEl.on('mousedown', self.moreMouseDown, self);
+		self.parentEl.on('mouseup', self.moreMouseUp, self);
+		self.parentEl.on('mousemove', self.moreMouseMove, self);
+		//如果是点击画布，则清除控件选择
+		/*self.parentEl.on('click', function(e, t){
+			if (e.ctrlKey) return;
+			var el = Ext.fly(t);
+			if (!el.hasClass('fdes-formitem') && 
+				!el.hasClass('fdes-columnitem') && 
+				!el.hasClass('fdes-fielditem')) {
+				//销毁标志DIV，有时误操作没有销毁
+				var flagEl = self.parentEl.first('#select_flag_div');
+				if (flagEl) flagEl.remove();
+				//清除选择的对象
+				self.clearSelectDivs();
+			}
+		});*/
+	},
+	/******************************下面是处理选择多个控件的操作**********************************/
+	/**
+	 * private
+	 * 开始框选控件：创建框选标志DIV，要求按住CTRL键
+	 **/
+	moreMouseDown: function(e) {
+		var self = this;
+		//必须要按ctrl键才有效
+		//if (!e.ctrlKey) return;	//简化处理，不需要按CTRL键
+		self.parentEl.select('#select_flag_div').remove();
+		self.selectDowned = true;
+		//取消文本选择
+		if (Ext.isIE) {
+			self.parentEl.dom.onselectstart = function(){return false;};
+		}
+		
+		var xy = e.getXY();
+		//鼠标位置必须去掉容器控件的位置
+		var pxy = self.parentEl.getXY();
+		var x = xy[0] - pxy[0];
+		var y = xy[1] - pxy[1];
+		//保存鼠标点击的位置
+		self.selectOldXY = [x, y];
+		//创建鼠标框选标志DIV
+		self.parentEl.insertHtml('afterBegin', 
+		'<div id="select_flag_div" class="fdes-selectdiv" style="left:'+ x +'px;top:'+ y +'px;"></div>');
+	},
+	
+	/**
+	 * private
+	 * 结束框选控件：添加选择的控件对象；销毁框选标志DIV
+	 **/
+	moreMouseUp: function(e) {
+		var self = this;
+		if (!self.selectDowned) return;
+		//清除状态信息
+		self.clearSelectDivs();
+		if (Ext.isIE) {
+			self.parentEl.dom.onselectstart = null;
+		}
+		
+		//取框选标志DIV
+		var flagEl = self.parentEl.first('#select_flag_div');
+		//取选择的控件
+		var divs = self.findChilds(flagEl, 'div.fdes-fielditem, div.fdes-columnitem, div.fdes-formitem');
+		//标志选择的控件
+		self.flagSelectDivs(divs);
+		
+		//销毁标志
+		flagEl.remove();
+	},
+	
+	/**
+	 * private
+	 * 调整框选标志的大小
+	 **/
+	moreMouseMove: function(e) {
+		var self = this;
+		if (!self.selectDowned) return;
+		//取框选标志DIV
+		var flagEl = self.parentEl.first('#select_flag_div');
+		var xy = e.getXY();
+		var pxy = self.parentEl.getXY();
+		//取当前鼠标相对位置、与鼠标点击时的位置
+		var x = xy[0] - pxy[0], y = xy[1] - pxy[1];
+		var ox = self.selectOldXY[0], oy = self.selectOldXY[1];
+		
+		//取绝对值，设置框选对象的宽与高
+		var w = Math.abs(x - ox);
+		var h = Math.abs(y - oy);
+		flagEl.setWidth(w);
+		flagEl.setHeight(h);
+		
+		//设置选择的区域
+		if (x > ox && y < oy) {			//表示鼠标向上移动
+			flagEl.setTop(y);
+		} else if (x < ox && y < oy) {	//表示鼠标向左上移动
+			flagEl.setTop(y);
+			flagEl.setLeft(x);
+		} else if (x < ox && y > oy) {	//表示鼠标向左移动
+			flagEl.setLeft(x);
+		}
+	},
+	
+	/**
+	 * 设置选择对象的样式
+	 * selected -- true 表示选择，false 表示取消选择
+	 **/
+	selectCss: function(selected) {
+		var divs = this.selectDivs;
+		for (var i = 0, n = divs.length; i < n; i++) {
+			var childEl = Ext.fly(divs[i]);
+			
+			if (selected) {
+				childEl.addClass('fdes-selectcomp');
+			} else {
+				childEl.removeClass('fdes-selectcomp');
+			}
+		}
+	},
+	
+	/**
+	 * public
+	 * 标志当前控件为选择的控件
+	 **/
+	flagSelectDivs: function(divs) {
+		if (divs == null || divs.length == 0) return;
+		
+		var self = this;
+		//清除原来的控件
+		self.selectCss(false);
+	
+		//标志新的选择的控件
+		self.selectDivs = divs;
+		//标志选择的字段样式
+		self.selectCss(true);
+		//保存选择的控件初始位置
+		self.selectXY();
+		//保存选择的控件的外围位置
+		self.moreDivPos = self.getMoreDivPos();
+	},
+	
+	/**
+	 * public
+	 * 清除选择控件的标记
+	 **/
+	clearSelectDivs: function() {
+		var self = this;
+		self.selectCss(false);
+		self.selectDivs = [];
+		self.moreDivPos = null;
+		self.selectDowned = false;
+	},
+	
+	/**
+	 * public
+	 * 判断当前选择的元素是否在批量选择元素中
+	 * curDiv -- 当前选择当个元素
+	 **/
+	isSelectDiv: function(curDiv) {
+		var divs = this.selectDivs;
+		for (var i = 0, n = divs.length; i < n; i++) {
+			var div = divs[i];
+			if (curDiv.id == div.id) return true;
+		}
+		return false;
+	},
+	
+	/**
+	 * private
+	 * 保存当前选择的元素初始XY
+	 **/
+	selectXY: function() {
+		var self = this;
+		var divs = self.selectDivs;
+		for (var i = 0, n = divs.length; i < n; i++) {
+			self.saveOldXY(divs[i]);
+		}
+	},
+	
+	/**
+	 * private
+	 * 保存一个选择的元素初始XY，考虑了滚动条的位置
+	 **/
+	saveOldXY: function(div) {
+		var childEl = Ext.fly(div);
+		//要处理滚动条的距离
+		var scroll = this.layoutEl.getScroll();
+		if (scroll.top != 0) {
+			var oldX = childEl.getX() + scroll.left;
+			var oldY = childEl.getY() + scroll.top;
+			div.oldXY = [oldX, oldY];
+		} else {
+			div.oldXY = childEl.getXY();
+		}
+	},
+	
+	/******************************下面是处理选择单个控件的操作**********************************/
+	/**
+	 * public
+	 * 初始化控件事件。下面的方法必须放到新的function中，否则会报错，暂时还未查到原因
+	 *
+	 * 移动控件有两种方法：
+	 * 1、记录当前选择的控件，根据控件移动位置确定其它控件的移动位置，现在采用此方法：问题是点击的控件与其它移动不同步
+	 * 2、记录当前鼠标点击的位置，根据鼠标移动位置确定其它控件的移动位置，问题有：要取消dd移动设置，且不能处理移动步长设置
+	 **/
+	initClickEl: function(clickEl) {
+		var self = this;
+		clickEl.on('mousedown', function(e){self.oneMouseDown(clickEl, e);});
+		clickEl.on('mousemove', function(e){self.oneMouseMove(e);});
+		clickEl.on('mouseup', function(e){self.oneMouseUp(e);});
+	},
+	
+	/**
+	 * public
+	 * 单击容器中的控件，并给控件标志
+	 **/
+	oneMouseDown: function(clickEl, e) {
+		var self = this;
+		
+		//判断当前点击的控件是否在已选控件中
+		var isMore = self.isSelectDiv(clickEl.dom, self.selectDivs);
+		
+		//是已选控件：如果按住CTRL，则取消选择，否则标志开始移动
+		if (isMore) {
+			if (e.ctrlKey) {
+				clickEl.removeClass('fdes-selectcomp');
+				self.selectDivs.remove(clickEl.dom);
+				//重新计算选择控件的外围位置
+				self.moreDivPos = self.getMoreDivPos();
+			} else {
+				//如果没有按住CTRL键，则标志开始拖动
+				if (self.selectDivs.length > 1) {
+					self.moveOldX = clickEl.getX();
+					self.moveOldY = clickEl.getY();
+					self.moveDowned = true;
+					self.moveDownEl = clickEl;
+				}
+			}
+		} else {
+		//不是已选控件：如果按住CTRL，则添加为已选，否则清除原已选标志新已选
+			self.oneClickEl(clickEl, e);
+		}
+	},
+	
+	/**
+	 * public
+	 * 处理容器中控件的鼠标移动事件
+	 **/
+	oneMouseMove: function(e) {
+		var self = this;
+		if (!self.moveDowned) return;
+		var scroll = self.layoutEl.getScroll();
+		//取鼠标移动的间隔值，要考虑滚动条的位置
+		var curEl = self.moveDownEl;
+		var dx = curEl.getX() - self.moveOldX - scroll.left;
+		var dy = curEl.getY() - self.moveOldY - scroll.top;
+		
+		//判断控件是否超过边框
+		var vx = self.validMoreDivX(dx);
+		var vy = self.validMoreDivY(dy);
+		
+		//批量选择的控件都要移动
+		for (var i = 0, n = self.selectDivs.length; i < n; i++) {
+			var item = self.selectDivs[i];
+			var itemEl = Ext.fly(item);
+			//oldXY是自定义属性，在批量选择控件时设置
+			var oldXY = item.oldXY;
+			
+			//如果选择框的左右边都在容器范围内，则可以调整X值
+			if (vx) {
+				itemEl.setX(oldXY[0] + dx);
+			}
+			//如果选择框的上下边都在容器范围内，则可以调整Y值
+			if (vy) {
+				itemEl.setY(oldXY[1] + dy);
+			}
+		}
+	},
+	
+	/**
+	 * public
+	 * 处理容器中控件的鼠标提起事件
+	 **/
+	oneMouseUp: function(e) {
+		var self = this;
+		if (!self.moveDowned) return;
+		
+		//重新设置选择控件的原位置与边框大小
+		self.selectXY();
+		self.moreDivPos = self.getMoreDivPos();
+		
+		//清除状态值
+		self.moveOldX = 0;
+		self.moveOldY = 0;
+		self.moveDownEl = null;
+		self.moveDowned = false;
+	},
+	
+	/**
+	 * private
+	 * 单击容器中的控件，如果没有按CTRL，则值保留当前控件为已选
+	 **/
+	oneClickEl: function(clickEl, e) {
+		var self = this;
+		if (!e.ctrlKey) {
+			self.clearSelectDivs();
+		}
+		
+		//添加到选择的控件中
+		var len = self.selectDivs.length;
+		self.selectDivs[len] = clickEl.dom;
+		clickEl.addClass('fdes-selectcomp');
+		
+		//保存控件初始位置
+		self.saveOldXY(clickEl.dom);
+		//重新计算选择控件的外围位置
+		self.moreDivPos = self.getMoreDivPos();
+	},
+	//=======================下面三个方法是处理多选控件移动时不能超出边框=====================
+	/**
+	 * private
+	 * 取批量控件的位置数组值，返回[x, y, width, height]
+	 **/
+	getMoreDivPos: function() {
+		var self = this;
+		//取最左部控件的left值，取最小值
+		var minx = 1000000;
+		for (var i = 0, n = self.selectDivs.length; i < n; i++) {
+			var itemEl = Ext.fly(self.selectDivs[i]);
+			
+			if (itemEl.getX() < minx) minx = itemEl.getX();
+		}
+		//取最上部控件的top值，取最小值
+		var miny = 1000000;
+		for (var i = 0, n = self.selectDivs.length; i < n; i++) {
+			var itemEl = Ext.fly(self.selectDivs[i]);
+			
+			if (itemEl.getY() < miny) miny = itemEl.getY();
+		}
+		//取最右部控件的right边框位置，取最大值
+		var maxr = 0;
+		for (var i = 0, n = self.selectDivs.length; i < n; i++) {
+			var itemEl = Ext.fly(self.selectDivs[i]);
+			
+			var right = itemEl.getX() + itemEl.getWidth();
+			if (right > maxr) maxr = right;
+		}
+		//取最下部控件的bottom边框位置，取最大值
+		var maxb = 0;
+		for (var i = 0, n = self.selectDivs.length; i < n; i++) {
+			var itemEl = Ext.fly(self.selectDivs[i]);
+			
+			var bottom = itemEl.getY() + itemEl.getHeight();
+			if (bottom > maxb) maxb = bottom;
+		}
+		
+		var width = maxr-minx;
+		var height = maxb-miny;
+		var pxy = self.parentEl.getXY();
+		var x = minx - pxy[0];
+		var y = miny - pxy[1];
+		//测试边框计算是否准确
+		//self.parentEl.insertHtml('afterBegin', 
+		//'<div id="select_flag_div1" class="fdes-selectdiv" style="left:'+ x +'px;top:'+ y +'px;width:'+ width +'px;height:'+ height +'px;"></div>');
+		
+		return {x:x, y:y, width:width, height:height};
+	},
+	
+	/**
+	 * private
+	 * 检查批量控件移动的X值是否在容器内
+	 **/
+	validMoreDivX: function(movex) {
+		var self = this;
+		//取容器的x与width
+		var px = 0;//self.parentEl.getX();
+		var pw = self.parentEl.getWidth();
+		
+		//取批量控件边框的x与width
+		var sx = self.moreDivPos.x;
+		var sw = self.moreDivPos.width;
+		
+		//说明左边超界
+		if ((sx + movex) < px) return false;
+		//说明右边超界
+		if ((sx + sw + movex) > (px + pw)) return false;
+		
+		return true;
+	},
+	
+	/**
+	 * private
+	 * 检查批量控件移动的Y值是否在容器内
+	 **/
+	validMoreDivY: function(movey) {
+		var self = this;
+		//取容器的y与height
+		var py = 0;//self.parentEl.getY();
+		var ph = self.parentEl.getHeight() - 20;
+		
+		//取批量控件边框的y与height
+		var sy = self.moreDivPos.y;
+		var sh = self.moreDivPos.height;
+		
+		//说明上边超界
+		//if ((sy + movey) < py) return false; //modify by tony.tan, 方面调整多字段界面。
+		//说明下边超界
+		//if ((sy + sh + movey) > (py + ph)) return false; //modify by tony.tan, 方面调整多字段界面。
+		
+		return true;
+	}
+};
