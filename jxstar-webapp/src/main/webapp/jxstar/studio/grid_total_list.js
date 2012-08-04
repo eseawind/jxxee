@@ -14,10 +14,7 @@
 		editor:new Ext.form.TextField({
 			maxLength:50, allowBlank:false
 		})}, field:{name:'rpt_list__report_name',type:'string'}},
-	{col:{header:'*模板文件', width:235, sortable:true, editable:true, hcss:'color:#0000ff;',
-		editor:new Ext.form.TextField({
-			maxLength:100, allowBlank:false
-		})}, field:{name:'rpt_list__report_file',type:'string'}},
+	{col:{header:'模板文件', width:235, sortable:true, hidden:true}, field:{name:'rpt_list__report_file',type:'string'}},
 	{col:{header:'*所属功能', width:134, sortable:true, editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.TextField({
 			maxLength:25, allowBlank:false
@@ -26,7 +23,7 @@
 		editor:new Ext.form.TextField({
 			maxLength:25, allowBlank:false
 		})}, field:{name:'rpt_list__module_id',type:'string'}},
-	{col:{header:'报表样式', width:79, sortable:true, align:'center',
+	{col:{header:'报表样式', width:79, sortable:true, defaultval:'total2', align:'center',
 		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
@@ -47,7 +44,7 @@
 					return repttypeData[i][1];
 			}
 		}}, field:{name:'rpt_list__report_type',type:'string'}},
-	{col:{header:'缺省?', width:48, sortable:true, defaultval:'1', align:'center',
+	{col:{header:'缺省?', width:48, sortable:true, hidden:true, defaultval:'1', align:'center',
 		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
@@ -72,10 +69,7 @@
 		editor:new Ext.form.TextField({
 			maxLength:100
 		})}, field:{name:'rpt_list__custom_class',type:'string'}},
-	{col:{header:'报表备注', width:189, sortable:true, editable:true, hcss:'color:#3039b4;',
-		editor:new Ext.form.TextField({
-			maxLength:100
-		})}, field:{name:'rpt_list__report_memo',type:'string'}},
+	{col:{header:'报表备注', width:189, sortable:true, hidden:true}, field:{name:'rpt_list__report_memo',type:'string'}},
 	{col:{header:'报表ID', width:100, sortable:true, hidden:true}, field:{name:'rpt_list__report_id',type:'string'}}
 	];
 	
@@ -85,7 +79,7 @@
 		hasQuery: '1',
 		isedit: '1',
 		isshow: '1',
-		funid: 'rpt_list'
+		funid: 'total_list'
 	};
 	
 	

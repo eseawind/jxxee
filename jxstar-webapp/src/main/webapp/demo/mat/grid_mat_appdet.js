@@ -12,7 +12,7 @@
 			}}
 		})}, field:{name:'mat_base__mat_code',type:'string'}},
 	{col:{header:'物资名称', width:136, sortable:true}, field:{name:'mat_base__mat_name',type:'string'}},
-	{col:{header:'型号规格', width:137, sortable:true}, field:{name:'mat_base__mat_size',type:'string'}},
+	{col:{header:'型号规格', width:98, sortable:true}, field:{name:'mat_base__mat_size',type:'string'}},
 	{col:{header:'计量单位', width:70, sortable:true}, field:{name:'mat_base__mat_unit',type:'string'}},
 	{col:{header:'*申请数量', width:84, sortable:true, defaultval:'1', align:'right',
 		editable:true, hcss:'color:#0000ff;',

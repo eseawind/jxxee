@@ -89,6 +89,7 @@
 		funid: 'mat_app'
 	};
 
+	config.param.subConfig = { height:230, width:800};
 	JxFormSub.formAddSub(config);
 
 	﻿

@@ -17,10 +17,7 @@
 		editor:new Ext.form.TextField({
 			maxLength:50, allowBlank:false
 		})}, field:{name:'rpt_detail__display',type:'string'}},
-	{col:{header:'显示位置', width:78, sortable:true, editable:true, hcss:'color:#3039b4;',
-		editor:new Ext.form.TextField({
-			maxLength:20
-		})}, field:{name:'rpt_detail__col_pos',type:'string'}},
+	{col:{header:'显示位置', width:78, sortable:true, hidden:true}, field:{name:'rpt_detail__col_pos',type:'string'}},
 	{col:{header:'显示样式', width:81, sortable:true, defaultval:'text', align:'center',
 		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.ComboBox({
@@ -105,14 +102,18 @@
 					return yesnoData[i][1];
 			}
 		}}, field:{name:'rpt_detail__is_outzero',type:'string'}},
-	{col:{header:'选项控件', width:100, sortable:true, editable:true, hcss:'color:#3039b4;',
-		editor:new Ext.form.TextField({
-			maxLength:20
-		})}, field:{name:'rpt_detail__combo_code',type:'string'}},
+	{col:{header:'选项控件', width:100, sortable:true, hidden:true}, field:{name:'rpt_detail__combo_code',type:'string'}},
 	{col:{header:'明细ID', width:100, sortable:true, hidden:true}, field:{name:'rpt_detail__det_id',type:'string'}},
 	{col:{header:'区域ID', width:100, sortable:true, hidden:true}, field:{name:'rpt_detail__area_id',type:'string'}},
-	{col:{header:'列宽', width:58, sortable:true, hidden:true, renderer:JxUtil.formatInt()}, field:{name:'rpt_detail__col_width',type:'float'}},
-	{col:{header:'表达式', width:189, sortable:true, hidden:true}, field:{name:'rpt_detail__express',type:'string'}}
+	{col:{header:'列宽', width:58, sortable:true, align:'right',
+		editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.NumberField({
+			maxLength:12
+		}),renderer:JxUtil.formatInt()}, field:{name:'rpt_detail__col_width',type:'float'}},
+	{col:{header:'表达式', width:189, sortable:true, editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.TextField({
+			maxLength:100
+		})}, field:{name:'rpt_detail__express',type:'string'}}
 	];
 	
 	config.param = {
@@ -121,7 +122,7 @@
 		hasQuery: '0',
 		isedit: '1',
 		isshow: '0',
-		funid: 'rpt_detail'
+		funid: 'total_detail'
 	};
 	
 	
