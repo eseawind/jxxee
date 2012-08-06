@@ -91,7 +91,7 @@ public class ReadDesignBO extends BusinessObject {
 		StringBuilder sbDesign = new StringBuilder();
 		
 		sbDesign.append("<?xml version='1.0' encoding='utf-8'?>");
-		sbDesign.append("<page state='default'>");
+		sbDesign.append("<page state='default' colnums='"+ colnums +"'>");
 		sbDesign.append(createFormItem(funcId, colnums));
 		sbDesign.append("</page>");
 
