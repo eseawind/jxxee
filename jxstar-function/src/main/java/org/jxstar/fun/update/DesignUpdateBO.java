@@ -30,15 +30,15 @@ public class DesignUpdateBO extends BusinessObject {
 	 * @param destDN
 	 * @param toPath
 	 */
-	public void compareDesign(String srcDN, String destDN, String toPath) {
+	public String compareDesign(String srcDN, String destDN, String toPath) {
 		if (toPath == null || toPath.length() == 0) toPath = "d:\\design_update";
 		FileUtil.createPath(toPath);
 		
 		_log.showDebug("生成更新设计文件到此目录中：" + toPath);
 		if (srcDN == null || srcDN.length() == 0 ||
 			destDN == null || destDN.length() == 0) {
-			_log.showError("来源与目标数据源都不能为空！");
-			return;
+			setMessage("来源与目标数据源都不能为空！");
+			return _returnFaild;
 		}
 		
 		List<Map<String,String>> lsSrcDes = queryDesign(srcDN);
@@ -62,10 +62,11 @@ public class DesignUpdateBO extends BusinessObject {
 				String fileName = toPath + "\\" + funId + FILE_FLAG + pageType + ".txt";
 				
 				_log.showDebug("生成更新设计文件：" + fileName);
-				FileUtil.saveFile(fileName, srcDesign, "utf-8");
+				FileUtil.saveFile(fileName, srcDesign, "UTF-8");
 			}
 		}
 		_log.showDebug("共生成更新设计文件个数：" + cnt);
+		return _returnSuccess;
 	}
 	
 	/**
@@ -73,15 +74,16 @@ public class DesignUpdateBO extends BusinessObject {
 	 * @param dsName
 	 * @param toPath
 	 */
-	public void updateDesign(String dsName, String toPath) {
+	public String updateDesign(String dsName, String toPath) {
 		if (toPath == null || toPath.length() == 0) toPath = "d:\\design_update";
 		_log.showDebug("指定的设计文件目录为：" + toPath);
 		
 		File path = new File(toPath);
+		
 		File[] files = path.listFiles();
-		if (files.length == 0) {
-			_log.showDebug("设计文件目录下没有需要更新的文件！");
-			return;
+		if (files == null || files.length == 0) {
+			setMessage("设计文件目录不存在，或者没有需要更新的设计文件！");
+			return _returnFaild;
 		}
 		
 		for (File file : files) {
@@ -89,7 +91,7 @@ public class DesignUpdateBO extends BusinessObject {
 			_log.showDebug("更新的设计文件是：" + name);
 			
 			String fileName = toPath + "\\" + name;
-			String content = FileUtil.readFile(fileName);
+			String content = FileUtil.readFile(fileName, "UTF-8");
 			
 			String[] names = name.split("\\.")[0].split(FILE_FLAG);
 			if (names.length < 2) continue;
@@ -99,6 +101,8 @@ public class DesignUpdateBO extends BusinessObject {
 			}
 			writeDesign(dsName, names[0], names[1], content);
 		}
+		
+		return _returnSuccess;
 	}
 	
 	/**

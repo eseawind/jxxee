@@ -22,7 +22,7 @@ public class DesignUpdateTest extends AbstractTest {
 		init("D:\\tomcat6\\webapps\\jxstar_ee");
 
 		String toPath = "d:\\design_update";
-		String detsDN = "default_mysql";
+		String detsDN = "default";
 		
 		DesignUpdateBO update = new DesignUpdateBO();
 		//update.compareDesign("default", detsDN, toPath);
