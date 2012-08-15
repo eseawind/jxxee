@@ -84,21 +84,18 @@ Jxstar.GridNode.prototype = {
 		//返回页面对象
 		return this.page;
 	},
-
-	/**
-	 * 创建功能内容对象，用于扩展。
-	 **/
-	createPage: function(){
-		var gm = this.param;
-		if (gm == null || gm.cols == null || gm.cols.length == 0) {
+	
+	//private 分离构建列模型与存储对象的方法，方便重构cm,store
+	createCmAndStore: function(mycols){
+		if (mycols == null || mycols.length == 0) {
 			//'创建页面的字段参数为空！'
 			JxHint.alert(jx.node.nofields);
 			return false;
 		}
 
-		var grid = null, self = this;
+		var self = this;
 		//用于保存字段信息
-		var fields = [], mycols = gm.cols;
+		var fields = [];
 		//用于添加列序号列与复选框列
 		var cols = [];
 		//添加序号列
@@ -115,7 +112,11 @@ Jxstar.GridNode.prototype = {
 		var sm = null;
 		//添加复选框
 		if (self.selectModel == 'check' || (self.selectModel == '' && !noCheck)) {
-			sm = new Ext.grid.CheckboxSelectionModel();
+			if (self.sm == null) {
+				sm = new Ext.grid.CheckboxSelectionModel();
+			} else {
+				sm = self.sm;
+			}
 			cols[sn] = sm;
 			sn++;
 		}
@@ -151,8 +152,13 @@ Jxstar.GridNode.prototype = {
 		
 		//查询数据URL
 		var url = Jxstar.path + '/commonAction.do?eventcode=query_data&funid=queryevent&pagetype='+self.pageType;
-			url += '&query_funid='+gm.funid+'&user_id='+Jxstar.session['user_id'];
-		
+			url += '&query_funid='+self.nodeId+'&user_id='+Jxstar.session['user_id'];
+		if (self.param.queryurl) {
+			url = self.param.queryurl;
+			if (url.indexOf('&user_id=') < 0) {
+				url += '&user_id='+Jxstar.session['user_id'];
+			}
+		}
 		//创建数据对象
 		var store = new Ext.data.Store({
 			proxy: new Ext.data.HttpProxy({
@@ -170,7 +176,7 @@ Jxstar.GridNode.prototype = {
 				totalProperty: 'data.total'
 			}, fields),
 			remoteSort: true,
-			sortInfo: gm.sorts,
+			sortInfo: self.param.sorts,
 			pruneModifiedRecords: true
 		});
 		//如果表格内容有修改，则提示是否取消编辑。
@@ -190,6 +196,47 @@ Jxstar.GridNode.prototype = {
 		};
 		store.on('beforeload', dataModify);
 		
+		self.sm = sm;
+		self.cm = cm;
+		self.store = store;
+		self.noCheck = noCheck;
+	},
+	
+	//private 加载数据，显示加载时间
+	storeLoad: function() {
+		Jxstar.loadDataBc(self.page);
+		
+		//加载数据所花的时间
+		Jxstar.et = (new Date()).getTime(); 
+		var useTime = Jxstar.et - Jxstar.st;
+		JxHint.hint('use time(ms): ' + useTime);
+		
+		//每次加载数据后，IE强制回收内存
+		if(Ext.isIE){CollectGarbage();}
+	},
+	
+	//public 传入新的列配置，重新构建表格对象
+	reconfigGrid: function(mycols) {
+		var self = this;
+		var grid = self.page;
+		//构建列模型与存储对象
+		self.createCmAndStore(mycols);
+		grid.getBottomToolbar().bindStore(self.store);
+		//加载数据后调用回调函数
+		self.store.on('load', self.storeLoad);
+		//重新构建表格对象
+		grid.reconfigure(self.store, self.cm);
+	},
+
+	/**
+	 * 创建功能内容对象，用于扩展。
+	 **/
+	createPage: function(){
+		var self = this;
+		var grid = null;
+		//构建列模型与存储对象
+		self.createCmAndStore(self.param.cols);
+		
 		//在JxFormSub.formAddSub中给值，formsub不带边框
 		var borded = true;
 		if (self.state == '0' && self.define.showInForm) {
@@ -201,9 +248,9 @@ Jxstar.GridNode.prototype = {
 			border: borded,
 			loadMask: true,
 			columnLines: true,	//显示列分隔线
-			store: store,
-			cm: cm,
-			sm: sm,
+			store: self.store,
+			cm: self.cm,
+			sm: self.sm,
 			stripeRows: true,	//显示斑马线
 			enableHdMenu: (self.state != '0'),		//运行时屏蔽表头菜单
 			enableColumnMove: (self.state != '0'),	//运行时禁止表头移动
@@ -232,7 +279,7 @@ Jxstar.GridNode.prototype = {
 			config.bbar = new Ext.PagingToolbar({
 				deferHeight:true,
 				pageSize: Jxstar.pageSize,
-				store: store,
+				store: self.store,
 				plugins: (self.pageType != 'combogrid') ? new Ext.ux.JxPagerTool() : null,
 				displayInfo: (self.pageType != 'combogrid'),
 				displayMsg: '共 {2} 条',	//'显示 {0} -- {1}  共 {2} 条'
@@ -287,19 +334,15 @@ Jxstar.GridNode.prototype = {
 			grid.selectKeyId = record.get(self.define.pkcol);
 		});
 		//加载数据后调用回调函数
-		store.on('load', function(){
-			Jxstar.loadDataBc(grid);
-			
-			//加载数据所花的时间
-			Jxstar.et = (new Date()).getTime(); 
-			var useTime = Jxstar.et - Jxstar.st;
-			JxHint.hint('use time(ms): ' + useTime);
-			
-			//每次加载数据后，IE强制回收内存
-			if(Ext.isIE){CollectGarbage();}
-		});
+		self.store.on('load', self.storeLoad);
+		
 		//添加表格控件注销事件，效果不明显
 		grid.on('beforedestroy', function(gp){
+			self.sm = null;				delete self.sm;
+			self.cm = null;				delete self.cm;
+			self.store = null;			delete self.store;
+			self.noCheck = null;		delete self.noCheck;
+		
 			gp.pkName = null;			delete gp.pkName;
 			gp.fkName = null;			delete gp.fkName;
 			gp.fkValue = null;			delete gp.fkValue;
@@ -320,7 +363,7 @@ Jxstar.GridNode.prototype = {
 		});
 		
 		//设置单选模式
-		if (self.selectModel == 'row' || noCheck) {
+		if (self.selectModel == 'row' || self.noCheck) {
 			grid.getSelectionModel().singleSelect = true;
 		}
 
@@ -331,7 +374,7 @@ Jxstar.GridNode.prototype = {
 		grid.fkName = self.define.fkcol;
 		
 		//初始是否显示数据，在Jxstar中加载数据
-		grid.isShow = gm.isshow;
+		grid.isShow = self.param.isshow;
 		grid.pageType = self.pageType;
 		
 		//临时处理办法，将来采用全局对象来管理程序对象

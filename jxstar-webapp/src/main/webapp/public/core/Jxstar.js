@@ -334,7 +334,7 @@ Ext.ns('Jxstar');
 			});
 
 			//延时执行该方法
-			JxUtil.delay(800, function(){
+			JxUtil.delay(1000, function(){
 				var tabPanel = dataPanel.getComponent(0);
 				var grid = tabPanel;
 				if (!tabPanel.isXType('grid')) {
@@ -947,15 +947,15 @@ Ext.ns('Jxstar');
 			var page = nodePage.page;
 
 			//显示查询字段
-			var fieldNames = [], mycols = nodePage.param.cols;
+			var colm = page.getColumnModel();
+			var fieldNames = [], mycols = colm.config;
 			for (var i = 0, c = 0, n = mycols.length; i < n; i++){
-				var mc = mycols[i].col, mf = mycols[i].field; 
-				if (mc == null || mf == null) continue;
+				var col = mycols[i], fn = col.dataIndex;
+				if (fn == null || fn.length == 0) continue;
 				
-				var fn = mf.name, len = fn.length;
-				if (mc && mf && (fn.substring(len-2) != 'id' || !mc.hidden)) {
-					//可编辑表格的必填字段表头添加了*号，要去掉
-					var h = mc.header;
+				var len = fn.length;
+				if (fn.substring(len-2) != 'id' || !col.hidden) {
+					var h = col.header;
 					if (h.charAt(0) == '*') h = h.substr(1);
 					fieldNames[c++] = [fn, h];
 				}
@@ -987,6 +987,7 @@ Ext.ns('Jxstar');
 				}
 				
 				//更换字段查询值的输入控件
+				var mycols = nodePage.param.cols;
 				for (var i = 0, n = mycols.length; i < n; i++){
 					var mc = mycols[i].col, mf = mycols[i].field;
 					if (mf && mf.name == combo.getValue()) {
@@ -1007,6 +1008,9 @@ Ext.ns('Jxstar');
 						}
 						break;
 					}
+				}
+				if (field == null) {
+					field = new Ext.form.TextField({allowBlank:false});
 				}
 				//如果新控件也是文本控件，则需要保留值
 				if (field.isXType('textfield', true) && oldValue != null && oldValue.length > 0) {

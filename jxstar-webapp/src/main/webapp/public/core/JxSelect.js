@@ -96,7 +96,9 @@ JxSelect = {};
 							var store = grid.getStore();
 							srcRecord = []; srcRecord[0] = JxUtil.emptyRecord(store);
 						}
-
+						
+						//修改前的值
+						var orgValue = parentField.getValue();
 						//取选择字段的容器对象，根据它判断是在grid控件中还是在查询控件中
 						var fieldCt = parentField.ownerCt;
 						//查询值或统计参数值的输入控件赋值
@@ -110,6 +112,8 @@ JxSelect = {};
 						}
 						//隐藏选择的窗口
 						win.close();
+						//触发值改变事件
+						parentField.fireEvent('change', parentField, parentField.getValue(), orgValue);
 					});
 				});
 			};

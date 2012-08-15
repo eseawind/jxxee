@@ -19,14 +19,15 @@ JxExport = {};
 	* pageNode -- 当前功能的表格定义对象，用于取表格字段对象
 	**/
 	showWindow: function(pageNode) {
+		var colm = pageNode.page.getColumnModel();
 		//取字段信息
-		var fieldNames = [], mycols = pageNode.param.cols;
-		for (var i = 0, c = 0, n = mycols.length; i < n; i++){
-			var mc = mycols[i].col, mf = mycols[i].field;
-			if (mc && mf) {
-				var h = mc.header;
+		var fieldNames = [], mycols = colm.config;
+		for (var i = 0, c = 0, n = mycols.length; i < n; i++) {
+			var col = mycols[i], fn = col.dataIndex;
+			if (fn && fn.length > 0) {
+				var h = col.header;
 				if (h.charAt(0) == '*') h = h.substr(1);
-				fieldNames[c++] = [mf.name, h];
+				fieldNames[c++] = [fn, h];
 			}
 		}
 		

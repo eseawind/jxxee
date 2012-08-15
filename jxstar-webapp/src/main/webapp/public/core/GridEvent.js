@@ -753,8 +753,12 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	/**
 	* public
 	* 打开数据导入窗口
+	* 添加来源功能ID参数，支持定义多个导入数据按钮
 	**/
-	dataImport : function() {
+	dataImport : function(srcNodeId) {
+		//缺省是当前按钮
+		if (srcNodeId != null && srcNodeId.isXType && srcNodeId.isXType('button')) srcNodeId = null;
+		
 		var self = this;
 		//取外键值
 		var fkValue = this.grid.fkValue; 
@@ -766,8 +770,24 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			JxHint.alert('没有定义导入SQL、或者没有生成SQL规则文件！');
 			return false;
 		}
-		var route = routes[0];
-		var srcNodeId = route.srcNodeId;
+		var route = null;
+		//如果定义了来源功能ID，则需要从定义信息找
+		if (srcNodeId) {
+			for (var i = 0, n = routes.length; i < n; i++) {
+				if (routes[i].srcNodeId == srcNodeId) {
+					route = routes[i];
+					break;
+				}
+			}
+			if (route == null) {
+				JxHint.alert('来源功能【'+ srcNodeId +'】没有定义导入SQL、或者没有生成SQL规则文件！');
+				return false;
+			}
+		} else {
+			route = routes[0];
+		}
+		
+		srcNodeId = route.srcNodeId;
 		var layout = route.layout;
 		var whereSql = route.whereSql||'';
 		var whereType = route.whereType||'';

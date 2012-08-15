@@ -18,7 +18,7 @@
 		editor:new Ext.form.TextField({
 			maxLength:50
 		})}, field:{name:'fun_attr__attr_name',type:'string'}},
-	{col:{header:'*属性值', width:139, sortable:true, editable:true, hcss:'color:#0000ff;',
+	{col:{header:'*属性值', width:123, sortable:true, editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.TextField({
 			maxLength:200, allowBlank:false
 		})}, field:{name:'fun_attr__attr_value',type:'string'}},
@@ -43,13 +43,13 @@
 					return attrtypeData[i][1];
 			}
 		}}, field:{name:'fun_attr__attr_type',type:'string'}},
-	{col:{header:'填写说明', width:251, sortable:true, editable:false,
+	{col:{header:'填写说明', width:226, sortable:true, editable:false,
 		editor:new Ext.form.TextField({
 			maxLength:200
 		})}, field:{name:'fun_attr__attr_memo',type:'string'}},
 	{col:{header:'属性ID', width:100, sortable:true, hidden:true}, field:{name:'fun_attr__attr_id',type:'string'}},
 	{col:{header:'功能ID', width:100, sortable:true, hidden:true, defaultval:'basestatic'}, field:{name:'fun_attr__fun_id',type:'string'}},
-	{col:{header:'功能属性?', width:79, sortable:true, align:'center',
+	{col:{header:'功能属性?', width:69, sortable:true, align:'center',
 		editable:false,
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
@@ -70,7 +70,7 @@
 					return yesnoData[i][1];
 			}
 		}}, field:{name:'fun_attr__is_fun',type:'string'}},
-	{col:{header:'代码模板', width:211, sortable:true}, field:{name:'fun_attr__attr_tpl',type:'string'}}
+	{col:{header:'代码模板', width:229, sortable:true, hidden:true}, field:{name:'fun_attr__attr_tpl',type:'string'}}
 	];
 	
 	config.param = {

@@ -374,14 +374,15 @@ JxQuery = {};
 		
 		//创建字段列表
 		var fieldID = pageNode.id + '_hqf';
-		var fieldData = [], mycols = pageNode.param.cols;
+		var colm = pageNode.page.getColumnModel();
+		var fieldData = [], mycols = colm.config;
 		for (var i = 0, c = 0, n = mycols.length; i < n; i++){
-			var mc = mycols[i].col, mf = mycols[i].field;
-			if (mc == null || mf == null) continue;
+			var col = mycols[i], fn = col.dataIndex;
+			if (fn == null || fn.length == 0) continue;
 			
-			var fn = mf.name, len = fn.length;
-			if (mc && mf && (fn.substring(len-2) != 'id' || !mc.hidden)) {
-				var h = mc.header; 
+			var len = fn.length;
+			if (fn.substring(len-2) != 'id' || !col.hidden) {
+				var h = col.header;
 				if (h.charAt(0) == '*') h = h.substr(1);
 				fieldData[c++] = [fn, h];
 			}
@@ -403,6 +404,7 @@ JxQuery = {};
 		fieldCombo.on('select', function(combo){
 			var field, coltype = 'string';
 			//更换字段查询值的输入控件
+			var mycols = pageNode.param.cols;
 			for (var i = 0, n = mycols.length; i < n; i++){
 				var mc = mycols[i].col, mf = mycols[i].field;
 				if (mf && mf.name == combo.getValue()) {
@@ -424,6 +426,9 @@ JxQuery = {};
 					}
 					break;
 				}
+			}
+			if (field == null) {
+				field = new Ext.form.TextField({allowBlank:false});
 			}
 			//取原字段的值
 			var oldfield = editor.getComponent(vIndex);
