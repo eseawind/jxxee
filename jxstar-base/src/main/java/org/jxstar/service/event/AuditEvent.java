@@ -159,8 +159,13 @@ public class AuditEvent extends BusinessEvent {
 	 */
 	private String formJson(String key) {
 		String select = _funObject.getSelectSQL();
+		String where = _funObject.getWhereSQL();
 		StringBuilder sbsql = new StringBuilder(select);
-		sbsql.append(" where ").append(_pkColName).append(" = ? ");
+		sbsql.append(" where ");
+		if (where.length() > 0) {
+			sbsql.append("("+ where +") and ");
+		}
+		sbsql.append(_pkColName).append(" = ? ");
 		
 		String[] cols = ArrayUtil.getGridCol(sbsql.toString());
 		DaoParam param = _dao.createParam(sbsql.toString());
