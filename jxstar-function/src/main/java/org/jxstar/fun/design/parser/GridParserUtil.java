@@ -209,7 +209,7 @@ public class GridParserUtil {
 		String fieldCode = mpColumn.get("col_code");
 		//处理字段长度
 		String code = StringUtil.getNoTableCol(fieldCode);
-		String datalen = MapUtil.getValue(_fieldLen, code, "100");
+		String datalen = MapUtil.getValue(_fieldLen, code, "1000");
 		retJs = retJs.replace("maxLength:100", "maxLength:"+datalen);
 		
 		//处理数据样式

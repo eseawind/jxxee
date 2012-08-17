@@ -382,7 +382,7 @@ public class FormParserUtil {
 		
 		//取数据长度
 		String code = StringUtil.getNoTableCol(colCode);
-		String datalen = MapUtil.getValue(_fieldLen, code, "100");	
+		String datalen = MapUtil.getValue(_fieldLen, code, "1000");	
 		
 		//取模板中的控件定义
 		String retJs = _elementTpl.get(ctlType).trim();
