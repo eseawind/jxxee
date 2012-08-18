@@ -475,9 +475,12 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			//取到主表单对象
 			var form = JxUtil.getParentForm(subGrid);
 			if (!Ext.isEmpty(form)) {
+				var record = form.myRecord;
 				Ext.iterate(data, function(key, value){
 					form.oset(key, value);
+					record.set(key, value);
 				});
+				record.commit();
 			}
 		};
 		
@@ -752,42 +755,90 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 
 	/**
 	* public
-	* 打开数据导入窗口
-	* 添加来源功能ID参数，支持定义多个导入数据按钮
+	* 打开数据导入窗口；支持导入多个来源功能的数据
 	**/
-	dataImport : function(srcNodeId) {
-		//缺省是当前按钮
-		if (srcNodeId != null && srcNodeId.isXType && srcNodeId.isXType('button')) srcNodeId = null;
-		
+	dataImport : function() {
 		var self = this;
-		//取外键值
-		var fkValue = this.grid.fkValue; 
 		if (this.fireEvent('beforeimport', this) == false) return;
 		
 		//取路由定义信息，格式：{srcNodeId:"sys_event",whereSql:"fun_id='sysevent'",whereType:"",whereValue:""}
-		var routes = RuleData[this.define.nodeid];
+		var routes = RuleData[self.define.nodeid];
 		if (!routes || routes.length == 0) { 
 			JxHint.alert('没有定义导入SQL、或者没有生成SQL规则文件！');
 			return false;
 		}
-		var route = null;
-		//如果定义了来源功能ID，则需要从定义信息找
-		if (srcNodeId) {
-			for (var i = 0, n = routes.length; i < n; i++) {
-				if (routes[i].srcNodeId == srcNodeId) {
-					route = routes[i];
-					break;
+		
+		//创建并显示对话框
+		var endcall = function(page, srcnode, win) {
+			var title = jx.base.imp+'--'+srcnode.nodetitle;
+			if (win == null) {
+				win = new Ext.Window({
+					tbar: tbar,
+					title: title, 
+					layout: 'fit',
+					width: 750,
+					height: 500,
+					constrainHeader: true,
+					resizable: true,
+					border: false,
+					modal: true,
+					closeAction: 'close',
+					autoScroll: true,
+					style: 'padding: 5px;',
+					items: [page]
+				});
+				win.show();
+			} else {
+				win.setTitle(title);
+				win.remove(0);
+				win.add(page);
+				win.doLayout();
+			}
+		};
+		
+		//如果有多个来源功能，则构建一个单选栏，作为工具栏
+		var tbar = null;
+		if (routes.length > 1) {
+			var items = [];
+			var showSrcFun = function(radio) {
+				if (radio.getValue() == '0') return;
+				//取到来源功能ID
+				var srcId = radio.inputValue;
+				var win = radio.findParentByType('window');
+				if (win == null) return;
+				//找到来源定义对象，显示新的表格
+				for (var i = 0, n = routes.length; i < n; i++) {
+					if (routes[i].srcNodeId == srcId) {
+						self.showImpGrid(routes[i], endcall, win);
+						break;
+					}
 				}
+			};
+				
+			for (var i = 0, n = routes.length; i < n; i++) {
+				var srcId = routes[i].srcNodeId;//来源功能ID
+				var srcnode = Jxstar.findNode(srcId);//来源功能定义
+				var srcName = srcnode ? srcnode.nodetitle : srcId;//来源功能名称
+
+				var item = {xtype:'radio', boxLabel:srcName, name:'impSrcNodeId', inputValue:srcId, handler:showSrcFun};
+				if (i == 0) {
+					item.checked = true;
+				}
+				items[i] = item;
 			}
-			if (route == null) {
-				JxHint.alert('来源功能【'+ srcNodeId +'】没有定义导入SQL、或者没有生成SQL规则文件！');
-				return false;
-			}
-		} else {
-			route = routes[0];
+			//构建多个来源功能的工具栏
+			tbar = new Ext.Toolbar({deferHeight:true, style:'border-bottom-width:0;', items:items});
 		}
 		
-		srcNodeId = route.srcNodeId;
+		self.showImpGrid(routes[0], endcall);
+	},
+	
+	//private 构建一个数据导入的Grid
+	//回调方法是处理表格页面加载后的回调
+	showImpGrid : function(route, endcall, win) {
+		var self = this;
+		var fkValue = self.grid.fkValue; 
+		var srcNodeId = route.srcNodeId;
 		var layout = route.layout;
 		var whereSql = route.whereSql||'';
 		var whereType = route.whereType||'';
@@ -806,8 +857,8 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		}
 		
 		//扩展过滤语句与参数
-		if (typeof this.dataImportParam == 'function') {
-			var options = this.dataImportParam();
+		if (typeof self.dataImportParam == 'function') {
+			var options = self.dataImportParam();
 			if (!options) return;
 			
 			if (options.whereSql != null && options.whereSql.length > 0) {
@@ -830,7 +881,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		}
 		//JxHint.alert(whereSql);
 		//加载数据
-		var hdcall = function(grid) {
+		var loaddata = function(grid) {
 			//显示数据
 			JxUtil.delay(500, function(){
 				//处理树形页面的情况
@@ -857,20 +908,26 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 				Jxstar.loadData(grid, {where_sql:whereSql, where_value:whereValue, where_type:whereType});
 			});
 		};
-
-		//显示数据窗口
-		var srcDefine = Jxstar.findNode(srcNodeId);
-		//显示导入布局
+		
+		var srcnode = Jxstar.findNode(srcNodeId);
 		if (layout == null || layout.length == 0) {
-			layout = srcDefine.gridpage;
+			layout = srcnode.gridpage;
 		}
-		Jxstar.showData({
-			pagetype: 'import',
-			filename: layout,
-			nodedefine: srcDefine,
-			title: jx.base.imp+'--'+srcDefine.nodetitle, 
-			callback: hdcall
-		});
+		
+		//异步加载功能对象后再显示
+		var hdcall = function(f) {
+			var pagetype = 'import';
+			var page = f(srcnode, {pageType:pagetype});
+			if (typeof page.showPage == 'function') {
+				page = page.showPage(pagetype);
+			}
+			
+			endcall(page, srcnode, win);
+			loaddata(page);
+		};
+
+		//异步从JS文件加载功能对象
+		Request.loadJS(layout, hdcall);
 	},
 
 	/**

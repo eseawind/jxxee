@@ -32,6 +32,10 @@ JxSelect = {};
 			if(parentField.readOnly || parentField.disabled){
 				return;
 			}
+			//如果是多选，页面类型改为
+			if (config.isMoreSelect == '1') {
+				config.pageType = 'selgrid';
+			}
 			
 			var self = this;
 			var nodeId = config.nodeId;

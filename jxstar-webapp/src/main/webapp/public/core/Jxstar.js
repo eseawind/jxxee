@@ -549,12 +549,12 @@ Ext.ns('Jxstar');
 		/**
 		* 打一个弹出的数据窗口，
 		* items参数：
+		* wincfg: window的通用属性
 		* modal: 是否模态
 		* pagetype: 页面类型
-		* filename：显示文件类名
-		* config: 数据参数
-		* title：窗口标题
-		* width：窗口宽度
+		* filename: 显示文件类名
+		* title: 窗口标题
+		* width: 窗口宽度
 		* height: 窗口高度
 		* callback: 回调函数
 		*/
@@ -568,8 +568,7 @@ Ext.ns('Jxstar');
 				
 				var modal = cfg.modal;
 				if (cfg.modal == null) modal = true;
-				//创建对话框
-				var	win = new Ext.Window({
+				var wincfg = {
 					title: cfg.title,
 					layout: 'fit',
 					width: cfg.width || 750,
@@ -582,7 +581,12 @@ Ext.ns('Jxstar');
 					autoScroll: true,
 					style: 'padding: 5px;',
 					items: [page]
-				});
+				};
+				if (cfg.wincfg) {
+					Ext.apply(wincfg, cfg.wincfg);
+				}
+				//创建对话框
+				var	win = new Ext.Window(wincfg);
 				//显示
 				win.show();
 				//执行回调函数

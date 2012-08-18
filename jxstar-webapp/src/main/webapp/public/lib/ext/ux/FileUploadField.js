@@ -1,4 +1,4 @@
-/*!
+ï»¿/*!
  * Ext JS Library 3.3.1
  * Copyright(c) 2006-2010 Sencha Inc.
  * licensing@sencha.com
@@ -37,9 +37,9 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.DisplayField,  {
     readOnly: true,
 	
 	/**
-	 * ×Ö¶ÎÊ¹ÓÃÀàĞÍ£º
-	 * file -- Ô­ÉúÓÃ·¨£¬ÀàËÆfile¿Ø¼ş£»
-	 * field -- ±íµ¥ÖĞµÄÉÏ´«¸½¼ş×Ö¶Î£¬Ö±½ÓÉÏ´«¸½¼ş
+	 * å­—æ®µä½¿ç”¨ç±»å‹ï¼š
+	 * file -- åŸç”Ÿç”¨æ³•ï¼Œç±»ä¼¼fileæ§ä»¶ï¼›
+	 * field -- è¡¨å•ä¸­çš„ä¸Šä¼ é™„ä»¶å­—æ®µï¼Œç›´æ¥ä¸Šä¼ é™„ä»¶
 	 */
 	useType: 'field',
 
@@ -77,7 +77,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.DisplayField,  {
         var btnCfg = Ext.applyIf(this.buttonCfg || {}, {
             text: this.buttonText
         });
-		//Ìí¼ÓÈ±Ê¡ÊôĞÔ
+		//æ·»åŠ ç¼ºçœå±æ€§
 		if (this.useType == 'field') {
 			btnCfg.text = '';
 			btnCfg.iconCls = 'upload_icon';
@@ -108,7 +108,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.DisplayField,  {
             },
             mousedown: function(){
 				if (this.useType == 'field') {
-					//Ìí¼ÓÊÂ¼ş£¬´¦Àí°´Å¥µã»÷Ç°µÄÅĞ¶ÏÊÂ¼ş
+					//æ·»åŠ äº‹ä»¶ï¼Œå¤„ç†æŒ‰é’®ç‚¹å‡»å‰çš„åˆ¤æ–­äº‹ä»¶
 					JxAttach.beforeChange(this);
 				}
                 this.button.addClass('x-btn-click')
@@ -118,12 +118,20 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.DisplayField,  {
             },
             change: function(){
                 var v = this.fileInput.dom.value;
-                this.setValue(v);
-                this.fireEvent('fileselected', this, v); 
+				var len = JxUtil.strlen(v);
+				var max = this.maxLength || 50;
 				
-				if (this.useType == 'field') {
-					//Ñ¡Ôñ¸½¼şºóÖ±½ÓÉÏ´«µ½ÏµÍ³ÖĞ
-					JxAttach.saveAttach(this);
+				if (len <= max) {
+					this.setValue(v);
+					this.fireEvent('fileselected', this, v); 
+					
+					if (this.useType == 'field') {
+						//é€‰æ‹©é™„ä»¶åç›´æ¥ä¸Šä¼ åˆ°ç³»ç»Ÿä¸­
+						JxAttach.saveAttach(this);
+					}
+				} else {
+					JxHint.alert(jx.req.maxlen);
+					this.fileInput.dom.value = '';
 				}
             }
         }); 

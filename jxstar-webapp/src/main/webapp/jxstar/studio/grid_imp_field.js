@@ -6,7 +6,7 @@
 	var yesnoData = Jxstar.findComboData('yesno');
 
 	var cols = [
-	{col:{header:'序号', width:41, sortable:true, align:'right',
+	{col:{header:'序号', width:54, sortable:true, align:'right',
 		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.NumberField({
 			maxLength:12
@@ -119,6 +119,7 @@
 		isshow: '0',
 		funid: 'imp_field'
 	};
+	
 	
 	config.initpage = function(gridNode){
 		var grid = gridNode.page;

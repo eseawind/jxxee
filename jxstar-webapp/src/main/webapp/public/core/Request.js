@@ -276,11 +276,19 @@ Request = {};
 						//成功执行外部的回调函数
 						if (hdCall != null) hdCall(result.data);
 					} else {
-						JxUtil.errorResponse(action.response);
+						if (action.response) {
+							JxUtil.errorResponse(action.response);
+						} else {
+							JxHint.alert(jx.req.ajaxerror);
+						}
 					}
 				},
 				failure: function(form, action) {
-					JxUtil.errorResponse(action.response);
+					if (action.response) {
+						JxUtil.errorResponse(action.response);
+					} else {
+						JxHint.alert(jx.req.ajaxerror);
+					}
 				},
 				params:params
 			});

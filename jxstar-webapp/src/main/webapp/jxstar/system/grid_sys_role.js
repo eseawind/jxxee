@@ -17,7 +17,7 @@
 			triggerClass:'x-form-search-trigger', 
 			onTriggerClick: function() {
 				if (this.menu == null) {
-					var selcfg = {pageType:'combogrid', nodeId:'sys_dept1', layoutPage:'', sourceField:'sys_dept.dept_name;dept_id', targetField:'sys_role.dept_name;dept_id', whereSql:"dept_level = '1'", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'1',fieldName:'sys_role.dept_name'};
+					var selcfg = {pageType:'combogrid', nodeId:'sys_dept1', layoutPage:'', sourceField:'sys_dept.dept_name;dept_id', targetField:'sys_role.dept_name;dept_id', whereSql:"dept_level = '1'", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'1',queryField:'',likeType:'',fieldName:'sys_role.dept_name'};
 					this.menu = Jxstar.createComboMenu(this);
 					JxSelect.createComboGrid(selcfg, this.menu, 'node_sys_role_editgrid');
 				}
@@ -25,14 +25,14 @@
 			}
 		})}, field:{name:'sys_role__dept_name',type:'string'}},
 	{col:{header:'角色ID', width:100, sortable:true, hidden:true}, field:{name:'sys_role__role_id',type:'string'}},
-	{col:{header:'模板名称', width:139, sortable:true, editable:true, hcss:'color:#3039b4;',
+	{col:{header:'*模板名称', width:139, sortable:true, editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.TriggerField({
 			maxLength:50,
-			editable:false,
+			editable:false, allowBlank:false,
 			triggerClass:'x-form-search-trigger', 
 			onTriggerClick: function() {
 				if (this.menu == null) {
-					var selcfg = {pageType:'combogrid', nodeId:'plet_templet', layoutPage:'', sourceField:'plet_templet.templet_name;templet_id', targetField:'sys_role.templet_name;templet_id', whereSql:"", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'1',fieldName:'sys_role.templet_name'};
+					var selcfg = {pageType:'combogrid', nodeId:'plet_templet', layoutPage:'', sourceField:'plet_templet.templet_name;templet_id', targetField:'sys_role.templet_name;templet_id', whereSql:"", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'1',queryField:'',likeType:'',fieldName:'sys_role.templet_name'};
 					this.menu = Jxstar.createComboMenu(this);
 					JxSelect.createComboGrid(selcfg, this.menu, 'node_sys_role_editgrid');
 				}
@@ -51,6 +51,7 @@
 		isshow: '1',
 		funid: 'sys_role'
 	};
+	
 	
 	
 		
