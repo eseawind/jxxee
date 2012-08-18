@@ -51,6 +51,13 @@ public class AuditEvent extends BusinessEvent {
 			return _returnFaild;
 		}		
 		
+		//检查当前提交的数据是否存在已执行的记录
+		int auditNum = checkAuditNum(asKey, auditVal);
+		if (auditNum > 0) {
+			setMessage(JsMessage.getValue("functionbm.auditnum", auditNum));
+			return _returnFaild;
+		}
+		
 		//取提交的SQL语句, 如果更新用户信息则SQL会增加两个信息字段, 最后一个?是主键字段
 		String auditSql = _funObject.getAuditSQL();		
 		//取提交的参数值
@@ -100,6 +107,41 @@ public class AuditEvent extends BusinessEvent {
 		}
 		
 		return _returnSuccess;
+	}
+	
+	/**
+	 * 检查已经提交的记录数，如果大于零则不能继续执行
+	 * @param keyIds
+	 * @param auditValue
+	 * @return
+	 */
+	private int checkAuditNum(String[] keyIds, String auditValue) {
+		if (keyIds == null || keyIds.length == 0) return 0;
+		
+		String pkcol = _funObject.getElement("pk_col");
+		String table = _funObject.getElement("table_name");
+		String auditcol = _funObject.getElement("audit_col");
+		
+		String instr = "";
+		if (keyIds.length == 1) {
+			instr = " = '"+ keyIds[0] +"'";
+		} else {
+			instr = ArrayUtil.arrayToString(keyIds, "','");
+			instr = " in ('"+ instr.substring(0, instr.length()-1) + ")";
+		}
+		StringBuilder sb = new StringBuilder("select count(*) as cnt from ");
+		sb.append(table);
+		sb.append(" where ");
+		sb.append(pkcol).append(instr);
+		sb.append(" and ").append(auditcol).append(" = '").append(auditValue).append("'");
+		
+		String sql = sb.toString();
+		_log.showDebug("..............check audit valid data sql:" + sql);
+		
+		DaoParam param = _dao.createParam(sql);
+		Map<String, String> mp = _dao.queryMap(param);
+		
+		return Integer.parseInt(mp.get("cnt"));
 	}
 	
 	/**
