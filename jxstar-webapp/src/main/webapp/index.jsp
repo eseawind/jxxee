@@ -155,6 +155,7 @@ Jxstar.path = '<%=contextpath%>';
 Jxstar.systemVar.indexType = '<%=indexType%>';
 Jxstar.systemVar.verType = '<%=verType%>';
 Jxstar.systemVar.useCase = '<%=useCase%>';
+JxUtil.loadJS('custom.js', true);
 
 Ext.BLANK_IMAGE_URL = Jxstar.path + '/public/lib/ext/resources/images/default/s.gif';
 Ext.chart.Chart.CHART_URL = Jxstar.path + '/public/lib/ext/resources/charts.swf';
