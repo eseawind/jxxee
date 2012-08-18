@@ -102,6 +102,11 @@ public class LoginLogBO extends BusinessObject {
 		String sql = "delete from sys_user_login";
 		DaoParam param = _dao.createParam(sql);
 		_dao.update(param);
+		
+		//系统重启时删除所有遗漏操作
+		String sql1 = "delete from sys_doing";
+		DaoParam param1 = _dao.createParam(sql1);
+		_dao.update(param1);
 	}
 	
 	//新增登录日志
