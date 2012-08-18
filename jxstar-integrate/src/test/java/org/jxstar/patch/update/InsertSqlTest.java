@@ -14,15 +14,16 @@ import org.jxstar.test.AbstractTest;
 public class InsertSqlTest extends AbstractTest {
 
 	public static void main(String[] args) {
+		init("D:\\tomcat6\\webapps\\xbgd");
 		InsertSqlBO exp = new InsertSqlBO();
 		
 		//导出功能的配置SQL
-		//String[] funIds = {"login", "queryevent", "sysevent"};
-		//exp.funExpToFile(funIds);
+		String[] funIds = {"device_param", "device_listparam"};
+		exp.funExpToFile(funIds);
 		
-		//删除模块的配置信息
-		String[] moduleIds = {"10120001"};
-		exp.modExpToFile(moduleIds);
+		//导出模块的配置信息
+		//String[] moduleIds = {"10120001"};
+		//exp.modExpToFile(moduleIds);
 	}
 
 }

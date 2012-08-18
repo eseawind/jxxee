@@ -51,7 +51,7 @@ public class InsertSqlBO extends BusinessObject {
 	}
 	
 	/**
-	 * 导出一个功能的SQL到文件中
+	 * 导出多个功能的SQL到文件中
 	 * @param funIds
 	 */
 	public void funExpToFile(String[] funIds) {
