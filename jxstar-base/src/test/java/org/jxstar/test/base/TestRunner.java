@@ -11,11 +11,11 @@ public class TestRunner {
 	
 	public static void main(String[] args) {
 		//初始化环境对象
-		AbstractTest.init("d:/tomcat6/webapps/pm");
+		AbstractTest.init("d:/tomcat6/webapps/jxstar_ee");
 		
 		TestRunner test = new TestRunner();
 		try {
-			test.load("200", "50", "org.jxstar.test.pref.KeyCreatorPref", 20000);
+			test.load("200", "40", "org.jxstar.test.pref.ServiceControlPref", 20000);
 		} catch (TaskException e) {
 			e.printStackTrace();
 		}

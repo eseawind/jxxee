@@ -18,6 +18,8 @@ import org.jxstar.util.log.Log;
 public abstract class TestBase implements TestInf {
 	protected static Log _log = Log.getInstance();
 	protected static BaseDao _dao = BaseDao.getInstance();
+	//是否启用事务
+	protected boolean hastran = true;
 	
 	/**
 	 * 测试用例要测试内容。
@@ -28,20 +30,22 @@ public abstract class TestBase implements TestInf {
 			.createSystemObject("TransactionManager");
 		
 		try {
-			_tranMng.startTran();
+			if (hastran) _tranMng.startTran();
 			
 			boolean bret = exeTest();
-			if (bret) {
-				_tranMng.commitTran();
-			}
-			else {
-				_tranMng.rollbackTran();
+			if (hastran) {
+				if (bret) {
+					_tranMng.commitTran();
+				}
+				else {
+					_tranMng.rollbackTran();
+				}
 			}
 		} catch (TransactionException e) {
 			e.printStackTrace();
 			
 			try {
-				_tranMng.rollbackTran();
+				if (hastran) _tranMng.rollbackTran();
 			} catch (TransactionException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
