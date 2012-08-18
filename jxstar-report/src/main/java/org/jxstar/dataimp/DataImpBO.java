@@ -74,6 +74,8 @@ public class DataImpBO extends BusinessObject {
 		
 		//解析数据，执行导入
 		List<String> lsImpKeys = dataImp(ins, impFunId, impIndex, fkValue, userInfo);
+		if (lsImpKeys == null || lsImpKeys.isEmpty()) return _returnFaild;
+		
 		_log.showDebug("..........all lsImpKeys:" + lsImpKeys.toString());
 		_log.showDebug("..........all valid info:" + _validInfo.toString());
 		//把校验信息返回到前台
@@ -81,8 +83,6 @@ public class DataImpBO extends BusinessObject {
 			setReturnData("{valueInfo:'" + _validInfo.toString() + "'}");
 		}
 		
-		if (lsImpKeys == null || lsImpKeys.isEmpty()) return _returnFaild;
-
 		request.getRequestMap().put(IMP_KEYIDS, lsImpKeys);
 		return _returnSuccess;
 	}
@@ -107,6 +107,12 @@ public class DataImpBO extends BusinessObject {
 		String tplType = mpImp.get("tpl_type");
 		//定义ID
 		String impId = mpImp.get("imp_id");
+		//检查是否有没有定义数据来源位置的字段
+		if (DataImpUtil.hasNoPos(impId)) {
+			setMessage("有没有定义数据来源位置的字段，请检查定义信息！");
+			return null;
+		}
+		
 		//第一行数据的位置
 		int firstRow = DataImpUtil.getFirstRow(impId); 
 		if (firstRow < 0) {

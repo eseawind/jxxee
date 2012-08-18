@@ -320,4 +320,18 @@ public class DataImpUtil {
 		Map<String,String> mp = _dao.queryMap(param);
 		return MapUtil.getValue(mp, "table_name");
 	}
+	
+	/**
+	 * 是否有没有定义数据来源位置的字段
+	 * @param impId
+	 * @return
+	 */
+	public static boolean hasNoPos(String impId) {
+		List<Map<String,String>> lsField = queryTplField(impId);
+		for (Map<String,String> mpField : lsField) {
+			String field_pos = mpField.get("field_pos");
+			if (field_pos.length() == 0) return true;
+		}
+		return false;
+	}
 }
