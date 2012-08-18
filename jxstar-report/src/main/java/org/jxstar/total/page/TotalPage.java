@@ -8,7 +8,6 @@ import java.util.Map;
 
 import org.jxstar.report.ReportException;
 import org.jxstar.total.util.TotalDao;
-import org.jxstar.total.util.TotalUtil;
 import org.jxstar.total2.DealUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.factory.FactoryUtil;
