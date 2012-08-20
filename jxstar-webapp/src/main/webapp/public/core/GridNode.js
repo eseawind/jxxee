@@ -204,6 +204,7 @@ Jxstar.GridNode.prototype = {
 	
 	//private 加载数据，显示加载时间
 	storeLoad: function() {
+		var self = this;
 		Jxstar.loadDataBc(self.page);
 		
 		//加载数据所花的时间
@@ -223,7 +224,7 @@ Jxstar.GridNode.prototype = {
 		self.createCmAndStore(mycols);
 		grid.getBottomToolbar().bindStore(self.store);
 		//加载数据后调用回调函数
-		self.store.on('load', self.storeLoad);
+		self.store.on('load', self.storeLoad, self);
 		//重新构建表格对象
 		grid.reconfigure(self.store, self.cm);
 	},
@@ -334,7 +335,7 @@ Jxstar.GridNode.prototype = {
 			grid.selectKeyId = record.get(self.define.pkcol);
 		});
 		//加载数据后调用回调函数
-		self.store.on('load', self.storeLoad);
+		self.store.on('load', self.storeLoad, self);
 		
 		//添加表格控件注销事件，效果不明显
 		grid.on('beforedestroy', function(gp){

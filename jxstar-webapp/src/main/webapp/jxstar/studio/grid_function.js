@@ -207,7 +207,7 @@
 	
 	
 	config.eventcfg = {
-
+		updateDes: function(){			var hintcall = function(btn, text) {				if (btn != 'ok') return;				if (text.length == 0) {					JxHint.alert('必须输入设计文件更新路径，如d:\\design_update');					return;				}												var params = 'funid=sys_fun_base&topath='+ text +'&pagetype=editgrid&eventcode=updatedes';								//发送请求				Request.postRequest(params, null);			};			Ext.MessageBox.prompt(jx.base.hint, '输入设计文件更新路径', hintcall);		},		
 		createFun: function(){
 			var self = this;						var attr = self.grid.treeNodeAttr;			if(attr == null || !attr.leaf ) {				JxHint.alert('必须选择最底层模块，才能新增功能！');				return;			}			
 			var hintcall = function(btn, text) {
