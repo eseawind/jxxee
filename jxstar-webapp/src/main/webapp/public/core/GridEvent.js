@@ -1062,6 +1062,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 				{
 					xtype: 'fileuploadfield',
 					useType: 'file',
+					maxLength: 50,
 					fieldLabel: jx.event.selfile,	//选择文件
 					name: attachField || 'attach_path',
 					labelSeparator:'*', 
@@ -1386,6 +1387,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 				fieldLabel: jx.event.selfile,	//选择文件
 				name: 'import_file',
 				buttonText: '',
+				maxLength: 200,
 				buttonCfg: {
 					iconCls: 'upload_icon'
 				}

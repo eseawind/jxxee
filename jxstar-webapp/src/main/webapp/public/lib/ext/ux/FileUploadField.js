@@ -118,7 +118,14 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.DisplayField,  {
             },
             change: function(){
                 var v = this.fileInput.dom.value;
-				var len = JxUtil.strlen(v);
+				var len = v.length;
+				if (len > 0) {
+					var pos = v.lastIndexOf('\\');
+					if (pos >= 0) {
+						v = v.substr(pos+1, len);
+					}
+				}
+				len = JxUtil.strlen(v);
 				var max = this.maxLength || 50;
 				
 				if (len <= max) {
@@ -130,7 +137,7 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.DisplayField,  {
 						JxAttach.saveAttach(this);
 					}
 				} else {
-					JxHint.alert(jx.req.maxlen);
+					JxHint.alert(jx.req.maxlen + max);
 					this.fileInput.dom.value = '';
 				}
             }
