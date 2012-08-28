@@ -394,8 +394,8 @@ public class FormParserUtil {
 		String anchor = mpColumn.get("anchor");
 		retJs = retJs.replace("{anchor}", anchor+'%');
 		
-		//处理控件显示高度，只处理area控件
-		if (ctlType.equals("area")) {
+		//处理控件显示高度，处理area, image控件
+		if (ctlType.equals("area") || ctlType.equals("image")) {
 			String height = mpColumn.get("height");
 			int rows = (Integer.parseInt(height)+15)/Integer.parseInt(LINE_HEIGHT);
 			if (rows < 2) rows = 2;
