@@ -72,7 +72,8 @@ JxFormSub = {};
 			
 			var showsub = function(){
 				for (var i = 0, n = subps.length; i < n; i++) {
-					var subgrid = subps[i].getComponent(0);
+					var subp = subps[i];
+					var subgrid = subp.getComponent(0);
 					if (pkvalue == null || pkvalue.length == 0) {
 						subgrid.getStore().removeAll();
 						subgrid.fkValue = '';
@@ -83,15 +84,19 @@ JxFormSub = {};
 					}
 					
 					//可以调整明细表的大小
-					if (fm.subResizable) {
-						var re = new Ext.Resizable(subps[i].el, {
+					if (fm.subResizable && subp.el && (subp.outRe == null)) {
+						var re = new Ext.Resizable(subp.el, {
 							minHeight: 180, minWidth: 600,
 							listeners:{resize:function(r, w, h){
 								r.innerCmp.setWidth(w);
 								r.innerCmp.setHeight(h);
 							}}
 						});
-						re.innerCmp = subps[i];
+						re.innerCmp = subp;
+						subp.outRe = re;
+						subp.on('destroy', function(sp){
+							sp.outRe.destroy(true); sp.outRe = null; delete sp.outRe;
+						});
 					}
 					
 					//如果主记录已提交，则明细表的按钮不能使用

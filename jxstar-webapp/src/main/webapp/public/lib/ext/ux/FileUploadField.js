@@ -187,21 +187,28 @@ Ext.ux.form.FileUploadField = Ext.extend(Ext.form.DisplayField,  {
     
     onDisable: function(){
         Ext.ux.form.FileUploadField.superclass.onDisable.call(this);
-        this.doDisable(true);
+		this.doDisable(true);
     },
     
     onEnable: function(){
         Ext.ux.form.FileUploadField.superclass.onEnable.call(this);
-        this.doDisable(false);
-
+		this.doDisable(false);
     },
     
     // private
     doDisable: function(disabled){
-        this.fileInput.dom.disabled = disabled;
-        this.button.setDisabled(disabled);
+		if (this.fileInput) {
+			this.fileInput.dom.disabled = disabled;
+		}
+		if (this.button) {
+			this.button.setDisabled(disabled);
+		}
     },
-
+	
+    setReadOnly : function(readOnly){
+		Ext.ux.form.FileUploadField.superclass.setReadOnly.call(this, readOnly);
+		this.doDisable(readOnly);
+    },
 
     // private
     preFocus : Ext.emptyFn,

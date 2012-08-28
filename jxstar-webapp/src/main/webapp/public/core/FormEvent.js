@@ -193,10 +193,25 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		//清除脏标记，设置最新的原始值
 		JxUtil.clearDirty(self.form);
 		//处理审批过程中可以修改字段的显示状态
+		var dataId = this.getPkField().getValue();
 		if (state == '2' && formnode.pageType.indexOf('chk') >= 0) {
 			var nodeId = self.define.nodeid;
-			var dataId = this.getPkField().getValue();
 			JxUtil.showCheckEdit(nodeId, dataId, self.form, toolBar);
+		}
+
+		//加载图片控件的图片
+		if (!Ext.isEmpty(dataId)) {
+			var images = self.page.findByType('imagefield');
+			if (images && images.length > 0) {
+				Ext.each(images, function(item){
+					var v = item.getValue();
+					if (v.length == 0) {
+						item.loadImage(Ext.BLANK_IMAGE_URL);
+					} else {
+						item.loadImage();
+					}
+				});
+			}
 		}
 		
 		self.fireEvent('initother', self);
@@ -229,6 +244,14 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		JxUtil.readOnlyForm(self.form, false);
 		var toolBar = self.page.getTopToolbar();
 		JxUtil.disableButton(toolBar, false);
+		
+		//清除图片控件的图片
+		var images = self.page.findByType('imagefield');
+		if (images && images.length > 0) {
+			Ext.each(images, function(item){
+				item.clearImage();
+			});
+		}
 
 		if (self.fireEvent('beforecreate', self) == false) return;
 	},

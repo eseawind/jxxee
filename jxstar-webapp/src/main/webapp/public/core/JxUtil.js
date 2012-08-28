@@ -209,7 +209,16 @@ JxUtil = {};
 		//根据form在的子表取到父form对象
 		getParentForm: function(subGrid) {
 			var form = subGrid.findParentByType('form');
-			if (Ext.isEmpty(form)) return null;
+			if (Ext.isEmpty(form)) {
+				var tabPanel = subGrid.findParentByType('tabpanel');
+				if (!tabPanel) return null;
+				
+				var pform = tabPanel.getComponent(1);
+				if (!pform) return null;
+				
+				form = pform.getComponent(0);
+				if (!form || form.isXType('form') == false) return null;
+			}
 			
 			return form.getForm();
 		},

@@ -360,6 +360,7 @@ JxAttach = {};
 		
 		//public 选择附件前判断，如果是已签字的记录不能调整
 		beforeChange: function(fileField) {
+			if (fileField.disabled || fileField.readOnly) return;
 			var param = JxAttach.attachParam(fileField, '');
 			if (param == null) return;
 			
@@ -398,6 +399,7 @@ JxAttach = {};
 			if (mya == null || mya.parentNode == null) return;
 			var fileField = Ext.getCmp(mya.parentNode.id);
 			if (fileField == null) return;
+			if (fileField.disabled || fileField.readOnly) return;
 			
 			var hdcall = function() {
 				var param = JxAttach.attachParam(fileField, 'fdelete');
@@ -430,6 +432,7 @@ JxAttach = {};
 		
 		//public 保存表单中的附件信息
 		saveAttach: function(fileField) {
+			if (fileField.disabled || fileField.readOnly) return;
 			var param = JxAttach.attachParam(fileField, 'fcreate');
 			if (param == null) return;
 			
@@ -453,7 +456,10 @@ JxAttach = {};
 		attachParam: function(fileField, eventCode) {
 			//取到表单相关信息
 			var fileForm = fileField.findParentByType('form');
-			if (fileForm == null) return;
+			if (Ext.isEmpty(fileForm)) {
+				JxHint.alert('没有找到Form表单对象，不能上传附件！');
+				return;
+			}
 			
 			var form = fileForm.getForm();
 			var define = fileForm.formNode.define;
@@ -461,6 +467,10 @@ JxAttach = {};
 			var nodeId = define.nodeid;
 			var tableName = define.tablename;
 			var dataId = form.get(define.pkcol);
+			if (Ext.isEmpty(dataId)) {
+				JxHint.alert(jx.event.nosave);
+				return;
+			}
 			var fieldName = fileField.name.split('__')[1];
 			
 			//上传参数

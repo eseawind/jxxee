@@ -162,10 +162,13 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 
 			//执行处理的内容
 			var endcall = function(data) {
+				//统计主表中的统计字段值
+				if (self.grid.gridNode.param.substat) {
+					self.substat(self.grid);
+				}
+				self.fireEvent('aftercustom', self, data, eventCode);
 				//重新加载数据
 				self.grid.getStore().reload();
-
-				self.fireEvent('aftercustom', self, data, eventCode);
 			};
 
 			//发送请求
@@ -300,10 +303,13 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 
 			//删除后要处理的内容
 			var endcall = function(data) {
+				//统计主表中的统计字段值
+				if (self.grid.gridNode.param.substat) {
+					self.substat(self.grid);
+				}
+				self.fireEvent('afterdelete', self, data);
 				//重新加载数据
 				self.grid.getStore().reload();
-
-				self.fireEvent('afterdelete', self, data);
 			};
 
 			//发送请求
@@ -472,15 +478,28 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		var endcall = function(data) {
 			if (Ext.isEmpty(data)) return;
 			
-			//取到主表单对象
+			//取到主表单对象；如果直接切换到明细表，则myRecord还是空
 			var form = JxUtil.getParentForm(subGrid);
-			if (!Ext.isEmpty(form)) {
+			if (!Ext.isEmpty(form) && form.myRecord) {
 				var record = form.myRecord;
 				Ext.iterate(data, function(key, value){
 					form.oset(key, value);
 					record.set(key, value);
 				});
 				record.commit();
+			} else {
+			//如果没有Form表单页面，则直接取Grid中的记录修改
+				var mGrid = JxUtil.getParentGrid(subGrid);
+				if (mGrid) {
+					var records = JxUtil.getSelectRows(mGrid);
+					if (records && records.length > 0) {
+						var record = records[0];
+						Ext.iterate(data, function(key, value){
+							record.set(key, value);
+						});
+						record.commit();
+					}
+				}
 			}
 		};
 		
