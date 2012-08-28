@@ -61,6 +61,7 @@
 	<script type="text/javascript" src="public/lib/ext/ux/Emptybox.js?verno=<%=svnNum%>"></script>
 	<script type="text/javascript" src="public/lib/ext/ux/FileUploadField.js?verno=<%=svnNum%>"></script>
 	<script type="text/javascript" src="public/lib/ext/ux/JxPagerTool.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/lib/ext/ux/JxImageField.js?verno=<%=svnNum%>"></script>
 	
 	<script type="text/javascript" src="public/locale/jxstar-lang-<%=curLangType%>.js?verno=<%=svnNum%>"></script>
 	<script type="text/javascript" src="public/core/JxLang.js?verno=<%=svnNum%>"></script>

@@ -53,6 +53,11 @@
 		{xtype:'textarea', fieldLabel:'{col_name}', name:'{col_code}', defaultval:'', allowBlank:true, readOnly:false, width:'{anchor}', height:48, maxLength:100}
 	]]>
 	</element>
+	
+	<element name='image'><![CDATA[
+		{xtype:'imagefield', fieldLabel:'{col_name}', name:'{col_code}', defaultval:'', allowBlank:true, readOnly:false, width:'{anchor}', height:48, maxLength:100}
+	]]>
+	</element>
 
 	<element name='number'><![CDATA[
 		{xtype:'numberfield', fieldLabel:'{col_name}', name:'{col_code}', defaultval:'', allowBlank:true, readOnly:false, anchor:'{anchor}', maxLength:12}
