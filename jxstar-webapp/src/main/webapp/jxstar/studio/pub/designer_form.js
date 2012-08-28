@@ -1175,7 +1175,7 @@ Jxstar.currentPage = {
 			}
 
 			//如果控件的高度超过缺省值的1.5，则认为是area控件否则是text
-			if (h > (self.initsize.fieldh * 1.5)) {
+			if (xtype == 'text' && h > (self.initsize.fieldh * 1.5)) {
 				xtype = 'area';
 			}
 
