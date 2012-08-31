@@ -3,6 +3,7 @@
  */
 package org.jxstar.service.query;
 
+import java.util.Date;
 import java.util.Map;
 
 import org.jxstar.control.action.RequestContext;
@@ -22,9 +23,28 @@ public class TreeQueryExtTest extends AbstractTest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		TreeQuery query = new TreeQuery();
+		init("d:/tomcat6/webapps/tjgt");
 		
+		long s = (new Date()).getTime();
+		System.out.println(s);
+		
+		queryMenu();
+		
+		long e = (new Date()).getTime();
+		System.out.println(e-s);
+		
+	}
+	
+	public static void queryMenu() {
+		MenuQuery menu = new MenuQuery();
+		menu.createMainMenu("administrator");
+		System.out.println(menu.getReturnData());
+	}
+	
+	public static void queryTree() {
+		TreeQuery query = new TreeQuery();
 		query.queryTree(getRequest());
+		System.out.println(query.getReturnData());
 	}
 	
 	private static RequestContext getRequest() {
@@ -37,9 +57,9 @@ public class TreeQueryExtTest extends AbstractTest {
 		user.put("user_id", "administrator");
 
 		mp.put("user_id", "administrator");
-		mp.put("node", "100100010001");
+		mp.put("node", "10");
 		mp.put("tree_no", "1");
-		mp.put("tree_funid", "tech_model");
+		mp.put("tree_funid", "base_spare");
 		
 		mp.put(JsParam.EVENTCODE, code);
 		mp.put(JsParam.PAGETYPE, type);
