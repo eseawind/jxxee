@@ -6,7 +6,10 @@
  */
 package org.jxstar.service.query;
 
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.jxstar.control.action.RequestContext;
 import org.jxstar.dao.DaoParam;
@@ -21,6 +24,7 @@ import org.jxstar.service.util.WhereUtil;
 import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.StringUtil;
+import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.resource.JsMessage;
 
 /**
@@ -167,7 +171,7 @@ public class GridQuery extends BusinessObject {
 				_log.showDebug("total allsql:" + sumSql);
 				
 				param.setSql(sumSql);
-				String[] sumCols = ArrayUtil.getGridCol(sumSql);
+				String[] sumCols = getSumCols(sumSql);
 				sumJson = jsonDao.query(param, sumCols);
 			}
 		}
@@ -180,5 +184,26 @@ public class GridQuery extends BusinessObject {
 		setReturnData(sbJson.toString());
 		
 		return _returnSuccess;
+	}
+	
+	/**
+	 * SQL格式为：select sum(col1),sum(col2)... from ...
+	 * 取sum()中的那个字段名，并替换.为__
+	 * @param sql
+	 * @return
+	 */
+	public String[] getSumCols(String sql) {
+		List<String> lsRet = FactoryUtil.newList();
+		
+		Pattern p = Pattern.compile("sum\\([^(]+\\)");
+		Matcher m = p.matcher(sql);
+		while (m.find()) {
+			String col = m.group();
+			col = col.substring(4, col.length()-1);
+			col = col.replace(".", "__");
+			lsRet.add(col);
+		}
+		
+		return lsRet.toArray(new String[lsRet.size()]);
 	}
 }
