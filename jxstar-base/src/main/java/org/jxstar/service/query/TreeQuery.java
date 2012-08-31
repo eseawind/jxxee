@@ -22,6 +22,12 @@ import org.jxstar.util.factory.FactoryUtil;
 /**
  * 查询多级树型数据对象：显示完本级树数据后，还继续检查是否有下级树数据；
  * 点击树节点传递参数有：当前用户ID、当前功能ID、当前节点ID、当前树序号；
+ * 
+ * 现在针对单级树优化查找是否有下级节点的算法：
+ * 原来是每个节点都去检查是否有下级；
+ * 现在改为为直接查找所有节点的下级，如：dept_id like '1001%' and dept_level = 3；
+ * 再根据查到下级值，有下级值的记录标记为非叶子节点，其它的为叶子节点，如：distinct(substring(dept_id, 1, 8))
+ * 用distinct可以减少对比数量，提高效率；
  *
  * @author TonyTan
  * @version 1.0, 2009-11-18
@@ -98,8 +104,8 @@ public class TreeQuery extends BusinessObject {
 		_log.showDebug(".................check current tree data");
 		//如果是树
 		if (treeType.equals("0")) {
-			lsRet = treeData(userId, parentId, mpTree, whereSql, whereType, whereValue, false);
-			lsRet = addTreeLeaf(userId, lsRet, mpTree);
+			lsRet = treeData(userId, parentId, mpTree, whereSql, whereType, whereValue, "0");
+			lsRet = addTreeLeafOther(userId, parentId, whereSql, whereType, whereValue, lsRet, mpTree);
 		} else {
 			//只有根节点，才加载本级节点数据
 			if (parentId.length() == 0) {
@@ -121,7 +127,7 @@ public class TreeQuery extends BusinessObject {
 				String subTreeType = MapUtil.getValue(subTree, "tree_type", "0");
 				//如果是树
 				if (subTreeType.equals("0")) {
-					lsSubNode = addTreeLeaf(userId, lsSubNode, subTree);
+					lsSubNode = addTreeLeafOther(userId, parentId, whereSql, whereType, whereValue, lsSubNode, subTree);
 				} else {
 					lsSubNode = addNodeLeaf(userId, lsSubNode, subTree);
 				}
@@ -206,6 +212,7 @@ public class TreeQuery extends BusinessObject {
 		}
 		
 		DaoParam param = _dao.createParam(treesql.toString());
+		param.setUseParse(true);
 		param.setDsName(mpTree.get("db_name"));
 		
 		//如果是替代方式，则不用添加参数了
@@ -224,22 +231,29 @@ public class TreeQuery extends BusinessObject {
 	 * @param whereSql -- 外部扩展的where
 	 * @param whereType -- 外部扩展的where
 	 * @param whereValue -- 外部扩展的where
-	 * @param isCnt -- 是否只统计数量
+	 * @param type -- 0 表示查询树形数据，1 表示统计数量， 2 表示取第2级数据
 	 * @return
 	 */
 	private List<Map<String,String>> treeData(String userId, 
 			String parentId, Map<String,String> mpTree,
-			String whereSql, String whereType, String whereValue, boolean isCnt) {
+			String whereSql, String whereType, String whereValue, String type) {
 		List<Map<String,String>> lsRet = FactoryUtil.newList();
 		//树定义为空
 		if (mpTree.isEmpty()) return lsRet;
+		//计算当前要查询数据的级别，如果parentID=1001，则级别为2
+		String level = getLevel(parentId);
 		
 		String pkcol = mpTree.get("node_id");
 		String levelcol = mpTree.get("node_level");
 		
 		StringBuilder treesql;
-		if (isCnt) {
+		if (type.equals("1")) {
 			treesql = getSelectCnt(mpTree);
+		} else if (type.equals("2")) {
+			treesql = getSelectParent(mpTree, Integer.parseInt(level));
+			//在下下级中查找
+			int ilevel = Integer.parseInt(level) + 1;
+			level = Integer.toString(ilevel);
 		} else {
 			treesql = getSelectSql(mpTree);
 		}
@@ -247,7 +261,6 @@ public class TreeQuery extends BusinessObject {
 		//添加父节点IDwhere子句
 		treesql.append(" where " + pkcol + " like ? ");
 		
-		String level = getLevel(parentId);
 		//添加级别列的where子句
 		if (levelcol.length() > 0 && level.length() > 0) {
 			treesql.append(" and " + levelcol + " = ? ");
@@ -277,7 +290,7 @@ public class TreeQuery extends BusinessObject {
 		
 		//添加order子句
 		String order = mpTree.get("self_order");
-		if (!isCnt && order.length() > 0) {
+		if (type.equals("0") && order.length() > 0) {
 			treesql.append(" order by " + order);
 		}
 		
@@ -294,13 +307,14 @@ public class TreeQuery extends BusinessObject {
 			param0 += ";" + whereValue;
 			param1 += ";" + whereType;
 		}
-		if (!isCnt) {
+		if (type.equals("0")) {
 			_log.showDebug("tree data sql=" + treesql.toString());
 			_log.showDebug("tree data param value=" + param0);
 			_log.showDebug("tree data param type=" + param1);
 		}
 		
 		DaoParam param = _dao.createParam(treesql.toString());
+		param.setUseParse(true);
 		param.setDsName(mpTree.get("db_name"));
 		param.setValue(param0).setType(param1);
 		lsRet = _dao.query(param);
@@ -309,12 +323,13 @@ public class TreeQuery extends BusinessObject {
 	}
 	
 	/**
-	 * 检查树中的节点，是否含子数据
+	 * 检查树中的节点，是否含子数据，此方法被addTreeLeafOther替代
 	 * @param userId -- 当前用户ID
 	 * @param lsData -- 需要检查是否有子节点的数据
 	 * @param mpTree -- 本级树定义
 	 * @return
 	 */
+	/*
 	private List<Map<String,String>> addTreeLeaf(String userId, 
 			List<Map<String,String>> lsData, Map<String,String> mpTree) {
 		if (lsData.isEmpty()) return lsData;
@@ -337,7 +352,7 @@ public class TreeQuery extends BusinessObject {
 			String dataId = mpData.get("id");
 			
 			//取本级树中是否有下级数据
-			boolean phas = hasChild(treeData(userId, dataId, mpTree, "", "", "", true));
+			boolean phas = hasChild(treeData(userId, dataId, mpTree, "", "", "", "1"));
 			
 			//设置是否有下级
 			if (!phas) {
@@ -354,7 +369,74 @@ public class TreeQuery extends BusinessObject {
 		}
 		
 		return lsData;
-	} 
+	}*/
+	
+	/**
+	 * 检查树中的节点，是否含子数据：调整算法，根据父ID，直接取到所有下下级记录；
+	 * @param userId -- 当前用户ID
+	 * @param parentId -- 父ID
+	 * @param whereSql -- 外部扩展的where
+	 * @param whereType -- 外部扩展的where
+	 * @param whereValue -- 外部扩展的where
+	 * @param lsData -- 需要检查是否有子节点的数据
+	 * @param mpTree -- 本级树定义
+	 * @return
+	 */
+	private List<Map<String,String>> addTreeLeafOther(String userId, String parentId,
+			String whereSql, String whereType, String whereValue, 
+			List<Map<String,String>> lsData, Map<String,String> mpTree) {
+		if (lsData.isEmpty()) return lsData;
+		if (mpTree.isEmpty()) return lsData;
+		//不检查下级
+		String notcheck = MapUtil.getValue(mpTree, "not_check", "0");
+		if (notcheck.equals("1")) return lsData;
+		
+		//取下级树定义信息
+		String funId = mpTree.get("fun_id");
+		String treeNo = mpTree.get("tree_no");
+		
+		Map<String,String> subTree = null;
+		if (!_isOnlyTree) {
+			subTree = subTreeDef(funId, treeNo);
+		}
+		
+		//取到所有有下级节点的ID
+		List<Map<String,String>> lsRet = treeData(userId, parentId, mpTree, whereSql, whereType, whereValue, "2");
+		List<String> lsNodeId = mapToList(lsRet, "node_id");
+		//_log.showDebug(".........hasSubNode:" + lsNodeId.toString());
+		
+		for (int i = 0, n = lsData.size(); i < n; i++) {
+			Map<String,String> mpData = lsData.get(i);
+			String dataId = mpData.get("id");
+			
+			//取本级树中是否有下级数据
+			boolean phas = lsNodeId.contains(dataId);
+			
+			//设置是否有下级
+			if (!phas) {
+				mpData.put("leaf", "true");
+				
+				//检查下级树是否有数据
+				if (subTree != null && !subTree.isEmpty()) {
+					boolean has = hasChild(subTreeData(userId, dataId, subTree, true));
+					mpData.put("leaf", has?"false":"true");
+				}
+			} else {
+				mpData.put("leaf", "false");
+			}
+		}
+		
+		return lsData;
+	}
+	
+	//把Map转换到List中
+	private List<String> mapToList(List<Map<String,String>> lsData, String field) {
+		List<String> lsRet = FactoryUtil.newList();
+		for (Map<String,String> mp : lsData) {
+			lsRet.add(mp.get(field));
+		}
+		return lsRet;
+	}
 	
 	/**
 	 * 检查节点类型的树，是否含子数据
@@ -543,6 +625,23 @@ public class TreeQuery extends BusinessObject {
 	private StringBuilder getSelectCnt(Map<String,String> mpTree) {
 		StringBuilder treesql = new StringBuilder("select count(*) as cnt ");
 		treesql.append(" from " + mpTree.get("table_name") + " ");
+		return treesql;
+	}
+	
+	/**
+	 * 取查询树形数据的某个级别的ID
+	 * @param mpTree
+	 * @param level
+	 * @return
+	 */
+	private StringBuilder getSelectParent(Map<String,String> mpTree, int level) {
+		String pkcol = mpTree.get("node_id");
+		String table = mpTree.get("table_name");
+		//取父ID长度
+		int len = level*4;
+		
+		StringBuilder treesql = new StringBuilder("select distinct({SUBSTR}("+ pkcol +", 1, "+ len +")) as node_id ");
+		treesql.append(" from " + table + " ");
 		return treesql;
 	}
 	
