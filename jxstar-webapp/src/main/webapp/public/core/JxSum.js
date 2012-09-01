@@ -78,7 +78,8 @@ Jxstar.JxSum = Ext.extend(Ext.util.Observable, {
             }else{
                 p.value = '';
             }*/
-			p.value = o.data[c.name];
+			p.value = o.data[c.name];//处理小数点之前的0为空的问题
+			p.value = Ext.data.Types.FLOAT.convert(p.value);
 			if(p.value == undefined || p.value === "") p.value = "&#160;";
             buf[buf.length] = this.cellTpl.apply(p);
         }
