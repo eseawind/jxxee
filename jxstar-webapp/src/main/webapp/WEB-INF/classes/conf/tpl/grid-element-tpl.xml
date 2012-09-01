@@ -99,6 +99,7 @@
 	</element>
 
 	<element name='editor_date'><![CDATA[
+		align:'center',
 		editable:true,
 		editor:new Ext.form.DateField({
 			format: 'Y-m-d', allowBlank:true,
@@ -111,13 +112,20 @@
 	</element>
 
 	<element name='render_date'><![CDATA[
+		align:'center',
 		renderer:function(value) {
 			return value ? value.format('Y-m-d') : '';
 		}
 	]]>
 	</element>
+	
+	<element name='render_number'><![CDATA[
+		align:'right'
+	]]>
+	</element>
 
 	<element name='editor_checkbox'><![CDATA[
+		align:'center',
 		editable:true,
 		editor:new Ext.form.Checkbox(),
 		renderer:function(value) {
