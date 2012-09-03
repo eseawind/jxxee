@@ -12,7 +12,7 @@ import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.resource.JsParam;
 
 /**
- * 
+ * 长事务做压力测试。
  *
  * @author TonyTan
  * @version 1.0, 2012-8-17

@@ -15,7 +15,7 @@ public class TestRunner {
 		
 		TestRunner test = new TestRunner();
 		try {
-			test.load("200", "40", "org.jxstar.test.pref.ServiceControlPref", 20000);
+			test.load("200", "40", "org.jxstar.test.pref.KeyCreatorPref", 20000);
 		} catch (TaskException e) {
 			e.printStackTrace();
 		}

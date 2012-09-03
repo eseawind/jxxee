@@ -26,6 +26,7 @@ public class KeyCreatorPref extends TestBase {
 	/* (non-Javadoc)
 	 * @see org.jxstar.test.base.TestBase#exeTest()
 	 */
+	@SuppressWarnings("static-access")
 	@Override
 	protected boolean exeTest() {
 		String tableName = "sys_var1";
@@ -35,12 +36,11 @@ public class KeyCreatorPref extends TestBase {
 		
 		if (!savePk(tableName, key, threadId)) return false;
 		
-		//需要添加这个延时才能测试出死锁的效果
-		/*try {
-			Thread.currentThread().sleep(500);
+		try {
+			Thread.currentThread().sleep(100);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}*/
+		}
 		
 		return true;
 	}

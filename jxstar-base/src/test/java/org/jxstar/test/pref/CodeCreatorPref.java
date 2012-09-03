@@ -20,21 +20,23 @@ public class CodeCreatorPref extends TestBase {
 	/* (non-Javadoc)
 	 * @see org.jxstar.test.base.TestBase#exeTest()
 	 */
+	@SuppressWarnings("static-access")
 	@Override
 	protected boolean exeTest() {
 		String funId = "sys_var";
 		String threadId = Integer.toString(Thread.currentThread().hashCode());
-		String key = CodeCreator.getInstance().createCode(funId);
-		_log.showDebug("----------thread id="+ threadId +";new key=" + key);
+		CodeCreator coder = CodeCreator.getInstance();
+		String key = coder.createCode(funId);
+		//_log.showDebug("----------thread id="+ threadId +";new key=" + key);
 		
 		if (!savePk(funId, key, threadId)) return false;
 		
-		//需要添加这个延时才能测试出死锁的效果
-		/*try {
-			Thread.currentThread().sleep(500);
+		//必须添加此时间间隔，否则会出现连接数不够的情况
+		try {
+			Thread.currentThread().sleep(100);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}*/
+		}
 		
 		return true;
 	}
