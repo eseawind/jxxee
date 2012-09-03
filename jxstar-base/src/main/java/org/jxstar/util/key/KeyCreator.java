@@ -198,7 +198,6 @@ public class KeyCreator {
 			String ssql = "select max_value from sys_tableid where table_name = ?";
 			
 			DaoParam sparam = _dao.createParam(ssql);
-			sparam.setUseTransaction(false);
 			sparam.addStringValue(keyName);
 			Map<String, String> mpMax = _dao.queryMap(sparam);
 			

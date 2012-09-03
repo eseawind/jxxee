@@ -39,11 +39,16 @@ import org.jxstar.util.log.Log;
  * 此方案是一个比较优秀的序列号生成方案，此类在20个并发线程10万次请求测试通过。
  * 
  * 2012-04-30
- * 当两个会话同时更新sys_tablecode表的同一条记录时，会出现死锁的情况，
- * 现在改为取独立的connection，加快更新速度，可以避免死锁的问题。
- * 性能测试生成2万个编码，同一个事务中耗时218，不同事务中耗时314。
- * 如果是在集群环境下，会出现编码重复的问题，而且可能会出现死锁，现在
- * 把每次分配编码数量调整为10个，如果重启服务，则会出现断码的情况。
+ * 1、当两个会话同时更新sys_tablecode表的同一条记录时，如果事务时间长，会出现死锁的情况，现在改为独立connection，
+ * 可以避免死锁的问题，但会造成在性能测试时连接数不够用；
+ * 2、如果是在集群环境下，会出现编码重复的问题，而且可能会出现死锁，现在把每次分配编码数量调整为10个，可以解决此问题，
+ * 但如果重启服务，则会出现断码的情况。
+ * 
+ * 2012-09-03
+ * 1、针对链接数不够的问题，改回不取独立connection，由于每次取10个编码才去更新最大值，不会死锁，
+ * 在性能测试时，但会存在外部事务没提交，update最大值没有提交， 会生成重复主键，重复数量都是10的倍数；
+ *    
+ * 最终结论：还是采用独立connection的方式，但取最大值时不取独立conn，在做性能测试时必须添加时间间隔50ms以上。
  * 
  * @author TonyTan
  * @version 1.0, 2010-11-4
@@ -308,7 +313,6 @@ public class CodeCreator {
 			int dbmax = 0;
 			String ssql = "select max_value from sys_tablecode where table_name = ? and code_ext = ?";
 			DaoParam sparam = _dao.createParam(ssql);
-			sparam.setUseTransaction(false);
 			sparam.addStringValue(keyName);
 			sparam.addStringValue(keyExtend);
 			Map<String, String> mpMax = _dao.queryMap(sparam);
