@@ -5,6 +5,7 @@ import java.util.Map;
 import org.jxstar.control.action.RequestContext;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.service.BusinessObject;
+import org.jxstar.service.util.ClusterUtil;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.config.SystemVar;
@@ -135,8 +136,8 @@ public class LoginLogBO extends BusinessObject {
 		String deptName = mpUser.get("dept_name");
 		
 		String sql = "insert into sys_user_login(user_id, user_code, user_name, dept_id, dept_name, " +
-				"login_date, log_id, login_id, session_id, client_ip, client_agent) " +
-				"values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+				"login_date, log_id, login_id, session_id, client_ip, client_agent, server_name) " +
+				"values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 		String loginId = KeyCreator.getInstance().createKey("sys_user_login");
 		DaoParam param = _dao.createParam(sql);
@@ -151,6 +152,7 @@ public class LoginLogBO extends BusinessObject {
 		param.addStringValue(sessionId);
 		param.addStringValue(clientIp);
 		param.addStringValue(userAgent);
+		param.addStringValue(ClusterUtil.getServerName());
 		
 		return _dao.update(param);
 	}

@@ -8,6 +8,7 @@ import java.util.Map;
 import org.jxstar.control.action.RequestContext;
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
+import org.jxstar.service.util.ClusterUtil;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.config.SystemVar;
@@ -140,8 +141,8 @@ public class ControlerLock {
 		if (funId == null || funId.length() == 0) return;
 		if (keyId == null || keyId.length() == 0) return;
 		
-		String sql = "insert into sys_doing(fun_id, key_id, event_code, page_type, add_date, add_userid) " +
-				"values(?, ?, ?, ?, ?, ?)";
+		String sql = "insert into sys_doing(fun_id, key_id, event_code, page_type, add_date, add_userid, server_name) " +
+				"values(?, ?, ?, ?, ?, ?, ?)";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(funId);
 		param.addStringValue(keyId);
@@ -149,6 +150,7 @@ public class ControlerLock {
 		param.addStringValue(pageType);
 		param.addDateValue(DateUtil.getTodaySec());
 		param.addStringValue(userId);
+		param.addStringValue(ClusterUtil.getServerName());
 		
 		_dao.update(param);
 	}
