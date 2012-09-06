@@ -78,6 +78,11 @@ public class DesignUpdateBO extends BusinessObject {
 		if (toPath == null || toPath.length() == 0) toPath = "d:\\design_update";
 		_log.showDebug("指定的设计文件目录为：" + toPath);
 		
+		toPath = toPath.replace('\\', '/');
+        if (toPath.charAt(toPath.length()-1) == '/') {
+        	toPath = toPath.substring(0, toPath.length()-1);
+        }
+		
 		File path = new File(toPath);
 		
 		File[] files = path.listFiles();
@@ -90,7 +95,7 @@ public class DesignUpdateBO extends BusinessObject {
 			String name = file.getName();
 			_log.showDebug("更新的设计文件是：" + name);
 			
-			String fileName = toPath + "\\" + name;
+			String fileName = toPath + "/" + name;
 			String content = FileUtil.readFile(fileName, "UTF-8");
 			
 			String[] names = name.split("\\.")[0].split(FILE_FLAG);
