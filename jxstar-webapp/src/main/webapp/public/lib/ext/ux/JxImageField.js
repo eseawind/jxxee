@@ -8,6 +8,9 @@
  * 可以上传图片、删除图片、显示图片的控件
  */
 Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
+	//附件管理模式设置、及URL设置
+	uploadType: '0',
+	uploadUrl: '',
     /**
      * @cfg {String} addbtnCls
      */
@@ -32,6 +35,10 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 
     // private
     onRender : function(ct, position){
+		//附件管理类型与集中管理路径
+		this.uploadType = Jxstar.systemVar.uploadType;
+		this.uploadUrl = Jxstar.systemVar.uploadUrl;
+			
 		Ext.ux.form.JxImageField.superclass.onRender.call(this, ct, position);
 		
         this.wrap = this.el.wrap({cls:'x-form-field-wrap x-form-image-wrap'});
@@ -153,8 +160,12 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 			var param = JxAttach.attachParam(this, 'fdown');
 			if (param == null) return;
 			
-			this.imageUrl = './fileAction.do?' + param.params + '&dataType=byte&user_id=' + 
-				JxDefault.getUserId() + '&dc=' + (new Date()).getTime();
+			var url = Jxstar.path;
+			if (this.uploadType == '1') {
+				url = this.uploadUrl;
+			}
+			
+			this.imageUrl = url + '/fileAction.do?' + param.params + '&dataType=byte&&nousercheck=1&dc=' + (new Date()).getTime();
 		}
 		this.imageEl.dom.src = this.imageUrl;
 	},
@@ -170,10 +181,10 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 	//删除附件中的图片，并清空此控件中的图片
 	onDelClick : function(){
 		if (this.disabled) return;
-		var imageField = this;
+		var self = this;
 		
 		var hdcall = function() {
-			var param = JxAttach.attachParam(imageField, 'fdelete');
+			var param = JxAttach.attachParam(self, 'fdelete');
 			if (param == null) return;
 			
 			var audit = '0';
@@ -182,16 +193,25 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 			}
 			if (audit != '0' && audit != '6') {
 				JxHint.alert('业务记录已提交，不能删除附件！');
-				return false;
+				return;
 			}
 			//清除附件字段值
 			var hdcall = function() {
-				imageField.setValue('');
-				imageField.loadImage();
+				self.setValue('');
+				self.loadImage();
 			};
 			
-			//发送下载请求
-			Request.postRequest(param.params, hdcall);
+			//发送删除请求
+			if (self.uploadType == '1') {//删除远程附件
+				var url = self.uploadUrl + '/fileAction.do?' + param.params + '&nousercheck=1';
+				Ext.fly('frmhidden').dom.src = url;
+				//延时执行回调函数，index.jsp中的frmhidden.load事件会提示执行完成！
+				JxUtil.delay(800, function(){
+					hdcall();
+				});
+			} else {
+				Request.postRequest(param.params, hdcall);
+			}
 		};
 		
 		//确定删除选择的记录吗？
@@ -200,9 +220,39 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 		});
 	},
 	
+	//如果是集中附件管理，则采用跨域上传的方式
+	onRemoteAdd : function() {
+		var self = this;
+		var url = self.uploadUrl;
+		var ifrHtml = '<iframe frameborder="no" style="display:none;border-width:0;width:100%;height:100%;"></iframe>';
+		var win = new Ext.Window({
+			title:'上传附件', layout:'fit', width:400, height:160,
+			modal: true, closeAction:'close', html: ifrHtml,
+			listeners: {show:function(cmp){
+				var param = JxAttach.attachParam(self, 'fcreate');
+				var href = url + "/public/core/uploadfield.jsp?" + param.params + '&user_id=' + Jxstar.session['user_id'];
+
+				var frm = cmp.getEl().child('iframe');
+				frm.dom.src = href + '&_dc=' + (new Date()).getTime();//避免缓存
+				frm.show();
+			}}
+		});
+		win.on('close', function(){
+			self.setValue('remote.gif');
+			self.loadImage();
+		});
+		win.show();
+	},
+	
 	//上传图片，并显示在此控件中
 	onAddClick : function(){
 		if (this.disabled) return;
+		//远程上传附件
+		if (this.uploadType == '1') {
+			this.onRemoteAdd();
+			return;
+		}
+		
 		var imageField = this;
 		var imageName = this.name;
 		var queryForm = new Ext.form.FormPanel({
