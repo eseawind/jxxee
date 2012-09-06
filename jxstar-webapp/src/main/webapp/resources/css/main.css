@@ -319,21 +319,9 @@ td.ux-grid-hd-group-cell {/* ux.ColumnHeaderGroup */
 .eb_valid{background-image:url( ../images/icons/button/validate.gif) !important;}
 .eb_prop{background-image:url( ../images/icons/button/properties.gif) !important;}
 .eb_win{background-image:url( ../images/icons/button/window.gif) !important;}
-.eb_logout{
-	background-image:url( ../images/icons/button/logout.gif);
-	_background: none;
-	_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,src='./resources/images/icons/button/logout.gif');
-}
-.eb_pass{
-	background-image:url( ../images/icons/button/pass.gif);
-	_background: none;
-	_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,src='./resources/images/icons/button/pass.gif');
-}
-.eb_online{
-	background-image:url( ../images/icons/button/online.gif);
-	_background: none;
-	_filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(sizingMethod=scale,src='./resources/images/icons/button/online.gif');
-}
+.eb_logout{background-image:url( ../images/icons/button/logout.gif);}
+.eb_pass{background-image:url( ../images/icons/button/pass.gif);}
+.eb_online{background-image:url( ../images/icons/button/online.gif);}
 .eb_addpic{background-image:url( ../images/icons/button/image.gif) !important;}
 .eb_exesql{background-image:url( ../images/icons/button/btn_status.gif) !important;}
 .eb_dataimp{background-image:url( ../images/icons/button/dataimp.gif) !important;}
