@@ -49,8 +49,16 @@ public class SignPicUtil {
 	
 	//取图片附件的URL
 	private static String signURL(String dataId, String tableName, String funId, String curUserId) {
+		String uploadType = SystemVar.getValue("upload.server.type", "0");
+		String uploadUrl = SystemVar.getValue("upload.server.url");
+		String path = ".";
+		//支持集中管理附件
+		if (uploadType.equals("1")) {
+			path = uploadUrl;
+		}
+		
 		StringBuilder sburl = new StringBuilder();
-		sburl.append("./fileAction.do?funid=sys_attach&pagetype=editgrid&eventcode=fdown&dataType=byte");
+		sburl.append(path + "/fileAction.do?funid=sys_attach&pagetype=editgrid&eventcode=fdown&dataType=byte");
 		sburl.append("&attach_field=sign_pic&dataid="+ dataId +"&table_name="+ tableName);
 		sburl.append("&datafunid="+ funId +"&user_id="+ curUserId);
 		
