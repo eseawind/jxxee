@@ -51,8 +51,8 @@ Jxstar.currentPage = function() {
 
 			parent.add(designPanel);
 			//销毁设计面板
-			designPanel.on('beforedestroy', function(){
-				Ext.fly(frmid).remove();
+			designPanel.on('beforedestroy', function(cmp){
+				cmp.getEl().child('iframe').remove();
 				return true;
 			});
 			
@@ -72,7 +72,7 @@ Jxstar.currentPage = function() {
 			var href = Jxstar.path + "/jxstar/studio/pub/xls_html.jsp?user_id=" + Jxstar.session['user_id'] + 
 				"&reportId=" + reportId + "&designFunId=rpt_list";
 
-			var frm = Ext.get(frmid);
+			var frm = designPanel.getEl().child('iframe');
 			frm.dom.src = href + '&_dc=' + (new Date()).getTime();
 			frm.show();
 		},
