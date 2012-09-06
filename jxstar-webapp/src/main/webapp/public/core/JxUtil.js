@@ -344,7 +344,7 @@ JxUtil = {};
 					tbar:tbar,
 					closable:true,
 					iconCls:'tab_form',
-					html:'<iframe id="'+ frmid +'" border="0" style="display:none;border-width:0;"></iframe>'
+					html:'<iframe id="'+ frmid +'" frameborder="no" style="display:none;border-width:0;"></iframe>'
 				});
 				
 				reportTab.on('beforedestroy', function(t){
