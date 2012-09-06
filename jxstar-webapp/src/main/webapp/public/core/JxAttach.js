@@ -9,6 +9,11 @@
  * 2、表单附件字段处理工具类。
  * 3、图片浏览控件扩展。
  * 
+ * 远程附件管理存在的问题：
+ * 1、表格附件标记功能都已实现远程预览；
+ * 2、Form中的附件字段，不能支持上传远程附件的功能、查看与删除都没有问题；
+ *    如果远程上传，则把附件字段设置为只读，且通过菜单按钮上传此字段中的图文附件；
+ * 
  * @author TonyTan
  * @version 1.0, 2011-11-22
  */
@@ -17,6 +22,10 @@ JxAttach = {};
 (function(){
 
 	Ext.apply(JxAttach, {
+		//附件管理模式设置、及URL设置
+		uploadType: '0',
+		uploadUrl: '',
+		
 		//在表格中添加附件列，此方法用在表格INC文件的第一行
 		addAttachCol: function(cols, index) {
 			//添加一列
@@ -76,7 +85,11 @@ JxAttach = {};
 						'<span id="loading-msg">正在加载'+ attachName +'...</span>'+
 						'</div>';
 			
-			var url = "./fileAction.do?funid=sys_attach&pagetype=editgrid&eventcode=down&nousercheck=1&dataType=byte&keyid="+attachId;
+			var url = Jxstar.path;
+			if (JxAttach.uploadType == '1') {
+				url = JxAttach.uploadUrl;
+			}
+			url += "/fileAction.do?funid=sys_attach&pagetype=editgrid&eventcode=down&nousercheck=1&dataType=byte&keyid="+attachId;
 			var html = div_html + 
 						'<OBJECT classid="clsid:00460182-9e5e-11d5-b7c8-b8269041dd57" id="'+ objid +'" '+
 						'style="left:0px; top:0px; width:10px; height:10px" '+
@@ -127,7 +140,11 @@ JxAttach = {};
 				return;
 			}
 			
-			var url = "./fileAction.do?funid=sys_attach&pagetype=editgrid&eventcode=down&nousercheck=1&dataType=byte&keyid="+attachId;
+			var url = Jxstar.path;
+			if (JxAttach.uploadType == '1') {
+				url = JxAttach.uploadUrl;
+			}
+			url += "/fileAction.do?funid=sys_attach&pagetype=editgrid&eventcode=down&nousercheck=1&dataType=byte&keyid="+attachId;
 			var html = '<OBJECT classid="clsid:ca8a9780-280d-11cf-a24d-444553540000" id="'+ objid +'" '+
 						'style="left: 0px; top: 0px; width: 100%; height: 100%" border="0">'+
 						'<param name="src" value="'+ url +'">'+
@@ -159,7 +176,11 @@ JxAttach = {};
 				return;
 			}
 			
-			var url = "./fileAction.do?funid=sys_attach&pagetype=editgrid&eventcode=down&nousercheck=1&dataType=byte&keyid="+attachId;
+			var url = Jxstar.path;
+			if (JxAttach.uploadType == '1') {
+				url = JxAttach.uploadUrl;
+			}
+			url += "/fileAction.do?funid=sys_attach&pagetype=editgrid&eventcode=down&nousercheck=1&dataType=byte&keyid="+attachId;
 			var html = '<img src="'+ url +'" title="'+ attachName +'">';
 			
 			var cfg = {
@@ -223,6 +244,9 @@ JxAttach = {};
 		//表格中有附件的记录，添加附件标志
 		viewAttachFlag: function(grid) {
 			if (grid == null) return;
+			//附件管理类型与集中管理路径
+			JxAttach.uploadType = Jxstar.systemVar.uploadType;
+			JxAttach.uploadUrl = Jxstar.systemVar.uploadUrl;
 			
 			//父页面控件
 			var tabPanel = grid.findParentByType('tabpanel');
@@ -271,7 +295,13 @@ JxAttach = {};
 						text:attach_name, 
 						handler:function(){
 							var params = 'funid=sys_attach&keyid='+ this.id +'&pagetype=editgrid&eventcode=down';
-							Request.fileDown(params);
+							//发送下载请求
+							if (JxAttach.uploadType == '1') {
+								var url = JxAttach.uploadUrl + '/fileAction.do?' + params + '&dataType=byte&nousercheck=1';
+								Ext.fly('frmhidden').dom.src = url;
+							} else {
+								Request.fileDown(params);
+							}
 						}
 					};
 					//处理office文件与pdf文件的预览
@@ -360,7 +390,7 @@ JxAttach = {};
 		
 		//public 选择附件前判断，如果是已签字的记录不能调整
 		beforeChange: function(fileField) {
-			if (fileField.disabled || fileField.readOnly) return;
+			if (fileField.disabled) return;
 			var param = JxAttach.attachParam(fileField, '');
 			if (param == null) return;
 			
@@ -391,7 +421,12 @@ JxAttach = {};
 			if (param == null) return;
 			
 			//发送下载请求
-			Request.fileDown(param.params);
+			if (JxAttach.uploadType == '1') {
+				var url = JxAttach.uploadUrl + '/fileAction.do?' + param.params + '&dataType=byte&nousercheck=1';
+				Ext.fly('frmhidden').dom.src = url;
+			} else {
+				Request.fileDown(param.params);
+			}
 		},
 		
 		//public 表单中的附件控件删除附件方法
@@ -399,7 +434,7 @@ JxAttach = {};
 			if (mya == null || mya.parentNode == null) return;
 			var fileField = Ext.getCmp(mya.parentNode.id);
 			if (fileField == null) return;
-			if (fileField.disabled || fileField.readOnly) return;
+			if (fileField.disabled) return;
 			
 			var hdcall = function() {
 				var param = JxAttach.attachParam(fileField, 'fdelete');
@@ -422,6 +457,17 @@ JxAttach = {};
 				
 				//发送下载请求
 				Request.postRequest(param.params, hdcall);
+				//发送删除请求
+				if (JxAttach.uploadType == '1') {//删除远程附件
+					var url = JxAttach.uploadUrl + '/fileAction.do?' + param.params + '&nousercheck=1';
+					Ext.fly('frmhidden').dom.src = url;
+					//延时执行回调函数，index.jsp中的frmhidden.load事件会提示执行完成！
+					JxUtil.delay(800, function(){
+						hdcall();
+					});
+				} else {
+					Request.postRequest(param.params, hdcall);
+				}
 			};
 			
 			//确定删除选择的记录吗？
@@ -432,7 +478,7 @@ JxAttach = {};
 		
 		//public 保存表单中的附件信息
 		saveAttach: function(fileField) {
-			if (fileField.disabled || fileField.readOnly) return;
+			if (fileField.disabled) return;
 			var param = JxAttach.attachParam(fileField, 'fcreate');
 			if (param == null) return;
 			

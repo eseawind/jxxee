@@ -1033,7 +1033,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		//缺省是当前按钮
 		if (attachField != null && attachField.isXType && attachField.isXType('button')) attachField = null;
 		//需要传递到后台的参数值
-		var dataId, dataFunId, dataField;
+		var dataId, dataFunId, dataField, tableName;
 		
 		//取当前功能ID
 		var nodeid = this.define.nodeid;
@@ -1053,6 +1053,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			dataId = records[0].get(pkcol);
 			dataFunId = nodeid;
 			dataField = attachField || '';
+			tableName = this.define.tablename;
 		}
 		if (dataId.length == 0) {
 			JxHint.alert(jx.event.noup);	//没有选择上传附件的记录
@@ -1063,6 +1064,38 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			return;
 		}
 		//-----------------传递参数的判断-------------------
+		var self = this;
+		//-----------------如果是集中附件管理，则采用跨域上传的方式------------------
+		if (Jxstar.systemVar.uploadType == '1') {
+			var url = Jxstar.systemVar.uploadUrl;
+			var showIframe = function() {
+				var ifrHtml = '<iframe frameborder="no" style="display:none;border-width:0;width:100%;height:100%;"></iframe>';
+				var win = new Ext.Window({
+					title:'上传附件', layout:'fit', width:400, height:160,
+					modal: true, closeAction:'close', html: ifrHtml,
+					listeners: {show:function(cmp){
+						var href = url + "/public/core/uploadfield.jsp?dataid=" + dataId + "&datafunid=" + dataFunId + 
+							"&attach_field=" + dataField + '&user_id=' + Jxstar.session['user_id'];
+						if (dataField && dataField.length > 0) {
+							href += '&eventcode=fcreate&table_name=' + tableName;
+						}
+
+						var frm = cmp.getEl().child('iframe');
+						frm.dom.src = href + '&_dc=' + (new Date()).getTime();//避免缓存
+						frm.show();
+					}}
+				});
+				win.on('close', function(){
+					if (nodeid == 'sys_attach' || nodeid == 'project_attach') {
+						self.grid.getStore().reload();
+					}
+				});
+				win.show();
+			};
+			showIframe();
+
+			return;
+		}
 		
 		var queryForm = new Ext.form.FormPanel({
 				layout:'form', 
@@ -1111,7 +1144,6 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			});
 
 		//创建对话框
-		var self = this;
 		var win = new Ext.Window({
 			title:jx.event.uptitle,	//上传附件
 			layout:'fit',
@@ -1129,8 +1161,14 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 					if (!form.isValid()) return;
 					
 					//上传参数
-					var params = 'funid=sys_attach&pagetype=editgrid&eventcode=create';
+					var params = 'funid=sys_attach&pagetype=editgrid';
 						params += '&attach_field='+ dataField +'&dataid='+ dataId +'&datafunid='+ dataFunId;
+					//针对字段保存附件
+					if (dataField && dataField.length > 0) {
+						params += '&eventcode=fcreate&table_name=' + tableName;
+					} else {
+						params += '&eventcode=create';
+					}
 					
 					//上传成功后关闭窗口并刷新数据
 					var hdCall = function() {
