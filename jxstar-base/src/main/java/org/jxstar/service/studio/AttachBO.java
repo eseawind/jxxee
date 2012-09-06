@@ -273,6 +273,13 @@ public class AttachBO extends BusinessObject {
 		//取用户信息
 		Map<String,String> mpUser = requestContext.getUserInfo();
 		String userId = MapUtil.getValue(mpUser, "user_id");
+		//跨域上传附件时，没有用户信息，但会传递用户ID
+		if (userId.length() == 0) {
+			userId = requestContext.getRequestValue("user_id");
+			if (userId.length() > 0) {
+				mpUser = queryUser(userId);
+			}
+		}
 		String userName = MapUtil.getValue(mpUser, "user_name");
 		
 		StringBuilder sbsql = new StringBuilder();
@@ -397,4 +404,12 @@ public class AttachBO extends BusinessObject {
 		return _dao.queryMap(param);
 	}
 
+	//跨域上传附件时，没有用户信息，但会传递用户ID
+	public Map<String,String> queryUser(String userId) {
+		String sql = "select user_id, user_name from sys_user where user_id = ?";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(userId);
+		
+		return _dao.queryMap(param);
+	}
 }
