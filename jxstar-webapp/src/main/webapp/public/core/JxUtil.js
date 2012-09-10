@@ -905,12 +905,14 @@ JxUtil = {};
 		* 解析查询值中的页面参数，参数格式：[table_name.field_name]
 		* whereValue -- 查询值，其中可能含页面参数
 		* tagRecord -- 页面记录集，字段名格式为table_name__field_name
+		* isBig -- 是否大括号 [true|false]
 		**/
-		parseWhereValue: function(whereValue, tagRecord) {
+		parseWhereValue: function(whereValue, tagRecord, isBig) {
 			if (whereValue == null || whereValue.length == 0 || 
 				tagRecord == null) return whereValue;
 			
 			var re = /\[[^\]]+\]/g;
+			if (isBig) re = /\{[^\{]+\}/g;
 			//替换字符串中的字段名
 			var fn = function(name, index, format, args) {
 				name = name.substr(1, name.length-2);

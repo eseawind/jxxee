@@ -83,11 +83,10 @@ JxSelect = {};
 						}
 					}
 					var whereValue = config.whereValue;
-					//解析查询参数值中的[]字段变量，如果在查询栏中使用，则会选择不到值
-					if (whereValue != null && whereValue.indexOf('[') >= 0) {
-						var tagRecord = self.selectTagRecord(parentField, targetFlag);
-						whereValue = JxUtil.parseWhereValue(whereValue, tagRecord);
-					}
+					
+					//解析选择窗口中的[table.field];{table.field}参数
+					whereValue = self.parseWhereValue(whereValue, parentField, targetFlag);
+					
 					//显示表格对象后再加载数据才稳定
 					Jxstar.loadData(selgrid, {where_sql:config.whereSql, where_value:whereValue, where_type:config.whereType});
 					
@@ -165,10 +164,8 @@ JxSelect = {};
 			var refreshData = function(page) {
 				//解析查询参数值中的[]字段变量，如果在查询栏中使用，则会选择不到值
 				var whereValue = config.whereValue;
-				if (whereValue != null && whereValue.indexOf('[') >= 0) {
-					var tagRecord = self.selectTagRecord(parentField, targetFlag);
-					whereValue = JxUtil.parseWhereValue(whereValue, tagRecord);
-				}
+				//解析选择窗口中的[table.field];{table.field}参数
+				whereValue = self.parseWhereValue(whereValue, parentField, targetFlag);
 				//显示表格对象后再加载数据才稳定
 				Jxstar.loadData(page, {where_sql:config.whereSql, where_value:whereValue, where_type:config.whereType});
 			}
@@ -235,6 +232,29 @@ JxSelect = {};
 				return;
 			}
 			Request.loadJS(pathname, hdCall);
+		},
+		
+		//解析选择窗口中的[table.field];{table.field}参数
+		parseWhereValue: function(whereValue, parentField, targetFlag) {
+			//如果含{table.field}表示，从父Form中取值，一般是Grid编辑的明细表中取父form
+			if (whereValue != null && whereValue.indexOf('\{') >= 0) {
+				if (targetFlag.indexOf('grid') >= 0) {
+					var gdom = parentField.el.findParentNode('div.x-grid-panel');
+					var subgrid = Ext.getCmp(gdom.id);
+					if (subgrid) {
+						var tagRecord = JxUtil.getParentForm(subgrid);
+						if (tagRecord) {
+							whereValue = JxUtil.parseWhereValue(whereValue, tagRecord, true);
+						}
+					}
+				}
+			}
+			//解析查询参数值中的[]字段变量，如果在查询栏中使用，则会选择不到值
+			if (whereValue != null && whereValue.indexOf('[') >= 0) {
+				var tagRecord = self.selectTagRecord(parentField, targetFlag);
+				whereValue = JxUtil.parseWhereValue(whereValue, tagRecord);
+			}
+			return whereValue;
 		},
 		
 		/**
@@ -394,7 +414,7 @@ JxSelect = {};
 			}
 		},
 		
-		//构建查询combo控件
+		//构建查询combosel控件
 		initCombo: function(funId, combo, targetFlag) {
 			var self = this;
 			//继续添加初始参数
@@ -428,11 +448,8 @@ JxSelect = {};
 				}
 					
 				var whereValue = config.whereValue;
-				//解析查询参数值中的[]字段变量，如果在查询栏中使用，则会选择不到值
-				if (whereValue != null && whereValue.indexOf('[') >= 0) {
-					var tagRecord = self.selectTagRecord(combo, targetFlag);
-					whereValue = JxUtil.parseWhereValue(whereValue, tagRecord);
-				}
+				//解析选择窗口中的[table.field];{table.field}参数
+				whereValue = self.parseWhereValue(whereValue, combo, targetFlag);
 				config.whereValue = whereValue;
 				
 				//要支持可以查询多个字段的值
