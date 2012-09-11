@@ -16,6 +16,8 @@ public class UpdatePageTest extends AbstractTest {
 	private static String _save_path = "d:/update/";
 	
 	public static void main(String[] args) {
+		init("D:\\tomcat6\\webapps\\tjgt");
+		
 		UpdatePageBO page = new UpdatePageBO();
 		page.update(_save_path + "/fun_design/");
 	}

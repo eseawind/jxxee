@@ -18,12 +18,12 @@ public class InsertSqlTest extends AbstractTest {
 		InsertSqlBO exp = new InsertSqlBO();
 		
 		//导出功能的配置SQL
-		String[] funIds = {"device_param", "device_listparam"};
-		exp.funExpToFile(funIds);
+		//String[] funIds = {"device_param", "device_listparam"};
+		//exp.funExpToFile(funIds);
 		
 		//导出模块的配置信息
-		//String[] moduleIds = {"10120001"};
-		//exp.modExpToFile(moduleIds);
+		String[] moduleIds = {"1013"};
+		exp.modExpToFile(moduleIds);
 	}
 
 }
