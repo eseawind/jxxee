@@ -161,6 +161,8 @@ public class FunDefineBO extends BusinessObject {
 			sbItem.append("first:'"+mpfun.get("first_field")+"', ");
 			//添加扩展属性
 			sbItem.append(getFunAttr(funid));
+			//添加业务状态设置
+			sbItem.append(getFunStatus(funid));
 			
 			sbItem.append("isarch:'"+mpfun.get("is_archive")+"'");
 			
@@ -276,4 +278,31 @@ public class FunDefineBO extends BusinessObject {
 		
 		return sb.toString();
 	}
+	
+	/**
+	 * 取当前功能的业务状态设置值
+	 * @param funId
+	 * @return
+	 */
+	private String getFunStatus(String funId) {
+		String sql = "select audit0, audit1, audit2, audit3, audit4, audit_b, audit_e from fun_status where fun_id = ?";
+		DaoParam param = _dao.createParam(sql);
+		param.setDsName(DefineName.DESIGN_NAME);
+		param.addStringValue(funId);
+		
+		Map<String,String> mpData = _dao.queryMap(param);
+		if (mpData.isEmpty()) return "";
+		
+		StringBuilder sb = new StringBuilder("status:{");
+		sb.append("audit0:'"+ mpData.get("audit0") +"',");
+		sb.append("audit1:'"+ mpData.get("audit1") +"',");
+		sb.append("audit2:'"+ mpData.get("audit2") +"',");
+		sb.append("audit3:'"+ mpData.get("audit3") +"',");
+		sb.append("audit4:'"+ mpData.get("audit4") +"',");
+		sb.append("audit_b:'"+ mpData.get("audit_b") +"',");
+		sb.append("audit_e:'"+ mpData.get("audit_e") +"'}, ");
+		
+		return sb.toString();
+	}
+	
 }
