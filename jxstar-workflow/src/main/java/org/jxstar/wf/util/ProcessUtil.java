@@ -11,6 +11,7 @@ import java.util.Map;
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.service.define.FunDefineDao;
+import org.jxstar.service.util.FunStatus;
 
 /**
  * 工作流中的工具类。
@@ -32,8 +33,9 @@ public class ProcessUtil {
 		Map<String,String> mpDefine = FunDefineDao.queryFun(funId);
 		//取有效记录值，如果为3则表示需要检查
 		String validFlag = mpDefine.get("valid_flag");
-		
-		return validFlag.equals("3");
+		//取业务状态值
+		String audit = FunStatus.getValue(funId, "audit3", "3");
+		return validFlag.equals(audit);
 	}
 	
 	/**

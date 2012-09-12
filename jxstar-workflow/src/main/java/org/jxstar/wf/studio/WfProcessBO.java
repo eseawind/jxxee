@@ -13,6 +13,7 @@ import org.jxstar.dao.DmDao;
 import org.jxstar.security.SafeManager;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.DefineDataManger;
+import org.jxstar.service.util.FunStatus;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.resource.JsMessage;
@@ -130,9 +131,11 @@ public class WfProcessBO extends BusinessObject {
 		if (oldProcessId != null && oldProcessId.length() > 0) {
 			disableWf(oldProcessId, userId, userName);
 		}
-		
+		//取业务状态值
+		String funId = mpProcess.get("fun_id");
+		String audit = FunStatus.getValue(funId, "audit3", "3");
 		//修改功能定义的记录有效值为“3”，表示审批通过
-		updateFunValid(mpProcess.get("fun_id"), "3");
+		updateFunValid(funId, audit);
 		
 		return _returnSuccess;
 	}
@@ -166,9 +169,11 @@ public class WfProcessBO extends BusinessObject {
 		
 		WfDefineDao define = WfDefineDao.getInstance();
 		Map<String,String> mpProcess = define.queryProcess(processId);
+		//取业务状态值
 		String funId = mpProcess.get("fun_id");
+		String audit = FunStatus.getValue(funId, "audit1", "1");
 		//修改功能定义的记录有效值为“1”，表示已复核
-		updateFunValid(funId, "1");
+		updateFunValid(funId, audit);
 		
 		return _returnSuccess;
 	}
