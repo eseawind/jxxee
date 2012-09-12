@@ -2,6 +2,7 @@ package org.jxstar.wf.client;
 
 import org.jxstar.control.action.RequestContext;
 import org.jxstar.service.BusinessObject;
+import org.jxstar.service.util.FunStatus;
 import org.jxstar.util.resource.JsMessage;
 import org.jxstar.wf.define.TaskNode;
 import org.jxstar.wf.util.ProcessUtil;
@@ -41,10 +42,11 @@ public class ProcessEvent extends BusinessObject {
 	public String startupProcess(RequestContext request) {//"开始执行【{0}】事件"
 		_log.showDebug(JsMessage.getValue("processclientbo.doevent", "process_1"));
 		//修改记录状态为审批中
-		String audit = "2";
 		String funId = request.getRequestValue("check_funid");
 		String dataId = request.getRequestValue("data_id");
-		
+		//取设置的业务状态值
+		String audit = FunStatus.getValue(funId, "audit2", "2");
+		//修改功能记录状态
 		if (!ProcessUtil.updateFunAudit(funId, dataId, audit)) {
 			//"更新【{0}】的【{1}】记录的状态为【{2}】失败！"
 			setMessage(JsMessage.getValue("processclientbo.uperror"), 
@@ -63,10 +65,11 @@ public class ProcessEvent extends BusinessObject {
 	public String completeProcess(RequestContext request) {//"开始执行【{0}】事件"
 		_log.showDebug(JsMessage.getValue("processclientbo.doevent", "process_3"));
 		//修改记录状态为审批通过
-		String audit = "3";
 		String funId = request.getRequestValue("check_funid");
 		String dataId = request.getRequestValue("data_id");
-
+		//取设置的业务状态值
+		String audit = FunStatus.getValue(funId, "audit3", "3");
+		//修改功能记录状态
 		if (!ProcessUtil.updateFunAudit(funId, dataId, audit)) {
 			//"更新【{0}】的【{1}】记录的状态为【{2}】失败！"
 			setMessage(JsMessage.getValue("processclientbo.uperror"), 
@@ -114,17 +117,17 @@ public class ProcessEvent extends BusinessObject {
 	 */
 	private boolean updateAudit(String funId, String dataId, String checkType) {
 		//已注销，发生异常了
-		String audit = "7";
+		String audit = FunStatus.getValue(funId, "audit_e", "7");
 		if (checkType.equals(TaskNode.RETURNEDIT)) {
 		//退回编辑人
-			audit = "6";
+			audit = FunStatus.getValue(funId, "audit0", "6");
 		} else if (checkType.equals(TaskNode.DISAGREE)) {
 		//已否决
-			audit = "4";
+			audit = FunStatus.getValue(funId, "audit4", "4");
 		} else if (checkType.equals(TaskNode.RETURN)) {
 		//退回
-			audit = "5";
-		} 
+			audit = FunStatus.getValue(funId, "audit2", "5");
+		}
 		
 		return ProcessUtil.updateFunAudit(funId, dataId, audit);
 	}

@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.jxstar.dao.DaoParam;
 import org.jxstar.service.BusinessObject;
+import org.jxstar.service.util.FunStatus;
 import org.jxstar.util.MapUtil;
 import org.jxstar.wf.invoke.StatusCode;
 import org.jxstar.wf.util.ProcessUtil;
@@ -106,7 +107,10 @@ public class CheckMonitorBO extends BusinessObject {
 		
 		String funId = MapUtil.getValue(data, "fun_id");
 		String dataId = MapUtil.getValue(data, "data_id");
-		boolean ret = ProcessUtil.updateFunAudit(funId, dataId, "0");
+		//取设置的业务状态值
+		String audit0 = FunStatus.getValue(funId, "audit0", "0");
+		//修改功能记录状态
+		boolean ret = ProcessUtil.updateFunAudit(funId, dataId, audit0);
 		if (!ret) {
 			setMessage("修改业务记录状态出错！");
 			return _returnFaild;
