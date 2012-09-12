@@ -48,7 +48,10 @@ public class WhereUtil {
 			if (sbWhere.length() > 0) {
 				sbWhere.append(" and ");
 			}
-			sbWhere.append(" (").append(auditCol).append(" = '0' or ").append(auditCol).append(" = '6') ");
+			//取设置的业务状态值
+			String audit0 = FunStatus.getValue(funid, "audit0", "0"), audit6 = "6";
+			sbWhere.append(" (").append(auditCol).append(" = '"+ audit0 +"' or ");
+			sbWhere.append(auditCol).append(" = '"+ audit6 +"') ");
 		}
 		
 		String whereSql = sbWhere.toString();
@@ -107,7 +110,10 @@ public class WhereUtil {
 			if (sbWhere.length() > 0) {
 				sbWhere.append(" and ");
 			}
-			sbWhere.append(" (").append(auditCol).append(" = '0' or ").append(auditCol).append(" = '6') ");
+			//取设置的业务状态值
+			String audit0 = FunStatus.getValue(funid, "audit0", "0"), audit6 = "6";
+			sbWhere.append(" (").append(auditCol).append(" = '"+ audit0 +"' or ");
+			sbWhere.append(auditCol).append(" = '"+ audit6 +"') ");
 		}
 		
 		//取数据权限where语句
@@ -175,7 +181,10 @@ public class WhereUtil {
 			if (sbWhere.length() > 0) {
 				sbWhere.append(" and ");
 			}
-			sbWhere.append(" (").append(auditCol).append(" = '0') ");
+			//取设置的业务状态值
+			String audit0 = FunStatus.getValue(funid, "audit0", "0"), audit6 = "6";
+			sbWhere.append(" (").append(auditCol).append(" = '"+ audit0 +"' or ");
+			sbWhere.append(auditCol).append(" = '"+ audit6 +"') ");
 		}
 		
 		//取数据权限where语句

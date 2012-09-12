@@ -14,6 +14,7 @@ import org.jxstar.dao.JsonDao;
 import org.jxstar.service.BoException;
 import org.jxstar.service.BusinessEvent;
 import org.jxstar.service.define.FunctionDefine;
+import org.jxstar.service.util.FunStatus;
 import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
@@ -40,9 +41,10 @@ public class AuditEvent extends BusinessEvent {
 			_log.showError(e);
 			return _returnFaild;
 		}
-		
+		//取设置的业务状态值
+		String audit1 = FunStatus.getValue(_funID, "audit1", "1");
 		//取复核值：1 表示复核，0 表示取消复核
-		String auditVal = request.getRequestValue("auditvalue", "1");
+		String auditVal = request.getRequestValue("auditvalue", audit1);
 		
 		String[] asKey = request.getRequestValues(JsParam.KEYID);
 		if (asKey == null || asKey.length == 0) {
