@@ -236,6 +236,7 @@ JxSelect = {};
 		
 		//解析选择窗口中的[table.field];{table.field}参数
 		parseWhereValue: function(whereValue, parentField, targetFlag) {
+			var self = this;
 			//如果含{table.field}表示，从父Form中取值，一般是Grid编辑的明细表中取父form
 			if (whereValue != null && whereValue.indexOf('\{') >= 0) {
 				if (targetFlag.indexOf('grid') >= 0) {
