@@ -186,12 +186,16 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 		var hdcall = function() {
 			var param = JxAttach.attachParam(self, 'fdelete');
 			if (param == null) return;
-			
-			var audit = '0';
+			//设置业务状态值
+			var audit0 = '0', audit6 = '6';
+			if (param.define.status) {
+				audit0 = param.define.status['audit0'];
+			}
+			var audit = audit0;
 			if (param.define.auditcol.length > 0) {
 				audit = param.form.get(param.define.auditcol);
 			}
-			if (audit != '0' && audit != '6') {
+			if (audit != audit0 && audit != audit6) {
 				JxHint.alert('业务记录已提交，不能删除附件！');
 				return;
 			}

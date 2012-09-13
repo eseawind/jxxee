@@ -101,9 +101,15 @@ JxFormSub = {};
 					
 					//如果主记录已提交，则明细表的按钮不能使用
 					if (define.auditcol.length > 0) {
+						//设置业务状态值
+						var audit0 = '0', audit6 = '6';
+						if (define.status) {
+							audit0 = define.status['audit0'];
+						}
+			
 						var state = form.get(define.auditcol);
-						if (state == null || state.length == 0) state = '0';
-						var disable = (state != '0' && state != '6');
+						if (state == null || state.length == 0) state = audit0;
+						var disable = (state != audit0 && state != audit6);
 						var tools = subgrid.getTopToolbar();
 						JxUtil.disableButton(tools, disable);
 					}

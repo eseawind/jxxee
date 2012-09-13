@@ -15,6 +15,20 @@ Jxstar.FormEvent = function(define) {
 	this.define = define;
 	this.page = null;	//表单页面FormPanel
 	this.form = null;	//表单对象BasicForm
+	//设置业务状态值
+	this.audit0 = '0';
+	this.audit1 = '1';
+	this.audit2 = '2';
+	this.audit6 = '6';
+	this.audit_b = '';
+	this.audit_e = '7';//可以用于终止与注销
+	if (this.define.status) {
+		this.audit0 = this.define.status['audit0'];
+		this.audit1 = this.define.status['audit1'];
+		this.audit2 = this.define.status['audit2'];
+		this.audit_b = this.define.status['audit_b'];
+		this.audit_e = this.define.status['audit_e'];
+	}
 	this.addEvents(
 		/**
 		* @param {Jxstar.FormEvent} this
@@ -149,7 +163,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		if (record) {
 			//记录状态
 			var state = record.get(self.define.auditcol);
-			if (state == null || state.length == 0) state = '0';
+			if (state == null || state.length == 0) state = self.audit0;
 			
 			//如果子表的form，则取父表的auditing值
 			var pageType = self.page.formNode.pageType;
@@ -159,7 +173,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 					var records = parentGrid.getSelectionModel().getSelections();
 					if (records.length > 0) {
 						state = records[0].get(parentGrid.gridNode.define.auditcol);
-						if (state == null || state.length == 0) state = '0';
+						if (state == null || state.length == 0) state = self.audit0;
 					}
 				}
 			}
@@ -170,7 +184,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 				//已复核记录设置表单为只读，编辑按钮不能使用
 				if (noedit || state != null) {
 					//设置只读值
-					var readOnly = noedit || (state != '0' && state != '6');
+					var readOnly = noedit || (state != self.audit0 && state != self.audit6);
 					JxUtil.readOnlyForm(self.form, readOnly);
 					JxUtil.disableButton(toolBar, readOnly);
 					
@@ -194,7 +208,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		JxUtil.clearDirty(self.form);
 		//处理审批过程中可以修改字段的显示状态
 		var dataId = this.getPkField().getValue();
-		if (state == '2' && formnode.pageType.indexOf('chk') >= 0) {
+		if (state == self.audit2 && formnode.pageType.indexOf('chk') >= 0) {
 			var nodeId = self.define.nodeid;
 			JxUtil.showCheckEdit(nodeId, dataId, self.form, toolBar);
 		}
@@ -287,7 +301,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 				record.set(cols[i], val);
 			} else if (typeof defaultval == 'undefined') {
 				if (cols[i] == self.define.auditcol) {
-					record.set(cols[i], '0');
+					record.set(cols[i], self.audit0);
 				} else {
 					record.set(cols[i], '');
 				}
@@ -354,7 +368,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 			return;
 		}
 	
-		if (this.checkAudit('1', 'del')) return;
+		if (this.checkAudit(this.audit1, 'del')) return;
 		if (this.fireEvent('beforedelete', this) == false) return;
 
 		//删除提交
@@ -500,28 +514,29 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 	* 提交时：检查是否存在已复核的记录；取消时：检查是否存在未复核记录
 	**/
 	checkAudit: function(auditval, srctype) {
-		if (Ext.isEmpty(auditval)) auditval = '1';
+		var self = this;
+		if (Ext.isEmpty(auditval)) auditval = self.audit1;
 		if (Ext.isEmpty(srctype)) srctype = 'audit';
 
 		//数据校验，删除时不用检查
-		if (srctype != 'del' && !this.form.isValid()) {
+		if (srctype != 'del' && !self.form.isValid()) {
 			JxHint.alert(jx.event.datavalid);	//'请确保输入的数据正确完整！'
 			return true;
 		}
 		
-		var auditcol = this.define.auditcol;
+		var auditcol = self.define.auditcol;
 		if (Ext.isEmpty(auditcol)) return false;
-		var record = this.form.myRecord;
+		var record = self.form.myRecord;
 		var state = record.get(auditcol);
-		if (Ext.isEmpty(state)) state = '0';
+		if (Ext.isEmpty(state)) state = self.audit0;
 		
-		if (auditval == '0') {
-			if (state != '1'){
+		if (auditval == self.audit0) {
+			if (state != self.audit1){
 				JxHint.alert(jx.event.curaudit0);		//'当前记录未复核，不能操作！'
 				return true;
 			}
 		} else {
-			if (state != '0' && state != '2' && state != '6'){//暂时调整为审批中的记录可以保存修改
+			if (state != self.audit0 && state != self.audit2 && state != self.audit6){//暂时调整为审批中的记录可以保存修改
 				JxHint.alert(jx.event.curaudit1);	//'当前记录已复核，不能操作！'
 				return true;
 			}
@@ -535,7 +550,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 	* 提交事件
 	**/
 	audit : function() {
-		this.baseAudit('1');
+		this.baseAudit(this.audit1);
 	},
 
 	/**
@@ -543,7 +558,31 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 	* 取消提交事件
 	**/
 	unaudit : function() {
-		this.baseAudit('0');
+		this.baseAudit(this.audit0);
+	},
+	
+	/**
+	* public
+	* 退回事件
+	**/
+	auditBack : function() {
+		if (Ext.isEmpty(this.audit_b)) {
+			JxHint.alert(jx.event.auditbe);		//退回状态值为空，不能操作！
+			return;
+		}
+		this.baseAudit(this.audit_b);
+	},
+	
+	/**
+	* public
+	* 注销事件
+	**/
+	auditCancel : function() {
+		if (Ext.isEmpty(this.audit_e)) {
+			JxHint.alert(jx.event.auditee);		//注销或终止状态值为空，不能操作！
+			return;
+		}
+		this.baseAudit(this.audit_e);
 	},
 
 	/**
@@ -569,7 +608,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		if (JxAttach.checkAttach(self.page) == false) return;
 
 		//取复核值
-		if (auditval == null) auditval = '1';
+		if (auditval == null) auditval = self.audit1;
 
 		if (this.checkAudit(auditval)) return;
 		if (this.fireEvent('beforeaudit', this) == false) return;
@@ -596,7 +635,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 				JxUtil.clearDirty(self.form);
 				
 				//调整编辑按钮与表单为只读属性
-				var readOnly = (auditval == '1');
+				var readOnly = (auditval == self.audit1);
 				JxUtil.readOnlyForm(self.form, readOnly);
 				var toolBar = self.page.getTopToolbar();
 				JxUtil.disableButton(toolBar, readOnly);
@@ -609,10 +648,16 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 			Request.postRequest(params, endcall);
 		};
 
-		var shint = jx.event.audityes;		//确定复核当前记录吗？
- 		if (auditval == '0') {
+		var shint = '';
+ 		if (auditval == self.audit0) {
 			shint = jx.event.auditno;		//确定反复核当前记录吗？
- 		};
+ 		} else if (auditval == self.audit_b) {
+			shint = jx.event.auditback;		//确定退回当前记录吗？
+ 		} else if (auditval == self.audit_e) {
+			shint = jx.event.auditcancel;	//确定注销当前记录吗？
+ 		} else {
+			shint = jx.event.audityes;		//确定复核当前记录吗？
+		}
 		Ext.Msg.confirm(jx.base.hint, shint, function(btn) {
 			if (btn == "yes") hdcall();
 		});
@@ -791,7 +836,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 				//设置目标功能信息
 				grid.attachDataId = keyid;
 				grid.attachFunId = nodeid;
-				grid.attachAudit = audit || '1';
+				grid.attachAudit = audit || self.audit1;
 				//删除GRID的自定义参数
 				grid.on('beforedestroy', function(gp){
 					gp.attachDataId = null;		delete gp.attachDataId;

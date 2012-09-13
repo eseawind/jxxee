@@ -14,6 +14,18 @@ Ext.ns('Jxstar');
 Jxstar.GridEvent = function(define) {
 	this.define = define;
 	this.grid = null;
+	//设置业务状态值
+	this.audit0 = '0';
+	this.audit1 = '1';
+	this.audit6 = '6';
+	this.audit_b = '';
+	this.audit_e = '7';//可以用于终止与注销
+	if (this.define.status) {
+		this.audit0 = this.define.status['audit0'];
+		this.audit1 = this.define.status['audit1'];
+		this.audit_b = this.define.status['audit_b'];
+		this.audit_e = this.define.status['audit_e'];
+	}
 	this.addEvents(
 		/**
 		* @param {Jxstar.GridEvent} this
@@ -253,7 +265,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	* 提交时：检查是否存在已复核的记录；取消时：检查是否存在未复核记录
 	**/
 	checkAudit: function(auditval) {
-		if (auditval == null) auditval = '1';
+		if (auditval == null) auditval = this.audit1;
 		
 		var records = JxUtil.getSelectRows(this.grid);
 		for (var i = 0; i < records.length; i++) {
@@ -261,15 +273,15 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			if (Ext.isEmpty(auditcol)) return false;
 			
 			var state = records[i].get(auditcol);
-			if (Ext.isEmpty(state)) state = '0';
+			if (Ext.isEmpty(state)) state = this.audit0;
 			
-			if (auditval == '0') {
-				if (state != '1'){
+			if (auditval == this.audit0) {
+				if (state != this.audit1){
 					JxHint.alert(jx.event.selaudit0);	//选择的记录中存在未复核的记录，不能操作！
 					return true;
 				}
 			} else {
-				if (state != '0' && state != '6'){
+				if (state != this.audit0 && state != this.audit6){
 					JxHint.alert(jx.event.selaudit1);	//选择的记录中存在已复核的记录，不能操作！
 					return true;
 				}
@@ -326,7 +338,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	* 提交事件
 	**/
 	audit : function() {
-		this.baseAudit('1');
+		this.baseAudit(this.audit1);
 	},
 
 	/**
@@ -334,7 +346,31 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	* 取消提交事件
 	**/
 	unaudit : function() {
-		this.baseAudit('0');
+		this.baseAudit(this.audit0);
+	},
+	
+	/**
+	* public
+	* 退回事件
+	**/
+	auditBack : function() {
+		if (Ext.isEmpty(this.audit_b)) {
+			JxHint.alert(jx.event.auditbe);		//退回状态值为空，不能操作！
+			return;
+		}
+		this.baseAudit(this.audit_b);
+	},
+	
+	/**
+	* public
+	* 注销事件
+	**/
+	auditCancel : function() {
+		if (Ext.isEmpty(this.audit_e)) {
+			JxHint.alert(jx.event.auditee);		//注销或终止状态值为空，不能操作！
+			return;
+		}
+		this.baseAudit(this.audit_e);
 	},
 
 	/**
@@ -354,7 +390,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		if (JxUtil.validateGrid(this.grid) == false) return;
 
 		//取复核值
-		if (auditval == null) auditval = '1';
+		if (auditval == null) auditval = this.audit1;
 
 		if (this.checkAudit(auditval)) return;
 		if (this.fireEvent('beforeaudit', this) == false) return;
@@ -382,10 +418,16 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			Request.postRequest(params, endcall);
 		};
 
-		var shint = jx.event.audityes;	//确定复核选择的记录吗？
- 		if (auditval == '0') {
-			shint = jx.event.auditno;	//确定反复核选择的记录吗？
- 		};
+		var shint = '';
+ 		if (auditval == self.audit0) {
+			shint = jx.event.auditno;		//确定反复核当前记录吗？
+ 		} else if (auditval == self.audit_b) {
+			shint = jx.event.auditback;		//确定退回当前记录吗？
+ 		} else if (auditval == self.audit_e) {
+			shint = jx.event.auditcancel;	//确定注销当前记录吗？
+ 		} else {
+			shint = jx.event.audityes;		//确定复核当前记录吗？
+		}
 		Ext.Msg.confirm(jx.base.hint, shint, function(btn) {
 			if (btn == 'yes') hdcall();
 		});
@@ -1224,7 +1266,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 				//设置目标功能信息
 				grid.attachDataId = keyid;
 				grid.attachFunId = nodeid;
-				grid.attachAudit = audit || '1';
+				grid.attachAudit = audit || this.audit1;
 				//删除GRID的自定义参数
 				grid.on('beforedestroy', function(gp){
 					gp.attachDataId = null;		delete gp.attachDataId;

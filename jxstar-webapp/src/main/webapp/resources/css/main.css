@@ -267,6 +267,8 @@ td.ux-grid-hd-group-cell {/* ux.ColumnHeaderGroup */
 .flag_attach {background:url(../images/icons/button/attach_flag.gif) no-repeat;cursor:pointer;}
 .hd_button_add {background:url(../images/icons/fam/add.gif) no-repeat;cursor:pointer;}
 
+.eb_audit_cancel{background-image:url( ../images/icons/fam/cancel.gif) !important;}
+.eb_audit_back{background-image:url( ../images/icons/button/return.gif) !important;}
 .eb_calc{background-image:url( ../images/icons/button/calc.gif) !important;}
 .eb_stat{background-image:url( ../images/icons/button/stat.gif) !important;}
 .eb_impexcel{background-image:url( ../images/icons/button/dataimp.gif) !important;}

@@ -302,8 +302,12 @@ Jxstar.GridNode.prototype = {
 				var r = event.record;
 				var a = self.define.auditcol;
 				var s = r.get(a);	//记录状态值
-				if (s == null || s.length == 0) s = '0';
-				if (s != '0' && s != '6') return false;
+				var audit0 = '0', audit6 = '6';
+				if (self.define.status) {//设置业务状态值
+					audit0 = self.define.status['audit0'];
+				}
+				if (s == null || s.length == 0) s = audit0;
+				if (s != audit0 && s != audit6) return false;
 				
 				//没有编辑权限的不能编辑
 				if (self.right.edit == '0') return false;

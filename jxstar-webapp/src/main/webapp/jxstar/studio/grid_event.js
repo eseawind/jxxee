@@ -5,7 +5,8 @@
 	var btnshowData = Jxstar.findComboData('btnshow');
 
 	var cols = [
-	{col:{header:'域？', width:45, sortable:true, defaultval:'0', editable:true, hcss:'color:#3039b4;',
+	{col:{header:'域？', width:45, sortable:true, defaultval:'0', align:'center',
+		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.Checkbox(),
 		renderer:function(value) {
 			return value=='1' ? jx.base.yes : jx.base.no;
@@ -17,7 +18,7 @@
 			triggerClass:'x-form-search-trigger', 
 			onTriggerClick: function() {
 				if (this.menu == null) {
-					var selcfg = {pageType:'combogrid', nodeId:'event_domain', layoutPage:'', sourceField:'funall_domain.domain_code;domain_name', targetField:'fun_event.event_code;event_name', whereSql:"", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',fieldName:'fun_event.event_code'};
+					var selcfg = {pageType:'combogrid', nodeId:'event_domain', layoutPage:'', sourceField:'funall_domain.domain_code;domain_name', targetField:'fun_event.event_code;event_name', whereSql:"", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',queryField:'',likeType:'',fieldName:'fun_event.event_code'};
 					this.menu = Jxstar.createComboMenu(this);
 					JxSelect.createComboGrid(selcfg, this.menu, 'node_fun_event_editgrid');
 				}
@@ -57,7 +58,7 @@
 					return right_typeData[i][1];
 			}
 		}}, field:{name:'fun_event__right_type',type:'string'}},
-	{col:{header:'显示类型', width:57, sortable:true, defaultval:'tool', align:'center',
+	{col:{header:'显示类型', width:71, sortable:true, defaultval:'tool', align:'center',
 		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
@@ -83,7 +84,8 @@
 		editor:new Ext.form.NumberField({
 			maxLength:12
 		}),renderer:JxUtil.formatInt()}, field:{name:'fun_event__event_index',type:'int'}},
-	{col:{header:'隐藏？', width:50, sortable:true, defaultval:'0', editable:true, hcss:'color:#3039b4;',
+	{col:{header:'隐藏？', width:50, sortable:true, defaultval:'0', align:'center',
+		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.Checkbox(),
 		renderer:function(value) {
 			return value=='1' ? jx.base.yes : jx.base.no;
@@ -104,6 +106,7 @@
 		isshow: '0',
 		funid: 'fun_event'
 	};
+	
 	
 	config.eventcfg = {
 		f_invoke: function(){
