@@ -46,4 +46,21 @@ public class FunStatus {
 		
 		return MapUtil.getValue(mpData, name, def);
 	}
+	
+	/**
+	 * 取记录有效值，根据标志1|3取真实状态值
+	 * @param funId
+	 * @param flag
+	 * @return
+	 */
+	public static String getValidStatus(String funId, String flag) {
+		Map<String,String> mpData = getStatus(funId);
+		if (mpData.isEmpty()) return flag;
+		
+		if (flag.equals("3")) {
+			return MapUtil.getValue(mpData, "audit3", "3");
+		}
+		
+		return MapUtil.getValue(mpData, "audit1", "1");
+	}
 }

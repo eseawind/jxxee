@@ -56,9 +56,11 @@ public class WhereUtil {
 		
 		String whereSql = sbWhere.toString();
 		//解析wheresql子句中的参数{VALIDDATA}
-		if (whereSql.length() > 0 && whereSql.indexOf("{VALIDDATA}") >= 0 
-				&& auditCol.length() > 0) {
-			String validsql = auditCol + "='" + mpFun.get("valid_flag") + "'";
+		if (whereSql.length() > 0 && whereSql.indexOf("{VALIDDATA}") >= 0 && auditCol.length() > 0) {
+			String flag = mpFun.get("valid_flag");
+			flag = FunStatus.getValidStatus(funid, flag);//取真实状态值
+			
+			String validsql = auditCol + "='" + flag + "'";
 			whereSql = whereSql.replace("{VALIDDATA}", validsql);
 		}
 		
@@ -129,9 +131,11 @@ public class WhereUtil {
 		
 		String whereSql = sbWhere.toString();
 		//解析wheresql子句中的参数{VALIDDATA}
-		if (whereSql.length() > 0 && whereSql.indexOf("{VALIDDATA}") >= 0 
-				&& auditCol.length() > 0) {
-			String validsql = auditCol + "='" + mpFun.get("valid_flag") + "'";
+		if (whereSql.length() > 0 && whereSql.indexOf("{VALIDDATA}") >= 0 && auditCol.length() > 0) {
+			String flag = mpFun.get("valid_flag");
+			flag = FunStatus.getValidStatus(funid, flag);//取真实状态值
+			
+			String validsql = auditCol + "='" + flag + "'";
 			whereSql = whereSql.replace("{VALIDDATA}", validsql);
 		}
 		_log.showDebug("gridquery where sql:" + whereSql);
@@ -164,10 +168,11 @@ public class WhereUtil {
 		
 		//解析wheresql子句中的参数{VALIDDATA}
 		String auditCol = mpFun.get("audit_col");
-		String validFlag = mpFun.get("valid_flag");
-		if (basewhere.length() > 0 && basewhere.indexOf("{VALIDDATA}") >= 0 
-				&& auditCol.length() > 0) {
-			String validsql = auditCol + "='" + validFlag + "'";
+		if (basewhere.length() > 0 && basewhere.indexOf("{VALIDDATA}") >= 0 && auditCol.length() > 0) {
+			String flag = mpFun.get("valid_flag");
+			flag = FunStatus.getValidStatus(funid, flag);//取真实状态值
+			
+			String validsql = auditCol + "='" + flag + "'";
 			basewhere = basewhere.replace("{VALIDDATA}", validsql);
 		}
 		
