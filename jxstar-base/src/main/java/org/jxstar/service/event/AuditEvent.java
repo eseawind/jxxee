@@ -6,6 +6,7 @@
  */
 package org.jxstar.service.event;
 
+import java.util.List;
 import java.util.Map;
 
 import org.jxstar.control.action.RequestContext;
@@ -19,6 +20,7 @@ import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.StringUtil;
+import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.resource.JsMessage;
 import org.jxstar.util.resource.JsParam;
 
@@ -202,21 +204,40 @@ public class AuditEvent extends BusinessEvent {
 	 * @return
 	 */
 	private String formJson(String key) {
-		String select = _funObject.getSelectSQL();
-		String where = _funObject.getWhereSQL();
-		StringBuilder sbsql = new StringBuilder(select);
-		sbsql.append(" where ");
-		if (where.length() > 0) {
-			sbsql.append("("+ where +") and ");
-		}
-		sbsql.append(_pkColName).append(" = ? ");
+		String table = _tableName.toLowerCase();
+		String[] cols = _funObject.getSelectCol();
+		StringBuilder sbcol = new StringBuilder();
 		
-		String[] cols = ArrayUtil.getGridCol(sbsql.toString());
+		//只取本表的字段值
+		List<String> lsCol = FactoryUtil.newList();
+		for (String colname : cols) {
+			if (colname.indexOf(table) == 0) {
+				sbcol.append(colname).append(",");
+				colname = colname.replace(".", "__");
+				lsCol.add(colname);
+			}
+		}
+		if (lsCol.isEmpty()) return ""; 
+		String[] cols1 = lsCol.toArray(new String[lsCol.size()]);
+		
+		//添加where，如果是多表查询，可能会查询出多条记录，返回的是数组，前台会报错
+		//添加where，如果修改了where中的状态字段值，会造成取不到记录
+		//改为只取本表记录，一般不会修改关联表的记录值
+		StringBuilder sbsql = new StringBuilder("select ");
+		sbsql.append(sbcol.substring(0, sbcol.length()-1));
+		sbsql.append(" from ").append(table).append(" where ");
+		sbsql.append(_pkColName).append(" = ?");
+		_log.showDebug("..............audit return sql:" + sbsql);
+		
 		DaoParam param = _dao.createParam(sbsql.toString());
 		param.setDsName(_dsName);
 		param.addStringValue(key);
 		
+		//构建查询JSON对象
 		JsonDao jsonDao = JsonDao.getInstance();
-		return jsonDao.query(param, cols);
+		String json = jsonDao.query(param, cols1);
+		_log.showDebug("..............audit return json:" + json);
+		
+		return json;
 	}
 }
