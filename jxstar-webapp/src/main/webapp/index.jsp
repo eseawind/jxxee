@@ -14,8 +14,9 @@
 	String verNo = SystemVar.getValue("sys.version.no", "");
 	String verType = LicenseVar.getValue(LicenseVar.VERSION_TYPE, "SE");
 	String useCase = SystemVar.getValue("page.query.case", "0");
+	boolean connValid = org.jxstar.dao.util.ConnValid.hasValid();
 	
-	if (svnNum.length() == 0 && verNo.length() == 0) {
+	if ((svnNum.length() == 0 && verNo.length() == 0) || !connValid) {
 		response.sendRedirect(contextpath+"/error.jsp?errorCode=index.dbnostart");
 	}
 	String invalid = LicenseVar.getValue(LicenseVar.INVALID, "0");
