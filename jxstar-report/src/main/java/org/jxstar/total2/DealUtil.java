@@ -9,6 +9,7 @@ import java.util.Map;
 import org.jxstar.report.ReportException;
 import org.jxstar.total.util.TotalDao;
 import org.jxstar.util.MapUtil;
+import org.jxstar.util.StringUtil;
 import org.jxstar.util.factory.FactoryUtil;
 
 /**
@@ -196,10 +197,12 @@ public class DealUtil {
 		
 		String xfield = getTypeField(reportId, "cross");
 		String yfield = getTypeField(reportId, "assort");
+		//where子句中会有''特殊符号，在JSON中会报错
+		String where_sql = StringUtil.strForJson(mpDrill.get("where_sql"));
 		
 		StringBuilder sbRet = new StringBuilder();
 		sbRet.append("{fun_id:'" + mpDrill.get("fun_id") + "',");
-		sbRet.append("where_sql:'" + mpDrill.get("where_sql") + "',");
+		sbRet.append("where_sql:'" + where_sql + "',");
 		sbRet.append("where_type:'" + mpDrill.get("where_type") + "',");
 		sbRet.append("where_value:'" + mpDrill.get("where_value") + "',");
 		sbRet.append("xfield:'" + xfield + "',");
