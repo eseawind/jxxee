@@ -232,10 +232,8 @@ JxQueryExt = {};
 				} else {
 					var oldcmp = mc.editor;
 					Ext.apply(oldcmp.initialConfig, {allowBlank:true, editable:true, cls:'', xtype:oldcmp.getXType()});
-					field = oldcmp.initialConfig;
-					if (oldcmp.isXType('combo')) {
-						field.value = '';
-					}
+					field = new oldcmp.constructor(oldcmp.initialConfig);
+					if (oldcmp.isXType('combo')) field.value = '';
 				}
 				
 				var str = qrycfg.colname;
@@ -299,7 +297,7 @@ JxQueryExt = {};
 				if (f.isXType('field') && f.getName() != 'xx_isarch') {
 					var v = f.getValue();
 					if (Ext.isEmpty(v) == false) {
-						var d = f.initialConfig.data;
+						var d = f.data;
 						d.cond_value = v;
 						vfs.add(d);
 					}
