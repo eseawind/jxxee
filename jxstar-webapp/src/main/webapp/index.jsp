@@ -273,4 +273,18 @@ Ext.onReady(function() {
 	});
 });
 </script>
+<script type="text/javascript">
+function doKey(e){//用ExtJs的事件注册时无效
+	var ev = e || window.event;
+	var obj = ev.target || ev.srcElement;
+	var t = obj.type || obj.getAttribute('type');//获取事件源类型
+	if(ev.keyCode == 8 && t != "password" && t != "text" && t != "textarea"){
+		return false;
+	}
+}
+//禁止后退键 作用于Firefox、Opera
+document.onkeypress=doKey;
+//禁止后退键  作用于IE、Chrome
+document.onkeydown=doKey;
+</script>
 </html>
