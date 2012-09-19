@@ -58,7 +58,7 @@ public class SqlRuleBO extends BusinessObject {
 		//目标功能的子功能ID
 		DefineDataManger manger = DefineDataManger.getInstance();
 		Map<String,String> destDefine = manger.getFunData(destFunId);
-		String[] subFunIds = destDefine.get("subfun_id").split("/,");
+		String[] subFunIds = destDefine.get("subfun_id").split(",");
 		
 		//执行数据导入
 		for (int i = 0, n = selKeyId.length; i < n; i++) {
@@ -82,6 +82,7 @@ public class SqlRuleBO extends BusinessObject {
 			//导入子表数据
 			for (int j = 0, m = newKeyIds.length; j < m; j++) {
 				for (int k = 0, p = subFunIds.length; k < p; k++) {
+					_log.showDebug("------------sql rule import subdata: srcFunId=" + srcFunId + "; tagFunId=" + subFunIds[k]);
 					//来源功能ID只是用来取数据源名，子表也采用父表的数据源
 					String newSubId = _ruleUtil.exeInsert(srcFunId, subFunIds[k], 
 						selKeyId[i], newKeyIds[j], routeId, userInfo);
