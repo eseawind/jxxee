@@ -360,7 +360,7 @@ JxAttach = {};
 				for(var i = 0; i < fields.length; i++) {
 					var f = fields[i];
 					if (f.allowBlank == false) {
-						var val = data[f.name];
+						var val = data.get(f.name);
 						if (val == null || val.length == 0) {
 							JxHint.alert('【' + f.fieldLabel + '】栏目没有上传附件，不能提交！');
 							return false;
