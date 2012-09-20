@@ -74,15 +74,10 @@ public class ReportHtmlFormGrid extends ReportHtml {
 	private String fillSubArea(String jsTblObj, Map<String, String> mpData) throws ReportException {
 		StringBuilder sbRet = new StringBuilder();
 		String strPKCol = _mpMainArea.get("pk_col");
-		String strTblName = _mpMainArea.get("main_table");
-
-		//判断主表名是否为空
-		if (strTblName == null || strTblName.length() == 0)
-			throw new ReportException("报表区域中的主表名不能为空！");
-
+		
 		//判断主键名是否为空
 		if (strPKCol == null || strPKCol.length() == 0)
-			throw new ReportException("报表区域中的主键名不能为空！");
+			throw new ReportException("主从报表的主区域中的主键名不能为空！");
 		
 		//取主键字段名
 		strPKCol = StringUtil.getNoTableCol(strPKCol);

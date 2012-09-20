@@ -79,15 +79,10 @@ public class ReportXlsFormGrid extends ReportXls {
 	 */
 	private HSSFSheet fillSubArea(HSSFSheet sheet, Map<String, String> mpData) throws ReportException {
 		String strPKCol = _mpMainArea.get("pk_col");
-		String strTblName = _mpMainArea.get("main_table");
-
-		//判断主表名是否为空
-		if (strTblName == null || strTblName.length() == 0)
-			throw new ReportException("报表区域中的主表名不能为空！");
 
 		//判断主键名是否为空
 		if (strPKCol == null || strPKCol.length() == 0)
-			throw new ReportException("报表区域中的主键名不能为空！");
+			throw new ReportException("主从报表的主区域中的主键名不能为空！");
 		
 		//取主键字段名
 		strPKCol = StringUtil.getNoTableCol(strPKCol);
@@ -219,13 +214,13 @@ public class ReportXlsFormGrid extends ReportXls {
 		
 			String sql = mpField.get("data_sql");
 			String areaName = mpField.get("area_name");
-			String tableName = mpField.get("main_table");
 			String subFkcol = mpField.get("sub_fkcol");
-			
+			//如果没有定义子区域外键字段，则取主区域的主键字段
 			if (subFkcol == null || subFkcol.length() == 0) {
 				subFkcol = pkcol;
-			} else {
-				subFkcol = StringUtil.getNoTableCol(subFkcol);
+			}
+			if (subFkcol == null || subFkcol.length() == 0) {
+				throw new ReportException("主从报表的子区域的外键字段名不能为空！");
 			}
 		
 			String strWhere = mpField.get("data_where");
@@ -234,7 +229,7 @@ public class ReportXlsFormGrid extends ReportXls {
 		
 			String dsName = mpField.get("ds_name");
 
-			sql += " where (" + tableName + "." + subFkcol + " = '"+keyID+"')";
+			sql += " where (" + subFkcol + " = '"+keyID+"')";
 			if(strWhere.length() > 0) {
 				sql += " and (" + strWhere + ")";
 			}
