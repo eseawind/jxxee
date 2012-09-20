@@ -133,8 +133,14 @@
 	});
 	//打开功能
 	treeMenu.on('click', function(node){
-		if (node.isLeaf()) { 
+		if (node.isLeaf()) {
 			Jxstar.createNode(node.id);	
+		} else {
+			if (node.isExpanded()) {
+				node.collapse();
+			} else {
+				node.expand();
+			}
 		}
 	});
 	//给展开的菜单区域添加底部边框
