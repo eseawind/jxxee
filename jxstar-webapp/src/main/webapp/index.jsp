@@ -19,10 +19,6 @@
 	if ((svnNum.length() == 0 && verNo.length() == 0) || !connValid) {
 		response.sendRedirect(contextpath+"/error.jsp?errorCode=index.dbnostart");
 	}
-	String invalid = LicenseVar.getValue(LicenseVar.INVALID, "0");
-	if (invalid.equals("1")) {
-		response.sendRedirect(contextpath+"/error.jsp?errorCode=index.licinvalid");
-	}
 	
 	String loginCss = "resources/css/login.css?verno=" + svnNum;
 	if (indexType.equals("1")) loginCss = "resources/project/css/login.css?verno=" + svnNum;
