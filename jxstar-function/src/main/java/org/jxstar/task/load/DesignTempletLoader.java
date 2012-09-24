@@ -31,10 +31,6 @@ public class DesignTempletLoader extends SystemLoader {
 		LicenseVar.setValue(LicenseVar.CREATE_PATH, createPath);
 		LicenseVar.setValue(LicenseVar.REAL_PATH, SystemVar.REALPATH);
 		
-		//启动许可检测线程，意义不大
-		//CheckLicThread thread = new CheckLicThread();
-		//thread.start();
-		
 		//获取许可试用期结束时间
 		String endTime = _safe.getEndTime();
 		if (endTime == null || endTime.length() == 0) {
@@ -62,7 +58,7 @@ public class DesignTempletLoader extends SystemLoader {
 	}
 
 	protected void load() {
-		if (!copyright()) return;
+		copyright();//为了保障生产系统在无许可的情况下也使用，去掉了return false;
 		
 		String realPath = _initParam.get(JsParam.REALPATH);
 		String filePath = realPath + "conf/tpl/";
