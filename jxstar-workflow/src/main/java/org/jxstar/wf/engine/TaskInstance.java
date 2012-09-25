@@ -43,7 +43,8 @@ public class TaskInstance {
 		//取当前任务的有效用户
 		List<Map<String,String>> lsUser = AssignTaskUtil.queryAssignUser(this, appData);
 		if (lsUser.isEmpty()) {//"【{0}】过程的【{1}】节点没有找到符合条件的分配用户！"
-			throw new WfException(JsMessage.getValue("task.nouser"), processId, nodeId);
+			String processName = processInstance.getProcessName();
+			throw new WfException(JsMessage.getValue("task.nouser"), processName, nodeTitle);
 		}
 		
 		//设置任务为创建状态
