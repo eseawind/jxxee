@@ -118,6 +118,8 @@ public class ControlerLock {
 	 * @return
 	 */
 	private static boolean isDoing(String funId, String keyId) {
+		if (keyId == null || keyId.length() == 0) return false;
+		
 		String sql = "select count(*) as cnt from sys_doing where fun_id = ? and key_id = ?";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(funId);
@@ -183,6 +185,8 @@ public class ControlerLock {
 	 * @param keyId
 	 */
 	private static void delDoing(String funId, String keyId) {
+		if (keyId == null || keyId.length() == 0) return;
+		
 		String sql = "delete from sys_doing where fun_id = ? and key_id = ?";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(funId);
