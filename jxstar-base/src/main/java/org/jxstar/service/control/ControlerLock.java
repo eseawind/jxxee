@@ -72,7 +72,6 @@ public class ControlerLock {
 		if (keyIds == null || keyIds.length == 0) return;
 		
 		for (String keyId : keyIds) {
-			if (keyId.length() == 0) continue;
 			delDoing(funId, keyId);
 		}
 	}
@@ -147,7 +146,6 @@ public class ControlerLock {
 		}
 		
 		for (String keyId : keyIds) {
-			if (keyId.length() == 0) continue;
 			regDoing(funId, keyId, eventCode, pageType, userId);
 		}
 	}
