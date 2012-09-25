@@ -749,8 +749,14 @@ Ext.ns('Jxstar');
 					}
 				}
 			}
+			//根据分页工具栏取每页记录数
+			var pageSize = Jxstar.pageSize;
+			var bbar = grid.getBottomToolbar();
+			if (bbar && bbar.isXType('paging')) {
+				pageSize = bbar.pageSize;
+			}
 			
-			var params = Ext.apply({start:0, limit:Jxstar.pageSize}, options);
+			var params = Ext.apply({start:0, limit:pageSize}, options);
 			grid.getStore().load({params:params});
 		},
 
