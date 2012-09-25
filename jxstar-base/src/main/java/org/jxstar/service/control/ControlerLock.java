@@ -31,15 +31,21 @@ import org.jxstar.util.resource.JsParam;
  */
 public class ControlerLock {
 	private static BaseDao _dao = BaseDao.getInstance();
+	//另存当前主键值的标识
+	private static final String LOCK_KEYID = "jxstar_lock_keyid";
 	
 	/**
 	 * 检查当前正在执行的操作，如果存在就退出，并且注册当前操作
 	 * @param request
 	 * @return
 	 */
-	public static boolean checkDoing(RequestContext request) {
+	public static boolean checkDoing(RequestContext request) {		
 		//如果是不需锁定的事件，则不处理
 		if (!isCheckEvent(request)) return false;
+		
+		//另存当前主键值，防止在业务方法中覆盖，如GridSaveEvent.gridSave就会覆盖
+		String[] keyIds = request.getRequestValues(JsParam.KEYID);
+		request.setRequestValue(LOCK_KEYID, keyIds);
 		
 		//其它用户正在对当前选择的记录执行操作，请稍后刷新数据，再次选择执行！
 		if (isDoing(request)) {
@@ -54,11 +60,29 @@ public class ControlerLock {
 	}
 	
 	/**
+	 * 删除此次事件的注册操作
+	 * @param request
+	 */
+	public static void delDoing(RequestContext request) {
+		//如果是不需锁定的事件，则不处理
+		if (!isCheckEvent(request)) return;
+		
+		String funId = request.getFunID();
+		String[] keyIds = request.getRequestValues(LOCK_KEYID);
+		if (keyIds == null || keyIds.length == 0) return;
+		
+		for (String keyId : keyIds) {
+			if (keyId.length() == 0) continue;
+			delDoing(funId, keyId);
+		}
+	}
+	
+	/**
 	 * 是否是需要锁定的事件
 	 * @param request
 	 * @return
 	 */
-	public static boolean isCheckEvent(RequestContext request) {
+	private static boolean isCheckEvent(RequestContext request) {
 		String eventCode = request.getEventCode();
 		String lockEvent = SystemVar.getValue("sys.lock.eventcode");
 		
@@ -76,9 +100,9 @@ public class ControlerLock {
 	 * @param request
 	 * @return
 	 */
-	public static boolean isDoing(RequestContext request) {
+	private static boolean isDoing(RequestContext request) {
 		String funId = request.getFunID();
-		String[] keyIds = request.getRequestValues(JsParam.KEYID);
+		String[] keyIds = request.getRequestValues(LOCK_KEYID);
 		if (keyIds == null || keyIds.length == 0) return false;
 		
 		for (String keyId : keyIds) {
@@ -94,7 +118,7 @@ public class ControlerLock {
 	 * @param keyId
 	 * @return
 	 */
-	public static boolean isDoing(String funId, String keyId) {
+	private static boolean isDoing(String funId, String keyId) {
 		String sql = "select count(*) as cnt from sys_doing where fun_id = ? and key_id = ?";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(funId);
@@ -108,12 +132,12 @@ public class ControlerLock {
 	 * 注册一个用户操作
 	 * @param request
 	 */
-	public static void regDoing(RequestContext request) {
+	private static void regDoing(RequestContext request) {
 		String funId = request.getFunID();
 		String eventCode = request.getEventCode();
 		String pageType = request.getPageType();
 		
-		String[] keyIds = request.getRequestValues(JsParam.KEYID);
+		String[] keyIds = request.getRequestValues(LOCK_KEYID);
 		if (keyIds == null || keyIds.length == 0) return;
 		
 		String userId = "";
@@ -136,7 +160,7 @@ public class ControlerLock {
 	 * @param pageType
 	 * @param userId
 	 */
-	public static void regDoing(String funId, String keyId, 
+	private static void regDoing(String funId, String keyId, 
 			String eventCode, String pageType, String userId) {
 		if (funId == null || funId.length() == 0) return;
 		if (keyId == null || keyId.length() == 0) return;
@@ -157,28 +181,10 @@ public class ControlerLock {
 	
 	/**
 	 * 删除此次事件的注册操作
-	 * @param request
-	 */
-	public static void delDoing(RequestContext request) {
-		//如果是不需锁定的事件，则不处理
-		if (!isCheckEvent(request)) return;
-		
-		String funId = request.getFunID();
-		String[] keyIds = request.getRequestValues(JsParam.KEYID);
-		if (keyIds == null || keyIds.length == 0) return;
-		
-		for (String keyId : keyIds) {
-			if (keyId.length() == 0) continue;
-			delDoing(funId, keyId);
-		}
-	}
-	
-	/**
-	 * 删除此次事件的注册操作
 	 * @param funId
 	 * @param keyId
 	 */
-	public static void delDoing(String funId, String keyId) {
+	private static void delDoing(String funId, String keyId) {
 		String sql = "delete from sys_doing where fun_id = ? and key_id = ?";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(funId);
