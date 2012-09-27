@@ -9,6 +9,8 @@ package org.jxstar.dao;
 import java.util.List;
 import java.util.Map;
 
+import org.jxstar.util.MapUtil;
+import org.jxstar.util.StringUtil;
 import org.jxstar.util.factory.FactoryUtil;
 
 /**
@@ -81,19 +83,64 @@ public class DmDaoUtil {
 		return sql;
 	}
 	
+	//如果是数据建模表中没有定义的视图，则从功能定义列中取字段类型
+	//还是不建议采用这种方式，不规范的用法就不处理 tony.tan 2012-09-27
+	private static List<Map<String,String>> getFunField(String tableName) {
+		String funId = getFunId(tableName);
+		if (funId.length() == 0) return FactoryUtil.newList();
+		
+		String sql = "select col_code, data_type from fun_col where fun_id = ? and col_code like ?";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(funId);
+		param.addStringValue(tableName+".%");
+		
+		List<Map<String,String>> lsCol = _dao.query(param);
+		//去掉字段名中的表名
+		for (Map<String,String> mpCol : lsCol) {
+			String colcode = mpCol.get("col_code");
+			colcode = StringUtil.getNoTableCol(colcode);
+			mpCol.put("field_name", colcode);
+		}
+		
+		return lsCol;
+	}
+	
+	//根据表名取功能ID，包括此表为字段功能ID
+	private static String getFunId(String tableName) {
+		String sql = "select fun_id from fun_col where col_code like ?";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(tableName+".%");
+		
+		Map<String,String> mpFun = _dao.queryMap(param);
+		if (!mpFun.isEmpty()) {
+			return MapUtil.getValue(mpFun, "fun_id");
+		}
+		return "";
+	}
+	
 	/**
-	 * 从数据模型中查询表的字段列表
+	 * 从数据模型中查询表的字段列表；如果没有则在功能字段表中找
 	 * @param tableName -- 表名
 	 * @return
 	 */
 	private static List<Map<String,String>> queryField(String tableName) {
+		List<Map<String,String>> lsRet = FactoryUtil.newList();
+		if (tableName == null || tableName.length() == 0) return lsRet;
+		tableName = tableName.toLowerCase();
+		
 		String sql = "select field_name, data_type from dm_field where table_id in " +
 				"(select table_id from dm_table where table_name = ?) order by field_index";
 		
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(tableName);
 		
-		return _dao.query(param);
+		lsRet = _dao.query(param);
+		//如果在数据表设计器中没有找到，再从功能字段列表中找
+		if (lsRet.isEmpty()) {
+			lsRet = getFunField(tableName);
+		}
+		
+		return lsRet;
 	}
 	
 	/**
@@ -102,14 +149,16 @@ public class DmDaoUtil {
 	 * @return
 	 */
 	private static String cvtDataType(String dataType) {
+		dataType = dataType.toLowerCase();
+		
 		if (dataType.indexOf("char") >= 0) {
 			return "string";
-		} else if (dataType.indexOf("date") >= 0) {
-			return "date";
-		} else if (dataType.indexOf("int") >= 0) {
-			return "int";
 		} else if (dataType.indexOf("number") >= 0) {
 			return "double";
+		} else if (dataType.indexOf("date") >= 0) {
+			return "date";
+		} else if (dataType.equals("int") || dataType.equals("double")) {
+			return dataType;
 		}
 		
 		return "string";
