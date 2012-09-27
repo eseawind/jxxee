@@ -71,12 +71,12 @@ public class DaoUtil {
 	/**
 	 * ResultSet 转换为 List。
 	 * 
-	 * @param rs --
-	 *            结果集
+	 * @param rs -- 结果集
+	 * @param recNum -- 控制取recNum条记录，如果<=0，则不限制数量
 	 * @return List
 	 * @throws SQLException
 	 */
-	public static List<Map<String,String>> getRsToList(ResultSet rs) throws SQLException {
+	public static List<Map<String,String>> getRsToList(ResultSet rs, int recNum) throws SQLException {
 		if (rs == null) {
 			throw new SQLException("getRsToList(): ResultSet param is null! ");
 		}
@@ -96,6 +96,9 @@ public class DaoUtil {
 			String strVal = null, strCol = null;
 			while (rs.next()) {
 				count++;
+				//用于控制取recNum条记录
+				if (recNum > 0 && count > recNum) break;
+				
 				if (count > maxNum) {
 					_log.showError("query data num more max [{0}]!!", maxNum);
 					break;

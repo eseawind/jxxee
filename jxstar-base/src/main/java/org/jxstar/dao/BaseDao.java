@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
-
 import org.jxstar.dao.pool.PooledConnection;
 import org.jxstar.dao.transaction.TransactionException;
 import org.jxstar.dao.transaction.TransactionManager;
@@ -187,7 +186,7 @@ public class BaseDao {
 		
 		return ret;
 	}
-
+	
 	/**
 	 * 查询多条数据
 	 * 
@@ -195,6 +194,33 @@ public class BaseDao {
 	 * @return List<Map<String,String>>			
 	 */
 	public List<Map<String,String>> query(DaoParam param) {
+		return query(param, -1);
+	}
+	
+	/**
+	 * 查询一条数据
+	 * 
+	 * @param param - 查询的参数对象
+	 * @return Map<String,String>
+	 */
+	public Map<String,String> queryMap(DaoParam param) {
+		List<Map<String,String>> lsRet = query(param, 1);
+		
+		if (lsRet == null || lsRet.isEmpty()) {
+			return FactoryUtil.newMap();
+		}
+		
+		return lsRet.get(0);
+	}
+
+	/**
+	 * 查询多条数据
+	 * 
+	 * @param param - 查询的参数对象
+	 * @param recNum -- 控制取recNum条记录，如果<=0，则不限制数量
+	 * @return List<Map<String,String>>			
+	 */
+	private List<Map<String,String>> query(DaoParam param, int recNum) {
 		List<Map<String,String>> lsRet = FactoryUtil.newList();
 		
 		if (param == null) param = new DaoParam();
@@ -246,7 +272,7 @@ public class BaseDao {
 			DaoUtil.showQueryTime(curTime, sql);
 			
 			//结果集转换为List对象
-			lsRet = DaoUtil.getRsToList(rs);
+			lsRet = DaoUtil.getRsToList(rs, recNum);
 		} catch(SQLException e) {
 			DaoUtil.closeTranObj(tranObj);
 			DaoUtil.showException(e, sql);
@@ -274,21 +300,5 @@ public class BaseDao {
 		}
 
 		return lsRet;
-	}
-	
-	/**
-	 * 查询一条数据
-	 * 
-	 * @param param - 查询的参数对象
-	 * @return Map<String,String>
-	 */
-	public Map<String,String> queryMap(DaoParam param) {
-		List<Map<String,String>> lsRet = query(param);
-		
-		if (lsRet == null || lsRet.isEmpty()) {
-			return FactoryUtil.newMap();
-		}
-		
-		return lsRet.get(0);
 	}
 }
