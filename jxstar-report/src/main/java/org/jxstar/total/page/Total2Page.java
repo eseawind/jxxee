@@ -56,7 +56,7 @@ public class Total2Page extends AbstractTotalPage {
 			drillParam = DealUtil.getDrillParam(areaId, reportId);
 		}
 		if (lsTotalField == null || lsTotalField.isEmpty()) {
-			throw new ReportException("没有定义统计区域的显示字段！");
+			throw new ReportException("统计数据区域中没有找到显示数字类型的字段！");
 		}
 		
 		//找到横向分类的显示字段
