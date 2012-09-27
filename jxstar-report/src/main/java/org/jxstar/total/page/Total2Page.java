@@ -112,6 +112,8 @@ public class Total2Page extends AbstractTotalPage {
 					lsCol.add(mpCol);
 				}
 			}
+		} else {//如果没有横向分类，则直接填写统计数据字段列
+			lsCol.addAll(lsTotalField);
 		}
 		
 		return columnToJson(lsCol);
