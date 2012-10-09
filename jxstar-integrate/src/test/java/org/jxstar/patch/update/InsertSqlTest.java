@@ -22,8 +22,11 @@ public class InsertSqlTest extends AbstractTest {
 		//exp.funExpToFile(funIds);
 		
 		//导出模块的配置信息
-		String[] moduleIds = {"1016"};
-		exp.modExpToFile(moduleIds);
+		//String[] moduleIds = {"1016"};
+		//exp.modExpToFile(moduleIds);
+		
+		//StringBuilder sb = exp.batchMakeSQL("funall_module", "module_id like '1016%'");
+		//System.out.println(sb.toString());
 	}
 
 }

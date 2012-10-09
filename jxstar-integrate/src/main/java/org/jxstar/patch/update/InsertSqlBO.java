@@ -190,7 +190,7 @@ public class InsertSqlBO extends BusinessObject {
 	 * @param whereSql -- 过滤条件
 	 * @return
 	 */
-	private StringBuilder batchMakeSQL(String tableName, String whereSql) {
+	public StringBuilder batchMakeSQL(String tableName, String whereSql) {
 		StringBuilder sbInsert = new StringBuilder();
 		//sbInsert.append("\n--export tablename "+tableName+"...\n");
 		
