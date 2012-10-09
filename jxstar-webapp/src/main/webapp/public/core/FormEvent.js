@@ -165,6 +165,9 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 			var state = record.get(self.define.auditcol);
 			if (state == null || state.length == 0) state = self.audit0;
 			
+			//如果是subform，则必须用父记录状态值判断
+			var audit0 = self.audit0, audit6 = self.audit6;	
+			
 			//如果子表的form，则取父表的auditing值
 			var pageType = self.page.formNode.pageType;
 			if (pageType == 'subform') {
@@ -172,8 +175,14 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 				if (parentGrid) {
 					var records = parentGrid.getSelectionModel().getSelections();
 					if (records.length > 0) {
-						state = records[0].get(parentGrid.gridNode.define.auditcol);
-						if (state == null || state.length == 0) state = self.audit0;
+						var pdef = parentGrid.gridNode.define;
+						if (pdef.status) {//如果父功能定义了业务状态
+							audit0 = pdef.status.audit0;
+							audit6 = pdef.status.audit6;
+						}
+						//取父记录的状态值
+						state = records[0].get(pdef.auditcol);
+						if (state == null || state.length == 0) state = audit0;
 					}
 				}
 			}
@@ -184,7 +193,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 				//已复核记录设置表单为只读，编辑按钮不能使用
 				if (noedit || state != null) {
 					//设置只读值
-					var readOnly = noedit || (state != self.audit0 && state != self.audit6);
+					var readOnly = noedit || (state != audit0 && state != audit6);
 					JxUtil.readOnlyForm(self.form, readOnly);
 					JxUtil.disableButton(toolBar, readOnly);
 					
