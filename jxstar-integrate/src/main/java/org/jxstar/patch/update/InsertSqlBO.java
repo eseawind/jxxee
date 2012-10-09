@@ -16,6 +16,7 @@ import org.jxstar.dao.util.BigFieldUtil;
 import org.jxstar.dao.util.SQLParseException;
 import org.jxstar.dao.util.SqlParser;
 import org.jxstar.service.BusinessObject;
+import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.FileUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.factory.FactoryUtil;
@@ -60,6 +61,12 @@ public class InsertSqlBO extends BusinessObject {
 			sbInsert.append(funExpSql(funId));
 		}
 		
+		//导出数据建模信息
+		String funs = ArrayUtil.arrayToString(funIds, "','");
+		funs = funs.substring(0, funs.length()-1);
+		String funWhere = "where fun_id in '"+ funs;
+		sbInsert.append(expDmSql(funWhere));
+		
 		String fileName = _save_path + _exp_sql_name;
 		FileUtil.saveFile(fileName, sbInsert.toString());
 	}
@@ -76,6 +83,10 @@ public class InsertSqlBO extends BusinessObject {
 		for (String funId : lsFunId) {
 			sbInsert.append(funExpSql(funId));
 		}
+		
+		//导出数据建模信息
+		String funWhere = "where module_id like '"+ moduleId +"%'";
+		sbInsert.append(expDmSql(funWhere));
 		
 		return sbInsert;
 	}
@@ -104,19 +115,38 @@ public class InsertSqlBO extends BusinessObject {
 	}
 	
 	/**
+	 * 导出数据建模的配置信息
+	 * @param funWhere
+	 * @return
+	 */
+	private StringBuilder expDmSql(String funWhere) {
+		//构建where子句
+		String[][] tableWheres = {
+			{"dm_fieldcfg", "table_id in (select table_id from dm_tablecfg where table_name in (select table_name from fun_base "+ funWhere +"))"},
+			{"dm_indexcfg", "table_id in (select table_id from dm_tablecfg where table_name in (select table_name from fun_base "+ funWhere +"))"},
+			{"dm_tablecfg", "table_name in (select table_name from fun_base "+ funWhere +")"}
+		};
+		
+		StringBuilder sbInsert = new StringBuilder();
+		sbInsert.append("\n--export dm config...\n");
+		
+		for (int i = tableWheres.length-1; i >= 0; i--) {
+			String[] tableWhere = tableWheres[i];
+			sbInsert.append(batchMakeSQL(tableWhere[0], tableWhere[1]));
+			
+			sbInsert.append("update " + tableWhere[0] + " set state = '1' where " + tableWhere[1] + ";\n\n");
+		}
+		sbInsert.append("commit;\n");
+		
+		return sbInsert;
+	}
+	
+	/**
 	 * 取过滤条件配置信息，要注意顺序，否则删除数据时有问题
 	 * @return
 	 */
-	public static String[][] getTableWhere() {
+	public String[][] getTableWhere() {
 		String[][] strs = {
-			/*
-			{"dm_field", "table_id in (select table_id from dm_tablecfg where table_name in (select table_name from fun_base where fun_id = ?))"},
-			{"dm_fieldcfg", "table_id in (select table_id from dm_tablecfg where table_name in (select table_name from fun_base where fun_id = ?))"},
-			{"dm_index", "table_id in (select table_id from dm_tablecfg where table_name in (select table_name from fun_base where fun_id = ?))"},
-			{"dm_indexcfg", "table_id in (select table_id from dm_tablecfg where table_name in (select table_name from fun_base where fun_id = ?))"},
-			{"dm_table", "table_name in (select table_name from fun_base where fun_id = ?)"},
-			{"dm_tablecfg", "table_name in (select table_name from fun_base where fun_id = ?)"},
-			*/
 			{"fun_rule_param", "rule_id in (select rule_id from fun_rule_sql where route_id in (select route_id from fun_rule_route where fun_id = ?))"},
 			{"fun_rule_param", "rule_id in (select rule_id from fun_rule_sql where route_id = 'noroute' and src_funid = ?)"},
 			{"fun_rule_sql", "route_id in (select route_id from fun_rule_route where fun_id = ?)"},
@@ -130,6 +160,7 @@ public class InsertSqlBO extends BusinessObject {
 			{"fun_event_invoke", "event_id in (select event_id from fun_event where fun_id = ?)"},
 			{"fun_event", "fun_id = ?"},
 			
+			{"fun_attr", "fun_id = ?"},
 			{"fun_ext", "fun_id = ?"},
 			{"fun_tree", "fun_id = ?"},
 			{"fun_design", "fun_id = ?"},
@@ -139,7 +170,8 @@ public class InsertSqlBO extends BusinessObject {
 		return strs;
 	}
 	
-	public static String[][] getDmTable() {
+	//导出系统表、平台表类型
+	/*private String[][] getDmTable() {
 		String[][] strs = {
 			{"dm_field", "table_id in (select table_id from dm_tablecfg where table_type in ('5', '8'))"},
 			{"dm_fieldcfg", "table_id in (select table_id from dm_tablecfg where table_type in ('5', '8'))"},
@@ -150,7 +182,7 @@ public class InsertSqlBO extends BusinessObject {
 		};
 		
 		return strs;
-	}
+	}*/
 	
 	/**
 	 * 把查询结果集构建为Insert Into语句

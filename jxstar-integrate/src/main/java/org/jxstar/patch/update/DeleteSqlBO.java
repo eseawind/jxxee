@@ -75,7 +75,7 @@ public class DeleteSqlBO extends BusinessObject {
 	 * @return
 	 */
 	public StringBuilder funExpSql(String funId) {
-		String[][] tableWheres = InsertSqlBO.getTableWhere();
+		String[][] tableWheres = (new InsertSqlBO()).getTableWhere();
 		
 		StringBuilder sbDelete = new StringBuilder();
 		sbDelete.append("\n--export funid "+funId+"...\n");
