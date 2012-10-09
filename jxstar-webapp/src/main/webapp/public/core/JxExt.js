@@ -241,6 +241,21 @@ Ext.form.BasicForm.prototype.fieldItems = function() {
 };
 
 /**
+* ext-3.3.1 
+* 修改方法：必须有name属性的字段才判断是否有值修改
+**/
+Ext.form.BasicForm.prototype.isDirty = function() {
+	var dirty = false;
+	this.items.each(function(f){
+	   if(!Ext.isEmpty(f.name) && f.isDirty()){
+		   dirty = true;
+		   return false;
+	   }
+	});
+	return dirty;
+};
+
+/**
  * 新增方法：保证修改字段值后不标记为脏数据。
  **/
 Ext.form.ComboBox.prototype.restrictHeight = function(){

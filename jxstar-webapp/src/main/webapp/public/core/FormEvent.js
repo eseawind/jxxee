@@ -888,6 +888,11 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 			JxHint.alert(jx.event.nokey);	//'当前记录没有主键值，不能操作！'
 			return;
 		}
+		if (self.form.isDirty()) {
+			if (confirm(jx.event.saveyes)) {//'记录已被修改，是否需要先保存？'
+				self.save();return;
+			}
+		}
 
 		var hdcall = function() {
 			var params = 'funid=wf_assign&pagetype=chkgrid&eventcode=execheck&check_funid='+ self.define.nodeid;
@@ -973,6 +978,11 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		if (keyid == null || keyid.length == 0) {
 			JxHint.alert(jx.event.nokey);	//'当前记录没有主键值，不能操作！'
 			return;
+		}
+		if (self.form.isDirty()) {
+			if (confirm(jx.event.saveyes)) {//'记录已被修改，是否需要先保存？'
+				self.save();return;
+			}
 		}
 		
 		var funId =  self.define.nodeid;
