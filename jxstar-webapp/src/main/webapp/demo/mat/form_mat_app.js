@@ -101,7 +101,7 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
-					{xtype:'textfield', fieldLabel:'项目名称', name:'mat_app__project_name', anchor:'100%', maxLength:50}
+					{xtype:'textfield', fieldLabel:'项目名称', name:'mat_app__project_name', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:50}
 				]
 			},{
 				border:false,
