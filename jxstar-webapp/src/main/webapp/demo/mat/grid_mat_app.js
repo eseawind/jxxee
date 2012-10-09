@@ -44,7 +44,7 @@
 			triggerAction: 'all',
 			valueField: 'value',
 			displayField: 'text',
-			editable:false, allowBlank:false,
+			editable:false,
 			value: apptypeData[0][0]
 		}),
 		renderer:function(value){

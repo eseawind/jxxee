@@ -72,8 +72,8 @@
 						displayField: 'text',
 						value: auditData[0][0]},
 					{xtype:'textfield', fieldLabel:'申请人', name:'mat_app__app_user', defaultval:'fun_getUserName()', readOnly:true, anchor:'100%', maxLength:20},
-					{xtype:'combo', fieldLabel:'申请类型', name:'mat_app__app_type', defaultval:'1',
-						anchor:'100%', editable:false, allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*',
+					{xtype:'combo', fieldLabel:'申请类型', name:'mat_app__app_type',
+						anchor:'100%', editable:false,
 						store: new Ext.data.SimpleStore({
 							fields:['value','text'],
 							data: apptypeData
