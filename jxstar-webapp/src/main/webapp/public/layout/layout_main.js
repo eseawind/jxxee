@@ -157,13 +157,20 @@ Jxstar.currentPage = function(define, pageParam) {
 			//如果主记录已提交，则明细表的按钮不能使用
 			if (define.auditcol.length > 0) {
 				//设置业务状态值
-				var audit0 = '0', audit6 = '6';
+				var audit0 = '0', audit2 = '2', audit6 = '6';
 				if (define.status) {
 					audit0 = define.status['audit0'];
+					audit2 = define.status['audit2'];
 				}
 				var state = records[0].get(define.auditcol);
 				if (state == null || state.length == 0) state = audit0;
 				var disable = (state != audit0 && state != audit6);
+				
+				//设置子表在审批过程中可以编辑
+				var subdef = curPage.gridNode.define;
+				var subEdit = subdef.subChkEdit||false;
+				if (subEdit && state == audit2) disable = false;
+				
 				var tools = curPage.getTopToolbar();
 				JxUtil.disableButton(tools, disable);
 			}
