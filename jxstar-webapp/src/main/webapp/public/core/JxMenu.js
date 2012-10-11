@@ -95,16 +95,13 @@ JxMenu = {};
 				towMenu.on('itemclick', function(item, e){return false;});
 				
 				oneMenuItems[m++] = {id:'menu_' + oneModule.id, text:oneModule.text, baseCls: 'x-plain', menu:towMenu};
-				//mainMenu.add({id:'menu_' + oneModule.id, text:oneModule.text, menu:towMenu});
 			}
 			
 			var otherMenu = [{id:'menu_modify_pwd', text:'修改密码', baseCls: 'x-plain', handler:function(){
 					var userId = JxDefault.getUserId();
 					JxUtil.setPass(userId);
 				}}];
-			if (JxDefault.getUserId() == 'administrator') {
-				otherMenu[1] = {id:'menu_show_online', text:'在线用户', handler:JxUtil.onLineUser};
-			}
+			otherMenu[1] = {id:'menu_show_online', text:'在线用户', handler:JxUtil.onLineUser};
 			//系统操作
 			oneMenuItems[m] = {id:'menu_sys_other', text:'其它', iconCls:'eb_online', leaf:false, menu:otherMenu};
 			//退出系统

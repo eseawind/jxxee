@@ -25,6 +25,8 @@
 	
 	String uploadType = SystemVar.getValue("upload.server.type", "0");
 	String uploadUrl = SystemVar.getValue("upload.server.url");
+	
+	String allVarJs = SystemVar.getVarJs();
 %>
 <html>
 <head>
@@ -159,6 +161,8 @@ Jxstar.systemVar.useCase = '<%=useCase%>';
 //支持集中附件管理模式
 Jxstar.systemVar.uploadUrl = '<%=uploadUrl%>';
 Jxstar.systemVar.uploadType = '<%=uploadType%>';
+//把所有用于页面的系统变量附加到对象中
+Ext.apply(Jxstar.systemVar, Ext.decode("<%=allVarJs%>"));
 
 JxUtil.loadJS('custom.js', true);
 

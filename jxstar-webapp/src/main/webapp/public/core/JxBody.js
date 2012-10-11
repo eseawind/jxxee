@@ -15,13 +15,20 @@
 	//Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
 	//加载功能定义数据
 	JxUtil.loadJxData();
+	//菜单显示位置
+	var menuPos = Jxstar.systemVar.index__menu__pos;
+	var btnHtml = '', hintHtml = '';
 	
 	//构建顶部的管理按钮
 	var chgcolor = 'onmouseover="this.style.color=\'#ff9900\';" onmouseout="this.style.color=\'#ffffff\';" class="top-menu-text"';
-	var btnHtml = 
+	var shint = '<div class="top_south" id="main_hint">' + jx.base.welcome + ' ' + JxDefault.getUserName() +' ['+ JxDefault.getDeptName() +']</div>';
+	if (menuPos && menuPos == 'top') {
+		hintHtml = shint;
+	} else {
+		btnHtml = 
 		'<table border="0" cellspacing="0" cellpadding="0" style="font-size:12px;float:right;">' + 
 		'<tr><td>' + 
-		'<div class="top_south" id="main_hint">' + jx.base.welcome + ' ' + JxDefault.getUserName() +' ['+ JxDefault.getDeptName() +']</div>' +
+		shint +
 		'</td></tr>' + 
 		'<tr><td>' +
 		'<span class="top-menu-img eb_pass"></span><a href="#" '+ chgcolor +' onclick="JxUtil.setPass(JxDefault.getUserId());">修改密码</a>' +
@@ -29,15 +36,28 @@
 		'<span class="top-menu-img eb_logout"></span><a href="#" '+ chgcolor +' onclick="JxUtil.logout();">退出系统</a>' +
 		'</td></tr>' +
 		'</table>';
+	}
 	
 	/*--------------------创建首页头部区域-----------------------*/
 	var topHtml = 
 		"<div class='top_bg'>" + 
-			"<div class='top_north' id='main_menu'>"+ btnHtml +"</div>"
+			"<div class='top_north' id='main_menu'>"+ btnHtml +"</div>" + 
+			hintHtml + 
 		"</div>";
 
 	var imgpath = './resources/images/top-app.png';
-	if (Jxstar.systemVar.indexType == '1') imgpath = './resources/project/images/top-app.png';
+	var lw = 146, ilw = Jxstar.systemVar.index__logo__width;
+	
+	if (Jxstar.systemVar.indexType == '1') {//如果是项目
+		imgpath = './resources/project/images/top-app.png';
+
+		if (ilw && ilw.length > 0) {
+			lw = ilw;
+		} else {
+			lw = 64;//项目LOGO缺省长度，产品LOGO缺省长度146
+		}
+	}
+	
     var topPanel = new Ext.Panel({
 		region:'north',
         layout:'border',
@@ -45,7 +65,7 @@
 		border:true,
 	    items:
 		[{
-			width: (Jxstar.systemVar.indexType == '1') ? 64 : 146,
+			width: lw,
 			region:'west',
 			border:false,
 	        id:'top_left_img',
@@ -96,71 +116,79 @@
 	});
 	
 	//构建菜单树
-	var dataUrl = Jxstar.path + '/commonAction.do?funid=queryevent&eventcode=query_menu&user_id='+Jxstar.session['user_id'];
-	var treeMenu = new Ext.tree.TreePanel({
-		id: 'tree_main_menu',
-		region:'west',
-		title:'功能菜单',
-		iconCls:'main-menu-tree',
-		bodyCssClass:'menu_bg',
-		margins:'2 0 5 5',
-		split:true,
-		width:180,
-		minSize:180,
-		maxSize:300,
-		animate:true,
-		collapsible:true,
+	if (menuPos && menuPos == 'top') {
+		//创建首页页面布局
+		var viewport = new Ext.Viewport({
+			layout:'border',
+			items:[topPanel, sysMainTab]
+		});
 		
-		tools:[{//添加刷新按钮可以重新加载功能菜单
-			id:'refresh',
-			handler: function(event, tool, tree){
-				tree.getLoader().load(tree.getRootNode());
-			}
-		}],
-		
-		autoScroll:true,
-		rootVisible: false,
-		lines: false,
-		useArrows: true,
-		
-		loader: new Ext.tree.TreeLoader({dataUrl: dataUrl, listeners:{
-			load:function(loader, node, response){
-				var menuJson = Ext.decode(response.responseText);
-				JxUtil.putRightNodes(menuJson);
-			}
-		}}),
-		root: new Ext.tree.AsyncTreeNode({text:'main_menu_root'})
-	});
-	//打开功能
-	treeMenu.on('click', function(node){
-		if (node.isLeaf()) {
-			Jxstar.createNode(node.id);	
-		} else {
-			if (node.isExpanded()) {
-				node.collapse();
+		//创建头部的菜单，main_menu是显示菜单的DIV标示
+		JxMenu.createMainMenu('main_menu');
+	} else {
+		var dataUrl = Jxstar.path + '/commonAction.do?funid=queryevent&eventcode=query_menu&user_id='+Jxstar.session['user_id'];
+		var treeMenu = new Ext.tree.TreePanel({
+			id: 'tree_main_menu',
+			region:'west',
+			title:'功能菜单',
+			iconCls:'main-menu-tree',
+			bodyCssClass:'menu_bg',
+			margins:'2 0 5 5',
+			split:true,
+			width:180,
+			minSize:180,
+			maxSize:300,
+			animate:true,
+			collapsible:true,
+			
+			tools:[{//添加刷新按钮可以重新加载功能菜单
+				id:'refresh',
+				handler: function(event, tool, tree){
+					tree.getLoader().load(tree.getRootNode());
+				}
+			}],
+			
+			autoScroll:true,
+			rootVisible: false,
+			lines: false,
+			useArrows: true,
+			
+			loader: new Ext.tree.TreeLoader({dataUrl: dataUrl, listeners:{
+				load:function(loader, node, response){
+					var menuJson = Ext.decode(response.responseText);
+					JxUtil.putRightNodes(menuJson);
+				}
+			}}),
+			root: new Ext.tree.AsyncTreeNode({text:'main_menu_root'})
+		});
+		//打开功能
+		treeMenu.on('click', function(node){
+			if (node.isLeaf()) {
+				Jxstar.createNode(node.id);	
 			} else {
-				node.expand();
+				if (node.isExpanded()) {
+					node.collapse();
+				} else {
+					node.expand();
+				}
 			}
-		}
-	});
-	//给展开的菜单区域添加底部边框
-	treeMenu.on('expandnode', function(node) {
-		if (node.id.length == 4 && !node.isLast()) {
-			var ct = Ext.get(node.getUI().ctNode);
-			if (!ct.hasClass('x-tree-node-ct-ext')) {
-				ct.addClass('x-tree-node-ct-ext');
+		});
+		//给展开的菜单区域添加底部边框
+		treeMenu.on('expandnode', function(node) {
+			if (node.id.length == 4 && !node.isLast()) {
+				var ct = Ext.get(node.getUI().ctNode);
+				if (!ct.hasClass('x-tree-node-ct-ext')) {
+					ct.addClass('x-tree-node-ct-ext');
+				}
 			}
-		}
-	});
+		});
 
-	//创建首页页面布局
-    var viewport = new Ext.Viewport({
-        layout:'border',
-	    items:[topPanel, treeMenu, sysMainTab]
-	});
-	
-	//创建头部的菜单，main_menu是显示菜单的DIV标示
-	//JxMenu.createMainMenu('main_menu');
+		//创建首页页面布局
+		var viewport = new Ext.Viewport({
+			layout:'border',
+			items:[topPanel, treeMenu, sysMainTab]
+		});
+	}
 
 	//创建protel功能界面
 	var funTab = sysMainTab.getComponent(0);

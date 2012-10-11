@@ -15,7 +15,13 @@
 			maxLength:100
 		})}, field:{name:'sys_var__var_value',type:'string'}},
 	{col:{header:'属性描述', width:274, sortable:true, hidden:true}, field:{name:'sys_var__var_memo',type:'string'}},
-	{col:{header:'属性ID', width:100, sortable:true, hidden:true}, field:{name:'sys_var__var_id',type:'string'}}
+	{col:{header:'属性ID', width:100, sortable:true, hidden:true}, field:{name:'sys_var__var_id',type:'string'}},
+	{col:{header:'用于页面?', width:75, sortable:true, defaultval:'0', align:'center',
+		editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.Checkbox(),
+		renderer:function(value) {
+			return value=='1' ? jx.base.yes : jx.base.no;
+		}}, field:{name:'sys_var__use_page',type:'string'}}
 	];
 	
 	config.param = {
@@ -26,6 +32,7 @@
 		isshow: '1',
 		funid: 'sys_var'
 	};
+	
 	
 	config.eventcfg = {					readKey: function() {			//设置请求的参数			var params = 'funid=sys_var&pagetype=editgrid&eventcode=read_key';			var endcall = function(data) {				JxHint.alert('序列号：' + data.key);			};			//发送请求			Request.postRequest(params, endcall);		}, 				readInfo: function() {			//设置请求的参数			var params = 'funid=sys_var&pagetype=editgrid&eventcode=read_info';			var endcall = function(data) {				JxHint.alert(data.info);			};			//发送请求			Request.postRequest(params, endcall);		}	};
 		
