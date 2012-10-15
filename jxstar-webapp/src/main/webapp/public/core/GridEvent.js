@@ -475,17 +475,10 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		var record = new (store.reader.recordType)({});
 		var cols = record.fields.keys;
 
-		//字段定义开始位置
-		var ipos = 1;
-		if (cm.config[0].id == 'numberer') {
-			if (cm.config[1].id == 'checker') ipos = 2;
-		} else {
-			if (cm.config[0].id != 'checker') ipos = 0;
-		}
-
 		//给每个字段给缺省值
 		for (var i = 0; i < cols.length; i++){
-			var defaultval = cm.config[i+ipos].defaultval;
+			var colobj = cm.getColumnById(cols[i]);
+			var defaultval = (colobj) ? colobj.defaultval : '';
 			if (typeof defaultval == 'string' && defaultval.indexOf('fun_') == 0) {
 				var val = eval('JxDefault.' + defaultval.split('fun_')[1]);
 				record.set(cols[i], val);
