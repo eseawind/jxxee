@@ -18,15 +18,24 @@ public class InsertSqlTest extends AbstractTest {
 		InsertSqlBO exp = new InsertSqlBO();
 		
 		//导出功能的配置SQL
-		//String[] funIds = {"pur_apply", "provider_type"};
+		//String[] funIds = {"equ_type", "equ_station"};
 		//exp.funExpToFile(funIds);
 		
 		//导出模块的配置信息
-		//String[] moduleIds = {"1016"};
+		//String[] moduleIds = {"1013", "1015", "1016"};
 		//exp.modExpToFile(moduleIds);
 		
-		//StringBuilder sb = exp.batchMakeSQL("funall_module", "module_id like '1016%'");
+		/*
+		StringBuilder sb = exp.batchMakeSQL("funall_module", "module_id like '1013%'");
+		sb.append(exp.batchMakeSQL("funall_module", "module_id like '1015%'"));
+		sb.append(exp.batchMakeSQL("funall_module", "module_id like '1016%'"));
+		System.out.println(sb.toString());*/
+		
+		//StringBuilder sb = exp.batchMakeSQL("funall_control", "control_prop = '1' and control_code not in ('selmat', 'appstatus', 'apptype')");
 		//System.out.println(sb.toString());
+		
+		StringBuilder sb = exp.batchMakeSQL("sys_coderule", "fun_id = 'equ_card'");
+		System.out.println(sb.toString());
 	}
 
 }

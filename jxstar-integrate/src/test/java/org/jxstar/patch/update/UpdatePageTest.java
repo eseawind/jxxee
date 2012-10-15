@@ -13,10 +13,10 @@ import org.jxstar.test.AbstractTest;
  */
 public class UpdatePageTest extends AbstractTest {
 	//文件保存路径
-	private static String _save_path = "d:/update/";
+	private static String _save_path = "D:/我的项目/固定资产/佛开高速/前期相关资料/Sql-MySql/update1/";
 	
 	public static void main(String[] args) {
-		init("D:\\tomcat6\\webapps\\tjgt");
+		init("D:\\我的项目\\固定资产\\SVNDB\\40程序文件\\app");
 		
 		UpdatePageBO page = new UpdatePageBO();
 		page.update(_save_path + "/fun_design/");

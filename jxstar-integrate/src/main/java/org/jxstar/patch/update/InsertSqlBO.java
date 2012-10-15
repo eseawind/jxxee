@@ -64,7 +64,7 @@ public class InsertSqlBO extends BusinessObject {
 		//导出数据建模信息
 		String funs = ArrayUtil.arrayToString(funIds, "','");
 		funs = funs.substring(0, funs.length()-1);
-		String funWhere = "where fun_id in '"+ funs;
+		String funWhere = "where fun_id in ('"+ funs + ")";
 		sbInsert.append(expDmSql(funWhere));
 		
 		String fileName = _save_path + _exp_sql_name;
@@ -147,6 +147,11 @@ public class InsertSqlBO extends BusinessObject {
 	 */
 	public String[][] getTableWhere() {
 		String[][] strs = {
+			{"rpt_detail", "area_id in (select area_id from rpt_area where report_id in (select report_id from rpt_list where fun_id = ?))"},
+			{"rpt_area", "report_id in (select report_id from rpt_list where fun_id = ?)"},
+			{"rpt_head", "report_id in (select report_id from rpt_list where fun_id = ?)"},
+			{"rpt_list", "fun_id = ?"},
+					
 			{"fun_rule_param", "rule_id in (select rule_id from fun_rule_sql where route_id in (select route_id from fun_rule_route where fun_id = ?))"},
 			{"fun_rule_param", "rule_id in (select rule_id from fun_rule_sql where route_id = 'noroute' and src_funid = ?)"},
 			{"fun_rule_sql", "route_id in (select route_id from fun_rule_route where fun_id = ?)"},
