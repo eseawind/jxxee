@@ -77,6 +77,13 @@ public class ExportXlsBO extends BusinessObject {
 		if (where_sql != null && where_sql.length() > 0) {
 			sql += " where " + where_sql;
 		}
+		
+		//添加排序语句
+		String osql = mpDefine.get("order_sql").trim();
+		if (osql.length() > 0) {
+			sql += " order by " + osql;
+		}
+		
 		_log.showDebug("==========exp file query sql=" + sql);
 		//取查询数据
 		DaoParam param = _dao.createParam(sql);
