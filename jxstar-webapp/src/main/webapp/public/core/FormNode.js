@@ -110,6 +110,14 @@ Jxstar.FormNode.prototype = {
 		form.on('afterrender', function(page){
 			var width = fm.formWidth||800;
 			var fw = page.getWidth();
+			
+			//如果是百分比
+			if (typeof width == 'string') {
+				width = parseInt(width);
+				width = (isNaN(width) || width >= 100) ? 97 : width;
+				width = Math.round((width/100)*fw);
+			}
+			
 			if (fw > width) {
 				page.getComponent(0).setWidth(width);
 			}
