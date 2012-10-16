@@ -68,6 +68,7 @@ public class TransactionObjectImp implements TransactionObject {
 	 */
 	public Connection getConnection(String dsName) throws TransactionException {
 		Connection conn = (Connection) _mpConnection.get(dsName);
+		//不能添加isClosed判断，因为存在isClosed时表示执行不正常了，必须把错误暴露出来。
 		if (conn == null) {
 			conn = PooledConnection.getInstance().getConnection(dsName);
 			if (conn == null) {
