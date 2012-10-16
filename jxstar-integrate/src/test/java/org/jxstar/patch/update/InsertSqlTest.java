@@ -34,7 +34,16 @@ public class InsertSqlTest extends AbstractTest {
 		//StringBuilder sb = exp.batchMakeSQL("funall_control", "control_prop = '1' and control_code not in ('selmat', 'appstatus', 'apptype')");
 		//System.out.println(sb.toString());
 		
-		StringBuilder sb = exp.batchMakeSQL("sys_coderule", "fun_id = 'equ_card'");
+		//StringBuilder sb = exp.batchMakeSQL("sys_coderule", "fun_id = 'equ_card'");
+		//System.out.println(sb.toString());
+		
+		//StringBuilder sb = exp.batchMakeSQL("sys_query", "");
+		//sb.append(exp.batchMakeSQL("sys_query_det", ""));
+		//System.out.println(sb.toString());
+		
+		StringBuilder sb = exp.batchMakeSQL("imp_list", "fun_id = 'equ_card'");
+		sb.append(exp.batchMakeSQL("imp_field", "imp_id in (select imp_id from imp_list where fun_id = 'equ_card')"));
+		sb.append(exp.batchMakeSQL("imp_relat", "imp_id in (select imp_id from imp_list where fun_id = 'equ_card')"));
 		System.out.println(sb.toString());
 	}
 
