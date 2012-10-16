@@ -99,6 +99,13 @@ Jxstar.currentPage = function(define, pageParam) {
 				return false;
 			}
 		}
+		if (records.length > 0) {//当前记录没有保存，不能操作
+			var pkvalue = records[0].get(pkcol);
+			if (Ext.isEmpty(pkvalue)) {
+				JxHint.alert(jx.event.nosave);
+				return false;
+			}
+		}
 		var curPage = currentTab.getComponent(0);
 		if (curPage != null && curPage.isXType('form') && curPage.getForm().isDirty()) {
 			if (confirm(jx.layout.modify)) {	//'记录已被修改，是否需要先保存？'
