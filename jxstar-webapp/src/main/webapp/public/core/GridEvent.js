@@ -276,7 +276,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			if (Ext.isEmpty(state)) state = this.audit0;
 			
 			if (auditval == this.audit0) {
-				if (state != this.audit1){
+				if (state == this.audit0){
 					JxHint.alert(jx.event.selaudit0);	//选择的记录中存在未复核的记录，不能操作！
 					return true;
 				}
@@ -338,7 +338,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	* 提交事件
 	**/
 	audit : function() {
-		this.baseAudit(this.audit1);
+		this.baseAudit(this.audit1, 'audit');
 	},
 
 	/**
@@ -346,7 +346,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	* 取消提交事件
 	**/
 	unaudit : function() {
-		this.baseAudit(this.audit0);
+		this.baseAudit(this.audit0, 'unaudit');
 	},
 	
 	/**
@@ -358,7 +358,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			JxHint.alert(jx.event.auditbe);		//退回状态值为空，不能操作！
 			return;
 		}
-		this.baseAudit(this.audit_b);
+		this.baseAudit(this.audit_b, 'audit_back');
 	},
 	
 	/**
@@ -370,14 +370,14 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			JxHint.alert(jx.event.auditee);		//注销或终止状态值为空，不能操作！
 			return;
 		}
-		this.baseAudit(this.audit_e);
+		this.baseAudit(this.audit_e, 'audit_cancel');
 	},
 
 	/**
 	* private
 	* 基础提交事件
 	**/
-	baseAudit : function(auditval) {
+	baseAudit : function(auditval, eventcode) {
 		var keyids = [];
 		var cm = this.grid.getColumnModel();
 		var records = JxUtil.getSelectRows(this.grid);
@@ -389,8 +389,10 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		//检查数据是否有效
 		if (JxUtil.validateGrid(this.grid) == false) return;
 
+		//复核事件代码
+		if (Ext.isEmpty(eventcode)) eventcode = 'audit';
 		//取复核值
-		if (auditval == null) auditval = this.audit1;
+		if (Ext.isEmpty(auditval)) auditval = this.audit1;
 
 		if (this.checkAudit(auditval)) return;
 		if (this.fireEvent('beforeaudit', this) == false) return;
@@ -404,7 +406,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 				params += '&keyid=' + records[i].get(self.define.pkcol);
 			}
 			//设置请求的参数
-			params += '&pagetype=grid&eventcode=audit&auditvalue='+auditval;
+			params += '&pagetype=grid&eventcode='+eventcode+'&auditvalue='+auditval;
 			
 			//提交后要处理的内容
 			var endcall = function(data) {

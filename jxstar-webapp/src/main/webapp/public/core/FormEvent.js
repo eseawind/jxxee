@@ -201,6 +201,8 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 					if (!noedit && pageType == 'form') {
 						var createBtn = JxUtil.getButton(toolBar, 'create');
 						if (createBtn) createBtn.setDisabled(false);
+						var unaudit = JxUtil.getButton(toolBar, 'unaudit');
+						if (unaudit) unaudit.setDisabled(false);
 					}
 				}
 			}
@@ -540,7 +542,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		if (Ext.isEmpty(state)) state = self.audit0;
 		
 		if (auditval == self.audit0) {
-			if (state != self.audit1){
+			if (state == self.audit0){
 				JxHint.alert(jx.event.curaudit0);		//'当前记录未复核，不能操作！'
 				return true;
 			}
@@ -559,7 +561,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 	* 提交事件
 	**/
 	audit : function() {
-		this.baseAudit(this.audit1);
+		this.baseAudit(this.audit1, 'audit');
 	},
 
 	/**
@@ -567,7 +569,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 	* 取消提交事件
 	**/
 	unaudit : function() {
-		this.baseAudit(this.audit0);
+		this.baseAudit(this.audit0, 'unaudit');
 	},
 	
 	/**
@@ -579,7 +581,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 			JxHint.alert(jx.event.auditbe);		//退回状态值为空，不能操作！
 			return;
 		}
-		this.baseAudit(this.audit_b);
+		this.baseAudit(this.audit_b, 'audit_back');
 	},
 	
 	/**
@@ -591,14 +593,14 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 			JxHint.alert(jx.event.auditee);		//注销或终止状态值为空，不能操作！
 			return;
 		}
-		this.baseAudit(this.audit_e);
+		this.baseAudit(this.audit_e, 'audit_cancel');
 	},
 
 	/**
 	* private
 	* 基础提交事件
 	**/
-	baseAudit : function(auditval) {
+	baseAudit : function(auditval, eventcode) {
 		var keyid = this.getPkField().getValue();
 		if (keyid == null || keyid.length == 0) {
 			JxHint.alert(jx.event.nosave);		//'当前记录没有保存，不能操作！'
@@ -616,8 +618,10 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		//检查必填的附件字段
 		if (JxAttach.checkAttach(self.page) == false) return;
 
+		//复核事件代码
+		if (Ext.isEmpty(eventcode)) eventcode = 'audit';
 		//取复核值
-		if (auditval == null) auditval = self.audit1;
+		if (Ext.isEmpty(auditval)) auditval = self.audit1;
 
 		if (this.checkAudit(auditval)) return;
 		if (this.fireEvent('beforeaudit', this) == false) return;
@@ -626,7 +630,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		var hdcall = function() {
 			//设置请求的参数
 			var params = 'funid='+ self.define.nodeid +'&keyid='+ keyid;
-			params += '&pagetype=form&eventcode=audit&auditvalue='+auditval;
+			params += '&pagetype=form&eventcode='+eventcode+'&auditvalue='+auditval;
 			
 			//提交后要处理的内容
 			var endcall = function(data) {
