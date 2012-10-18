@@ -1,4 +1,5 @@
-﻿</body>
+﻿<%@ page contentType="text/html; charset=UTF-8"%>
+</body>
 <script type="text/javascript">
 Jxstar.path = '<%=contextpath%>';
 Jxstar.systemVar.indexType = '<%=indexType%>';
