@@ -232,7 +232,7 @@ JxQueryExt = {};
 				} else {
 					var oldcmp = mc.editor;
 					Ext.apply(oldcmp.initialConfig, {allowBlank:true, editable:true, cls:'', xtype:oldcmp.getXType()});
-					field = new oldcmp.constructor(oldcmp.initialConfig);
+					field = oldcmp.initialConfig;
 					if (oldcmp.isXType('combo')) field.value = '';
 				}
 				
