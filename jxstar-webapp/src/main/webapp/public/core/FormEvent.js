@@ -830,6 +830,17 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		var pkcol = this.define.pkcol;
 		var nodeid = this.define.nodeid;
 		var audit = this.form.get(this.define.auditcol);
+		//标示附件是否可删除，有audit字段，则根据audit值判断，否则根据attachDeled属性判断
+		var deled = false, acol = self.define.auditcol;
+		if (!Ext.isEmpty(acol)) {
+			var audit = self.form.get(acol);
+			if (audit == self.audit0 || audit == self.audit6) {
+				deled = true;
+			}
+		} else {
+			var attr = self.define.attachDeled;
+			deled = (Ext.isEmpty(attr)) ? false : attr;
+		}
 		
 		//过滤条件，支持扩展方法（个人消息查看功能）
 		var options = {};
@@ -849,12 +860,12 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 				//设置目标功能信息
 				grid.attachDataId = keyid;
 				grid.attachFunId = nodeid;
-				grid.attachAudit = audit || self.audit1;
+				grid.attachDeled = deled;
 				//删除GRID的自定义参数
 				grid.on('beforedestroy', function(gp){
 					gp.attachDataId = null;		delete gp.attachDataId;
 					gp.attachFunId = null;		delete gp.attachFunId;
-					gp.attachAudit = null;		delete gp.attachAudit;
+					gp.attachDeled = null;		delete gp.attachDeled;
 					gp = null;
 					return true;
 				});
