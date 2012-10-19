@@ -1245,9 +1245,9 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 				deled = true;
 			}
 		} else {
-			var attr = self.define.attachDeled;alert('attr=' + attr);
+			var attr = self.define.attachDeled;
 			deled = (Ext.isEmpty(attr)) ? false : attr;
-		}alert(deled);
+		}
 		
 		if (keyid == null || keyid.length == 0) {
 			JxHint.alert(jx.event.nosave);
