@@ -18,7 +18,7 @@
 			<sourcename memo="数据源名">default_mysql</sourcename>
 			<schemaname memo="数据库名，构建数据表用">jxstar</schemaname>
 			<driverclass memo="驱动类">org.gjt.mm.mysql.Driver</driverclass>
-			<jdbcurl memo="访问URL"><![CDATA[jdbc:mysql://localhost/jxstar?useUnicode=true&characterEncoding=UTF-8&useOldAliasMetadataBehavior=true]]></jdbcurl>
+			<jdbcurl memo="访问URL"><![CDATA[jdbc:mysql://localhost/jxstar?useUnicode=true&characterEncoding=UTF-8&useOldAliasMetadataBehavior=true&autoReconnect=true]]></jdbcurl>
 			<username memo="数据库用户">root</username>
 			<password memo="数据库密码">888</password>
 			<maxconnum memo="最大连接数">50</maxconnum>
