@@ -109,7 +109,7 @@ public class DataImpBO extends BusinessObject {
 		String impId = mpImp.get("imp_id");
 		//检查是否有没有定义数据来源位置的字段
 		if (DataImpUtil.hasNoPos(impId)) {
-			setMessage("有没有定义数据来源位置的字段，请检查定义信息！");
+			setMessage("“数据字段定义”明细中，来源是“表头”“表格”的字段中有些没有定义“位置”");
 			return null;
 		}
 		
