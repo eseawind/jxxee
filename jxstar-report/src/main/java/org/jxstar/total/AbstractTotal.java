@@ -222,6 +222,17 @@ public abstract class AbstractTotal implements ReportTotal {
 		for (int i = 0, n = lsParams.size(); i < n; i++) {
 			Map<String, String> param = lsParams.get(i);
 			String source = param.get("data_src");
+			//取页面参数代号
+			String code = param.get("param_code");
+			//如果该参数要构建的where_sql，直接来自某个字段值，则直接拼凑SQL
+			if (source.equals("where")) {
+				String where = MapUtil.getValue(paramData, code);
+				if (where.length() == 0) continue;
+				sbsql.append(where + " and ");
+				sbvalue.append(";");
+				sbtype.append(";");
+				continue;
+			}
 			
 			//关联字段(表达式)
 			String fieldName = param.get("col_name");
@@ -231,8 +242,6 @@ public abstract class AbstractTotal implements ReportTotal {
 			String operator = param.get("operator");
 			if (operator.length() == 0) continue;
 			
-			//取页面参数代号
-			String code = param.get("param_code");
 			//取参数值
 			String value = "";
 			if (source.equals("request")) {
