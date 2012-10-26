@@ -2,18 +2,21 @@
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 	
 		var items = [{
-		height: '97%',
-		width: '97%',
-		border: false,
-		layout: 'form',
-		style: 'padding:10px;',
-		items: [{
+		width:'97%',
+		border:false,
+		layout:'form',
+		autoHeight:true,
+		xtype:'container',
+		style:'padding:5 10 5 10;',
+		items:[{
 			anchor:'100%',
-			border: false,
+			border:false,
+			xtype:'container',
 			layout:'column',
 			autoHeight:true,
 			items:[{
 				border:false,
+				xtype:'container',
 				columnWidth:0.495,
 				layout:'form',
 				style: 'padding-left:10px;',
@@ -25,6 +28,7 @@
 				]
 			},{
 				border:false,
+				xtype:'container',
 				columnWidth:0.495,
 				layout:'form',
 				style: 'padding-left:10px;',
@@ -37,11 +41,13 @@
 			]
 		},{
 			anchor:'100%',
-			border: false,
+			border:false,
+			xtype:'container',
 			layout:'column',
 			autoHeight:true,
 			items:[{
 				border:false,
+				xtype:'container',
 				columnWidth:0.99,
 				layout:'form',
 				style: 'padding-left:10px;',
@@ -59,6 +65,7 @@
 		funid: 'rule_sqlm'
 	};
 
+	
 	config.initpage = function(formNode){
 		var event = formNode.event;
 		
@@ -84,7 +91,7 @@
 
 			var field = form.findField(setFunId);
 			field.setValue(selectFunId);
-			field.disable();
+			//field.disable();
 		});
 		
 		event.initOther = function() {
@@ -96,8 +103,8 @@
 				setFunId = 'fun_rule_sql__src_funid';
 			}
 			
-			var field = form.findField(setFunId);
-			field.disable();
+			//var field = form.findField(setFunId);
+			//field.disable();
 		};
 	};
 	

@@ -23,7 +23,7 @@
 
 			var field = form.findField(setFunId);
 			field.setValue(selectFunId);
-			field.disable();
+			//field.disable();
 		});
 		
 		event.initOther = function() {
@@ -35,7 +35,7 @@
 				setFunId = 'fun_rule_sql__src_funid';
 			}
 			
-			var field = form.findField(setFunId);
-			field.disable();
+			//var field = form.findField(setFunId);
+			//field.disable();
 		};
 	};
