@@ -22,6 +22,8 @@ import org.jxstar.report.Report;
 import org.jxstar.report.ReportException;
 import org.jxstar.report.util.ReportDao;
 import org.jxstar.report.util.ReportFactory;
+import org.jxstar.service.util.SysLogUtil;
+import org.jxstar.util.MapUtil;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.factory.SystemFactory;
 import org.jxstar.util.resource.JsMessage;
@@ -45,6 +47,9 @@ public class ReportAction extends Action {
 			
 			//判断前台参数是否有效，并初始化参数
 			Map<String, Object> mpParam = initAction(request);
+			
+			//记录操作日志
+			writeLog(mpParam);
 			
 			//报表输出类型
 			String printType = (String) mpParam.get("printType");
@@ -79,6 +84,21 @@ public class ReportAction extends Action {
 			//反馈响应信息
 			responseWrite(response, e.getMessage());
 		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void writeLog(Map<String, Object> param) {
+		String funId = MapUtil.getValue(param, "funid");
+		String eventCode = "print";
+		String pageType = "";
+		Map<String,String> mpUser = (Map<String,String>) param.get("user");
+		String userId = MapUtil.getValue(mpUser, "user_id");
+		String userName = MapUtil.getValue(mpUser, "user_name");
+		String reportName = MapUtil.getValue(param, "reportName");
+		String printType = MapUtil.getValue(param, "reportName");
+		String message = "报表类型：" + printType + "；报表名称：" + reportName;
+		
+		SysLogUtil.writeLog(funId, eventCode, pageType, userId, userName, message);
 	}
 
 	/**
