@@ -190,8 +190,8 @@ JxPrint = {};
 		
 		//请求参数
 		var e = encodeURIComponent; //编码
-		var params = 'funid='+ funId +'&reportId='+ reportId +'&printType='+  printType+'&whereSql='+
-					 e(whereSql) +'&whereValue='+ e(whereValue) +'&whereType='+ whereType +'&printMode='+printMode;
+		var params = 'funid='+ funId +'&reportId='+ reportId +'&printType='+printType+'&printMode='+printMode;
+		var paramWhere = '&whereSql='+e(whereSql)+'&whereValue='+e(whereValue)+'&whereType='+ whereType;
 		if (reportId.length == 0) {
 			params += '&isDefault=1';
 		}
@@ -199,12 +199,43 @@ JxPrint = {};
 		//发送后台请求
 		var href = Jxstar.path + "/reportAction.do?" + params;
 		
-		if ('xls' == printType) {
-			document.getElementById('frmhidden').src = href;
+		if ('xls' == printType) {//如果选择的记录数达200条，则用GET方式会造成显示不了下载文件问题
+			//document.getElementById('frmhidden').src = href;
+			var postParams = {whereSql:whereSql, whereValue:whereValue, whereType:whereType};
+			this.postExpReport(href, postParams);
 		} else {
 			var winName = "w_report_" + parseInt(Math.random() * 10000);
-			this.newPrintWindow(href, winName, 800, 600);
+			this.newPrintWindow(href+paramWhere, winName, 800, 600);
 		}
+	},
+	
+	//通过post方式导出xls报表
+	postExpReport: function(href, postParams) {
+		//如果没有form则自动创建
+		var fd = Ext.get('frmExpReport');
+		if (!fd) {
+			fd = Ext.DomHelper.append(Ext.getBody(), {
+					tag:'form', 
+					method:'post', 
+					id:'frmExpReport', 
+					name:'frmExpReport',
+					target:'frmhidden',
+					cls:'x-hidden',
+					cn:[{tag:'input',name:'exp_text',id:'exp_text',type:'hidden'},
+						{tag:'input',name:'whereSql',id:'whereSql',type:'hidden'},
+						{tag:'input',name:'whereValue',id:'whereValue',type:'hidden'},
+						{tag:'input',name:'whereType',id:'whereType',type:'hidden'}]
+				}, true);
+		}
+		//POST请求参数
+		var pps = postParams||{};
+		fd.child('#whereSql').set({value:pps.whereSql||''});
+		fd.child('#whereValue').set({value:pps.whereValue||''});
+		fd.child('#whereType').set({value:pps.whereType||''});
+		
+		//URL请求参数
+		fd.dom.action = href;
+		fd.dom.submit();
 	},
 	
 	//打开打印窗口
