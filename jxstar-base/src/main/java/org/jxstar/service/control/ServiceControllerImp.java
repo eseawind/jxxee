@@ -14,6 +14,7 @@ import org.jxstar.control.action.RequestContext;
 import org.jxstar.dao.transaction.TransactionException;
 import org.jxstar.dao.transaction.TransactionManager;
 import org.jxstar.service.define.EventDefine;
+import org.jxstar.service.util.SysLogUtil;
 import org.jxstar.util.config.SystemVar;
 import org.jxstar.util.factory.SystemFactory;
 import org.jxstar.util.log.Log;
@@ -112,6 +113,8 @@ public class ServiceControllerImp implements ServiceController {
 			if (hasLock) {
 				ControlerLock.delDoing(requestContext);
 			}
+			//记录操作日志
+			SysLogUtil.writeLog(requestContext);
 		}
 
 		return true;
