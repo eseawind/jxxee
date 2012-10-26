@@ -1526,7 +1526,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 					//当前功能外键值
 					var fkValue = self.grid.fkValue;
 					//上传参数
-					var params = 'funid=sysevent&pagetype=grid&eventcode=impexcel&fkValue='+ fkValue +'&impFunId='+ nodeid + '&impIndex='+ impIndex;
+					var params = 'funid='+ nodeid +'&pagetype=grid&eventcode=impexcel&fkValue='+ fkValue +'&impFunId='+ nodeid + '&impIndex='+ impIndex;
 					var hdCall = function(data) {
 						if (!Ext.isEmpty(data) && !Ext.isEmpty(data.valueInfo)) {
 							JxHint.alert(data.valueInfo);
