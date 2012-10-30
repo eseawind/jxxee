@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.jxstar.service.util.TaskUtil;
 import org.jxstar.util.MapUtil;
+import org.jxstar.util.StringUtil;
 import org.jxstar.util.factory.FactoryUtil;
 
 /**
@@ -34,7 +35,7 @@ public class TotalUtil {
 				String key = itr.next();
 				String value = MapUtil.getValue(mpData, key);
 				
-				sbrow.append("'"+ key +"':'" + value + "',");
+				sbrow.append("'"+ key +"':'" + StringUtil.strForJson(value) + "',");
 			}
 			if (sbrow.length() > 0) {
 				sbJson.append("{"+ sbrow.substring(0, sbrow.length()-1) +"},");
