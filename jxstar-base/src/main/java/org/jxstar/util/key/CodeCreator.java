@@ -102,23 +102,27 @@ public class CodeCreator {
 		Map<String, String> mpRule = null;
 		
 		//先检查该功能是否定义了编码规则
-		if (mpValue != null) {
-			String sql = "select code_ext, code_no, code_length from sys_coderule where fun_id = ?";
-			DaoParam sparam = _dao.createParam(sql);
-			sparam.addStringValue(funId);
-			mpRule = _dao.queryMap(sparam);
+		String sql = "select code_ext, code_no, code_length from sys_coderule where fun_id = ?";
+		DaoParam sparam = _dao.createParam(sql);
+		sparam.addStringValue(funId);
+		mpRule = _dao.queryMap(sparam);
+		
+		boolean custRule = false;
+		//如果编码扩展掩码不为空，且(为“:日期格式”或者“有当前记录值”)
+		format = MapUtil.getValue(mpRule, "code_ext");
+		if (format.length() > 0 && (format.charAt(0) == ':' || mpValue != null)) {
+			custRule = true;
 		}
 		
 		//采用功能自定义编码规则
-		if (mpValue != null && mpRule != null && !mpRule.isEmpty()) {
-			String code_ext = mpRule.get("code_ext");
+		if (custRule) {
 			String code_len = MapUtil.getValue(mpRule, "code_length", "0");
 			serialCode = mpRule.get("code_no");
 			
 			_log.showDebug("custom code rule code_ext={0} code_no={1} code_length={2}", 
-					code_ext, serialCode, code_len);
+					format, serialCode, code_len);
 			
-			extValue = getCodeExtend(code_ext, mpValue);
+			extValue = getCodeExtend(format, mpValue);
 			_log.showDebug("custom code rule extvalue={0}", extValue);
 			
 			//处理编码长度，如果扩展值+序列号的长度不够，则添加序列号的长度
