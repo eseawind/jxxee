@@ -562,6 +562,8 @@ JxSelect = {};
 					if (editor) {
 						//如果不允许为空，清空值时不会执行此事件
 						editor.on('complete', function(ed, value, start){
+							//如果原来的值与修改后的值都为空，则不处理
+							if (Ext.isEmpty(value) && Ext.isEmpty(start)) return;
 							var incb = ed.field;
 							if (value.length == 0 || (incb.selValue && incb.selValue != value)) {
 								var record = JxUtil.emptyRecord(store);
