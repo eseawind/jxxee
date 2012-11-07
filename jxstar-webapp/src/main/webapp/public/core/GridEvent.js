@@ -265,7 +265,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	* 提交时：检查是否存在已复核的记录；取消时：检查是否存在未复核记录
 	**/
 	checkAudit: function(auditval) {
-		if (auditval == null) auditval = this.audit1;
+		if (Ext.isEmpty(auditval)) auditval = this.audit1;
 		
 		var records = JxUtil.getSelectRows(this.grid);
 		for (var i = 0; i < records.length; i++) {
@@ -280,7 +280,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 					JxHint.alert(jx.event.selaudit0);	//选择的记录中存在未复核的记录，不能操作！
 					return true;
 				}
-			} else {
+			} else if (auditval == this.audit1) {
 				if (state != this.audit0 && state != this.audit6){
 					JxHint.alert(jx.event.selaudit1);	//选择的记录中存在已复核的记录，不能操作！
 					return true;

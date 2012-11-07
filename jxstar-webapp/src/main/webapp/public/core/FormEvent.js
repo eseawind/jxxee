@@ -546,7 +546,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 				JxHint.alert(jx.event.curaudit0);		//'当前记录未复核，不能操作！'
 				return true;
 			}
-		} else {
+		} else if (auditval == self.audit1) {
 			if (state != self.audit0 && state != self.audit2 && state != self.audit6){//暂时调整为审批中的记录可以保存修改
 				JxHint.alert(jx.event.curaudit1);	//'当前记录已复核，不能操作！'
 				return true;
