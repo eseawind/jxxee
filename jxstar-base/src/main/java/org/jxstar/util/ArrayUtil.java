@@ -36,7 +36,6 @@ public class ArrayUtil {
 			if (mpData.isEmpty()) continue;
 			
 			Iterator<String> itr = mpData.keySet().iterator();
-			
 			StringBuilder sbOne = new StringBuilder("{");
 			while(itr.hasNext()) {
 				String key = itr.next();
@@ -45,7 +44,7 @@ public class ArrayUtil {
 				if (value != null && (value.equals("true") || value.equals("false"))) {
 					sbOne.append("'"+ key +"':"+ value +",");
 				} else {
-					sbOne.append("'"+ key +"':'"+ value +"',");
+					sbOne.append("'"+ key +"':'"+ StringUtil.strForJson(value) +"',");
 				}
 			}
 			String oneJson = sbOne.substring(0, sbOne.length()-1) + "},";
