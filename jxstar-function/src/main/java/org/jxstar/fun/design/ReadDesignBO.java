@@ -14,6 +14,7 @@ import org.jxstar.fun.design.parser.PageParser;
 import org.jxstar.fun.design.parser.PageParserUtil;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.FunDefineDao;
+import org.jxstar.util.config.SystemVar;
 
 /**
  * 读取表单设计信息，如果没有设计信息，则创建缺省表单设计信息。
@@ -89,9 +90,11 @@ public class ReadDesignBO extends BusinessObject {
 	 */
 	private String createDesign(String funcId, int colnums) {
 		StringBuilder sbDesign = new StringBuilder();
+		//取当前设计器的版本号
+		String verno = SystemVar.getValue("fun.design.verno", "0");
 		
 		sbDesign.append("<?xml version='1.0' encoding='utf-8'?>");
-		sbDesign.append("<page state='default' colnums='"+ colnums +"'>");
+		sbDesign.append("<page state='default' colnums='"+ colnums +"' verno='"+ verno +"'>");
 		sbDesign.append(createFormItem(funcId, colnums));
 		sbDesign.append("</page>");
 
