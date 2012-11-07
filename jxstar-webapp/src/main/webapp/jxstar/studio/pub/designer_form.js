@@ -12,9 +12,19 @@
  * 1、先找到设计容器中所有的控件元素，包括：form, column, field，后面保存一个就去掉一个，剩下的就是位置不对的控件；
  * 2、找到所有form控件，然后分别保存每个form布局内部的column，form布局不能重叠；
  * 3、找到所有column控件，然后分别保存每个column布局内部的field，column布局不能重叠；
+ *
+ * 不同版本设计文件解决规则：
+ * 1、无版本号的设计文件，设计规格为：6*120，top=10，left=10，按照新版设计规则只占18/24，所以列宽按照：width/18计算；
+ * 2、verno=1版本，设计规格为：24*40，top=10，left=10，所以列宽按照：width/24计算。
  **/
 
 Jxstar.currentPage = {
+	/**
+	 * 记录设计当前文件的设计器版本号，不同版本号的设计文件的解析规则会有点不同，通过它来识别
+	 * 当前版本号为1，在系统变量中设置：fun.design.verno
+	 **/
+	verno: '1',
+
 	/**
 	 * 设计面板容器，所有控件都放在此容器内。
 	 **/
@@ -38,7 +48,7 @@ Jxstar.currentPage = {
 	/**
 	 * 缺省显示的列数
 	 **/
-	colnums: 2,
+	colnums: parseInt(Jxstar.systemVar.fun__design__cols) || 2,
 	
 	/**
 	 * 记录设计面板中所有的元素，保存的是DOM对象，格式：{form:[], column:[], field:[]}
@@ -56,12 +66,12 @@ Jxstar.currentPage = {
 	designResizes: [],
 
 	/**
-	 * 布局元素初始位置，x表示left，y表示top，i表示间隔
+	 * 布局元素初始位置，x表示left，y表示top，coli表示列的横向间隔，fieldi表示字段纵向间隔
 	 **/
 	initpos: {
 		formx:10, formy:35,  formi:10,
-		colx:5,	  coly:5,    coli:20,
-		fieldx:5, fieldy:5, fieldi:8
+		colx:2,	  coly:5,    coli:8,
+		fieldx:2, fieldy:5, fieldi:8
 	},
 
 	/**
@@ -76,7 +86,7 @@ Jxstar.currentPage = {
 	/**
 	 * 设置画布背景的列数、行数、列宽、行高
 	 **/
-	bgsize: {cols:6, rows:50, width:120, height:30},
+	bgsize: {cols:24, rows:50, width:40, height:30, left:10, top:10},
 	
 	/**
 	 * 销毁临时对象
@@ -91,8 +101,8 @@ Jxstar.currentPage = {
 			item.destroy(true);
 			item = null;
 		});
-		self.designDDs = null;
-		self.designResizes = null;
+		self.designDDs = [];
+		self.designResizes = [];
 	},
 	
 	/**
@@ -101,13 +111,12 @@ Jxstar.currentPage = {
 	initWidth: function(colnums) {
 		var self = this;
 		self.colnums = colnums;
-		if (self.colnums == 2) {
-			self.initsize.colw = 340;
-			self.initsize.fieldw = 320;
-		} else {
-			self.initsize.colw = 220;
-			self.initsize.fieldw = 200;
-		}
+		
+		var bgw = self.bgsize.cols * self.bgsize.width;
+		
+		self.initsize.formw = bgw;
+		self.initsize.colw = bgw / colnums - 8;
+		self.initsize.fieldw = bgw / colnums - 15;
 	},
 
 	/**
@@ -166,7 +175,10 @@ Jxstar.currentPage = {
 			{text:jx.fun.delctl, handler:function(){self.deleteComponent();}},	//'删除控件'
 			{text:jx.fun.colnums, id:'menu_colnums', menu:{items: [					//'显示几列'
              {text:'2 cols', checked: true, group: 'colsnum', checkHandler: onItemClick},
-             {text:'3 cols', checked: false, group: 'colsnum', checkHandler: onItemClick}
+             {text:'3 cols', checked: false, group: 'colsnum', checkHandler: onItemClick},
+			 {text:'4 cols', checked: false, group: 'colsnum', checkHandler: onItemClick},
+			 {text:'5 cols', checked: false, group: 'colsnum', checkHandler: onItemClick},
+			 {text:'6 cols', checked: false, group: 'colsnum', checkHandler: onItemClick}
              ]}
 			},
 			'-',
@@ -198,19 +210,20 @@ Jxstar.currentPage = {
 		self.layoutEl = Ext.get(designPanel.el.findParent('div.x-panel-body', 2));
 		
 		//计算画布背景的高度
+		var bgwidth = self.bgsize.width * self.bgsize.cols;
 		var bgheight = self.bgsize.height * self.bgsize.rows;
 		
 		//显示设计画布
 		self.parentEl.insertHtml('beforeEnd', 
-						'<div id="maincanvas" class="fdes-canvas x-unselectable" style="height:'+ bgheight +'px;"></div>');
+						'<div id="maincanvas" class="fdes-canvas x-unselectable" style="width:'+bgwidth+'px; height:'+bgheight+'px;"></div>');
 
 		//显示设计画布中的网格
 		var vhtml = '';
 		for (var i = 0; i < self.bgsize.cols; i++) {
 			for (var j = 0; j < self.bgsize.rows; j++) {
-				var stop = 10+j*self.bgsize.height;
-				var sleft = 10+i*self.bgsize.width;
-				vhtml += '<div class="fdes-grid x-unselectable" style="top:'+stop+'px;left:'+sleft+'px;"></div>';
+				var stop = self.bgsize.top+j*self.bgsize.height;
+				var sleft = self.bgsize.left+i*self.bgsize.width;
+				vhtml += '<div class="fdes-grid x-unselectable" style="top:'+stop+'px;left:'+sleft+'px;width:'+self.bgsize.width+'px;height:'+self.bgsize.height+'px;"></div>';
 			}
 		}
 		self.parentEl.insertHtml('beforeEnd', vhtml);
@@ -218,7 +231,7 @@ Jxstar.currentPage = {
 		//添加一个覆盖整个设计面板的DIV，用于处理底部的鼠标事件
 		var maxw = self.parentEl.getWidth();
 		self.parentEl.insertHtml('beforeEnd', 
-						'<div id="maincanvas_tmp" class="fdes-canvas-bg x-unselectable" style="width:'+ maxw +'px;height:'+ bgheight +'px;"></div>');
+						'<div id="maincanvas_tmp" class="fdes-canvas-bg x-unselectable" style="width:'+maxw+'px;height:'+bgheight+'px;"></div>');
 		
 		//初始化控件选择对象
 		self.initDd();
@@ -299,7 +312,7 @@ Jxstar.currentPage = {
 		}
 		
 		filecont = "<?xml version='1.0' encoding='utf-8'?>\r";
-		filecont += "<page state='design' colnums='"+ self.colnums +"'>\r";
+		filecont += "<page state='design' colnums='"+ self.colnums +"' verno='"+ self.verno +"'>\r";
 		filecont += pageXML;
 		filecont += "</page>";
 		
@@ -360,15 +373,14 @@ Jxstar.currentPage = {
 			var pageDom = xdoc.getElementsByTagName("page").item(0);
 
 			var state = self.readAttrVal(pageDom, 'state', 'default');
+			//读取创建当前设计文件的设计器的版本号
+			self.verno = self.readAttrVal(pageDom, 'verno', '0');
 			//设置缺省显示几列
-			var colnums = self.readAttrVal(pageDom, 'colnums', '2');
+			var colnums = parseInt(self.readAttrVal(pageDom, 'colnums', '2'));
+			if (colnums < 2) colnums = 2;
 			self.initWidth(colnums)
 			var colmenu = Ext.getCmp('menu_colnums').menu;
-			if (colnums == '3') {
-				colmenu.get(1).setChecked(true);
-			} else {
-				colmenu.get(0).setChecked(true);
-			}
+			colmenu.get(colnums-2).setChecked(true);
 			
 			//初始化控件ID序号
 			self.compnum = 0;
@@ -395,6 +407,9 @@ Jxstar.currentPage = {
 	deleteDesign: function() {
 		var self = this;
 		var hdcall = function() {
+			//清除临时对象
+			self.destroy();
+		
 			var params = 'funid=sys_fun_base&eventcode=deletefd';
 				params += '&selfunid='+self.nodeId+'&selpagetype=form';
 
@@ -656,31 +671,24 @@ Jxstar.currentPage = {
 	 **/
 	createLayout: function(rows, cols) {
 		var self = this;
-		//var divs = [], m = 0;
 		
 		//form的xy坐标
 		var fx = self.initpos.formx;
-		var fy = self.getFormBottom() + 10;
+		var fy = self.getFormBottom() + self.initpos.formy;
 		
 		//创建一个form，高度为rows
-		var fh = rows*30 + 20;
+		var fh = rows*self.bgsize.height + 20;
 		var fw = self.initsize.formw;
 		var newEl = self.createComponent('fdes-formitem', {left:fx, top:fy, width:fw, height:fh});
-		//divs[m++] = newEl.dom;
 		
 		//创建cols个colum
 		for (var i = 0; i < cols; i++) {
-			var cx = i*self.initsize.colw + i*20 + fx + 5;
-			var cy = fy + 5;
+			var cx = fx + i*self.initsize.colw + i*self.initpos.coli + self.initpos.colx;
+			var cy = fy + self.initpos.coly;
 			var cw = self.initsize.colw;
-			var ch = rows*30;
+			var ch = rows*self.bgsize.height;
 			var newEl = self.createComponent('fdes-columnitem', {left:cx, top:cy, width:cw, height:ch});
-			
-			//divs[m++] = newEl.dom;
 		}
-
-		//标志选择的控件
-		//self.flagSelectDivs(divs);
 	},
 	
 	/**
@@ -703,6 +711,10 @@ Jxstar.currentPage = {
 		} else {
 			max = max - self.parentEl.getY();
 		}
+		
+		//取格子整数
+		var rows = Math.round(max/self.bgsize.height) 
+		max = rows * self.bgsize.height;
 		
 		return max;
 	},
@@ -798,8 +810,8 @@ Jxstar.currentPage = {
 		var self = this;
 		//创建拖动对象；暂时不处理限制移动范围，因为当设计面板的scroll.top大于0时，创建的控件移动有问题。
 		var dd = new Ext.dd.DD(el.dom.id);
-        dd.setXConstraint(800, 800, 10);
-        dd.setYConstraint(1500, 1500, 10);//modify by tony.tan, 原来的值是500，调整为1500，方面调整多字段界面。
+        dd.setXConstraint(800, 800, 5);
+        dd.setYConstraint(1500, 1500, 5);//modify by tony.tan, 原来的值是500，调整为1500，方面调整多字段界面。
 		self.designDDs.push(dd);
 		
 		//点击时，才创建可缩放对象，提供性能
@@ -813,9 +825,10 @@ Jxstar.currentPage = {
 			//如果已创建了缩放对象，则不用创建了
 			if (hasRe) return;
 			
-			var re = new Ext.Resizable(curEl, {minWidth:120, minHeight:22});
+			var re = new Ext.Resizable(curEl, {minWidth:40, minHeight:22});
 			//调整form的高度，内部column高度自动调整
 			self.resizeForm(re);
+			self.resizeColumn(re);
 			self.designResizes.push(re);
 		});
 		
@@ -845,6 +858,31 @@ Jxstar.currentPage = {
 					Ext.fly(item).setHeight(h - 18);
 				});
 				re.childCols = null;
+				return true;
+			}, self);
+		}
+	},
+	
+	/**
+	 * 根据column的调整宽度，调整内部所有field的宽度
+	 * re -- 缩放对象
+	 **/
+	resizeColumn: function(re) {
+		var self = this;
+		var curEl = re.getEl();
+		if (curEl.hasClass('fdes-columnitem')) {
+			//缩放前记住有哪些子控件
+			re.on('beforeresize', function(re){
+				var colEl = re.getEl();
+				re.childFields = self.findChilds(colEl.dom, 'div.fdes-fielditem');
+				return true;
+			}, self);
+			//缩放后调整子控件的高度
+			re.on('resize', function(re, w, h){
+				Ext.each(re.childFields, function(item){
+					Ext.fly(item).setWidth(w - 15);
+				});
+				re.childFields = null;
 				return true;
 			}, self);
 		}
@@ -1114,19 +1152,18 @@ Jxstar.currentPage = {
 			var h = fe.getHeight();
 
 			var id = self.readAttrVal(colitems[i], 'id');
-			//var colwidth = self.readAttrVal(colitems[i], 'colwidth');
 
-			//重新计算列的宽度
-			var scale = (w/(self.initsize.formw)).toFixed(2);
-			if (scale >= 0.9) {
-				scale = 0.99;
-			} else if (scale >= 0.6) {
-				scale = 0.66;
-			} else if (scale > 0.45 && scale < 0.6) {
-				scale = 0.495;
-			} else {
-				scale = 0.33;
+			//不同版本的设计器的列宽计算规则不同，由于form字段区域只占99%的宽度，所以还需要乘以0.99
+			var scale = 0.33;//占form表单宽度的百分比
+			var fv = self.verno;//构建当前设计文件的设计器版本号
+			if (fv == '0') {//版本0的布局规则是：6*120
+				var colnum = Math.round(w/120);//占几个格子
+				scale = ((colnum/6)*0.99).toFixed(3);
+			} else if (fv == '1') {//版本1的布局规则是：24*40
+				var colnum = Math.round(w/self.bgsize.width);//占几个格子
+				scale = ((colnum/self.bgsize.cols)*0.99).toFixed(4);
 			}
+			scale = parseFloat(scale);
 
 			colcont += "\t\t<columnitem x='"+ x +"' y='"+ y +"' width='"+ w +"' height='"+ h +
 						"' id='"+ id +"' colwidth='"+ scale +"'>\r";
@@ -1170,8 +1207,9 @@ Jxstar.currentPage = {
 
 			//计算控件宽度的比例，默认100%，如果宽度小于缺省值一定值时才计算比例
 			var anchor = 100;
-			if (w < self.initsize.fieldw-30) {
-				anchor = parseInt(w*100/(self.initsize.fieldw));
+			var pw = Ext.fly(parent).getWidth();
+			if (w < pw*0.8) {
+				anchor = parseInt(w*100/pw);
 			}
 
 			//如果控件的高度超过缺省值的1.5，则认为是area控件否则是text
