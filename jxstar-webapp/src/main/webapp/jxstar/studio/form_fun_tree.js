@@ -4,14 +4,16 @@
 	var nodeclsData = Jxstar.findComboData('nodecls');
 	var treetypeData = Jxstar.findComboData('treetype');
 	var items = [{
-		height: '97%',
-		width: '97%',
-		border: false,
-		layout: 'form',
-		style: 'padding:10px;',
-		items: [{
+		width:'97%',
+		border:false,
+		layout:'form',
+		autoHeight:true,
+		xtype:'container',
+		style:'padding:5 10 5 10;',
+		items:[{
 			anchor:'100%',
-			border: false,
+			border:false,
+			xtype:'container',
 			layout:'column',
 			border:true,
 			xtype:'fieldset',
@@ -21,6 +23,7 @@
 			autoHeight:true,
 			items:[{
 				border:false,
+				xtype:'container',
 				columnWidth:0.495,
 				layout:'form',
 				style: 'padding-left:10px;',
@@ -29,12 +32,13 @@
 					{xtype:'textfield', fieldLabel:'节点ID字段', name:'fun_tree__node_id', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:100},
 					{xtype:'textfield', fieldLabel:'节点名字段', name:'fun_tree__node_name', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:100},
 					{xtype:'textfield', fieldLabel:'级别字段', name:'fun_tree__node_level', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:100},
-					{xtype:'textfield', fieldLabel:'目标过滤条件', name:'fun_tree__right_where', anchor:'100%', maxLength:100},
+					{xtype:'textfield', fieldLabel:'目标过滤条件', name:'fun_tree__right_where', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:100},
 					{xtype:'textfield', fieldLabel:'树形标题', name:'fun_tree__tree_title', anchor:'100%', maxLength:50},
 					{xtype:'checkbox', fieldLabel:'是否含本级', name:'fun_tree__has_level', defaultval:'0', disabled:false, anchor:'100%'}
 				]
 			},{
 				border:false,
+				xtype:'container',
 				columnWidth:0.495,
 				layout:'form',
 				style: 'padding-left:10px;',
@@ -51,7 +55,8 @@
 			]
 		},{
 			anchor:'100%',
-			border: false,
+			border:false,
+			xtype:'container',
 			layout:'column',
 			border:true,
 			xtype:'fieldset',
@@ -61,6 +66,7 @@
 			autoHeight:true,
 			items:[{
 				border:false,
+				xtype:'container',
 				columnWidth:0.495,
 				layout:'form',
 				style: 'padding-left:10px;',
@@ -82,6 +88,7 @@
 				]
 			},{
 				border:false,
+				xtype:'container',
 				columnWidth:0.495,
 				layout:'form',
 				style: 'padding-left:10px;',
@@ -111,6 +118,7 @@
 		funid: 'fun_tree'
 	};
 
+	
 	
 	
 	return new Jxstar.FormNode(config);

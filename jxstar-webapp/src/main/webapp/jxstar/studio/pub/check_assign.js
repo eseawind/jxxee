@@ -82,9 +82,15 @@ Jxstar.currentPage = {
 		
 		var hdCall = function(f) {
 			var page = f();
+			var isEdit = Jxstar.systemVar.wf__assign__edit || '';
 			if (typeof page.showPage == 'function') {
-				page.selectModel = 'row';
-				page = page.showPage('notoolgrid');
+				if (isEdit != '1') {//任务分配人不可以编辑
+					page.selectModel = 'row';
+					page = page.showPage('notoolgrid');
+					page.on('beforeedit', function(event) {return false;});
+				} else {
+					page = page.showPage();
+				}
 			}
 			//显示对话框
 			self.createWindow(page);

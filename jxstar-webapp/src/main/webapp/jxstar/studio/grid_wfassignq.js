@@ -4,7 +4,16 @@
 	var wfasstateData = Jxstar.findComboData('wfasstate');
 
 	var cols = [
-	{col:{header:'分配人', width:71, sortable:true}, field:{name:'wf_assign__assign_user',type:'string'}},
+	{col:{header:'*分配人', width:97, sortable:true, editable:true, hcss:'color:#0000ff;',
+		editor:new Ext.form.TriggerField({
+			maxLength:20,
+			editable:false, allowBlank:false,
+			triggerClass:'x-form-search-trigger', 
+			onTriggerClick: function() {
+				var selcfg = {pageType:'combogrid', nodeId:'sys_user', layoutPage:'/public/layout/layout_tree.js', sourceField:'sys_user.user_name;user_id', targetField:'wf_assign.assign_user;assign_userid', whereSql:"", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'1',queryField:'',likeType:'all',fieldName:'wf_assign.assign_user'};
+				JxSelect.createSelectWin(selcfg, this, 'node_wf_assignq_editgrid');
+			}
+		})}, field:{name:'wf_assign__assign_user',type:'string'}},
 	{col:{header:'任务描述', width:307, sortable:true}, field:{name:'wf_assign__task_desc',type:'string'}},
 	{col:{header:'执行状态', width:86, sortable:true, align:'center',
 		editable:false,
@@ -27,10 +36,12 @@
 					return wfasstateData[i][1];
 			}
 		}}, field:{name:'wf_assign__run_state',type:'string'}},
-	{col:{header:'开始时间', width:113, sortable:true, renderer:function(value) {
+	{col:{header:'开始时间', width:113, sortable:true, align:'center',
+		renderer:function(value) {
 			return value ? value.format('Y-m-d H:i') : '';
 		}}, field:{name:'wf_assign__start_date',type:'date'}},
-	{col:{header:'受限时间', width:110, sortable:true, renderer:function(value) {
+	{col:{header:'受限时间', width:110, sortable:true, align:'center',
+		renderer:function(value) {
 			return value ? value.format('Y-m-d H:i') : '';
 		}}, field:{name:'wf_assign__limit_date',type:'date'}},
 	{col:{header:'分配人编号', width:80, sortable:true}, field:{name:'sys_user__user_code',type:'string'}},
@@ -49,10 +60,11 @@
 		cols: cols,
 		sorts: null,
 		hasQuery: '0',
-		isedit: '0',
+		isedit: '1',
 		isshow: '1',
 		funid: 'wf_assignq'
 	};
+	
 	
 	
 		
