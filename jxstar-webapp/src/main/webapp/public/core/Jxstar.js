@@ -369,10 +369,12 @@ Ext.ns('Jxstar');
 					var treeLevel = Math.floor(treeId.length/4)+1;
 					
 					//注册的树形查询条件
-					var where_sql = attr.right_where;
 					var where_type = 'string';
-					//处理查询值
 					var where_value = treeId+'%';
+					var where_sql = attr.right_where;
+					if (where_sql && where_sql.length > 0) {
+						where_sql = '(' + where_sql + ')';
+					}
 					
 					//是否不含下级
 					var tools = tree.getTopToolbar().find('xtype', 'checkbox');
@@ -389,6 +391,16 @@ Ext.ns('Jxstar');
 					//如果是根节点
 					if (ROOT_ID == treeId) {
 						where_value = '%';
+					}
+					
+					//如果wheresql中有[tree_id]，则需要用where_value替换
+					if (where_sql.indexOf('[tree_id]') >= 0) {
+						var re = /\[tree_id\]/g;
+						where_sql = where_sql.replace(re, where_value)
+					}
+					//如果wheresql中没有?，则type, value都设为空，只允许有一个?号
+					if (where_sql.indexOf('?') < 0) {
+						where_type = '', where_value = '';
 					}
 					
 					//扩展的树形查询条件
@@ -418,6 +430,12 @@ Ext.ns('Jxstar');
 							where_value += ';' + treeLevel;
 							where_type += ';int';
 						}
+					}
+					
+					//where_type第一个字符为;，则去掉，因为没有?
+					if (where_type.charAt(0) == ';') {
+						where_type = where_type.substring(1, where_type.length);
+						where_value = where_value.substring(1, where_value.length);
 					}
 
 					//保存树形查询参数
