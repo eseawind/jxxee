@@ -579,13 +579,17 @@ public class TreeQuery extends BusinessObject {
 		if (othercol.length() > 0) {
 			treesql.append(othercol + ", ");
 		}
-		
+		//如果过滤SQL中含'号，则必须替换
+		String rwhere = mpTree.get("right_where");
+		if (rwhere.indexOf("'") >= 0) {
+			rwhere = rwhere.replaceAll("'", "''");
+		}
 		//添加树定义信息
 		treesql.append(" '"+ mpTree.get("node_style") +"' as cls, ");
 		treesql.append(" '"+ mpTree.get("tree_no") +"' as tree_no, ");
 		treesql.append(" '"+ mpTree.get("tree_title") +"' as tree_title, ");
 		treesql.append(" '"+ mpTree.get("node_level") +"' as node_level, ");
-		treesql.append(" '"+ mpTree.get("right_where") +"' as right_where, ");
+		treesql.append(" '"+ rwhere +"' as right_where, ");
 		treesql.append(" '"+ mpTree.get("table_name") +"' as table_name, ");
 		treesql.append(" '"+ mpTree.get("has_level") +"' as has_level, ");
 		
