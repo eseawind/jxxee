@@ -31,6 +31,8 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 	 
 	 blankText : 'This field is required',
 	 
+	 allowBlank : true,
+	 
 	 value : '',
 
     // private
@@ -67,7 +69,7 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 	
     getErrors: function(value) {
         var errors = [];
-        if (!this.allowBlank && (value.length < 1 || value === this.emptyText)) {
+        if (this.allowBlank == false && (value.length < 1 || value === this.emptyText)) {
             errors.push(this.blankText);
         }
 		return errors;
