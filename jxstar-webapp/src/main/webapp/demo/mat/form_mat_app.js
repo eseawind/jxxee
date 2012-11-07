@@ -42,13 +42,12 @@
 				style: 'padding-left:10px;',
 				items:[
 					{xtype:'datefield', fieldLabel:'申请日期', name:'mat_app__app_date', defaultval:'fun_getToday()', format:'Y-m-d', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%'},
-					{xtype:'trigger', fieldLabel:'申请部门', name:'mat_app__dept_name', defaultval:'fun_getDeptName()',
+					{xtype:'combo', fieldLabel:'申请部门', name:'mat_app__dept_name', defaultval:'fun_getDeptName()',
 						anchor:'100%', triggerClass:'x-form-search-trigger',
-						maxLength:50, editable:false,
-						onTriggerClick: function() {
-							var selcfg = {pageType:'combogrid', nodeId:'sys_dept', layoutPage:'/public/layout/layout_tree.js', sourceField:';', targetField:';', whereSql:"is_novalid = ?", whereValue:'0', whereType:'string', isSame:'1', isShowData:'1', isMoreSelect:'0',isReadonly:'1',queryField:'sys_dept.dept_name',likeType:'all',fieldName:'mat_app.dept_name'};
-							JxSelect.createSelectWin(selcfg, this, 'node_mat_app_form');
-						}},
+						maxLength:50, editable:true,
+						listeners:{afterrender: function(combo) {
+							JxSelect.initCombo('mat_app', combo, 'node_mat_app_form');
+						}}},
 					{xtype:'numberfield', decimalPrecision:2, fieldLabel:'采购数量', name:'mat_app__app_num', anchor:'100%', maxLength:12},
 					{xtype:'hidden', fieldLabel:'申请人ID', name:'mat_app__app_userid', defaultval:'fun_getUserId()', anchor:'100%'}
 				]
@@ -110,7 +109,7 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
-					{xtype:'textfield', fieldLabel:'申请理由', name:'mat_app__app_cause', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:200}
+					{xtype:'textarea', fieldLabel:'申请理由', name:'mat_app__app_cause', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', width:'100%', height:48, maxLength:200}
 				]
 			}
 			]
