@@ -375,6 +375,10 @@ Jxstar.currentPage = {
 			var state = self.readAttrVal(pageDom, 'state', 'default');
 			//读取创建当前设计文件的设计器的版本号
 			self.verno = self.readAttrVal(pageDom, 'verno', '0');
+			//表示设计文件所有的版本号
+			var canvasEl = Ext.get('maincanvas');
+			canvasEl.dom.innerHTML = '<span style="color:#ff0000;font-size:12px;font-weight:bold;">version:'+self.verno+'</span>';
+			
 			//设置缺省显示几列
 			var colnums = parseInt(self.readAttrVal(pageDom, 'colnums', '2'));
 			if (colnums < 2) colnums = 2;
