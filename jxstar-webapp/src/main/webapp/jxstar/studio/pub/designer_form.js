@@ -1109,6 +1109,21 @@ Jxstar.currentPage = {
 			var collapsible = self.readAttrVal(formitems[i], 'collapsible');
 			var collapsed = self.readAttrVal(formitems[i], 'collapsed');
 			
+			//控制不同版本设计器的form布局的宽度
+			var colnum = Math.round(w/self.bgsize.width);//占几个格子
+			var fv = self.verno;//构建当前设计文件的设计器版本号
+			if (fv == '0') {//版本0的布局规则是：18*40
+				if (colnum > 18) {
+					JxHint.alert('0版设计器的form布局不能超过18个背景格子！');
+					return '';
+				}
+			} else if (fv == '1') {//版本1的布局规则是：24*40
+				if (colnum > 24) {
+					JxHint.alert('1版设计器的form布局不能超过24个背景格子！');
+					return '';
+				}
+			}
+			
 			//取一列的控件信息
 			var colXML = self.columnItemToXML(formitems[i]);
 			if (colXML.length == 0) return '';
@@ -1160,7 +1175,7 @@ Jxstar.currentPage = {
 			//不同版本的设计器的列宽计算规则不同，由于form字段区域只占99%的宽度，所以还需要乘以0.99
 			var scale = 0.33;//占form表单宽度的百分比
 			var fv = self.verno;//构建当前设计文件的设计器版本号
-			if (fv == '0') {//版本0的布局规则是：6*120
+			if (fv == '0') {//版本0的布局规则是：18*40
 				var colnum = Math.round(w/120);//占几个格子
 				scale = ((colnum/6)*0.99).toFixed(3);
 			} else if (fv == '1') {//版本1的布局规则是：24*40
