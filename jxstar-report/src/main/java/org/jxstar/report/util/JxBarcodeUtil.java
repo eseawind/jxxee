@@ -9,8 +9,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 import org.jxstar.util.config.SystemVar;
+import org.krysalis.barcode4j.HumanReadablePlacement;
 import org.krysalis.barcode4j.impl.AbstractBarcodeBean;
 import org.krysalis.barcode4j.impl.codabar.CodabarBean;
+import org.krysalis.barcode4j.impl.code128.Code128Bean;
 import org.krysalis.barcode4j.impl.code39.Code39Bean;
 import org.krysalis.barcode4j.impl.upcean.EAN13Bean;
 import org.krysalis.barcode4j.output.bitmap.BitmapCanvasProvider;
@@ -59,6 +61,8 @@ public class JxBarcodeUtil {
 			return createEAN13(value);
 		} else if (_format.equals("code39")) {
 			return createCode39(value);
+		} else if (_format.equals("code128")) {
+			return createCode128(value);
 		} else {
 			return createCodabar(value);
 		}
@@ -95,6 +99,26 @@ public class JxBarcodeUtil {
 		bean.setWideFactor(3);//2|3
 		bean.doQuietZone(false);
 		bean.setFontSize(_fontSize);
+		
+		return writeBytes(bean, value);
+	}
+	
+	/**
+	 * 构建Code128格式的编码
+	 * @param value
+	 * @return
+	 */
+	public static byte[] createCode128(String value) {
+		initSize();
+		Code128Bean bean = new Code128Bean();
+		
+		bean.setBarHeight(_barHeight);//单位为mm
+		bean.setModuleWidth(_moduleWidth);//指每个元素的宽度，用mm为单位
+		bean.doQuietZone(false);
+		bean.setQuietZone(1);//两边空白区 
+		bean.setFontName("Helvetica");
+		bean.setFontSize(_fontSize);
+		bean.setMsgPosition(HumanReadablePlacement.HRP_BOTTOM);
 		
 		return writeBytes(bean, value);
 	}
