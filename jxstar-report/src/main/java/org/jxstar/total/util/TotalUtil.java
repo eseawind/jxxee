@@ -137,6 +137,6 @@ public class TotalUtil {
 		}
 		
 		//解析表达式中的字段名
-		return TaskUtil.parseAppField(whereValue, paramData, false);
+		return TaskUtil.parseAppField(whereValue, mpData, false);
 	}
 }
