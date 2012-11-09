@@ -229,8 +229,6 @@ public abstract class AbstractTotal implements ReportTotal {
 				String where = MapUtil.getValue(paramData, code);
 				if (where.length() == 0) continue;
 				sbsql.append(where + " and ");
-				sbvalue.append(";");
-				sbtype.append(";");
 				continue;
 			}
 			
