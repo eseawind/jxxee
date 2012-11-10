@@ -136,6 +136,8 @@
 				<add as="verticalAlign" value="middle"/>
 				<add as="strokeColor" value="gray"/>
 				<add as="dashed" value="1"/>
+				<add as="fillColor" value="#C7C7C7"/>
+				<add as="shadow" value="0"/>
 			</add>
 			<add as="defaultEdge">
 				<add as="shape" value="connector"/>
@@ -175,7 +177,7 @@
 			</add>
 			<add as="rounded">
 				<add as="rounded" value="1"/>
-				<add as="strokeColor" value="#4BACC6"/>
+				<add as="strokeColor" value="#C3D9FF"/>
 				<add as="fillColor" value="#C3D9FF"/>
 			</add>
 			<add as="doubleEllipse" extend="ellipse">

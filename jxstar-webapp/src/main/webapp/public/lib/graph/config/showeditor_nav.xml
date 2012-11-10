@@ -7,7 +7,7 @@
 		}
 	]]></add>
 	<ui>
-		<add as="graph" element="mx_graph_show"/>
+		<add as="graph" element="mx_graph_show_nav"/>
 	</ui>
 	<Array as="templates">
 		<add as="group">

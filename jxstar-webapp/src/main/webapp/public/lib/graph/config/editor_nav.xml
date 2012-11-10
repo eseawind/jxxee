@@ -1,13 +1,15 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
 <mxEditor defaultGroup="group" defaultEdge="connector">
 
+	<include name="public/lib/graph/config/keyhandler.xml"/>
 	<add as="onInit"><![CDATA[
 		function (isFirstTime) {
 			onMxInit(this);
 		}
 	]]></add>
 	<ui>
-		<add as="graph" element="mx_graph_show"/>
+		<add as="graph" element="mx_graph_nav"/>
+		<add as="toolbar" element="mx_toolbar_nav"/>
 	</ui>
 	<Array as="templates">
 		<add as="group">
@@ -231,4 +233,31 @@
 			</root>
 		</mxGraphModel>
 	</mxGraph>
+	<mxDefaultToolbar as="toolbar">
+		<add as="连接线" mode="connect" icon="public/lib/graph/images/connect.gif"><![CDATA[
+			function (editor)
+			{
+				if (editor.defaultEdge != null)
+				{
+					editor.defaultEdge.style = null;
+				}
+			}
+		]]></add>
+		<add as="反向线" mode="connect" icon="public/lib/graph/images/straight.gif"><![CDATA[
+			function (editor)
+			{
+				if (editor.defaultEdge != null)
+				{
+					editor.defaultEdge.style = 'straightConnector';
+				}
+			}
+		]]></add>
+		<br/><br/>
+		<add as="开始" template="start" style="hexagon" icon="public/lib/graph/images/hexagon.gif"/>
+		<add as="结束" template="end" style="doubleEllipse" icon="public/lib/graph/images/doubleellipse.gif"/>
+		<add as="功能" template="task" style="rounded" icon="public/lib/graph/images/rounded.gif"/>
+		<add as="判断" template="select" style="rhombus" icon="public/lib/graph/images/rhombus.gif"/>
+		<add as="文本" template="text" icon="public/lib/graph/images/text.gif"/>
+		<add as="图片" template="image" icon="public/lib/graph/images/image.gif"/>
+	</mxDefaultToolbar>
 </mxEditor>
