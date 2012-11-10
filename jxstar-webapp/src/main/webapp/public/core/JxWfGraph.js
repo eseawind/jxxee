@@ -44,7 +44,7 @@ Ext.apply(JxWfGraph, {
 				'</div>'
 			];
 			
-			var tbar = new Ext.Toolbar({deferHeight:true, items:[{text:'刷新'}]});
+			var tbar = new Ext.Toolbar({deferHeight:true, items:[{text:'刷新'},{text:'另存图片'}]});
 
 			wfnavTab = mainTab.add({
 				id: tabid,
