@@ -115,8 +115,7 @@ public class JxBarcodeUtil {
 		bean.setBarHeight(_barHeight);//单位为mm
 		bean.setModuleWidth(_moduleWidth);//指每个元素的宽度，用mm为单位
 		bean.doQuietZone(false);
-		bean.setQuietZone(1);//两边空白区 
-		bean.setFontName("Helvetica");
+		bean.setQuietZone(1);
 		bean.setFontSize(_fontSize);
 		bean.setMsgPosition(HumanReadablePlacement.HRP_BOTTOM);
 		
