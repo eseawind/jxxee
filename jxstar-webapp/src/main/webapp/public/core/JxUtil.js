@@ -147,7 +147,7 @@ JxUtil = {};
 			if (isReqCheck == false) return true;
 			
 			var cm = grid.getColumnModel();
-			var records = grid.getSelectionModel().getSelections();
+			var records = JxUtil.getSelectRows(grid);
 			for (var i = 0; i < records.length; i++) {
 				var record = records[i];
 				var fields = record.fields.keys;
@@ -917,7 +917,12 @@ JxUtil = {};
 			var fn = function(name, index, format, args) {
 				name = name.substr(1, name.length-2);
 				name = name.replace('.', '__');
-				var v = tagRecord.get(name);
+				var v;
+				if (tagRecord.get) {
+					v = tagRecord.get(name);
+				} else {
+					v = tagRecord[name];
+				}
 				
 				return v || name;
 			};

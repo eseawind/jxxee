@@ -341,7 +341,7 @@ JxAttach = {};
 		/********************下面的方法是用于表单附件字段********************/
 		//public 表格提交时判断必填附件是否有上传
 		checkGrid: function(grid) {
-			var records = grid.getSelectionModel().getSelections();
+			var records = JxUtil.getSelectRows(grid);
 			if (!JxUtil.selected(records)) return;
 			
 			var tabPanel = grid.findParentByType('tabpanel');
@@ -350,7 +350,7 @@ JxAttach = {};
 			var formTab = tabPanel.getComponent(1);
 			if (formTab == null) return;
 			var formPanel = formTab.getComponent(0);
-			if (formPanel == null) return;
+			if (formPanel == null || formPanel.isXType('form') == false) return;
 			var fields = formPanel.findByType('fileuploadfield');
 			if (fields == null || fields.length == 0) return;
 			

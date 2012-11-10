@@ -653,4 +653,17 @@ Ext.form.BasicForm.prototype.isValidBlank = function(){
 	return valid;
 };
 
+/**
+ * ext-3.3.1
+ * 修改方法：在导航图设计器中添加“提交”事件，JxAttach.js
+ * var formPanel = formTab.getComponent(0);执行时报items is null的错误
+ **/
+Ext.Container.prototype.getComponent = function(comp){
+	if(Ext.isObject(comp)){
+		comp = comp.getItemId();
+	}
+	//add by tony.tan
+	if (this.items == null) return null;
+	return this.items.get(comp);
+};
 
