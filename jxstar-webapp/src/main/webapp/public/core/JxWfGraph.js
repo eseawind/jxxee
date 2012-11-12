@@ -164,6 +164,7 @@ Ext.apply(JxWfGraph, {
 					param.whereSql = data.where_sql;
 					param.whereValue = JxUtil.parseWhereValue(data.where_value, self.queryValue);
 					param.whereType = data.where_type;
+					param.isQuery = '1';
 					Jxstar.createNode(fun_id, param);
 				} else {
 					Jxstar.createNode(fun_id);
