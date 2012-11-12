@@ -161,12 +161,12 @@ public class WfGraphBO extends BusinessObject {
 	 * @return
 	 */
 	public String queryDataFlag(String graphId, String dataValue) {
-		String sql = "select fun_id, where_sql, where_value, where_type, node_id from wfnav_node where graph_id = ?";
+		String sql = "select fun_id, fun_name, where_sql, where_value, where_type, node_id from wfnav_node where graph_id = ?";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(graphId);
+		List<Map<String,String>> lsNode = _dao.query(param);
 		
 		StringBuilder sbjson = new StringBuilder("[");
-		List<Map<String,String>> lsNode = _dao.query(param);
 		for (Map<String,String> mpNode : lsNode) {
 			String fun_id = mpNode.get("fun_id");
 			String node_id = mpNode.get("node_id");
@@ -191,13 +191,16 @@ public class WfGraphBO extends BusinessObject {
 	 */
 	private int queryFunData(Map<String,String> mpNode, String dataValue) {
 		//导航节点中的设置属性
-		String funId = mpNode.get("fun_id");
+		String fun_id = mpNode.get("fun_id");
+		String fun_name = mpNode.get("fun_name");
+		_log.showDebug("-------------queryfundata fun_id=" + fun_id + "; fun_name=" + fun_name);
+		
 		String where_sql = mpNode.get("where_sql").trim();
 		String where_value = mpNode.get("where_value").trim();//格式为：[name1];[name2]
 		String where_type = mpNode.get("where_type").trim();
 		
 		DefineDataManger manger = DefineDataManger.getInstance();
-		Map<String,String> mpFun = manger.getFunData(funId);
+		Map<String,String> mpFun = manger.getFunData(fun_id);
 		
 		String from_sql = mpFun.get("from_sql");
 		String fun_where = mpFun.get("where_sql").trim();
