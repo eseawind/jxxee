@@ -23,18 +23,41 @@ Ext.apply(JxWfGraph, {
 	//是否调用后台查询数据库是否有数据库记录
 	isFlag : false,
 	
-    showGraph : function(graphId, queryValue, isFlag){
+	//public 支持主菜单中直接打开功能导航图的功能
+    showGraphFun : function(graphId, queryValue, isFlag){
+		var self = this;
+		//创建功能显示Tab
+		var mainTab = Jxstar.sysMainTab;
+		var tabid = 'wfnav_graph_fun_tab';
+		var wfnavTab = mainTab.getComponent(tabid);
+		
+		if (wfnavTab == null) {
+			wfnavTab = mainTab.add({
+				id: tabid,
+				title: '流程导航图',
+				border: false,
+				layout: 'fit',
+				closable: true,
+				autoScroll: true,
+				iconCls: 'function'
+			});
+			mainTab.activate(wfnavTab);
+		}
+		
+		//然后显示导航流程图
+		self.createGraph(wfnavTab, graphId, queryValue, isFlag);
+    },
+	
+	//public 支持自定义功能中直接打开流程图，可以添加数据标记
+    createGraph : function(wfnavTab, graphId, queryValue, isFlag){
 		var self = this;
 		self.graphId = graphId;
-		self.queryValue = queryValue;
+		self.queryValue = queryValue||{};
 		self.isFlag = isFlag||false;
 		
-		var tabid = 'wfnav_graph_tab';
-		//取主功能TAB
-		var mainTab = Jxstar.sysMainTab;
-		//如果已经打开了流程图界面就显示，否则直接创建
-		var wfnavTab = mainTab.getComponent(tabid);
-		if (wfnavTab == null) {
+		var navctl = wfnavTab.getComponent(0);
+		if (navctl == null) {
+			var tabid = 'wfnav_graph_tab';
 			//设计面板html
 			var htmls = [
 				'<div id="mx_graph_show_nav" style="height:100%;width:100%;background-color:white;overflow:auto;">',
@@ -44,38 +67,32 @@ Ext.apply(JxWfGraph, {
 				'</div>'
 			];
 			
-			var tbar = new Ext.Toolbar({deferHeight:true, items:[{text:'刷新'},{text:'另存图片'}]});
+			//var tbar = new Ext.Toolbar({deferHeight:true, items:[{text:'刷新'},{text:'另存图片'}]});
 
-			wfnavTab = mainTab.add({
+			navctl = new Ext.Panel({
 				id: tabid,
-				title: '流程导航图',
 				border: true,
 				layout: 'fit',
-				closable: true,
 				autoScroll: true,
-				iconCls: 'function',
-				tbar: tbar,
+				//tbar: tbar,
 				html: htmls.join('')
 			});
+			wfnavTab.add(navctl);
+			wfnavTab.doLayout();
 			
-			wfnavTab.on('destroy', function(){
+			navctl.on('destroy', function(){
 				if (self.editor != null) {
 					self.editor.destroy();
 					mxClient.dispose();
 					self.editor = null;
 				}
 			});
-			
-			mainTab.activate(wfnavTab);
 				
-			//显示流程图
+			//创建流程图
 			self.createEdit();
-			self.readDesign();
-		} else {
-			mainTab.activate(wfnavTab);
-			//显示流程图
-			self.readDesign();
 		}
+		//根据最新参数显示流程图
+		self.readDesign();
     },
 	
 	//private 检查是否为任务节点

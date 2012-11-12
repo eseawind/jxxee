@@ -460,8 +460,10 @@ JxAttach = {};
 				//清除附件字段值
 				var hdcall = function() {
 					fileField.setValue('');
-					param.form.myRecord.set(fileField.name, '');
-					param.form.myRecord.commit();
+					if (!Ext.isEmpty(param.form.myRecord)) {
+						param.form.myRecord.set(fileField.name, '');
+						param.form.myRecord.commit();
+					}
 				};
 				
 				//发送下载请求
@@ -499,8 +501,10 @@ JxAttach = {};
 			}
 			
 			var hdcall = function() {
-				form.myRecord.set(fileField.name, fileField.getValue());
-				form.myRecord.commit();
+				if (!Ext.isEmpty(form.myRecord)) {
+					form.myRecord.set(fileField.name, fileField.getValue());
+					form.myRecord.commit();
+				}
 			}
 			//上传附件
 			var params = param.params + '&attach_name='+ encodeURIComponent(fileField.getValue());
