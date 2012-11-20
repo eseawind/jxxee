@@ -14,6 +14,7 @@ import org.jxstar.util.MapUtil;
 import org.jxstar.util.config.SystemVar;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.key.KeyCreator;
+import org.jxstar.util.resource.JsParam;
 
 /**
  * 系统操作日志管理类。
@@ -27,8 +28,8 @@ public class SysLogUtil {
 	private static BaseDao _dao = BaseDao.getInstance();
 	private static KeyCreator _key = KeyCreator.getInstance();
 	private static String _sql = "insert into sys_log(log_id, fun_id, event_code, page_type, " +
-			"user_id, user_name, event_name, fun_name, log_date, message) " +
-			"values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			"user_id, user_name, event_name, fun_name, log_date, message, data_id) " +
+			"values(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 	
 	private static Map<String,String> _mpFunName = queryFunName();
 	private static Map<String,String> _mpEventName = queryEventName();
@@ -46,8 +47,9 @@ public class SysLogUtil {
 		String userId = MapUtil.getValue(mpUser, "user_id");
 		String userName = MapUtil.getValue(mpUser, "user_name");
 		String message = request.getMessage();
+		String keyId = request.getRequestValue(JsParam.KEYID);
 		
-		return writeLog(funId, eventCode, pageType, userId, userName, message);
+		return writeLog(funId, eventCode, pageType, userId, userName, message, keyId);
 	}
 
 	/**
@@ -58,10 +60,11 @@ public class SysLogUtil {
 	 * @param userId
 	 * @param userName
 	 * @param message
+	 * @param keyId
 	 * @return
 	 */
 	public static boolean writeLog(String funId, String eventCode, String pageType, 
-			String userId, String userName, String message) {
+			String userId, String userName, String message, String keyId) {
 		//是否启用日志记录
 		String isWrite = SystemVar.getValue("sys.log.start", "0");
 		if (!isWrite.equals("1")) return false;
@@ -73,6 +76,8 @@ public class SysLogUtil {
 		//给缺省值
 		if (message == null || message.length() == 0) message = "操作成功！";
 		if (pageType == null || pageType.length() == 0) pageType = "grid";
+		
+		if (keyId.length() > 100) keyId = keyId.substring(0, 100);
 		
 		//取功能名称
 		String funName = _mpFunName.get(funId);
@@ -92,6 +97,7 @@ public class SysLogUtil {
 		param.addStringValue(funName);
 		param.addDateValue(DateUtil.getTodaySec());
 		param.addStringValue(message);
+		param.addStringValue(keyId);
 		
 		return _dao.update(param);
 	}

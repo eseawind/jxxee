@@ -17,6 +17,7 @@ import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
 
+import org.jxstar.util.config.SystemVar;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.log.Log;
 
@@ -174,6 +175,18 @@ public class PooledConnection {
 		ds.setMaxWait(Long.parseLong(dsConfig.getMaxWaitTime()));
 		ds.setDefaultAutoCommit(false);
 		ds.setDefaultTransactionIsolation(iTranLevel);
+		
+		//是否在取数据库连接时做数据库校验
+		String isValidQuery = SystemVar.getValue("db.validquery.use");
+		String querySql = SystemVar.getValue("db.validquery.sql");
+		if (isValidQuery.equals("1") && querySql.length() > 0) {
+			ds.setTestOnBorrow(true);
+			ds.setTestOnReturn(true);
+			ds.setTestWhileIdle(true);
+			ds.setValidationQuery(querySql);
+			ds.setValidationQueryTimeout(3);
+		}
+		
 		//保存该数据源
 		_myDataSourceMap.put(dsName, ds);
 		

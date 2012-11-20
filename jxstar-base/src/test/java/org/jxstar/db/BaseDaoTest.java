@@ -8,7 +8,6 @@ package org.jxstar.db;
 
 import java.util.Map;
 
-
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.dao.transaction.TransactionException;
