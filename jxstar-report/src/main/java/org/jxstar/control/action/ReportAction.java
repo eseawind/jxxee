@@ -98,7 +98,7 @@ public class ReportAction extends Action {
 		String printType = MapUtil.getValue(param, "reportName");
 		String message = "报表类型：" + printType + "；报表名称：" + reportName;
 		
-		SysLogUtil.writeLog(funId, eventCode, pageType, userId, userName, message);
+		SysLogUtil.writeLog(funId, eventCode, pageType, userId, userName, message, "");
 	}
 
 	/**
