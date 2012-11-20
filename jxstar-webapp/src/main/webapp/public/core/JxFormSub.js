@@ -112,13 +112,19 @@ JxFormSub = {};
 						if (state == null || state.length == 0) state = audit0;
 						var disable = (state != audit0 && state != audit6);
 						
-						//设置子表在审批过程中可以编辑
-						var subdef = subgrid.gridNode.define;
-						var subEdit = subdef.subChkEdit||false;
-						if (subEdit && state == audit2) disable = false;
-						
 						var tools = subgrid.getTopToolbar();
-						JxUtil.disableButton(tools, disable);
+						//有时候disable按钮无效，延时执行就没有问题了
+						JxUtil.delay(500, function(){
+							JxUtil.disableButton(tools, disable);
+							
+							//设置子表在审批过程中保存按钮是否可用
+							var subdef = subgrid.gridNode.define;
+							var subEdit = subdef.subChkEdit||false;
+							if (subEdit && state == audit2) {
+								var btn = JxUtil.getButton(tools, 'save_eg');
+								if (btn) btn.enable();
+							}
+						});
 					}
 				}
 			};

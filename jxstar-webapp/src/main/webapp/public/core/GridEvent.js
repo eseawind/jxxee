@@ -1419,6 +1419,45 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	},
 	
 	/**
+	* public 
+	* 查看数据修改日志。
+	**/
+	editLog: function() {
+		var records = JxUtil.getSelectRows(this.grid);
+		if (!JxUtil.selectone(records)) return;
+		
+		var pkcol = this.define.pkcol;
+		var nodeid = this.define.nodeid;
+		var keyid = records[0].get(pkcol);
+		if (keyid == null || keyid.length == 0) {
+			JxHint.alert(jx.event.nosave);
+			return;
+		}
+		
+		//过滤条件
+		var options = {};
+			options.where_sql = '(fun_id = ? and data_id = ?) or (pfun_id = ? and pdata_id = ?)';
+			options.where_type = 'string;string;string;string';
+			options.where_value = nodeid+';'+keyid+';'+nodeid+';'+keyid;
+		
+		//加载数据
+		var hdcall = function(grid) {
+			JxUtil.delay(500, function(){Jxstar.loadData(grid, options);});
+		};
+
+		var df = Jxstar.findNode('sys_log_edit');
+		//显示数据
+		Jxstar.showData({
+			filename: df.gridpage,
+			title: df.nodetitle, 
+			pagetype: 'editgrid',
+			nodedefine: df,
+			pagetype: 'query',
+			callback: hdcall
+		});
+	},
+	
+	/**
 	* private 
 	* 查看流程信息的基础函数，支持查询功能中查看业务功能的审批信息。
 	**/

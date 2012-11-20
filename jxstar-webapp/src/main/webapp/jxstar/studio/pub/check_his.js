@@ -72,7 +72,8 @@ Jxstar.currentPage = {
 			var page = f();
 			if (typeof page.showPage == 'function') {
 				page.selectModel = 'row';
-				page = page.showPage('notoolgrid');
+				//page = page.showPage('notoolgrid');
+				page = page.showPage();
 			}
 			//显示对话框
 			self.createWindow(page);

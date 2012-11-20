@@ -52,8 +52,8 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
-					{xtype:'textarea', fieldLabel:'来源数据SQL', name:'fun_rule_sql__src_sql', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', width:'100%', height:72, maxLength:1000},
-					{xtype:'textarea', fieldLabel:'目标更新SQL', name:'fun_rule_sql__dest_sql', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', width:'100%', height:72, maxLength:1000}
+					{xtype:'textarea', fieldLabel:'来源数据SQL', name:'fun_rule_sql__src_sql', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', width:'100%', height:120, maxLength:1000},
+					{xtype:'textarea', fieldLabel:'目标更新SQL', name:'fun_rule_sql__dest_sql', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', width:'100%', height:120, maxLength:1000}
 				]
 			}
 			]

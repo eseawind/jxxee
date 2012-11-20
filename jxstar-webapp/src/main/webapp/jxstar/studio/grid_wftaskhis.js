@@ -6,14 +6,17 @@
 
 	var cols = [
 	{col:{header:'处理人', width:83, sortable:true}, field:{name:'wf_assignhis__check_user',type:'string'}},
-	{col:{header:'处理时间', width:123, sortable:true, renderer:function(value) {
+	{col:{header:'处理时间', width:123, sortable:true, align:'center',
+		renderer:function(value) {
 			return value ? value.format('Y-m-d H:i') : '';
 		}}, field:{name:'wf_assignhis__check_date',type:'date'}},
 	{col:{header:'处理意见', width:235, sortable:true}, field:{name:'wf_assignhis__check_desc',type:'string'}},
-	{col:{header:'开始时间', width:112, sortable:true, renderer:function(value) {
+	{col:{header:'开始时间', width:112, sortable:true, align:'center',
+		renderer:function(value) {
 			return value ? value.format('Y-m-d H:i') : '';
 		}}, field:{name:'wf_taskhis__start_date',type:'date'}},
-	{col:{header:'受限时间', width:109, sortable:true, renderer:function(value) {
+	{col:{header:'受限时间', width:109, sortable:true, align:'center',
+		renderer:function(value) {
 			return value ? value.format('Y-m-d H:i') : '';
 		}}, field:{name:'wf_taskhis__limit_date',type:'date'}},
 	{col:{header:'节点名称', width:135, sortable:true}, field:{name:'wf_taskhis__node_title',type:'string'}},
@@ -39,6 +42,20 @@
 			}
 		}}, field:{name:'wf_assignhis__check_type',type:'string'}},
 	{col:{header:'超时?', width:52, sortable:true, hidden:true, align:'center',
+		editable:false,
+		editor:new Ext.form.ComboBox({
+			store: new Ext.data.SimpleStore({
+				fields:['value','text'],
+				data: yesnoData
+			}),
+			emptyText: jx.star.select,
+			mode: 'local',
+			triggerAction: 'all',
+			valueField: 'value',
+			displayField: 'text',
+			editable:false,
+			value: yesnoData[0][0]
+		}),
 		renderer:function(value){
 			for (var i = 0; i < yesnoData.length; i++) {
 				if (yesnoData[i][0] == value)
@@ -46,6 +63,20 @@
 			}
 		}}, field:{name:'wf_taskhis__is_timeout',type:'string'}},
 	{col:{header:'发邮件?', width:62, sortable:true, hidden:true, align:'center',
+		editable:false,
+		editor:new Ext.form.ComboBox({
+			store: new Ext.data.SimpleStore({
+				fields:['value','text'],
+				data: yesnoData
+			}),
+			emptyText: jx.star.select,
+			mode: 'local',
+			triggerAction: 'all',
+			valueField: 'value',
+			displayField: 'text',
+			editable:false,
+			value: yesnoData[0][0]
+		}),
 		renderer:function(value){
 			for (var i = 0; i < yesnoData.length; i++) {
 				if (yesnoData[i][0] == value)
@@ -66,6 +97,7 @@
 		isshow: '1',
 		funid: 'wf_taskhis'
 	};
+	
 	
 	
 		

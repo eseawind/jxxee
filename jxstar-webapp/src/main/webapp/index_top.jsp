@@ -105,6 +105,7 @@
 	<script type="text/javascript" src="public/core/Jxstar.js?verno=<%=svnNum%>"></script>
 	
 	<script type="text/javascript" src="public/core/JxWfGraph.js?verno=<%=svnNum%>"></script>
+	<script type="text/javascript" src="public/core/JxLabelPrint.js?verno=<%=svnNum%>"></script>
 	<script type="text/javascript" src="public/lib/graph/js/mxCanvas.js?verno=<%=svnNum%>"></script>
 	<script type="text/javascript">Ext.fly('loading').hide();</script>
 
