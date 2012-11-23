@@ -64,6 +64,9 @@ Jxstar.GridNode.prototype = {
 			if (pageType == 'grid' && this.param.isedit=='1') {
 				this.pageType = 'editgrid';
 			}
+			if (pageType == 'check') {
+				this.pageType = 'chkgrid';
+			}
 		}
 		
 		//设置父功能ID
@@ -295,17 +298,23 @@ Jxstar.GridNode.prototype = {
 		}
 
 		//创建表对象
-		if (self.pageType.indexOf('edit') >= 0) {
+		if (self.pageType.indexOf('edit') >= 0 || self.param.isedit == '1') {
 			grid = new Ext.grid.EditorGridPanel(config);
 			//已复核的记录不能编辑
 			grid.on('beforeedit', function(event) {
 				var r = event.record;
 				var a = self.define.auditcol;
 				var s = r.get(a);	//记录状态值
-				var audit0 = '0', audit6 = '6';
+				var audit0 = '0', audit2 = '2', audit6 = '6';
 				if (self.define.status) {//设置业务状态值
 					audit0 = self.define.status['audit0'];
+					audit2 = self.define.status['audit2'];
 				}
+				var tools = event.grid.getTopToolbar();
+				//如果设置了审批中可以修改保存的按钮，则可以修改
+				var saveChkBtn = JxUtil.getButton(tools, 'save_eg_chk');
+				if (s == audit2 && saveChkBtn) return true;
+				
 				if (s == null || s.length == 0) s = audit0;
 				if (s != audit0 && s != audit6) return false;
 				
@@ -313,7 +322,6 @@ Jxstar.GridNode.prototype = {
 				if (self.right.edit == '0') return false;
 				
 				//没有保存按钮或不可用，则不能编辑
-				var tools = event.grid.getTopToolbar();
 				var saveBtn = JxUtil.getButton(tools, 'save_eg');
 				if (saveBtn == null || saveBtn.disabled) return false;
 				

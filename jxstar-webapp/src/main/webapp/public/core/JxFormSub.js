@@ -120,7 +120,7 @@ JxFormSub = {};
 							//设置子表在审批过程中保存按钮是否可用
 							var subdef = subgrid.gridNode.define;
 							var subEdit = subdef.subChkEdit||false;
-							if (subEdit && state == audit2) {
+							if (formNode.pageType == 'chkform' && subEdit && state == audit2) {
 								var btn = JxUtil.getButton(tools, 'save_eg');
 								if (btn) btn.enable();
 							}

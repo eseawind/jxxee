@@ -333,11 +333,11 @@ Ext.ns('Jxstar');
 				}
 			});
 
-			//延时执行该方法
-			JxUtil.delay(1000, function(){
+			//处理目标表格对象查询与属性
+			var delayFun = function() {
 				var tabPanel = dataPanel.getComponent(0);
 				var grid = tabPanel;
-				if (!tabPanel.isXType('grid')) {
+				if (tabPanel.isXType('tabpanel')) {
 					grid = tabPanel.getComponent(0).getComponent(0);
 				}
 				var root = tree.getRootNode();
@@ -455,6 +455,28 @@ Ext.ns('Jxstar');
 					tabPanel = null;
 					dataPanel = null;
 				});
+			};
+			
+			//取树形目标表格对象
+			var getTreeGrid = function(dataPanel) {
+				var tabPanel = dataPanel.getComponent(0);
+				if (Ext.isEmpty(tabPanel)) return null;
+				
+				var grid = tabPanel;
+				if (tabPanel.isXType('tabpanel')) {
+					grid = tabPanel.getComponent(0).getComponent(0);
+				}
+				return grid;
+			};
+			
+			//延时执行该方法，有些浏览器执行比较慢，所以最大支持2秒
+			JxUtil.delay(1000, function(){
+				var grid = getTreeGrid(dataPanel);
+				if (Ext.isEmpty(grid)) {
+					JxUtil.delay(1000, delayFun);
+				} else {
+					delayFun();
+				}
 			});
 
 			return tree;
