@@ -39,7 +39,8 @@ public class LogEditBO extends BusinessObject {
 	 */
 	public String formSave(RequestContext request) {
 		String logEdit = SystemVar.getValue("sys.log.edit", "0");
-		if (!logEdit.equals("1")) return _returnSuccess;
+		String editwf = SystemVar.getValue("sys.log.editwf", "0");
+		if (!logEdit.equals("1") && !editwf.equals("1")) return _returnSuccess;
 		
 		_log.showDebug("................formSave method starting!");
 		String funid = request.getRequestValue("funid");
@@ -53,7 +54,6 @@ public class LogEditBO extends BusinessObject {
 		String userName = MapUtil.getValue(mpUser, "user_name");
 		
 		//如果没有当前用户的任务分配消息，则不处理修改数据留痕
-		String editwf = SystemVar.getValue("sys.log.editwf", "0");
 		if (editwf.equals("1") && !hasAssign(funid, pkValue, userId)) {
 			_log.showDebug("................formSave method is not in checking!");
 			return _returnSuccess;
@@ -93,7 +93,8 @@ public class LogEditBO extends BusinessObject {
 	 */
 	public String gridSave(RequestContext request) {
 		String logEdit = SystemVar.getValue("sys.log.edit", "0");
-		if (!logEdit.equals("1")) return _returnSuccess;
+		String editwf = SystemVar.getValue("sys.log.editwf", "0");
+		if (!logEdit.equals("1") && !editwf.equals("1")) return _returnSuccess;
 		
 		_log.showDebug("................gridSave method starting!");
 		String funid = request.getRequestValue("funid");
@@ -106,10 +107,11 @@ public class LogEditBO extends BusinessObject {
 		String userName = MapUtil.getValue(mpUser, "user_name");
 		String parentFunId = request.getRequestValue("pfunid");//主功能ID
 		String parentDataId = request.getRequestValue("fkValue");//主记录ID
+		String pagetype = request.getRequestValue("pagetype");//页面类型：subeditgrid、editgrid
 		
 		//如果没有当前用户的任务分配消息，则不处理修改数据留痕
-		String editwf = SystemVar.getValue("sys.log.editwf", "0");
-		if (editwf.equals("1") && !hasAssign(parentFunId, parentDataId, userId)) {
+		if (editwf.equals("1") && pagetype.equals("subeditgrid") && 
+				!hasAssign(parentFunId, parentDataId, userId)) {
 			_log.showDebug("................gridSave method is not in checking!");
 			return _returnSuccess;
 		}
@@ -128,6 +130,12 @@ public class LogEditBO extends BusinessObject {
 			String pkValue = MapUtil.getValue(mpValue, pkCol);
 			
 			if (pkValue.length() == 0) continue;
+			//如果是主表数据保存，则需要单条判断
+			if (editwf.equals("1") && pagetype.equals("editgrid")  && 
+					!hasAssign(funid, pkValue, userId)) {
+				_log.showDebug("................gridSave method is not in checking!");
+				return _returnSuccess;
+			}
 			
 			//取修改前的数据
 			Map<String,String> mpOld = queryOldData(tableName, "*", pkCol, pkValue);
