@@ -37,6 +37,15 @@ public class ReportXlsFormGrid extends ReportXls {
 		HSSFSheet tmpsheet = tmpwb.getSheetAt(0);
 
 		HSSFSheet sheet = _hssfWB.getSheetAt(0);
+		
+		int tempRow = -1;
+		if (_lsSubArea.size() > 0) {
+			String not_page = _lsSubArea.get(_lsSubArea.size()-1).get("not_page");
+			if (not_page.equals("1")) {
+				tempRow = getAreaTempRow();
+				_log.showDebug(".............sub area is not page, template clone row:" + tempRow);
+			}
+		}
 
 		Map<String, String> mpValue = null;
 		for (int i = 0; i < _lsMainRecord.size(); i++) {
@@ -52,10 +61,10 @@ public class ReportXlsFormGrid extends ReportXls {
 			} else {
 				tmpsheet = ReportXlsUtil.fillForm(funId, tmpsheet, mpValue, _lsMainCol, _mpUser, i + 1, _lsMainRecord.size());
 				tmpsheet = ReportXlsUtil.fillHead(tmpsheet, _lsHeadInfo, _mpUser);
-
+				
 				//填写明细数据，如果明细数据有多页，则多页数据都生成合并到tmpsheet中，最后再合并到原表中。
 				tmpsheet = fillSubArea(tmpsheet, mpValue);
-				sheet = ReportXlsUtil.appendSheet(sheet, tmpsheet);
+				sheet = ReportXlsUtil.appendSheet(sheet, tmpsheet, tempRow);
 				tmpwb = ReportXlsUtil.readWorkBook(_xlsFile);
 				tmpsheet = tmpwb.getSheetAt(0);
 			}
@@ -275,5 +284,18 @@ public class ReportXlsFormGrid extends ReportXls {
 		}
 		
 		return false;
+	}
+	
+	//取子表不分页时，超过每页记录数的数据显示行的样式参照行
+	private int getAreaTempRow() {
+		if (_lsSubArea == null || _lsSubArea.isEmpty()) return -1;
+		Map<String,String> mpArea = _lsSubArea.get(_lsSubArea.size()-1);
+		
+		String areaId = mpArea.get("area_id");
+		String pageSize = mpArea.get("page_size");
+		int firstRow = ReportXlsUtil.getFirstRows(areaId);
+		if (firstRow < 0) return -1;
+		//取最后一行的上一行，有时最后一行是合计行
+		return firstRow + Integer.parseInt(pageSize) - 1;
 	}
 }

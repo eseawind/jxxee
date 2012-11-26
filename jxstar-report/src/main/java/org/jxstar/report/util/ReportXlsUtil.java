@@ -449,13 +449,24 @@ public class ReportXlsUtil extends ReportUtil {
         return sheet;
     }
 	
-	/**
+    /**
 	 * 添加临时表格内容
 	 * @param mainSheet -- 原表单内容
 	 * @param subSheet -- 临时表单内容
 	 * @return
 	 */
-	public static HSSFSheet appendSheet(HSSFSheet mainSheet, HSSFSheet subSheet) {
+    public static HSSFSheet appendSheet(HSSFSheet mainSheet, HSSFSheet subSheet) {
+    	return appendSheet(mainSheet, subSheet, -1);
+    }
+    		
+	/**
+	 * 添加临时表格内容
+	 * @param mainSheet -- 原表单内容
+	 * @param subSheet -- 临时表单内容
+	 * @param tempRow -- 表格不分页效果中，新插入行样式的参考行；只有主从明细表输出时用到
+	 * @return
+	 */
+	public static HSSFSheet appendSheet(HSSFSheet mainSheet, HSSFSheet subSheet, int tempRow) {
 		if (mainSheet == null || subSheet == null) return null;
 		//判断报表是否允许输出
 		if (!isAllowOut(mainSheet)) return mainSheet;
@@ -502,8 +513,23 @@ public class ReportXlsUtil extends ReportUtil {
 				int column = sourcell.getColumnIndex();
 				descell = descrow.createCell(column);
 				
+				/**
+				 * 取目标表单中对应位置样式，作为拷贝样式；orgcell = mainSheet.getRow(row).getCell(column);
+				 * 但如果是主从报表，且采用表格不分页模式，则第二页明细记录数大于第一页明细记录数，
+				 * 则样式会有问题。当初为什么用orgcell.getCellStyle()取样式：因为不同sheet之间的样式不能共享，
+				 * 会报错：This Style does not belong to the supplied Workbook.
+				 * 克隆的方式：descell.getCellStyle().cloneStyleFrom(sourcell.getCellStyle());又会破坏excel文件。
+				 * HSSFCellStyle cs = mainSheet.getWorkbook().createCellStyle();
+				 * cs.cloneStyleFrom(sourcell.getCellStyle());
+				 * descell.setCellStyle(cs);//出现excel文件中字体数过多的报错信息
+				 * 最终采用：tempRow标记超出模板的部分取哪行的样式方式解决。
+				 */
+				
 				//取模板中的单元格，与来源表单位置相同
 				int row = sourcell.getRowIndex();
+				if (tempRow > 0 && row > tempRow) {
+					row = tempRow;
+				}
 				orgcell = mainSheet.getRow(row).getCell(column);
 				if (orgcell != null) {
 					//注释orgcell.getCellType()，处理最后一页中没有数据的行中，数字列值为0的问题
