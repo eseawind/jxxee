@@ -96,6 +96,12 @@ public class GridParserUtil {
 			sbRow.append("{col:{header:'"+title+"', width:"+width);
 			sbRow.append(", sortable:true");
 			
+			//是否显示在查询字段选项中
+			String colindex = MapUtil.getValue(mpColumn, "col_index", "10000");
+			if (Integer.parseInt(colindex) >= 10000) {
+				sbRow.append(", colindex:" + colindex);
+			}
+			
 			//是否隐藏
 			if (hidden.equals("true")) sbRow.append(", hidden:true");
 			
