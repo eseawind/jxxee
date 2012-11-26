@@ -364,7 +364,11 @@ JxQuery = {};
 		var editor = new Ext.ux.grid.RowEditor({
 			name: JxUtil.newId() + '_qv',
 			saveText: jx.base.ok,		//'确定'
-			cancelText: jx.base.cancel	//'取消'
+			cancelText: jx.base.cancel,	//'取消'
+			
+			listeners: {
+				show: function(){selectField(fieldCombo, true);}
+			}
 		});
 		//覆盖该方法，可以不提交修改进入下一行，但会有脚本错误
 		//editor.isDirty = function(){return false};
@@ -379,6 +383,7 @@ JxQuery = {};
 		for (var i = 0, c = 0, n = mycols.length; i < n; i++){
 			var col = mycols[i], fn = col.dataIndex;
 			if (fn == null || fn.length == 0) continue;
+			if (col.colindex >= 10000) continue;
 			
 			var len = fn.length;
 			if (fn.substring(len-2) != 'id' || !col.hidden) {
@@ -401,7 +406,7 @@ JxQuery = {};
 		
 		//监听字段选择的事件
 		var vIndex = 4;
-		fieldCombo.on('select', function(combo){
+		var selectField = function(combo, isInit) {
 			var field, coltype = 'string';
 			//更换字段查询值的输入控件
 			var mycols = pageNode.param.cols;
@@ -431,9 +436,15 @@ JxQuery = {};
 				field = new Ext.form.TextField({allowBlank:false});
 			}
 			//取原字段的值
-			var oldfield = editor.getComponent(vIndex);
-			if (oldfield != null && oldfield.isXType('field')) {
-				var oldval = oldfield.getValue();
+			var rowIndex = editor.lastClickIndex;
+			var record = condStore.getAt(rowIndex);
+			var oldval = record.get('cond_value');
+			if (field.isXType('datefield')) {
+				oldval = Ext.isDate(oldval) ? oldval.dateFormat('Y-m-d') : oldval;
+				if (oldval.length > 0) oldval = oldval.split(' ')[0];
+				oldval = Date.parseDate(oldval, "Y-m-d");
+			}
+			if (isInit) {//初始数据加载时才取原值
 				field.setValue(oldval);
 			}
 			
@@ -449,7 +460,8 @@ JxQuery = {};
 
 			//保存字段数据类型
 			editor.record.set('coltype', coltype);
-		});
+		};
+		fieldCombo.on('select', function(combo){selectField(combo, false);});
 		
 		//创建列对象
 		var cm = new Ext.grid.ColumnModel([sm,
@@ -478,7 +490,11 @@ JxQuery = {};
 			{id:'cond_value', header:jx.query.value, width:110, dataIndex:'cond_value', hcss:'color:#0000ff;',
 				editor:new Ext.form.TextField(),
 				renderer:function(value){
-					return Ext.isDate(value) ? value.format('Y-m-d') :value;
+					var value = Ext.isDate(value) ? value.format('Y-m-d') : value;
+					if (value.length > 0 && value.indexOf(' 00:00:00') >= 0) {//日期格式值处理
+						value = value.split(' ')[0];
+					}
+					return value;
 				}
 			},//"右括号"
 			{id:'right_brack', header:'）', width:30, dataIndex:'right_brack', hcss:'color:#004080;',
@@ -596,16 +612,7 @@ JxQuery = {};
 			
 			buttonCls: '',
 			buttonAlign: 'center',
-			buttons: buttons,
-			
-			listeners: {
-				//显示字段查询值输入控件
-				rowclick: function(){
-					JxUtil.delay(500, function(){
-						fieldCombo.fireEvent('select', fieldCombo);
-					});
-				}
-			}
+			buttons: buttons
 		});
 		
 		return condGrid;
@@ -640,6 +647,16 @@ JxQuery = {};
 			
 			if (Ext.isEmpty(cond_value)) continue;
 			
+			//如果是空值判断
+			if (cond_value == '~null~') {
+				if (condtype == '<>') {
+					query[0] += colcode + ' is not null ' + andor + ' ';
+				} else {
+					query[0] += colcode + ' is null ' + andor + ' ';
+				}
+				continue;
+			}
+			
 			//如果是日期对象，则需要转换为字符串
 			cond_value = Ext.isDate(cond_value) ? cond_value.dateFormat('Y-m-d') : cond_value;
 			
@@ -665,15 +682,21 @@ JxQuery = {};
 			}
 		}
 		
-		query[0] = "(" + query[0].substr(0, query[0].length - (andor.length + 1)) + ")";
-		query[1] = query[1].substr(0, query[1].length - 1);
-		query[2] = query[2].substr(0, query[2].length - 1);
+		if (query[0].length > 0) {
+			query[0] = "(" + query[0].substr(0, query[0].length - (andor.length + 1)) + ")";
+		}
+		if (query[1].length > 0) {
+			query[1] = query[1].substr(0, query[1].length - 1);
+		}
+		if (query[2].length > 0) {
+			query[2] = query[2].substr(0, query[2].length - 1);
+		}
 
 		return query;
 	},
 	
 	/**
-	* private
+	* public
 	* 取查询子句信息
 	* colcode -- 字段
 	* condtype -- 条件
@@ -684,6 +707,16 @@ JxQuery = {};
 	getWhere: function(colcode, condtype, value, coltype) {
 		var query = new Array('','','');
 		if (Ext.isEmpty(value)) return query;
+		
+		//如果是空值判断
+		if (value == '~null~') {
+			if (condtype == '<>') {
+				query[0] = colcode + ' is not null';
+			} else {
+				query[0] = colcode + ' is null';
+			}
+			return query;
+		}
 		
 		//如果是日期对象，则需要转换为字符串
 		value = Ext.isDate(value) ? value.dateFormat('Y-m-d') : value;

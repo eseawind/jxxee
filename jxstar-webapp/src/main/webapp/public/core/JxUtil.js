@@ -1181,7 +1181,9 @@ JxUtil = {};
 		* 取间隔月份, 格式：yyyy-mm
 		*/
 		getNextMonth: function(smonth, num){
-			if (smonth == null || smonth.length == 0) return '';
+			if (smonth == null) return '';
+			smonth = smonth.split(' ')[0];
+			
 			var sd = smonth.split('-');
 			if (sd.length == 2) {
 				smonth = smonth + '-01';
@@ -1198,7 +1200,9 @@ JxUtil = {};
 		* 取指定日期间隔值的日期, 格式：yyyy-mm-dd
 		*/
 		getNextDate: function (sdate, num){
-			if (sdate == null || sdate.length == 0) return '';
+			if (sdate == null) return '';
+			sdate = sdate.split(' ')[0];
+			
 			var sd = sdate.split('-');
 			if (sd.length == 2) {
 				sdate = sdate + '-01';
