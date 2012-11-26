@@ -274,210 +274,242 @@ Ext.ns('Jxstar');
 			}*/
 			//根节点ID
 			var ROOT_ID = '10';
-
-			//查询数据URL
-			var dataUrl = Jxstar.path + '/commonAction.do?eventcode=query_tree&funid=queryevent';
-				dataUrl += '&tree_funid='+nodeId+'&user_id='+Jxstar.session['user_id'];
-			
-			var tbar = new Ext.Toolbar();
-			var tree = new Ext.tree.TreePanel({
-				tbar: tbar,
-
-				autoScroll:true,
-				rootVisible:false,
-				lines:false,
-				useArrows:false,
+		
+			var createTreeTeam = function(team_id, team_title, isTeam) {
+				//查询数据URL
+				var dataUrl = Jxstar.path + '/commonAction.do?eventcode=query_tree&funid=queryevent';
+					dataUrl += '&tree_funid='+nodeId+'&user_id='+Jxstar.session['user_id'];
 				
-				loader: new Ext.tree.TreeLoader({
-					dataUrl: dataUrl,
-					listeners: {
-						beforeload:function(loader, node){
-							loader.baseParams.tree_no = node.attributes.tree_no||'';
+				var tbar = new Ext.Toolbar();
+				var refresh = {id:'refresh'};
+				var tree = new Ext.tree.TreePanel({
+					tbar: (isTeam) ? null : tbar,
+					title: (isTeam) ? team_title : null,
+					tools: (isTeam) ? [refresh] : null,
+					iconCls: (isTeam) ? 'tree_root' : null,
+					
+					autoScroll:true,
+					rootVisible:false,
+					lines:false,
+					useArrows:false,
+					
+					loader: new Ext.tree.TreeLoader({
+						dataUrl: dataUrl,
+						listeners: {
+							beforeload:function(loader, node){
+								loader.baseParams.tree_no = node.attributes.tree_no||'';
+								if (isTeam) loader.baseParams.team_id = team_id;
+							}
 						}
-					}
-				}),
+					}),
+					
+					root: new Ext.tree.AsyncTreeNode({id:ROOT_ID, iconCls:'tree_root_ext', text:jx.star.refresh})
+				});
 				
-				root: new Ext.tree.AsyncTreeNode({id:ROOT_ID, iconCls:'tree_root_ext', text:jx.star.refresh})
-			});
-			
-			treePanel.add(tree);
-			treePanel.doLayout();
-			
-			//设置树根节点数据加载时添加配置信息
-			tree.on('load', function(node){
-				if (node.id == ROOT_ID) {
-					var child = node.firstChild;
-					if (!child) return;
-					
-					var attr = child.attributes;
-					var title = attr.tree_title;
-					if (title.length > 0) {
-						tbar.items.get(0).setText(title);
+				//设置树根节点数据加载时添加配置信息
+				tree.on('load', function(node){
+					if (node.id == ROOT_ID) {
+						var child = node.firstChild;
+						if (!child) return;
+						
+						var attr = child.attributes;
+						var title = attr.tree_title;
+						if (title.length > 0) {
+							tbar.items.get(0).setText(title);
+						}
+						
+						node.attributes.tree_no = attr.tree_no;
+						node.attributes.table_name = attr.table_name;
+						node.attributes.node_level = attr.node_level;
+						node.attributes.right_where = attr.right_where;
+						
+						//临时根节点用于传递树定义信息，需要删除
+						if (child.id == '10') child.remove(true);
 					}
-					
-					node.attributes.tree_no = attr.tree_no;
-					node.attributes.table_name = attr.table_name;
-					node.attributes.node_level = attr.node_level;
-					node.attributes.right_where = attr.right_where;
-					
-					//临时根节点用于传递树定义信息，需要删除
-					if (child.id == '10') child.remove(true);
-				}
-			});
-			
-			//添加刷新按钮
-			tbar.add({text:jx.star.refresh, iconCls:'tree_root',
-				handler:function(){
+				});
+				
+				//添加刷新按钮
+				var hd = function(){
 					tree.getLoader().load(tree.getRootNode());
 					tree.fireEvent('click', tree.getRootNode());
-				}
-			});
+				};
+				tbar.add({text:jx.star.refresh, iconCls:'tree_root', handler:hd});
+				refresh.handler = hd;
 
-			//处理目标表格对象查询与属性
-			var delayFun = function() {
-				var tabPanel = dataPanel.getComponent(0);
-				var grid = tabPanel;
-				if (tabPanel.isXType('tabpanel')) {
-					grid = tabPanel.getComponent(0).getComponent(0);
-				}
-				var root = tree.getRootNode();
-				//展开根节点，根节点不显示
-				//root.expand();
-
-				//设置根节点树型信息
-				var ra = root.attributes;
-				grid.treeNodeAttr = {id:'', text:'', node_level:ra.node_level, 
-					tree_no:ra.tree_no, table_name:ra.table_name};
-				//添加树形控件
-				grid.cmpTree = tree;
-
-				//添加节点点击事件，查询树形数据
-				tree.on('click', function(node){
-					//切换到第一个标签页
+				//处理目标表格对象查询与属性
+				var delayFun = function() {
+					var tabPanel = dataPanel.getComponent(0);
+					var grid = tabPanel;
 					if (tabPanel.isXType('tabpanel')) {
-						tabPanel.activate(tabPanel.getComponent(0));
+						grid = tabPanel.getComponent(0).getComponent(0);
 					}
-					
-					//扩展点击前事件，主要处理扩展的查询条件
-					var extWhere = null;//{where_sql:where_sql, where_value:where_value, where_type:where_type}
-					if (preClickFn!= null && typeof preClickFn == 'function') {
-						extWhere = preClickFn(tree, node, grid);
-					}
-					
-					var attr = node.attributes;
-					var treeId = attr.id;
-					var treeLevel = Math.floor(treeId.length/4)+1;
-					
-					//注册的树形查询条件
-					var where_type = 'string';
-					var where_value = treeId+'%';
-					var where_sql = attr.right_where;
-					if (where_sql && where_sql.length > 0) {
-						where_sql = '(' + where_sql + ')';
-					}
-					
-					//是否不含下级
-					var tools = tree.getTopToolbar().find('xtype', 'checkbox');
-					if (tools.length > 0) {
-						if (tools[0].getValue() == '1') {
+					var root = tree.getRootNode();
+					//展开根节点，根节点不显示
+					//root.expand();
+
+					//设置根节点树型信息
+					var ra = root.attributes;
+					grid.treeNodeAttr = {id:'', text:'', node_level:ra.node_level, 
+						tree_no:ra.tree_no, table_name:ra.table_name};
+					//添加树形控件
+					grid.cmpTree = tree;
+
+					//添加节点点击事件，查询树形数据
+					tree.on('click', function(node){
+						//切换到第一个标签页
+						if (tabPanel.isXType('tabpanel')) {
+							tabPanel.activate(tabPanel.getComponent(0));
+						}
+						
+						//扩展点击前事件，主要处理扩展的查询条件
+						var extWhere = null;//{where_sql:where_sql, where_value:where_value, where_type:where_type}
+						if (preClickFn!= null && typeof preClickFn == 'function') {
+							extWhere = preClickFn(tree, node, grid);
+						}
+						
+						var attr = node.attributes;
+						var treeId = attr.id;
+						var treeLevel = Math.floor(treeId.length/4)+1;
+						
+						//注册的树形查询条件
+						var where_type = 'string';
+						var where_value = treeId+'%';
+						var where_sql = attr.right_where;
+						if (where_sql && where_sql.length > 0) {
+							where_sql = '(' + where_sql + ')';
+						}
+						
+						//是否不含下级
+						var tbar = tree.getTopToolbar();
+						if (tbar) {
+							var tools = tbar.find('xtype', 'checkbox');
+							if (tools.length > 0) {
+								if (tools[0].getValue() == '1') {
+									where_value = treeId;
+								}
+							}
+						}
+						//如果过滤条件是=，则不添加%
+						if (where_sql.indexOf('=') >= 0) {
 							where_value = treeId;
 						}
-					}
-					//如果过滤条件是=，则不添加%
-					if (where_sql.indexOf('=') >= 0) {
-						where_value = treeId;
-					}
-					
-					//如果是根节点
-					if (ROOT_ID == treeId) {
-						where_value = '%';
-					}
-					
-					//如果wheresql中有[tree_id]，则需要用where_value替换
-					if (where_sql.indexOf('[tree_id]') >= 0) {
-						var re = /\[tree_id\]/g;
-						where_sql = where_sql.replace(re, where_value)
-					}
-					//如果wheresql中没有?，则type, value都设为空，只允许有一个?号
-					if (where_sql.indexOf('?') < 0) {
-						where_type = '', where_value = '';
-					}
-					
-					//扩展的树形查询条件
-					if (extWhere != null) {
-						if (!Ext.isEmpty(extWhere.where_sql)) {
-							where_sql += ' and ' + extWhere.where_sql;
+						
+						//如果是根节点
+						if (ROOT_ID == treeId) {
+							where_value = '%';
 						}
-						if (!Ext.isEmpty(extWhere.where_value)) {
-							where_value += ';' + extWhere.where_value;
+						
+						//如果wheresql中有[tree_id]，则需要用where_value替换
+						if (where_sql.indexOf('[tree_id]') >= 0) {
+							var re = /\[tree_id\]/g;
+							where_sql = where_sql.replace(re, where_value)
 						}
-						if (!Ext.isEmpty(extWhere.where_type)) {
-							where_type += ';' + extWhere.where_type;
+						//如果wheresql中没有?，则type, value都设为空，只允许有一个?号
+						if (where_sql.indexOf('?') < 0) {
+							where_type = '', where_value = '';
 						}
-					}
-					
-					//右边表格中的表名与树形数据表是相同的，则只显示下级数据
-					var table_name = attr.table_name;
-					var right_table = grid.gridNode ? grid.gridNode.define.tablename : '';
-					if (table_name.length > 0 && table_name == right_table && 
-					   (attr.tree_no == '1' || attr.tree_no == '')) {
-						if (attr.has_level == '1' && treeLevel > 1) {
-							where_sql += ' and (' + attr.node_level + ' = ? or ' + attr.node_level + ' = ?)';
-							where_value += ';' + treeLevel + ';' + (treeLevel-1);
-							where_type += ';int;int';
-						} else {
-							where_sql += ' and ' + attr.node_level + ' = ?';
-							where_value += ';' + treeLevel;
-							where_type += ';int';
+						
+						//扩展的树形查询条件
+						if (extWhere != null) {
+							if (!Ext.isEmpty(extWhere.where_sql)) {
+								where_sql += ' and ' + extWhere.where_sql;
+							}
+							if (!Ext.isEmpty(extWhere.where_value)) {
+								where_value += ';' + extWhere.where_value;
+							}
+							if (!Ext.isEmpty(extWhere.where_type)) {
+								where_type += ';' + extWhere.where_type;
+							}
 						}
-					}
-					
-					//where_type第一个字符为;，则去掉，因为没有?
-					if (where_type.charAt(0) == ';') {
-						where_type = where_type.substring(1, where_type.length);
-						where_value = where_value.substring(1, where_value.length);
-					}
+						
+						//右边表格中的表名与树形数据表是相同的，则只显示下级数据
+						var table_name = attr.table_name;
+						var right_table = grid.gridNode ? grid.gridNode.define.tablename : '';
+						if (table_name.length > 0 && table_name == right_table && 
+						   (attr.tree_no == '1' || attr.tree_no == '')) {
+							if (attr.has_level == '1' && treeLevel > 1) {
+								where_sql += ' and (' + attr.node_level + ' = ? or ' + attr.node_level + ' = ?)';
+								where_value += ';' + treeLevel + ';' + (treeLevel-1);
+								where_type += ';int;int';
+							} else {
+								where_sql += ' and ' + attr.node_level + ' = ?';
+								where_value += ';' + treeLevel;
+								where_type += ';int';
+							}
+						}
+						
+						//where_type第一个字符为;，则去掉，因为没有?
+						if (where_type.charAt(0) == ';') {
+							where_type = where_type.substring(1, where_type.length);
+							where_value = where_value.substring(1, where_value.length);
+						}
 
-					//保存树形查询参数
-					grid.jxstarParam.tree_wsql = where_sql;
-					grid.jxstarParam.tree_wtype = where_type;
-					grid.jxstarParam.tree_wvalue = where_value;
-					//提交后台查询请求
-					Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type, is_query:1});
+						//保存树形查询参数
+						grid.jxstarParam.tree_wsql = where_sql;
+						grid.jxstarParam.tree_wtype = where_type;
+						grid.jxstarParam.tree_wvalue = where_value;
+						//提交后台查询请求
+						Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type, is_query:1});
 
-					//添加树形参数值
-					grid.treeNodeAttr = attr;
+						//添加树形参数值
+						grid.treeNodeAttr = attr;
+					});
+					
+					//去掉相关对象的引用
+					tree.on('beforedestroy', function(){
+						grid = null;
+						tabPanel = null;
+						dataPanel = null;
+					});
+				};
+				
+				//取树形目标表格对象
+				var getTreeGrid = function(dataPanel) {
+					var tabPanel = dataPanel.getComponent(0);
+					if (Ext.isEmpty(tabPanel)) return null;
+					
+					var grid = tabPanel;
+					if (tabPanel.isXType('tabpanel')) {
+						grid = tabPanel.getComponent(0).getComponent(0);
+					}
+					return grid;
+				};
+				
+				//延时执行该方法，有些浏览器执行比较慢，所以最大支持2秒
+				JxUtil.delay(1000, function(){
+					var grid = getTreeGrid(dataPanel);
+					if (Ext.isEmpty(grid)) {
+						JxUtil.delay(1000, delayFun);
+					} else {
+						delayFun();
+					}
 				});
 				
-				//去掉相关对象的引用
-				tree.on('beforedestroy', function(){
-					grid = null;
-					tabPanel = null;
-					dataPanel = null;
-				});
+				return tree;
 			};
 			
-			//取树形目标表格对象
-			var getTreeGrid = function(dataPanel) {
-				var tabPanel = dataPanel.getComponent(0);
-				if (Ext.isEmpty(tabPanel)) return null;
+			var tree;
+			var params = 'eventcode=query_team&funid=queryevent&tree_funid='+nodeId;
+			var hdCall = function(data) {
+				if (data == null || data.length == 0) return;
+				//如果有多个树形控件，则采用抽屉布局
+				var isTeam = data.length > 1;
+				if (isTeam) {
+					treePanel.layout = new Ext.Container.LAYOUTS['accordion'];
+					treePanel.setLayout(treePanel.layout);
+				}
 				
-				var grid = tabPanel;
-				if (tabPanel.isXType('tabpanel')) {
-					grid = tabPanel.getComponent(0).getComponent(0);
+				for (var i = 0, n = data.length; i < n; i++) { 
+					tree = createTreeTeam(data[i].team_id, data[i].team_title, isTeam);
+					treePanel.add(tree);
+					treePanel.doLayout();
 				}
-				return grid;
-			};
+			}
+			Request.dataRequest(params, hdCall);
 			
-			//延时执行该方法，有些浏览器执行比较慢，所以最大支持2秒
-			JxUtil.delay(1000, function(){
-				var grid = getTreeGrid(dataPanel);
-				if (Ext.isEmpty(grid)) {
-					JxUtil.delay(1000, delayFun);
-				} else {
-					delayFun();
-				}
-			});
+			//var tree = createTreeTeam('', '');
+			//treePanel.add(tree);
+			//treePanel.doLayout();
 
 			return tree;
 		},
@@ -1002,6 +1034,7 @@ Ext.ns('Jxstar');
 			for (var i = 0, c = 0, n = mycols.length; i < n; i++){
 				var col = mycols[i], fn = col.dataIndex;
 				if (fn == null || fn.length == 0) continue;
+				if (col.colindex >= 10000) continue;
 				
 				var len = fn.length;
 				if (fn.substring(len-2) != 'id' || !col.hidden) {
