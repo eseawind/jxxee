@@ -40,6 +40,17 @@ public class TreeQuery extends BusinessObject {
 	private static String _field_tree = DmDaoUtil.getFieldSql("fun_tree");
 	//是否只有一个树定义
 	private boolean _isOnlyTree = true;
+	
+	//取树形定义组，支持一个功能可以显示多颗树
+	public String queryTeam(RequestContext request) {
+		String funId = request.getRequestValue("tree_funid");
+		
+		List<Map<String,String>> lsTeam = treeTeam(funId);
+		String json = ArrayUtil.listToJson(lsTeam);
+		setReturnData(json);
+		
+		return _returnSuccess;
+	}
 
 	/**
 	 * 取树数据的JSON对象
@@ -51,6 +62,7 @@ public class TreeQuery extends BusinessObject {
 		String funId = request.getRequestValue("tree_funid");
 		String parentId = request.getRequestValue("node");
 		String treeNo = request.getRequestValue("tree_no");
+		String teamId = request.getRequestValue("team_id");//树形组代号，如：A、B、C
 		
 		String whereSql = request.getRequestValue("where_sql");
 		String whereType = request.getRequestValue("where_type");
@@ -59,7 +71,9 @@ public class TreeQuery extends BusinessObject {
 		_log.showDebug("tree_funid=" + funId + ";tree_no=" + treeNo + ";nodeId=" + parentId);
 		
 		List<Map<String,String>> lsData = queryTreeData(
-				userId, funId, parentId, treeNo, whereSql, whereType, whereValue);
+				userId, funId, parentId, treeNo, 
+				whereSql, whereType, whereValue,
+				teamId);
 		
 		String json = ArrayUtil.listToJson(lsData);
 		//_log.showDebug("----------------------json=" + json);
@@ -77,21 +91,24 @@ public class TreeQuery extends BusinessObject {
 	 * @param whereSql -- 扩展where，一般只用于第一层
 	 * @param whereType -- 扩展where，一般只用于第一层
 	 * @param whereValue -- 扩展where，一般只用于第一层
+	 * @param teamId -- 树形组代号，如：A、B、C
 	 * @return
 	 */
 	public List<Map<String,String>> queryTreeData(String userId, 
 			String funId, String parentId, String treeNo,
-			String whereSql, String whereType, String whereValue) {
+			String whereSql, String whereType, String whereValue,
+			String teamId) {
+		if (teamId == null) teamId = "";
 		List<Map<String,String>> lsRet = FactoryUtil.newList();
 		
 		//如果父节点是根节点,则取空字符串
 		if (parentId.equals(ROOT_ID)) parentId = "";
 		
 		//只有一个树定义；后面的子方法中要用到
-		_isOnlyTree = onlyTree(funId);
+		_isOnlyTree = onlyTree(funId, teamId);
 		
 		//取本级树定义
-		Map<String,String> mpTree = treeDefine(funId, treeNo);
+		Map<String,String> mpTree = treeDefine(funId, treeNo, teamId);
 		if (mpTree == null || mpTree.isEmpty()) {
 			_log.showWarn("don't find tree define...");
 			return lsRet;
@@ -105,18 +122,18 @@ public class TreeQuery extends BusinessObject {
 		//如果是树
 		if (treeType.equals("0")) {
 			lsRet = treeData(userId, parentId, mpTree, whereSql, whereType, whereValue, "0");
-			lsRet = addTreeLeafOther(userId, parentId, whereSql, whereType, whereValue, lsRet, mpTree);
+			lsRet = addTreeLeafOther(userId, parentId, whereSql, whereType, whereValue, lsRet, mpTree, teamId);
 		} else {
 			//只有根节点，才加载本级节点数据
 			if (parentId.length() == 0) {
 				lsRet = subTreeData(userId, parentId, mpTree, false);
-				lsRet = addNodeLeaf(userId, lsRet, mpTree);
+				lsRet = addNodeLeaf(userId, lsRet, mpTree, teamId);
 			}
 		}
 		//如果只有一个树定义，则不执行下面的查询
 		if (!_isOnlyTree) {
 			//取下级树定义信息
-			Map<String,String> subTree = subTreeDef(funId, treeNo);
+			Map<String,String> subTree = subTreeDef(funId, treeNo, teamId);
 			
 			if (!subTree.isEmpty()) {
 				//然后查询是否有下级树数据
@@ -127,9 +144,9 @@ public class TreeQuery extends BusinessObject {
 				String subTreeType = MapUtil.getValue(subTree, "tree_type", "0");
 				//如果是树
 				if (subTreeType.equals("0")) {
-					lsSubNode = addTreeLeafOther(userId, parentId, whereSql, whereType, whereValue, lsSubNode, subTree);
+					lsSubNode = addTreeLeafOther(userId, parentId, whereSql, whereType, whereValue, lsSubNode, subTree, teamId);
 				} else {
-					lsSubNode = addNodeLeaf(userId, lsSubNode, subTree);
+					lsSubNode = addNodeLeaf(userId, lsSubNode, subTree, teamId);
 				}
 				lsRet.addAll(lsSubNode);
 			}
@@ -380,11 +397,13 @@ public class TreeQuery extends BusinessObject {
 	 * @param whereValue -- 外部扩展的where
 	 * @param lsData -- 需要检查是否有子节点的数据
 	 * @param mpTree -- 本级树定义
+	 * @param teamId -- 树形组代号
 	 * @return
 	 */
 	private List<Map<String,String>> addTreeLeafOther(String userId, String parentId,
 			String whereSql, String whereType, String whereValue, 
-			List<Map<String,String>> lsData, Map<String,String> mpTree) {
+			List<Map<String,String>> lsData, Map<String,String> mpTree,
+			String teamId) {
 		if (lsData.isEmpty()) return lsData;
 		if (mpTree.isEmpty()) return lsData;
 		//不检查下级
@@ -397,7 +416,7 @@ public class TreeQuery extends BusinessObject {
 		
 		Map<String,String> subTree = null;
 		if (!_isOnlyTree) {
-			subTree = subTreeDef(funId, treeNo);
+			subTree = subTreeDef(funId, treeNo, teamId);
 		}
 		
 		//取到所有有下级节点的ID
@@ -443,10 +462,12 @@ public class TreeQuery extends BusinessObject {
 	 * @param userId -- 当前用户ID
 	 * @param lsData -- 需要检查是否有子节点的数据
 	 * @param mpTree -- 子级树定义
+	 * @param teamId -- 树形组代号
 	 * @return
 	 */
 	private List<Map<String,String>>  addNodeLeaf(String userId, 
-			List<Map<String,String>> lsData, Map<String,String> mpTree) {
+			List<Map<String,String>> lsData, Map<String,String> mpTree,
+			String teamId) {
 		if (lsData.isEmpty()) return lsData;
 		if (mpTree.isEmpty()) return lsData;
 		//不检查下级
@@ -460,7 +481,7 @@ public class TreeQuery extends BusinessObject {
 		//检查是否有下级树，没有下级树则都修改为叶子节点
 		Map<String,String> subTree = null;
 		if (!_isOnlyTree) {
-			subTree = subTreeDef(funId, treeNo);
+			subTree = subTreeDef(funId, treeNo, teamId);
 		}
 		
 		//如果有下级树，则需要检查下级树中是否含数据
@@ -484,16 +505,24 @@ public class TreeQuery extends BusinessObject {
 	 * 根据本级树序号，取下级树定义
 	 * @param funId -- 功能ID
 	 * @param treeNo -- 本级树序号
+	 * @param teamId -- 树形组代号
 	 * @return
 	 */
-	private Map<String,String> subTreeDef(String funId, String treeNo) {
+	private Map<String,String> subTreeDef(String funId, String treeNo, String teamId) {
 		Map<String,String> mpRet = FactoryUtil.newMap();
 		if (treeNo.length() == 0) return mpRet;
 		
 		String sql = "select "+ _field_tree +" from fun_tree " +
-				"where fun_id = ? order by tree_no";
+				"where fun_id = ?";
+		if (teamId.length() > 0) {
+			sql += " and team_id = ?";
+		}
+		sql += " order by tree_no";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(funId);
+		if (teamId.length() > 0) {
+			param.addStringValue(teamId);
+		}
 		List<Map<String,String>> lsData = _dao.query(param);
 		
 		if (lsData.isEmpty()) return mpRet;
@@ -516,13 +545,17 @@ public class TreeQuery extends BusinessObject {
 	 * 取本级树形定义信息
 	 * @param funId -- 功能ID
 	 * @param treeNo -- 本级树序号
+	 * @param teamId -- 树形组代号
 	 * @return
 	 */
-	private Map<String,String> treeDefine(String funId, String treeNo) {
+	private Map<String,String> treeDefine(String funId, String treeNo, String teamId) {
 		StringBuilder sb = new StringBuilder("select "+ _field_tree);
 		sb.append(" from fun_tree where fun_id = ? ");
 		if (treeNo != null && treeNo.length() > 0) {
 			sb.append(" and tree_no = ? ");
+		}
+		if (teamId.length() > 0) {
+			sb.append(" and team_id = ?");
 		}
 		sb.append("order by tree_no");
 		DaoParam param = _dao.createParam(sb.toString());
@@ -531,6 +564,9 @@ public class TreeQuery extends BusinessObject {
 		if (treeNo != null && treeNo.length() > 0) {
 			param.addStringValue(treeNo);
 		}
+		if (teamId.length() > 0) {
+			param.addStringValue(teamId);
+		}
 		
 		return _dao.queryMap(param);
 	}
@@ -538,12 +574,19 @@ public class TreeQuery extends BusinessObject {
 	/**
 	 * 只有一个树定义
 	 * @param funId
+	 * @param teamId -- 树形组代号
 	 * @return
 	 */
-	private boolean onlyTree(String funId) {
+	private boolean onlyTree(String funId, String teamId) {
 		String sql = "select count(*) as cnt from fun_tree where fun_id = ?";
+		if (teamId.length() > 0) {
+			sql += " and team_id = ?";
+		}
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(funId);
+		if (teamId.length() > 0) {
+			param.addStringValue(teamId);
+		}
 		
 		Map<String,String> mp = _dao.queryMap(param);
 		String cnt = mp.get("cnt");
@@ -689,5 +732,26 @@ public class TreeQuery extends BusinessObject {
 	 */
 	private String parseWhere(String selfWhere, String userId) {
 		return selfWhere.replaceAll("\\{CURUSERID\\}", userId);
+	}
+	
+	//取树型组定义信息
+	private List<Map<String,String>> treeTeam(String funId) {
+		String sql = "select team_id, tree_title as team_title from fun_tree where tree_type = '0' and fun_id = ? order by tree_no";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(funId);
+		List<Map<String,String>> lsTree = _dao.query(param);
+		
+		List<Map<String,String>> lsTeam = FactoryUtil.newList();
+		Map<String,String> mpTeam = FactoryUtil.newMap();
+		for (Map<String,String> mpTree : lsTree) {
+			String team_id = MapUtil.getValue(mpTree, "team_id");
+			String team_title = MapUtil.getValue(mpTree, "team_title");
+			
+			if (mpTeam.containsKey(team_id)) continue;
+			mpTeam.put(team_id, team_title);
+			lsTeam.add(mpTree);
+		}
+		
+		return lsTeam;
 	}
 }
