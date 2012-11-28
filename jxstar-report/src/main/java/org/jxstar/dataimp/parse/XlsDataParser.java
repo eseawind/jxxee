@@ -104,11 +104,31 @@ public class XlsDataParser implements DataParser {
 				    	return Double.toString(cell.getNumericCellValue());
 				    }
 				} else {
-					return cell.getStringCellValue();
+					//去掉头尾的特殊符号
+					String value = cell.getStringCellValue().trim();
+					value = trim(value, ' ');
+					value = trim(value, '?');
+					return value;
 				}
 			}
 		}
 		
 		return "";
+	}
+	
+	//去掉头尾的特殊符号
+	public String trim(String value, char c) {
+		value = value.trim();
+		
+		int len = value.length();
+		int st = 0;
+		while ((st < len) && (value.charAt(st) == c)) {
+		    st++;
+		}
+		while ((st < len) && (value.charAt(len-1) == c)) {
+			len--;
+		}
+		
+		return ((st > 0) || (len < value.length())) ? value.substring(st, len) : value;
 	}
 }
