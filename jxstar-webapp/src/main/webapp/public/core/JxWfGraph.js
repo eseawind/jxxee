@@ -41,9 +41,8 @@ Ext.apply(JxWfGraph, {
 				autoScroll: true,
 				iconCls: 'function'
 			});
-			mainTab.activate(wfnavTab);
 		}
-		
+		mainTab.activate(wfnavTab);
 		//然后显示导航流程图
 		self.createGraph(wfnavTab, graphId, queryValue, isFlag);
     },

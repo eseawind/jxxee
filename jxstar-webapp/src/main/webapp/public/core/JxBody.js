@@ -157,6 +157,35 @@
 				load:function(loader, node, response){
 					var menuJson = Ext.decode(response.responseText);
 					JxUtil.putRightNodes(menuJson);
+					//如果是根节点，则显示流程导航图标
+					var hdCall = function(data) {
+						if (data != null) data = data.root; 
+						if (data == null || data.length == 0) return;
+						for (var i = 0, n = data.length; i < n; i++) {
+							var moduleId = data[i].wfnav_graph__module_id;
+							if (moduleId.length == 0) continue;
+							
+							var oneNode = treeMenu.getRootNode().findChild('id', moduleId);
+							if (Ext.isEmpty(oneNode)) continue;
+							
+							var graphId = data[i].wfnav_graph__graph_id;
+							if (graphId.length == 0) continue;
+							
+							var anchor = oneNode.getUI().getAnchor();
+							var cls = 'wfnav-icon';
+							if (Ext.isChrome) cls += ' wfnav-icon-chrome';
+							var chg = 'onmouseover="this.style.marginRight=\'3px\';" onmouseout="this.style.marginRight=\'4px\';"';
+							var navIcon = Ext.get(anchor).insertHtml('afterEnd', 
+								'<span '+ chg +' class="'+ cls +'" graphid="'+ graphId +'"></span>', true);
+							navIcon.on('click', function(e, t){
+								e.stopEvent();
+								JxWfGraph.showGraphFun(t.getAttribute('graphid'), null, false);
+							});
+						}
+					};
+					var params = 'eventcode=query_data&funid=queryevent&pagetype=grid'+
+						'&query_funid=wfnav_graph&where_sql=auditing=1';
+					Request.dataRequest(params, hdCall);
 				}
 			}}),
 			root: new Ext.tree.AsyncTreeNode({text:'main_menu_root'})

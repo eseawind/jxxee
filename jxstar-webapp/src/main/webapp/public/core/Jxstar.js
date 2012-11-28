@@ -275,7 +275,7 @@ Ext.ns('Jxstar');
 			//根节点ID
 			var ROOT_ID = '10';
 		
-			var createTreeTeam = function(team_id, team_title, isTeam) {
+			var createTreeTeam = function(isTeam, team_id, team_title) {
 				//查询数据URL
 				var dataUrl = Jxstar.path + '/commonAction.do?eventcode=query_tree&funid=queryevent';
 					dataUrl += '&tree_funid='+nodeId+'&user_id='+Jxstar.session['user_id'];
@@ -491,25 +491,28 @@ Ext.ns('Jxstar');
 			var tree;
 			var params = 'eventcode=query_team&funid=queryevent&tree_funid='+nodeId;
 			var hdCall = function(data) {
-				if (data == null || data.length == 0) return;
+				//如果没有树形组，则创建单树
+				if (Ext.isEmpty(data)) {
+					tree = createTreeTeam(false);
+					treePanel.add(tree);
+					treePanel.doLayout();
+					return;
+				}
 				//如果有多个树形控件，则采用抽屉布局
 				var isTeam = data.length > 1;
 				if (isTeam) {
 					treePanel.layout = new Ext.Container.LAYOUTS['accordion'];
 					treePanel.setLayout(treePanel.layout);
+					treePanel.getEl().setStyle('border-top-width', '1px');
 				}
 				
 				for (var i = 0, n = data.length; i < n; i++) { 
-					tree = createTreeTeam(data[i].team_id, data[i].team_title, isTeam);
+					tree = createTreeTeam(isTeam, data[i].team_id, data[i].team_title);
 					treePanel.add(tree);
 					treePanel.doLayout();
 				}
 			}
 			Request.dataRequest(params, hdCall);
-			
-			//var tree = createTreeTeam('', '');
-			//treePanel.add(tree);
-			//treePanel.doLayout();
 
 			return tree;
 		},
