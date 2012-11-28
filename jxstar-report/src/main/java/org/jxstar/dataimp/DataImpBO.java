@@ -240,6 +240,10 @@ public class DataImpBO extends BusinessObject {
 				if (data_type.equals("date") && value.length() > 0) {
 					value = DataImpUtil.repDateValue(value);
 				}
+				//数值处理，去掉逗号
+				if ((data_type.equals("double") || data_type.equals("int")) && value.length() > 0) {
+					value = value.replace(",", "");
+				}
 				
 				//字段值有效性校验
 				isValid = validValue(field_title, value, data_type, is_must, index);
