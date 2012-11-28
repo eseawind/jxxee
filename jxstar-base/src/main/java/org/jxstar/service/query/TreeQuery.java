@@ -736,7 +736,7 @@ public class TreeQuery extends BusinessObject {
 	
 	//取树型组定义信息
 	private List<Map<String,String>> treeTeam(String funId) {
-		String sql = "select team_id, tree_title as team_title from fun_tree where tree_type = '0' and fun_id = ? order by tree_no";
+		String sql = "select team_id, tree_title as team_title from fun_tree where fun_id = ? order by tree_no";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(funId);
 		List<Map<String,String>> lsTree = _dao.query(param);
@@ -747,7 +747,7 @@ public class TreeQuery extends BusinessObject {
 			String team_id = MapUtil.getValue(mpTree, "team_id");
 			String team_title = MapUtil.getValue(mpTree, "team_title");
 			
-			if (mpTeam.containsKey(team_id)) continue;
+			if (team_id.length() == 0 || mpTeam.containsKey(team_id)) continue;
 			mpTeam.put(team_id, team_title);
 			lsTeam.add(mpTree);
 		}
