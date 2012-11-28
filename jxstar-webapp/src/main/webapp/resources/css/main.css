@@ -113,6 +113,15 @@
 .main-menu-tree{background-image:url(../images/icons/button/treeroot.gif) !important;}
 .top-menu-img{padding-right:16px;width:16px;height:16px;}
 .top-menu-text{padding: 0 8 0 2px;color:#ffffff;font-size:12px;}
+.wfnav-icon{
+	background-image:url( ../images/icons/button/nav_active.gif) !important;
+	margin:-20 4 0 0px;
+	float:right;
+	width:15px;
+	height:17px;
+	cursor:hand;
+}
+.wfnav-icon-chrome{margin-top:0px;}
 
 .x-grid3-filter{height:20px;border-bottom:1px solid #e2e2e2}
 .x-filter{overflow:hidden;}
