@@ -101,7 +101,14 @@ public class XlsDataParser implements DataParser {
 				        cal.setTime(date);
 				        return DateUtil.calendarToDate(cal);
 				    } else {
-				    	return Double.toString(cell.getNumericCellValue());
+				    	String value = String.valueOf(cell.getNumericCellValue());
+				    	//去掉double类型数据的尾部的".0"，因为有些数字型的文本字段列也会识别为double类型
+				    	String strTmp[] = value.split("\\.");
+						if (strTmp.length == 2 && strTmp[1].equals("0")) {
+							return strTmp[0];
+						} else {
+							return value;
+						}
 				    }
 				} else {
 					//去掉头尾的特殊符号
