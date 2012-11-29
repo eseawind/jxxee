@@ -489,7 +489,7 @@ Ext.ns('Jxstar');
 			};
 			
 			var tree;
-			var params = 'eventcode=query_team&funid=queryevent&tree_funid='+nodeId;
+			//var params = 'eventcode=query_team&funid=queryevent&tree_funid='+nodeId;
 			var hdCall = function(data) {
 				//如果没有树形组，则创建单树
 				if (Ext.isEmpty(data)) {
@@ -502,8 +502,9 @@ Ext.ns('Jxstar');
 				var isTeam = data.length > 1;
 				if (isTeam) {
 					treePanel.layout = new Ext.Container.LAYOUTS['accordion'];
-					treePanel.setLayout(treePanel.layout);
-					treePanel.getEl().setStyle('border-top-width', '1px');
+					treePanel.on('afterrender', function(c){
+						c.getEl().setStyle('border-top-width', '1px');
+					});
 				}
 				
 				for (var i = 0, n = data.length; i < n; i++) { 
@@ -512,7 +513,9 @@ Ext.ns('Jxstar');
 					treePanel.doLayout();
 				}
 			}
-			Request.dataRequest(params, hdCall);
+			//Request.dataRequest(params, hdCall);//由于是异步，外部方法取不到tree
+			var define = Jxstar.findNode(nodeId);
+			hdCall(define.treeteam);
 
 			return tree;
 		},
