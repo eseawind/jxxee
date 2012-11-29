@@ -18,8 +18,11 @@ import org.jxstar.service.define.DefineName;
 import org.jxstar.service.define.FunctionDefine;
 import org.jxstar.service.define.FunctionDefineManger;
 import org.jxstar.service.util.ServiceUtil;
+import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.FileUtil;
+import org.jxstar.util.MapUtil;
+import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.key.KeyCreator;
 import org.jxstar.util.resource.JsMessage;
 
@@ -163,7 +166,8 @@ public class FunDefineBO extends BusinessObject {
 			sbItem.append(getFunAttr(funid));
 			//添加业务状态设置
 			sbItem.append(getFunStatus(funid));
-			
+			//添加树型组定义信息
+			sbItem.append(treeTeam(funid));
 			sbItem.append("isarch:'"+mpfun.get("is_archive")+"'");
 			
 			if (i < n-1) {
@@ -303,6 +307,32 @@ public class FunDefineBO extends BusinessObject {
 		sb.append("audit_e:'"+ mpData.get("audit_e") +"'}, ");
 		
 		return sb.toString();
+	}
+	
+	//取树型组定义信息
+	private String treeTeam(String funId) {
+		String sql = "select team_id, tree_title as team_title from fun_tree where fun_id = ? order by tree_no";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(funId);
+		List<Map<String,String>> lsTree = _dao.query(param);
+		
+		List<Map<String,String>> lsTeam = FactoryUtil.newList();
+		Map<String,String> mpTeam = FactoryUtil.newMap();
+		for (Map<String,String> mpTree : lsTree) {
+			String team_id = MapUtil.getValue(mpTree, "team_id");
+			String team_title = MapUtil.getValue(mpTree, "team_title");
+			
+			if (team_id.length() == 0 || mpTeam.containsKey(team_id)) continue;
+			mpTeam.put(team_id, team_title);
+			lsTeam.add(mpTree);
+		}
+		
+		if (lsTeam.size() < 2) {
+			return "";
+		} else {
+			String json = ArrayUtil.listToJson(lsTeam);
+			return "treeteam:" + json + ", ";
+		}
 	}
 	
 }
