@@ -17,6 +17,7 @@ public class CharReplaceTest {
 	public static void main(String[] args) {
 		long n1 = (new Date()).getTime();
 		String other, val = "生成需要\\我的知识'，每次都\r\n不知道！\"\"好好的！";
+		System.out.println("val=" + val);
 		
 		for (int i = 0; i < 100000; i++) {
 			other = strForJson(val);
@@ -44,13 +45,13 @@ public class CharReplaceTest {
 			if (ch == '\\') {
 				sbstr.append("\\\\");
 			} else if (ch == '\r') {
-				sbstr.append("\\\\r");
+				sbstr.append("\\r");
 			} else if (ch == '\n') {
-				sbstr.append("\\\\n");
+				sbstr.append("\\n");
 			} else if (ch == '\'') {
-				sbstr.append("\\\\'");
+				sbstr.append("\\'");
 			} else if (ch == '"') {
-				sbstr.append("\\\\'");
+				sbstr.append("\\'");
 			} else {
 				sbstr.append(ch);
 			}
@@ -60,11 +61,11 @@ public class CharReplaceTest {
 	}
 	
 	public static String strForJson1(String strVal) {
-		strVal = strVal.replace("\\", "\\\\");
-		strVal = strVal.replace("\r", "\\\\r");
-		strVal = strVal.replace("\n", "\\\\n");
-		strVal = strVal.replace("'", "\\\\'");
-		strVal = strVal.replace("\"", "\\\\'");
+		strVal = strVal.replaceAll("\\\\", "\\\\\\\\");
+		strVal = strVal.replaceAll("\r", "\\\\r");
+		strVal = strVal.replaceAll("\n", "\\\\n");
+		strVal = strVal.replaceAll("'", "\\\\'");
+		strVal = strVal.replaceAll("\"", "\\\\'");
 		
 		return strVal;
 	}
