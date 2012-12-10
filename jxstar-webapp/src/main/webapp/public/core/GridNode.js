@@ -298,9 +298,15 @@ Jxstar.GridNode.prototype = {
 		}
 
 		//创建表对象
-		if (self.pageType.indexOf('edit') >= 0 || self.param.isedit == '1') {
+		if (self.pageType.indexOf('edit') >= 0 || 
+		   (self.pageType == 'chkgrid' && self.param.isedit == '1')) {//设置审批过程中可以修改
 			grid = new Ext.grid.EditorGridPanel(config);
-			//已复核的记录不能编辑
+		} else {
+			grid = new Ext.grid.GridPanel(config);
+		}
+		
+		//控制可编辑表格的编辑状态
+		if (grid.isXType('editorgrid')) {
 			grid.on('beforeedit', function(event) {
 				var r = event.record;
 				var a = self.define.auditcol;
@@ -328,7 +334,6 @@ Jxstar.GridNode.prototype = {
 				return true;
 			});
 		} else {
-			grid = new Ext.grid.GridPanel(config);
 			//双击打开form记录
 			grid.on('rowdblclick', function(grid, n, event) {
 				if (self.pageType == 'grid' || self.pageType == 'chkgrid') {
@@ -342,6 +347,7 @@ Jxstar.GridNode.prototype = {
 				}
 			});
 		}
+		
 		//记录当前选择的记录行号
 		grid.getSelectionModel().on('rowselect', function(select, index, record){
 			grid.selectKeyId = record.get(self.define.pkcol);
