@@ -69,6 +69,11 @@ public class ProcessInstance {
 		Token token = context.getToken();
 		token.getNode().enter(context);
 		
+		//如果是从开始节点没有经过审批节点，直接到了结束节点，则会出现这种情况
+		if (this.runState.equals(StatusCode.PROCESS_COMPLETED)) {
+			return;
+		}
+		
 		//修改过程状态为启动
 		if (!instanceDao.executeProcess(instanceId, StatusCode.PROCESS_RUNNING, "")) {
 			//"修改过程状态为“启动”失败！"
