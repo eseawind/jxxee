@@ -340,7 +340,8 @@ Ext.ns('Jxstar');
 				var delayFun = function() {
 					var tabPanel = dataPanel.getComponent(0);
 					var grid = tabPanel;
-					if (tabPanel.isXType('tabpanel')) {
+					//有些左右表格布局，不能用tabpanel判断
+					if (!tabPanel.isXType('grid')) {
 						grid = tabPanel.getComponent(0).getComponent(0);
 					}
 					var root = tree.getRootNode();
@@ -469,7 +470,7 @@ Ext.ns('Jxstar');
 					if (Ext.isEmpty(tabPanel)) return null;
 					
 					var grid = tabPanel;
-					if (tabPanel.isXType('tabpanel')) {
+					if (!tabPanel.isXType('grid')) {
 						grid = tabPanel.getComponent(0).getComponent(0);
 					}
 					return grid;
