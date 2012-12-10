@@ -288,6 +288,24 @@ Ext.form.ComboBox.prototype.restrictHeight = function(){
 };
 
 /**
+ * 修改方法：如果值为'请选择'，则为空。
+ **/
+Ext.form.ComboBox.prototype.getValue = function(){
+	var v = '';
+	if(this.valueField){
+		v = Ext.isDefined(this.value) ? this.value : '';
+	}else{
+		v = Ext.form.ComboBox.superclass.getValue.call(this);
+	}
+	if(v == jx.star.select) {//添加这个判断，this.emptyText为空了
+		v = '';
+		this.value = '';
+		this.originalValue = '';
+	}
+	return v;
+};
+
+/**
  * 新增方法：保证修改字段值后不标记为脏数据。
  **/
 Ext.form.Field.prototype.osetValue = function(value){
