@@ -191,6 +191,11 @@ public class MapUtil {
 			
 			if (obj instanceof String) {
 				sb.append("	" + sName + "=" + obj + "\r\n");
+			} else if (obj instanceof String[]) {
+				String[] objs = (String[]) obj;
+				for (String val : objs) {
+					sb.append("	" + sName + "=" + val + "\r\n");
+				}
 			} else if (obj instanceof Map) {
 				sb.append("	<" + sName.toString() + ">\r\n");
 				toString((Map) obj, sb);
