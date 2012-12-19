@@ -30,10 +30,10 @@
 			decimalPrecision:6, maxLength:12
 		}),renderer:JxUtil.formatNumber(6)}, field:{name:'mat_appdet__mat_money',type:'float'}},
 	{col:{header:'类别名称', width:153, sortable:true, hidden:true}, field:{name:'mat_base__type_name',type:'string'}},
-	{col:{header:'物资ID', width:100, sortable:true, hidden:true}, field:{name:'mat_appdet__mat_id',type:'string'}},
-	{col:{header:'类别ID', width:100, sortable:true, hidden:true}, field:{name:'mat_base__type_id',type:'string'}},
-	{col:{header:'明细ID', width:100, sortable:true, hidden:true}, field:{name:'mat_appdet__det_id',type:'string'}},
-	{col:{header:'申请单ID', width:100, sortable:true, hidden:true}, field:{name:'mat_appdet__app_id',type:'string'}}
+	{col:{header:'物资ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'mat_appdet__mat_id',type:'string'}},
+	{col:{header:'类别ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'mat_base__type_id',type:'string'}},
+	{col:{header:'明细ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'mat_appdet__det_id',type:'string'}},
+	{col:{header:'申请单ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'mat_appdet__app_id',type:'string'}}
 	];
 	
 	config.param = {
@@ -45,7 +45,6 @@
 		funid: 'mat_appdet'
 	};
 	
-	config.param.selectModel = 'nocheck';
 	config.param.substat = true;
 
 	config.initpage = function(gridNode) {
