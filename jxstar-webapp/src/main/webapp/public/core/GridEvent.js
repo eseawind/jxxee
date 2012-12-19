@@ -914,7 +914,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		
 		//扩展过滤语句与参数
 		if (typeof self.dataImportParam == 'function') {
-			var options = self.dataImportParam();
+			var options = self.dataImportParam(srcNodeId);
 			if (!options) return;
 			
 			if (options.whereSql != null && options.whereSql.length > 0) {

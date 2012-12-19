@@ -200,6 +200,10 @@ JxPortal = {};
 			var item = portalJson.items[i];
 			//列号
 			var colno = parseInt(item.colno) - 1;
+			if (colno >= colnum) {
+				JxHint.alert('【' + item.title + '】所属列大于模板总列数！');
+				continue;
+			}
 			//栏目信息，portels栏目内容，参数有：id, title, iconCls, height, typecode, objectid
 			var cell = {
 				title: item.title,
@@ -225,7 +229,7 @@ JxPortal = {};
 		for (var i = 0; i < colnum; i++) {
 			portalitems[i] = {
 				width: colwidths[i],
-				style: i == 0 ? 'padding:10px 0 10px 10px' : 'padding:10px',
+				style: i < (colnum-1) ? 'padding:10px 0 10px 10px' : 'padding:10px',
 				items: colitems[i]
 			};
 		}
