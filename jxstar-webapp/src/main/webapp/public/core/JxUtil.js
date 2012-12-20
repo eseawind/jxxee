@@ -73,12 +73,16 @@ JxUtil = {};
 		},
 	
 		/**
-		 * 动态加载功能定义数据
+		 * 动态加载功能定义数据：
+		 * 这些数据是同步加载、而且没有缓存，如果是部署在互联网上，则速度会很慢
 		 **/
 		loadJxData: function() {
+			Ext.fly('loading').dom.innerHTML = '正在加载功能数据文件...';
+			Ext.fly('loading').show();
 			JxUtil.loadJS('/public/data/NodeDefine.js', true);
 			JxUtil.loadJS('/public/data/RuleData.js', true);
 			JxUtil.loadJS('/public/locale/combo-lang-'+ JxLang.type +'.js', true);
+			Ext.fly('loading').hide();
 		},
 	
 		/**
