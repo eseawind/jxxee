@@ -13,8 +13,7 @@
 (function(){
 	Ext.QuickTips.init();  
 	//Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
-	//加载功能定义数据
-	JxUtil.loadJxData();
+	
 	//菜单显示位置
 	var menuPos = Jxstar.systemVar.index__menu__pos;
 	var btnHtml = '', hintHtml = '';

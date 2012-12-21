@@ -11,8 +11,6 @@ Jxstar.systemVar.uploadType = '<%=uploadType%>';
 //把所有用于页面的系统变量附加到对象中
 Ext.apply(Jxstar.systemVar, Ext.decode("<%=allVarJs%>"));
 
-JxUtil.loadJS('custom.js', true);
-
 Ext.BLANK_IMAGE_URL = Jxstar.path + '/public/lib/ext/resources/images/default/s.gif';
 Ext.chart.Chart.CHART_URL = Jxstar.path + '/public/lib/ext/resources/charts.swf';
 
