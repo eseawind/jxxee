@@ -85,6 +85,7 @@ Jxstar.GridEvent = function(define) {
 		'beforeimport',
 		/**
 		* @param {Jxstar.GridEvent} this
+		* @param {srcFunId:'', destFunId:'', data:[{impKeyId:'', newKeyId:''}...]} data
 		**/
 		'afterimport'
 	);
@@ -1018,8 +1019,12 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			//按钮可用
 			JxUtil.disableButton(self.grid.getTopToolbar(), false);
 			
+			//反馈数据的格式为：{srcFunId:'', destFunId:'', data:[{impKeyId:'', newKeyId:''}...]}
+			self.fireEvent('afterimport', self, 
+				{srcFunId:self.define.nodeid, destFunId:destFunId, data:data});
+				
 			self.grid.getStore().reload();
-
+			
 			var destGrid = self.grid.destGrid;
 			if (destGrid != null) {
 				//统计主表中的统计字段值
@@ -1028,8 +1033,6 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 				}
 				destGrid.getStore().reload();
 			}
-			
-			self.fireEvent('afterimport', self);
 		};
 
 		//发送请求
