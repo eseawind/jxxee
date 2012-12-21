@@ -516,7 +516,7 @@ Jxstar.GridNode.prototype = {
 			}
 			//添加扩展工具栏
 			var fn = self.config.toolext;
-			if (fn && typeof fn == 'function') {
+			if (self.state == '0' && fn && typeof fn == 'function') {
 				fn(self, tbar, extItems);
 			}
 			
