@@ -1,6 +1,6 @@
 ﻿<%@ page contentType="text/html; charset=UTF-8"%>
 <%@ include file="index_top.jsp"%>
-	<div id="body_div"  class="body_div">
+	<div id="body_div" class="body_div">
 	<%if (indexType.equals("1")) {%>
 	<div id="login_body" class="login_body"><a style="top:10px;left:10px;font-size:9pt;color:#fff;" href="#" onclick="down_firfox();">下载Firefox浏览器</a>
 		<div class="login_div">

@@ -28,8 +28,8 @@
 	String uploadUrl = SystemVar.getValue("upload.server.url");
 	
 	String allVarJs = SystemVar.getVarJs();
-	
-	String datasvn = SystemVar.getValue("index.datasvn", "");//开启可以提高文件加载效率
+	//标识功能脚本文件的版本，开启可以提高文件加载效率
+	String datasvn = SystemVar.getValue("index.datasvn", "");
 	if (datasvn.length() == 0) {
 		datasvn = String.valueOf((new java.util.Date()).getTime());
 	}
@@ -123,11 +123,4 @@
 		<script type="text/javascript" src="public/core/JxLabelPrint.js?verno=<%=svnNum%>"></script>
 		<script type="text/javascript" src="public/lib/graph/js/mxCanvas.js?verno=<%=svnNum%>"></script>
 	<%}%>
-	<script type="text/javascript">
-		document.getElementById('loading-msg').innerHTML = '正在加载数据文件...';
-	</script>
-	<script type="text/javascript" src="public/data/NodeDefine.js?verno=<%=datasvn%>"></script>
-	<script type="text/javascript" src="public/data/RuleData.js?verno=<%=datasvn%>"></script>
-	<script type="text/javascript" src="public/locale/combo-lang-<%=curLangType%>.js?verno=<%=datasvn%>"></script>
-	<script type="text/javascript" src="custom.js?verno=<%=datasvn%>"></script>
 	<script type="text/javascript">Ext.fly('loading').hide();</script>
