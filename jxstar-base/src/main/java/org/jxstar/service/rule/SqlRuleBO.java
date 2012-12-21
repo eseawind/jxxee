@@ -13,6 +13,7 @@ import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.DefineDataManger;
 import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.resource.JsMessage;
+import org.jxstar.util.resource.JsParam;
 
 /**
  * SQL规则执行事件。
@@ -60,6 +61,9 @@ public class SqlRuleBO extends BusinessObject {
 		Map<String,String> destDefine = manger.getFunData(destFunId);
 		String[] subFunIds = destDefine.get("subfun_id").split(",");
 		
+		//保存新的记录ID返回前台
+		StringBuilder sbkeyid = new StringBuilder();
+		
 		//执行数据导入
 		for (int i = 0, n = selKeyId.length; i < n; i++) {
 			//执行主表数据导入，返回新增的记录主键ID
@@ -73,6 +77,7 @@ public class SqlRuleBO extends BusinessObject {
 				setMessage(JsMessage.getValue("sqlrulebo.mainerror"), destFunId);
 				return _returnFaild;
 			}
+			sbkeyid.append("{impKeyId:'"+ selKeyId[i] +"'"+", newKeyId:'"+ newKeyId +"'},");
 			
 			//如果没有子功能，则不用处理
 			if (subFunIds.length == 0) continue;
@@ -93,6 +98,13 @@ public class SqlRuleBO extends BusinessObject {
 				}
 			}
 		}
+		//把新增主键值返回到前台
+		String json = "[]";
+		if (sbkeyid.length() > 0) {
+			json = "[" + sbkeyid.substring(0, sbkeyid.length()-1) + "]";
+		}
+		setReturnData(json);
+		_log.showDebug("------------sql rule import return data: " + json);
 		_log.showDebug("------------sql rule import end.");
 		
 		return _returnSuccess;
