@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * 方便用户扩展当前登录用户信息加工处理的类，
  * 采用抽象类，必须要继承，扩展某个方法后才能使用。
+ * 此类名需要注册到系统变量中：one.loginprocess.class，需要带包名
  *
  * @author TonyTan
  * @version 1.0, 2012-12-29
