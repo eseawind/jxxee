@@ -8,7 +8,8 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 
 /**
- * 方便用户扩展当前登录用户信息加工处理的类。
+ * 方便用户扩展当前登录用户信息加工处理的类，
+ * 采用抽象类，必须要继承，扩展某个方法后才能使用。
  *
  * @author TonyTan
  * @version 1.0, 2012-12-29
@@ -29,7 +30,9 @@ public abstract class OneLoginProcess {
 	 * @param request
 	 * @return
 	 */
-	protected abstract String valid(HttpServletRequest request);
+	protected String valid(HttpServletRequest request) {
+		return "true";
+	}
 	
 	/**
 	 * 给原有的用户信息添加更多的用户信息
