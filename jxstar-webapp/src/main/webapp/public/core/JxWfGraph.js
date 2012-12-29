@@ -138,12 +138,15 @@ Ext.apply(JxWfGraph, {
 		track.mouseMove = function(sender, me) {
 			var cell = this.getCell(me);
 			if (cell && self.isTask(cell)) {
+				//设置鼠标为样式为手状
 				me.getState().setCursor('pointer');
 				if (this.cur_cell == null) {
 					this.cur_cell = cell;
+					//设置鼠标移入节点效果
 					self.moveNode(cell, true);
 				}
 			} else {
+				//设置鼠标移出节点效果
 				self.moveNode(this.cur_cell, false);
 				this.cur_cell = null;
 			}
