@@ -26,11 +26,23 @@
 		<param-value>; system.; sys.; drop ; delete ; update ; create ;</param-value>
     </init-param>
   </filter>
+  <filter>
+    <filter-name>oneLoginFilter</filter-name>
+    <filter-class>org.jxstar.control.login.OneLoginFilter</filter-class>
+  </filter>
 
   <!-- Define Jxstar Filter Mapping -->
   <filter-mapping>
     <filter-name>jxstarFilter</filter-name>
     <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>oneLoginFilter</filter-name>
+    <url-pattern>/one_page.jsp</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>oneLoginFilter</filter-name>
+    <url-pattern>/one_main.jsp</url-pattern>
   </filter-mapping>
   
   <!-- Define Jxstar Listener -->
