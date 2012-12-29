@@ -36,6 +36,8 @@ public class ControlerUtil {
 	private static final String PARAM_TYPE_ASKEY = "askey";
 	//从当前上下文环境变量对象中取参数值, 类型为String
 	private static final String PARAM_TYPE_REQUEST = "parameter";	
+	//从当前上下文环境变量对象中取参数数组, 类型为String[]
+	private static final String PARAM_TYPE_REQUESTS = "parameters";
 	//常量值
 	private static final String PARAM_TYPE_CONSTANT = "constant";
 	//--------------module param type--------------//
@@ -195,6 +197,8 @@ public class ControlerUtil {
 				objValue = requestContext.getRequestValues(JsParam.KEYID);
 			} else if (sParamType.equals(PARAM_TYPE_REQUEST)) {
 				objValue = requestContext.getRequestValue(sParamName);
+			} else if (sParamType.equals(PARAM_TYPE_REQUESTS)) {
+				objValue = requestContext.getRequestValues(sParamName);
 			} else if (sParamType.equals(PARAM_TYPE_CONSTANT)) {
 				objValue = getConstantParam(sParamValue, userInfo);
 			} else {
