@@ -168,6 +168,7 @@
 							if (Ext.isEmpty(oneNode)) continue;
 							
 							var graphId = data[i].wfnav_graph__graph_id;
+							var graphTitle = data[i].wfnav_graph__graph_name;
 							if (graphId.length == 0) continue;
 							
 							var anchor = oneNode.getUI().getAnchor();
@@ -175,10 +176,10 @@
 							if (Ext.isChrome) cls += ' wfnav-icon-chrome';
 							var chg = 'onmouseover="this.style.marginRight=\'3px\';" onmouseout="this.style.marginRight=\'4px\';"';
 							var navIcon = Ext.get(anchor).insertHtml('afterEnd', 
-								'<span '+ chg +' class="'+ cls +'" graphid="'+ graphId +'"></span>', true);
+								'<span '+ chg +' class="'+ cls +'" graphid="'+ graphId +'" graphtitle="'+ graphTitle +'"></span>', true);
 							navIcon.on('click', function(e, t){
 								e.stopEvent();
-								JxWfGraph.showGraphFun(t.getAttribute('graphid'), null, false);
+								JxWfGraph.showGraphFun(t.getAttribute('graphid'), null, false, t.getAttribute('graphtitle'));
 							});
 						}
 					};
