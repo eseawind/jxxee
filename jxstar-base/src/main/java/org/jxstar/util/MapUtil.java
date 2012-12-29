@@ -163,6 +163,29 @@ public class MapUtil {
 	}
 	
 	/**
+	 * map数据转换为json格式
+	 * @param mpData
+	 * @return
+	 */
+	public static String toJson(Map<String,String> mpData) {
+		if (mpData == null || mpData.isEmpty()) return "{}";
+		
+		Iterator<String> itr = mpData.keySet().iterator();
+		StringBuilder sbOne = new StringBuilder("{");
+		while(itr.hasNext()) {
+			String key = itr.next();
+			String value = mpData.get(key);
+			
+			if (value != null && (value.equals("true") || value.equals("false"))) {
+				sbOne.append("'"+ key +"':"+ value +",");
+			} else {
+				sbOne.append("'"+ key +"':'"+ StringUtil.strForJson(value) +"',");
+			}
+		}
+		return sbOne.substring(0, sbOne.length()-1) + "}";
+	}
+	
+	/**
 	 * 输出Map对象中值，用于测试配置文件中值是否正确.
 	 * 
 	 * @param mp

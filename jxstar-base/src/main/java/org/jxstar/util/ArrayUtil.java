@@ -35,20 +35,7 @@ public class ArrayUtil {
 			Map<String,String> mpData = lsData.get(i);
 			if (mpData.isEmpty()) continue;
 			
-			Iterator<String> itr = mpData.keySet().iterator();
-			StringBuilder sbOne = new StringBuilder("{");
-			while(itr.hasNext()) {
-				String key = itr.next();
-				String value = mpData.get(key);
-				
-				if (value != null && (value.equals("true") || value.equals("false"))) {
-					sbOne.append("'"+ key +"':"+ value +",");
-				} else {
-					sbOne.append("'"+ key +"':'"+ StringUtil.strForJson(value) +"',");
-				}
-			}
-			String oneJson = sbOne.substring(0, sbOne.length()-1) + "},";
-			sbJson.append(oneJson);
+			sbJson.append(MapUtil.toJson(mpData)).append(",");
 		}
 		String json = "[]";
 		if (sbJson.length() > 0) {
