@@ -24,7 +24,7 @@ Ext.apply(JxWfGraph, {
 	isFlag : false,
 	
 	//public 支持主菜单中直接打开功能导航图的功能
-    showGraphFun : function(graphId, queryValue, isFlag){
+    showGraphFun : function(graphId, queryValue, isFlag, graphTitle){
 		var self = this;
 		//创建功能显示Tab
 		var mainTab = Jxstar.sysMainTab;
@@ -34,7 +34,7 @@ Ext.apply(JxWfGraph, {
 		if (wfnavTab == null) {
 			wfnavTab = mainTab.add({
 				id: tabid,
-				title: '流程导航图',
+				title: graphTitle||'流程导航图',
 				border: false,
 				layout: 'fit',
 				closable: true,
@@ -96,6 +96,18 @@ Ext.apply(JxWfGraph, {
 	
 	//private 检查是否为任务节点
 	isTask: function(cell) {
+		if (cell == null) return false;
+		
+		var enc = new mxCodec();
+		var node = enc.encode(cell);
+		var nodetype = node.getAttribute('nodetype');
+		if (nodetype == 'task') {
+			return true;
+		}
+		return false;
+	},
+	//private 取任务节点的ID
+	getTaskId: function(cell) {
 		if (cell == null) return '';
 		
 		var enc = new mxCodec();
@@ -119,22 +131,28 @@ Ext.apply(JxWfGraph, {
 		graph.setCellsEditable(false);
 		graph.setCellsSelectable(false);
 		graph.setConnectable(false);
+		graph.setCellsMovable(false);
 		
-		//设置导航图的任务节点可以点击的标志
-		var track = new mxCellTracker(graph, '#00FF00');
+		//设置导航图的任务节点的鼠标与移入移出效果
+		var track = new mxCellTracker(graph);
 		track.mouseMove = function(sender, me) {
 			var cell = this.getCell(me);
-			if (self.isTask(cell).length == 0) return;
-			//给出高亮标记
-		    if (this.isEnabled()) {
-				this.process(me);
+			if (cell && self.isTask(cell)) {
+				me.getState().setCursor('pointer');
+				if (this.cur_cell == null) {
+					this.cur_cell = cell;
+					self.moveNode(cell, true);
+				}
+			} else {
+				self.moveNode(this.cur_cell, false);
+				this.cur_cell = null;
 			}
 		};
 		
 		//捕获任务节点的鼠标点击事件
 		graph.addListener(mxEvent.CLICK, function(sender, evt) {
 			var cell = evt.getProperty('cell');
-			var nodeId = self.isTask(cell);
+			var nodeId = self.getTaskId(cell);
 			if (nodeId.length > 0) {
 				self.clickCell(self.graphId, nodeId);
 			}
@@ -194,6 +212,8 @@ Ext.apply(JxWfGraph, {
 			
 			//是否标记有数据记录的状态
 			self.queryFlag();
+			//给没有权限与没有设置功能属性的节点标记为灰色
+			self.disableFlag();
 		};
 
 		//从数据库中读取设计文件
@@ -232,6 +252,43 @@ Ext.apply(JxWfGraph, {
 		Request.dataRequest(params, hdCall);
 	},
 	
+	//标记没有功能权限与没有设置功能属性的节点为灰色边框
+	disableFlag: function() {
+		var self = this;
+		//数据格式：[{fun_id:'', node_id:''}...]
+		var hdCall = function(data) {
+			var model = self.editor.graph.getModel();
+			//先标记没有功能权限的节点为灰色
+			Ext.iterate(data, function(node){
+				var cell = model.getCell(node.node_id);
+				if (!Jxstar.validNode(node.fun_id)) {
+					self.disableNode(cell);
+				}
+            });
+			
+			//取所有功能节点，如果没有设置功能信息则标记为灰色
+			Ext.iterate(model.cells, function(key, cell){
+				if (cell.is_disabled) return;
+				//如果没有定义功能信息，则标记为灰色
+				var hasfun = false;
+				Ext.iterate(data, function(node){
+					if (key == node.node_id) {
+						hasfun = true;
+						return;
+					}
+				});
+				if (!hasfun && self.isTask(cell)) {
+					self.disableNode(cell);
+				}
+            });
+		};
+	
+		//从数据库中读取有哪些节点与功能ID
+		var params = 'funid=wfnav_graph&eventcode=queryfun&pagetype=formdes';
+			params += '&graph_id='+ self.graphId;
+		Request.dataRequest(params, hdCall);
+	},
+	
 	/**
 	 * 给指定节点加上标记
 	 * cellId -- 节点ID
@@ -245,6 +302,44 @@ Ext.apply(JxWfGraph, {
 			self.editor.graph.setCellStyles("strokeWidth", "1", [curCell]);
 			self.editor.graph.setCellStyles("strokeColor", "red", [curCell]);
 			self.editor.graph.setCellStyles("fillColor", "#BB0000", [curCell]);
+		} finally {
+			model.endUpdate();
+		}
+	},
+	
+	/**
+	 * 给指定节点加上灰色标记
+	 * cell -- 任务节点
+	 **/
+	disableNode: function(cell) {
+		var self = this;
+		var model = self.editor.graph.getModel();
+		model.beginUpdate();
+		try {
+			self.editor.graph.setCellStyles("strokeColor", "#ECECEC", [cell]);
+			self.editor.graph.setCellStyles("fillColor", "#BBBBBB", [cell]);
+			cell.is_disabled = true;//自定义属性
+		} finally {
+			model.endUpdate();
+		}
+	},
+	
+	/**
+	 * 给指定的节点设置背景色
+	 * cell -- 当前节点
+	 * isin -- true 表示鼠标在节点上，false 表示鼠标没在节点上
+	 **/
+	moveNode: function(cell, isin) {
+		//为空与灰色的节点都不处理鼠标事件
+		if (cell == null) return;
+		if (cell.is_disabled) return;
+		
+		var self = this;
+		var model = self.editor.graph.getModel();
+		model.beginUpdate();
+		try {
+			self.editor.graph.setCellStyles("strokeColor", isin?"#A1A1FF":"#C3D9FF", [cell]);
+			self.editor.graph.setCellStyles("fillColor", isin?"#A1A1FF":"#C3D9FF", [cell]);
 		} finally {
 			model.endUpdate();
 		}
