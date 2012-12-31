@@ -12,6 +12,7 @@ import org.jxstar.dao.util.BigFieldUtil;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.DefineDataManger;
 import org.jxstar.service.util.TaskUtil;
+import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.StringUtil;
@@ -150,6 +151,23 @@ public class WfGraphBO extends BusinessObject {
 		
 			setReturnData(sbJson.toString());
 		}
+		
+		return _returnSuccess;
+	}
+	
+	/**
+	 * 查询当前导航图中的所有功能节点的功能ID与节点ID
+	 * @param graphId
+	 * @return
+	 */
+	public String queryGraphFun(String graphId) {
+		String sql = "select fun_id, node_id from wfnav_node where graph_id = ?";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(graphId);
+		
+		List<Map<String,String>> ls = _dao.query(param);
+		String json = ArrayUtil.listToJson(ls);
+		setReturnData(json);
 		
 		return _returnSuccess;
 	}
