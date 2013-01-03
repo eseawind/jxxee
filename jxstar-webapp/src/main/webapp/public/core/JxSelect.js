@@ -21,6 +21,7 @@ JxSelect = {};
 			pageType: 'combogrid',
 			nodeId: 'jz_type_v',
 			isSame: '0',	//是否同名赋值
+			isMoreSelect: '', //是否可以多选
 			sourceField: 'jz_type.type_name;type_id',
 			targetField: 'jz_list.type_name;type_id',
 			whereSql: '',
@@ -33,7 +34,9 @@ JxSelect = {};
 				return;
 			}
 			//如果是多选，页面类型改为
+			var ismore = false;
 			if (config.isMoreSelect == '1') {
+				ismore = true;
 				config.pageType = 'selgrid';
 			}
 			
@@ -93,11 +96,14 @@ JxSelect = {};
 					//添加选择数据的方法
 					selgrid.on('rowdblclick', function(grid, n, event){
 						//取选择的来源记录数据
-						var srcRecord = JxUtil.getSelectRows(grid);
-						if (srcRecord == null || srcRecord.length == 0) {
+						var srcRecords = JxUtil.getSelectRows(grid);
+						if (srcRecords == null || srcRecords.length == 0) {
 						//如果选择的记录为空，则说明是清空选择的数据
 							var store = grid.getStore();
-							srcRecord = []; srcRecord[0] = JxUtil.emptyRecord(store);
+							srcRecords = []; srcRecords[0] = JxUtil.emptyRecord(store);
+						} else {
+							//如果不是多选，则只取第一天记录的值
+							if (!ismore) srcRecords = [srcRecords[0]];
 						}
 						
 						//修改前的值
@@ -106,12 +112,12 @@ JxSelect = {};
 						var fieldCt = parentField.ownerCt;
 						//查询值或统计参数值的输入控件赋值
 						if (fieldCt && fieldCt.initialConfig.name && fieldCt.initialConfig.name.indexOf('_qv') > 0) {
-							self.setControlData(srcRecord[0], parentField, config.sourceField, config.targetField);
+							self.setControlData(srcRecords, parentField, config.sourceField, config.targetField);
 						} else {
 							//取目标grid或form，根据ID查找
 							var tagRecord = self.selectTagRecord(parentField, targetFlag);
 							//给目标表赋值
-							self.setSelectData(srcRecord, tagRecord, config.isSame, config.sourceField, config.targetField)
+							self.setSelectData(srcRecords, tagRecord, config.isSame, config.sourceField, config.targetField)
 						}
 						//隐藏选择的窗口
 						win.close();
@@ -202,23 +208,26 @@ JxSelect = {};
 					if (!menuDiv.isVisible()) return false;
 
 					//取选择的来源记录数据
-					var srcRecord = JxUtil.getSelectRows(grid);
-					if (srcRecord == null || srcRecord.length == 0) {
+					var srcRecords = JxUtil.getSelectRows(grid);
+					if (srcRecords == null || srcRecords.length == 0) {
 					//如果选择的记录为空，则说明是清空选择的数据
 						var store = grid.getStore();
-						srcRecord = []; srcRecord[0] = JxUtil.emptyRecord(store);
+						srcRecords = []; srcRecords[0] = JxUtil.emptyRecord(store);
+					} else {
+						//如果不是多选，则只取第一天记录的值
+						srcRecords = [srcRecords[0]];
 					}
 						
 					//取选择字段的容器对象，根据它判断是在grid控件中还是在查询控件中
 					var fieldCt = parentField.ownerCt;
 					//查询值或统计参数值的输入控件赋值
 					if (fieldCt && fieldCt.initialConfig.name && fieldCt.initialConfig.name.indexOf('_qv') > 0) {
-						self.setControlData(srcRecord[0], parentField, config.sourceField, config.targetField);
+						self.setControlData(srcRecords, parentField, config.sourceField, config.targetField);
 					} else {
 						//取目标grid或form，根据ID查找
 						var tagRecord = self.selectTagRecord(parentField, targetFlag);
 						//给目标表赋值
-						self.setSelectData(srcRecord, tagRecord, config.isSame, config.sourceField, config.targetField)
+						self.setSelectData(srcRecords, tagRecord, config.isSame, config.sourceField, config.targetField)
 					}
 					//隐藏选择的窗口
 					menuDiv.hide();
@@ -295,12 +304,12 @@ JxSelect = {};
 		/**
 		* 处理选择表格数据的赋值方法，
 		* 
-		* srcRecord: 来源记录
+		* srcRecords: 来源记录，是一个数组
 		* fieldCtl: 目标选择控件
 		* sourceField: 来源字段
 		* targetField: 目标字段，如果是统计参数，不能添加表名
 		*/
-		setControlData: function(srcRecord, fieldCtl, srcField, tagField) {
+		setControlData: function(srcRecords, fieldCtl, srcField, tagField) {
 			var fieldCt = fieldCtl.ownerCt;
 			//统计条件值输入控件
 			if (fieldCt.isXType('toolbar')) {
@@ -326,7 +335,8 @@ JxSelect = {};
 						srcName = srcTable + "__" + srcNames[i];
 					}
 					//取来源字段的值
-					var srcValue = srcRecord.get(srcName);
+					var srcValue = self.getValue(srcRecords, srcName);
+					
 					//找到目标控件
 					var tagName = tagNames[i].replace('.', '__');
 					var fields = fieldCt.find('name', tagName);
@@ -341,8 +351,8 @@ JxSelect = {};
 					JxHint.alert(jx.star.nosrc);	//'没有定义来源字段，不能选择记录！'
 					return false;
 				}
-				var srcValue = srcRecord.get(srcName);
 				
+				var srcValue = self.getValue(srcRecords, srcName);
 				fieldCtl.setValue(srcValue);
 			}
 		},
@@ -350,13 +360,13 @@ JxSelect = {};
 		/**
 		* 处理选择表格数据的赋值方法，
 		* 
-		* srcRecord: 来源记录，是一个数组
+		* srcRecords: 来源记录，是一个数组
 		* tagRecord: 目标记录
 		* isSame: 是否同名赋值 '1', '0'
 		* sourceField: 来源字段，格式：tablename.field;field;tablename1.field...
 		* targetField: 目标字段，格式：tablename.field;field;tablename1.field...
 		*/
-		setSelectData: function(srcRecord, tagRecord, isSame, sourceField, targetField) {
+		setSelectData: function(srcRecords, tagRecord, isSame, sourceField, targetField) {
 			var self = this;
 			//来源字段名、目标字段名
 			var srcFieldName, tagFieldName;
@@ -367,14 +377,14 @@ JxSelect = {};
 				tagData = tagRecord.getFieldValues();
 			}
 			if (isSame == '1'){
-				for(srcFieldName in srcRecord[0].data) {
+				for(srcFieldName in srcRecords[0].data) {
 					var srctmp = srcFieldName.split("__")[1];
 					for(tagFieldName in tagData) {
 						var tagtmp = tagFieldName.split("__")[1];
 						//auditing字段的值不赋值
 						if (srctmp.indexOf('auditing') < 0 && srctmp == tagtmp) {
 							//取值赋给目标数据对象
-							tagRecord.set(tagFieldName, self.getValue(srcRecord, srcFieldName));
+							tagRecord.set(tagFieldName, self.getValue(srcRecords, srcFieldName));
 						}
 					}
 				}
@@ -391,6 +401,8 @@ JxSelect = {};
 
 				//根据每个字段，取来源数据写入目标数据对象中
 				for (var i = 0; i < srcFields.length; i++) {
+					if (srcFields[i].length == 0 || 
+						tagFields[i] == null || tagFields[i].length == 0) continue;
 					//构建来源数据字段名
 					var srcTmps = srcFields[i].split(".");
 					if(srcTmps.length > 1){
@@ -410,7 +422,7 @@ JxSelect = {};
 					}
 
 					//取值赋给目标数据对象
-					tagRecord.set(tagFieldName, self.getValue(srcRecord, srcFieldName));
+					tagRecord.set(tagFieldName, self.getValue(srcRecords, srcFieldName));
 				}
 			}
 		},
@@ -596,7 +608,18 @@ JxSelect = {};
 				}
 				return value;
 			} else {
-				return records[0].get(field);
+				var value = records[0].get(field);
+				if (value == null) {
+					var tmps = field.split("__");
+					//如果设置的值为[val]格式，表示此值是常量值
+					if (tmps.length > 1 && tmps[1].length > 0) {
+						var name = tmps[1];
+						if (name.charAt(0) == '[' && name.charAt(name.length-1) == ']') {
+							value = name.substring(1, name.length-1);
+						}
+					}
+				}
+				return value;
 			}
 		},
 		
