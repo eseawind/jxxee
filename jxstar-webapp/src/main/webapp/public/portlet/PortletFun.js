@@ -78,14 +78,19 @@ PortletFun = {};
 			'</td><tr>'
 		);
 	
-		var rows = [];
-		//列表中只显示7条记录
-		var len = funJson.length > 7 ? 7 : funJson.length;
+		var cnt = 0, rows = [];
+		var len = funJson.length;
 		for (var i = 0; i < len; i++) {
-			funJson[i].bgcolor = (i%2 == 1) ? '#ddffdd' : '';
+			//没有操作权限的不显示
+			if (Jxstar.validNode(funJson[i].funid) == false) continue;
+			
+			funJson[i].bgcolor = (cnt%2 == 1) ? '#ddffdd' : '';
 			funJson[i].chgcolor = 'onmouseover="this.style.color=\'#FF4400\';" onmouseout="this.style.color=\'#0080FF\';"';
 			
 			rows[i] = rowTpl.apply(funJson[i]);
+			//列表中只显示7条记录
+			cnt++;
+			if (cnt > 6) break; 
 		}
 		
 		return tableTpl.apply({rows:rows.join('')});
