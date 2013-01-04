@@ -18,7 +18,7 @@
 			triggerClass:'x-form-search-trigger', 
 			onTriggerClick: function() {
 				if (this.menu == null) {
-					var selcfg = {pageType:'combogrid', nodeId:'event_domain', layoutPage:'', sourceField:'funall_domain.domain_code;domain_name', targetField:'fun_event.event_code;event_name', whereSql:"", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',queryField:'',likeType:'',fieldName:'fun_event.event_code'};
+					var selcfg = {pageType:'combogrid', nodeId:'event_domain', layoutPage:'', sourceField:'funall_domain.domain_code;domain_name;[1]', targetField:'fun_event.event_code;event_name;fun_event.is_domain', whereSql:"", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',queryField:'',likeType:'',fieldName:'fun_event.event_code'};
 					this.menu = Jxstar.createComboMenu(this);
 					JxSelect.createComboGrid(selcfg, this.menu, 'node_fun_event_editgrid');
 				}
@@ -94,8 +94,8 @@
 		editor:new Ext.form.TextField({
 			maxLength:1
 		})}, field:{name:'fun_event__access_key',type:'string'}},
-	{col:{header:'功能ID', width:100, sortable:true, hidden:true}, field:{name:'fun_event__fun_id',type:'string'}},
-	{col:{header:'事件ID', width:100, sortable:true, hidden:true}, field:{name:'fun_event__event_id',type:'string'}}
+	{col:{header:'功能ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'fun_event__fun_id',type:'string'}},
+	{col:{header:'事件ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'fun_event__event_id',type:'string'}}
 	];
 	
 	config.param = {
