@@ -108,6 +108,86 @@ JxMenu = {};
 			oneMenuItems[m+1] = {id:'menu_logout', text:'退出', baseCls:'x-plain', iconCls:'eb_logout', handler:JxUtil.logout};
 			
 			return oneMenuItems;
+		},
+		
+		/**
+		* public 创建TOP菜单的代理工作连接
+		* ctl -- 显示代理工作连接的控件
+		*/
+		showProxy: function(ctl) {
+			var userid = Jxstar.session['user_id'];
+			//当前日期-1天
+			var ed = (new Date()).add(Date.DAY, -1).format('Y-m-d');
+			
+			var hdCall = function(data) {
+				if (data.total == 0) return; 
+				//显示符合条件的数据
+				var hdcall = function(grid) {
+					var options = {
+						where_sql: 'auditing=1 and user_id = ? and end_date > ?',
+						where_type: 'string;date',
+						where_value: userid+';'+ed
+					};
+					Jxstar.loadData(grid, options);
+				};
+				var define = Jxstar.findNode('sys_proxy_sel');
+				Jxstar.showData({
+					filename: define.gridpage,
+					title: define.nodetitle,
+					pagetype: 'selgrid',
+					width: 600,
+					height: 300,
+					callback: hdcall
+				});
+			};
+			
+			var params = 'eventcode=query_data&funid=queryevent&pagetype=grid'+
+						'&query_funid=sys_proxy&where_sql=auditing=1 and user_id = ? and end_date > ?'+
+						'&where_type=string;date&where_value='+userid+';'+ed;
+			Request.dataRequest(params, hdCall);
+		},
+		
+		/**
+		* public 进入代理工作或退出代理工作
+		* to_userid -- 被代理人ID
+		* proxy_userid -- 当前用户ID
+		* isin -- 是否进入代理：1 进入, 0 退出
+		*/
+		loginProxy: function(to_userid, proxy_userid, isin) {
+			var login_url = Jxstar.path + '/public/core/workproxy.jsp?proxy_in='+ isin 
+				+'&to_userid=' + to_userid + '&proxy_userid=' + proxy_userid;
+			alert(login_url);
+			//代理登陆成功
+			var f_success = function(data) {
+				//销毁原主界面对象
+				Jxstar.viewport.destroy();
+				Jxstar.viewport = null;
+				
+				//保留原来的一些会话信息
+				Jxstar.session = Ext.apply(Jxstar.session, data);
+				alert(Ext.encode(Jxstar.session));
+				Request.loadJS('/public/core/JxBody.js');
+			};
+			
+			Ext.Ajax.request({
+				method: 'POST',
+				url: login_url,
+				success: function(response) {
+					var result = Ext.decode(response.responseText);
+					if (result.success == true || result.success == 'true') {
+						JxHint.hint('执行成功：' + result.message);
+
+						//成功执行后重新打开系统主页面
+						f_success(result.data);
+					} else {
+						var msg = result.message;
+						JxHint.alert('执行失败：' + msg);
+					}
+				},
+				failure: function(response) {
+					JxUtil.errorResponse(response);
+				}
+			});
 		}
 	
 	});//Ext.apply

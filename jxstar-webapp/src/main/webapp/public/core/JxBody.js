@@ -121,6 +121,8 @@
 			layout:'border',
 			items:[topPanel, sysMainTab]
 		});
+		//方便在代理工作切换时销毁此对象
+		Jxstar.viewport = viewport;
 		
 		//创建头部的菜单，main_menu是显示菜单的DIV标示
 		JxMenu.createMainMenu('main_menu');
@@ -217,6 +219,8 @@
 			layout:'border',
 			items:[topPanel, treeMenu, sysMainTab]
 		});
+		//方便在代理工作切换时销毁此对象
+		Jxstar.viewport = viewport;
 	}
 
 	//创建protel功能界面
@@ -252,6 +256,9 @@
 	};
 
 	sysMainTab.doLayout();
+	
+	//显示代理工作连接
+	JxMenu.showProxy();
 	
 	//启动会话效验
 	SessionTimer.SESSION_TIMEOUT = Jxstar.session.maxInterval;
