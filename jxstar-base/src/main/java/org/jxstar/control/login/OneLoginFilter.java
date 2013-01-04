@@ -78,13 +78,14 @@ public class OneLoginFilter implements Filter {
 		}
 		
 		//判断当前用户名是否已经登录，如果没有登录则创建登录信息
-		OneLoginBO login = new OneLoginBO();
-		Map<String,String> mpUser = login.getUserMap(userCode);
+		Map<String,String> mpUser = OneLoginUtil.getUserMap(userCode);
 		if (mpUser == null || mpUser.isEmpty()) {
-			String msg = login.getMessage();
-			resp.sendError(401, "单点访问失败："+ msg +"！");
+			resp.sendError(401, "单点访问失败：取不到用户信息或者没有配置角色！");
 			return;
 		}
+		
+		//添加组织机构信息
+		mpUser = OneLoginUtil.addOrgData(mpUser);
 		
 		if (processLogin != null) {
 			//添加更多的用户信息
