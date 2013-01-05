@@ -243,6 +243,7 @@ td.ux-grid-hd-group-cell {/* ux.ColumnHeaderGroup */
 .top_btn_set{background-image:url( ../images/icons/button/btn_set.gif) !important;}
 .top_btn_signout{background-image:url( ../images/icons/button/btn_signout.gif) !important;}
 .top_btn_help{background-image:url( ../images/icons/button/btn_help.gif) !important;}
+.top_btn_proxy{background-image:url( ../images/icons/fam/nav_flow.gif) !important;}
 
 .tree_root_ext{background-image:url( ../images/icons/button/treeroot_ext.gif) !important;}
 .tree_root{background-image:url( ../images/icons/button/treeroot.gif) !important;}

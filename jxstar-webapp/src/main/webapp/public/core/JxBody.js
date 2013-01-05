@@ -18,9 +18,17 @@
 	var menuPos = Jxstar.systemVar.index__menu__pos;
 	var btnHtml = '', hintHtml = '';
 	
+	//欢迎提示信息
+	var welcome = jx.base.welcome + ' ' + JxDefault.getUserName() +' ['+ JxDefault.getDeptName() +']';
+	//处理工作代理
+	var proxyuser = Jxstar.session['proxy_user_name'];
+	if (proxyuser) {
+		welcome += '('+ proxyuser +'-代理)';
+	}
+	
 	//构建顶部的管理按钮
 	var chgcolor = 'onmouseover="this.style.color=\'#ff9900\';" onmouseout="this.style.color=\'#ffffff\';" class="top-menu-text"';
-	var shint = '<div class="top_south" id="main_hint">' + jx.base.welcome + ' ' + JxDefault.getUserName() +' ['+ JxDefault.getDeptName() +']</div>';
+	var shint = '<div class="top_south" id="main_hint">' + welcome +'</div>';
 	if (menuPos && menuPos == 'top') {
 		hintHtml = shint;
 	} else {
@@ -29,7 +37,7 @@
 		'<tr><td>' + 
 		shint +
 		'</td></tr>' + 
-		'<tr><td>' +
+		'<tr><td id="top_btn_td">' +
 		'<span class="top-menu-img eb_pass"></span><a href="#" '+ chgcolor +' onclick="JxUtil.setPass(JxDefault.getUserId());">修改密码</a>' +
 		'<span class="top-menu-img eb_online"></span><a href="#" '+ chgcolor +' onclick="JxUtil.onLineUser();">在线用户</a>' +
 		'<span class="top-menu-img eb_logout"></span><a href="#" '+ chgcolor +' onclick="JxUtil.logout();">退出系统</a>' +

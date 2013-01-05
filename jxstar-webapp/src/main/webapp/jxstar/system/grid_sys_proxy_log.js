@@ -4,7 +4,7 @@
 	var cols = [
 	{col:{header:'操作时间', width:173, sortable:true, align:'center',
 		renderer:function(value) {
-			return value ? value.format('Y-m-d') : '';
+			return value ? value.format('Y-m-d H:i:s') : '';
 		}}, field:{name:'sys_proxy_log__log_date',type:'date'}},
 	{col:{header:'代理人账号', width:100, sortable:true}, field:{name:'sys_proxy_log__user_code',type:'string'}},
 	{col:{header:'代理人', width:100, sortable:true}, field:{name:'sys_proxy_log__user_name',type:'string'}},

@@ -42,6 +42,9 @@ JxMenu = {};
 					renderTo : targetId,
 					items: panelItems
 				});
+				
+				//保留顶部菜单，方便创建代理菜单
+				Jxstar.topMenu = topMenu;
 			};
 
 			var params = 'funid=queryevent&eventcode=query_menu';
@@ -112,17 +115,22 @@ JxMenu = {};
 		
 		/**
 		* public 创建TOP菜单的代理工作连接
-		* ctl -- 显示代理工作连接的控件
 		*/
-		showProxy: function(ctl) {
-			var userid = Jxstar.session['user_id'];
-			//当前日期-1天
-			var ed = (new Date()).add(Date.DAY, -1).format('Y-m-d');
+		showProxy: function() {
+			//如果当前是代理状态，则显示退出代理的链接
+			var proxy_id = Jxstar.session['proxy_id'];
+			if (proxy_id) {
+				JxMenu.showOutProxy();
+				return;
+			}
 			
-			var hdCall = function(data) {
-				if (data.total == 0) return; 
-				//显示符合条件的数据
+			//显示代理设置的对话框
+			var showWin = function() {
 				var hdcall = function(grid) {
+					//当前用户ID与当前日期-1天
+					var userid = Jxstar.session['user_id'];
+					var ed = (new Date()).add(Date.DAY, -1).format('Y-m-d');
+					
 					var options = {
 						where_sql: 'auditing=1 and user_id = ? and end_date > ?',
 						where_type: 'string;date',
@@ -141,6 +149,38 @@ JxMenu = {};
 				});
 			};
 			
+			var hdCall = function(data) {
+				if (data.total == 0) return;
+				//菜单显示位置
+				var menuPos = Jxstar.systemVar.index__menu__pos;
+				//显示代理工作的链接或菜单
+				if (menuPos && menuPos == 'top') {
+					//等待菜单加载完成后才执行
+					var fn = function(){
+						if (Jxstar.topMenu) {
+							//不能用Ext.getCmp()的方式获取控件，会造成进入代理界面后不能显示"其它"菜单了。
+							var otherMenu = Jxstar.topMenu.getComponent('menu_sys_other');
+							otherMenu.menu.add({id:'menu_in_proxy', iconCls:'top_btn_proxy', text:'代理工作', handler:showWin});
+						} else {
+							JxUtil.delay(500, fn);
+						}
+					};
+					fn();
+				} else {
+					var topPanel = Jxstar.viewport.getComponent(0);
+					var topBtnTd = topPanel.getEl().query('#top_btn_td');
+					var chgcolor = 'onmouseover="this.style.color=\'#ff9900\';" onmouseout="this.style.color=\'#ffffff\';" class="top-menu-text"';
+					if (topBtnTd.length > 0) {
+						var html = '<span><span class="top-menu-img top_btn_proxy"></span><a href="#" '+ chgcolor +' >代理工作</a></span>';
+						var btn = Ext.get(topBtnTd[0]).insertHtml('afterBegin', html, true);
+						btn.on('click', showWin);
+					}
+				}
+			};
+			
+			//当前用户ID与当前日期-1天
+			var userid = Jxstar.session['user_id'];
+			var ed = (new Date()).add(Date.DAY, -1).format('Y-m-d');
 			var params = 'eventcode=query_data&funid=queryevent&pagetype=grid'+
 						'&query_funid=sys_proxy&where_sql=auditing=1 and user_id = ? and end_date > ?'+
 						'&where_type=string;date&where_value='+userid+';'+ed;
@@ -148,24 +188,75 @@ JxMenu = {};
 		},
 		
 		/**
+		* public 创建TOP菜单的退出代理工作连接
+		*/
+		showOutProxy: function() {
+			var proxy_id = Jxstar.session['proxy_id'];
+			var to_userid = Jxstar.session['user_id'];
+			var proxy_userid = Jxstar.session['proxy_user_id'];
+			//退出代理
+			var outfn = function(){
+				JxMenu.loginProxy(to_userid, proxy_userid, '0', proxy_id);
+			};
+			
+			//菜单显示位置
+			var menuPos = Jxstar.systemVar.index__menu__pos;
+			//显示代理工作的链接或菜单
+			if (menuPos && menuPos == 'top') {
+				//等待菜单加载完成后才执行
+				var fn = function(){
+					if (Jxstar.topMenu) {
+						//不能用Ext.getCmp()的方式获取控件，会造成进入代理界面后不能显示"其它"菜单了。
+						var otherMenu = Jxstar.topMenu.getComponent('menu_sys_other');
+						otherMenu.menu.add({id:'menu_out_proxy', iconCls:'eb_audit_back', text:'退出代理', handler:outfn});
+					} else {
+						JxUtil.delay(500, fn);
+					}
+				};
+				fn();
+			} else {
+				var topPanel = Jxstar.viewport.getComponent(0);
+				var topBtnTd = topPanel.getEl().query('#top_btn_td');
+				var chgcolor = 'onmouseover="this.style.color=\'#ff9900\';" onmouseout="this.style.color=\'#ffffff\';" class="top-menu-text"';
+				if (topBtnTd.length > 0 && proxy_id) {
+					var html = '<span><span class="top-menu-img eb_audit_back"></span><a href="#" '+ chgcolor +' >退出代理</a></span>';
+					var btn = Ext.get(topBtnTd[0]).insertHtml('afterBegin', html, true);
+					btn.on('click', outfn);
+				}
+			}
+		},
+		
+		/**
 		* public 进入代理工作或退出代理工作
 		* to_userid -- 被代理人ID
 		* proxy_userid -- 当前用户ID
 		* isin -- 是否进入代理：1 进入, 0 退出
+		* proxy_id -- 如果是退出代理，则需要此值
 		*/
-		loginProxy: function(to_userid, proxy_userid, isin) {
+		loginProxy: function(to_userid, proxy_userid, isin, proxy_id) {
 			var login_url = Jxstar.path + '/public/core/workproxy.jsp?proxy_in='+ isin 
 				+'&to_userid=' + to_userid + '&proxy_userid=' + proxy_userid;
-			alert(login_url);
+			if (proxy_id) {
+				login_url += '&proxy_id=' + proxy_id;
+			}
 			//代理登陆成功
 			var f_success = function(data) {
+				//销毁菜单对象
+				if (Jxstar.topMenu) {
+					Jxstar.topMenu.destroy();
+					Jxstar.topMenu = null;
+				}
+				
 				//销毁原主界面对象
 				Jxstar.viewport.destroy();
 				Jxstar.viewport = null;
 				
+				
 				//保留原来的一些会话信息
-				Jxstar.session = Ext.apply(Jxstar.session, data);
-				alert(Ext.encode(Jxstar.session));
+				data.maxInterval = Jxstar.session.maxInterval;
+				data.sessionId = Jxstar.session.sessionId;
+				Jxstar.session = data;
+				
 				Request.loadJS('/public/core/JxBody.js');
 			};
 			
