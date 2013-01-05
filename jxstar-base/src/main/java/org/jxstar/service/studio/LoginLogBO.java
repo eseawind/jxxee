@@ -70,6 +70,11 @@ public class LoginLogBO extends BusinessObject {
 		
 		//删除当前用户与修改退出日志
 		logout(userId, sessionId);
+		//如果是代理用户，则删除代理用户的登录信息
+		String proxyUserId = MapUtil.getValue(mpUser, "proxy_user_id");
+		if (proxyUserId.length() > 0) {
+			logout(proxyUserId, sessionId);
+		}
 		
 		return _returnSuccess;
 	}
