@@ -184,6 +184,8 @@ public class PooledConnection {
 			ds.setTestOnReturn(true);
 			ds.setTestWhileIdle(true);
 			ds.setValidationQuery(validQuery);
+			//设置检查SQL执行超时5秒
+			ds.setValidationQueryTimeout(5);
 		}
 		
 		//保存该数据源
