@@ -8,12 +8,10 @@ package org.jxstar.service.rule;
 
 import java.util.Map;
 
-
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.DefineDataManger;
 import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.resource.JsMessage;
-import org.jxstar.util.resource.JsParam;
 
 /**
  * SQL规则执行事件。

@@ -13,8 +13,6 @@ import org.jxstar.service.util.SysUserUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.config.SystemVar;
 import org.jxstar.util.factory.FactoryUtil;
-import org.jxstar.util.log.Log;
-import org.jxstar.util.resource.JsMessage;
 
 /**
  * 单点登录的工具类。
