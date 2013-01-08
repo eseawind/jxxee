@@ -9,6 +9,7 @@ package org.jxstar.dao.pool;
 import java.util.List;
 import java.util.Map;
 
+import org.jxstar.util.MapUtil;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.log.Log;
 
@@ -64,6 +65,8 @@ public class DataSourceConfigManager {
 			dsc.setDataSourceType(mpDs.get("datasourcetype"));
 			dsc.setJndiName(mpDs.get("jndiname"));	
 			dsc.setDbmsType(mpDs.get("dbmstype"));
+			dsc.setValidTest(MapUtil.getValue(mpDs,  "validtest"));
+			dsc.setValidQuery(MapUtil.getValue(mpDs, "validquery"));
 			//_log.showDebug("数据源: " + dsc.toString());
 			
 			_dsConfigMap.put(dsc.getDataSourceName(), dsc);

@@ -48,7 +48,11 @@ public class DataSourceConfig {
 	//获取连接的事务级别
 	private String tranLevel;
 	//数据库类型
-	private String dbmsType;	
+	private String dbmsType;
+	//是否检查连接有效性
+	private String validTest;
+	//检查连接有效性的SQL
+	private String validQuery;
 	
 	public String toString() {
 		StringBuilder sbDBS = new StringBuilder("\n\t");
@@ -62,7 +66,9 @@ public class DataSourceConfig {
 			sbDBS.append("maxWaitTime:" + maxWaitTime + "\n\t");
 			sbDBS.append("tranLevel:" + tranLevel + "\n\t");
 			sbDBS.append("jndiName:" + jndiName + "\n\t");
-			sbDBS.append("dbmsType:" + dbmsType);
+			sbDBS.append("dbmsType:" + dbmsType + "\n\t");
+			sbDBS.append("validTest:" + validTest + "\n\t");
+			sbDBS.append("validQuery:" + validQuery);
 		
 		return sbDBS.toString();
 	}
@@ -179,5 +185,21 @@ public class DataSourceConfig {
 
 	public void setSchemaName(String schemaName) {
 		this.schemaName = schemaName;
+	}
+	
+	public String getValidTest() {
+		return validTest;
+	}
+
+	public void setValidTest(String validTest) {
+		this.validTest = validTest;
+	}
+
+	public String getValidQuery() {
+		return validQuery;
+	}
+
+	public void setValidQuery(String validQuery) {
+		this.validQuery = validQuery;
 	}
 }

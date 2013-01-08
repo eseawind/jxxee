@@ -16,8 +16,6 @@ import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
-
-import org.jxstar.util.config.SystemVar;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.log.Log;
 
@@ -176,15 +174,16 @@ public class PooledConnection {
 		ds.setDefaultAutoCommit(false);
 		ds.setDefaultTransactionIsolation(iTranLevel);
 		
-		//是否在取数据库连接时做数据库校验
-		String isValidQuery = SystemVar.getValue("db.validquery.use");
-		String querySql = SystemVar.getValue("db.validquery.sql");
-		if (isValidQuery.equals("1") && querySql.length() > 0) {
+		//取缺省数据源时SystemVar还没有值，所以在server.xml中取值
+		String validTest = dsConfig.getValidTest();
+		String validQuery = dsConfig.getValidQuery();
+		_log.showDebug("...... pool test valid:" + validTest + ";" + validQuery);
+		if (validTest.equalsIgnoreCase("true") && validQuery.length() > 0) {
+			_log.showDebug("...... pool test valid true");
 			ds.setTestOnBorrow(true);
 			ds.setTestOnReturn(true);
 			ds.setTestWhileIdle(true);
-			ds.setValidationQuery(querySql);
-			ds.setValidationQueryTimeout(3);
+			ds.setValidationQuery(validQuery);
 		}
 		
 		//保存该数据源
