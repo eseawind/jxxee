@@ -10,6 +10,8 @@
 			<password memo="数据库密码">jxstar</password>
 			<maxconnum memo="最大连接数">50</maxconnum>
 			<maxwaittime memo="最大等待时间,ms">5000</maxwaittime>
+			<validtest memo="是否检查连接有效性:[true|false]">false</validtest>
+			<validquery memo="检查连接有效性的SQL">select count(*) from fun_base</validquery>
 			<datasourcetype memo="数据源来源:[self|context],前者表示采用自带数据源,后者表示采用服务器数据源">self</datasourcetype>
 			<jndiname memo="服务器数据源的JNDI名称,如: jdbc/default">jdbc/default</jndiname>
 			<dbmstype memo="数据库类型">oracle</dbmstype>
@@ -23,6 +25,8 @@
 			<password memo="数据库密码">888</password>
 			<maxconnum memo="最大连接数">50</maxconnum>
 			<maxwaittime memo="最大等待时间,ms">5000</maxwaittime>
+			<validtest memo="是否检查连接有效性:[true|false]">true</validtest>
+			<validquery memo="检查连接有效性的SQL">select count(*) from fun_base</validquery>
 			<datasourcetype memo="数据源来源:[self|context],前者表示采用自带数据源,后者表示采用服务器数据源">self</datasourcetype>
 			<datasourceprefix memo="服务器数据源的JNDI名称,如: jdbc/default">jdbc/default</datasourceprefix>
 			<dbmstype memo="数据库类型">mysql</dbmstype>
@@ -36,6 +40,8 @@
 			<password memo="数据库密码">888</password>
 			<maxconnum memo="最大连接数">50</maxconnum>
 			<maxwaittime memo="最大等待时间,ms">5000</maxwaittime>
+			<validtest memo="是否检查连接有效性:[true|false]">false</validtest>
+			<validquery memo="检查连接有效性的SQL">select count(*) from fun_base</validquery>
 			<datasourcetype memo="数据源来源:[self|context],前者表示采用自带数据源,后者表示采用服务器数据源">self</datasourcetype>
 			<datasourceprefix memo="服务器数据源的JNDI名称,如: jdbc/default">jdbc/default</datasourceprefix>
 			<dbmstype memo="数据库类型">sqlserver</dbmstype>
