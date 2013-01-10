@@ -31,16 +31,19 @@ Ext.apply(JxWfGraph, {
 		var tabid = 'wfnav_graph_fun_tab';
 		var wfnavTab = mainTab.getComponent(tabid);
 		
+		var title = graphTitle||'流程导航图';
 		if (wfnavTab == null) {
 			wfnavTab = mainTab.add({
 				id: tabid,
-				title: graphTitle||'流程导航图',
+				title: title,
 				border: false,
 				layout: 'fit',
 				closable: true,
 				autoScroll: true,
 				iconCls: 'function'
 			});
+		} else {
+			wfnavTab.setTitle(title);
 		}
 		mainTab.activate(wfnavTab);
 		//然后显示导航流程图
