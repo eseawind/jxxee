@@ -53,6 +53,8 @@ public class DataSourceConfig {
 	private String validTest;
 	//检查连接有效性的SQL
 	private String validQuery;
+	//启用检查空闲连接的线程
+	private String validIdle;
 	
 	public String toString() {
 		StringBuilder sbDBS = new StringBuilder("\n\t");
@@ -67,6 +69,7 @@ public class DataSourceConfig {
 			sbDBS.append("tranLevel:" + tranLevel + "\n\t");
 			sbDBS.append("jndiName:" + jndiName + "\n\t");
 			sbDBS.append("dbmsType:" + dbmsType + "\n\t");
+			sbDBS.append("validIdle:" + validIdle + "\n\t");
 			sbDBS.append("validTest:" + validTest + "\n\t");
 			sbDBS.append("validQuery:" + validQuery);
 		
@@ -201,5 +204,13 @@ public class DataSourceConfig {
 
 	public void setValidQuery(String validQuery) {
 		this.validQuery = validQuery;
+	}
+	
+	public String getValidIdle() {
+		return validIdle;
+	}
+
+	public void setValidIdle(String validIdle) {
+		this.validIdle = validIdle;
 	}
 }

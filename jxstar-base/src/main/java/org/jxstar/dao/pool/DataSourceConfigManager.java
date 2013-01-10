@@ -65,6 +65,7 @@ public class DataSourceConfigManager {
 			dsc.setDataSourceType(mpDs.get("datasourcetype"));
 			dsc.setJndiName(mpDs.get("jndiname"));	
 			dsc.setDbmsType(mpDs.get("dbmstype"));
+			dsc.setValidIdle(MapUtil.getValue(mpDs,  "valididle"));
 			dsc.setValidTest(MapUtil.getValue(mpDs,  "validtest"));
 			dsc.setValidQuery(MapUtil.getValue(mpDs, "validquery"));
 			//_log.showDebug("数据源: " + dsc.toString());

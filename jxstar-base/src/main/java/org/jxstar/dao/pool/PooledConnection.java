@@ -177,15 +177,23 @@ public class PooledConnection {
 		//取缺省数据源时SystemVar还没有值，所以在server.xml中取值
 		String validTest = dsConfig.getValidTest();
 		String validQuery = dsConfig.getValidQuery();
-		_log.showDebug("...... pool test valid:" + validTest + ";" + validQuery);
+		_log.showDebug("...... pool test:" + validTest + ";" + validQuery);
 		if (validTest.equalsIgnoreCase("true") && validQuery.length() > 0) {
-			_log.showDebug("...... pool test valid true");
+			_log.showDebug("...... pool test use query");
 			ds.setTestOnBorrow(true);
 			ds.setTestOnReturn(true);
 			ds.setTestWhileIdle(true);
 			ds.setValidationQuery(validQuery);
 			//设置检查SQL执行超时5秒
 			ds.setValidationQueryTimeout(5);
+		}
+		
+		//MySql5.5中检查还是出现连接失效问题，则启用下面的检查空闲线程
+		if (dsConfig.getValidIdle().equalsIgnoreCase("true")) {
+			_log.showDebug("...... pool idle valid thread started");
+			ds.setMaxIdle(5);
+			ds.setMinEvictableIdleTimeMillis(2*60*1000);
+			ds.setTimeBetweenEvictionRunsMillis(5*60*1000);
 		}
 		
 		//保存该数据源
