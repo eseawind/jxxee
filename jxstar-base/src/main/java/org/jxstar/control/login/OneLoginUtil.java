@@ -43,6 +43,8 @@ public class OneLoginUtil {
 	 */
 	public static Map<String,String> addOrgData(Map<String,String> mpUser) {
 		Map<String,String> retData = FactoryUtil.newMap();
+		//把原值都复制过来
+		retData.putAll(mpUser);
 		
 		String deptId = MapUtil.getValue(mpUser, "dept_id");
 		if (deptId.length() < 4) return retData;
