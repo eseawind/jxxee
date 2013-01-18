@@ -6,6 +6,7 @@
  */
 package org.jxstar.service.rule;
 
+import java.util.List;
 import java.util.Map;
 
 import org.jxstar.service.BusinessObject;
@@ -54,10 +55,8 @@ public class SqlRuleBO extends BusinessObject {
 			return _returnFaild;
 		}
 		
-		//目标功能的子功能ID
-		DefineDataManger manger = DefineDataManger.getInstance();
-		Map<String,String> destDefine = manger.getFunData(destFunId);
-		String[] subFunIds = destDefine.get("subfun_id").split(",");
+		//除第一条SQL外的语句
+		List<Map<String, String>> lsOther = _ruleUtil.queryOtherRule(routeId);
 		
 		//保存新的记录ID返回前台
 		StringBuilder sbkeyid = new StringBuilder();
@@ -77,22 +76,16 @@ public class SqlRuleBO extends BusinessObject {
 			}
 			sbkeyid.append("{impKeyId:'"+ selKeyId[i] +"'"+", newKeyId:'"+ newKeyId +"'},");
 			
-			//如果没有子功能，则不用处理
-			if (subFunIds.length == 0) continue;
+			//如果没有其它反馈SQL，则不处理
+			if (lsOther.isEmpty()) continue;
 			
-			//新的外键值
+			//新的外键值，一般只有一条
 			String[] newKeyIds = newKeyId.split(";");
-			//导入子表数据
+			//继续执行其它反馈SQL
 			for (int j = 0, m = newKeyIds.length; j < m; j++) {
-				for (int k = 0, p = subFunIds.length; k < p; k++) {
-					_log.showDebug("------------sql rule import subdata: srcFunId=" + srcFunId + "; tagFunId=" + subFunIds[k]);
-					//来源功能ID只是用来取数据源名，子表也采用父表的数据源
-					String newSubId = _ruleUtil.exeInsert(srcFunId, subFunIds[k], 
-						selKeyId[i], newKeyIds[j], routeId, userInfo);
-					if (newSubId.equals("false")) {
-						setMessage(JsMessage.getValue("sqlrulebo.suberror"), subFunIds[k]);
-						return _returnFaild;
-					}
+				if (!_ruleUtil.exeUpdate(lsOther, selKeyId[i], userInfo, newKeyIds[j])) {
+					setMessage(JsMessage.getValue("sqlrulebo.updateerror"));
+					return _returnFaild;
 				}
 			}
 		}

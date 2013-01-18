@@ -11,11 +11,11 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.service.control.ControlerUtil;
 import org.jxstar.service.define.DefineDataManger;
+import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.key.CodeCreator;
 import org.jxstar.util.key.KeyCreator;
 import org.jxstar.util.log.Log;
@@ -161,7 +161,7 @@ public class RuleUtil {
 	}
 	
 	/**
-	 * 执行事件触发的SQL规则定义。
+	 * 执行事件触发的反馈SQL规则定义。
 	 * @param funId -- 触发功能ID
 	 * @param selKeyId -- 选择的记录ID
 	 * @param eventCode -- 事件代号
@@ -176,6 +176,19 @@ public class RuleUtil {
 			return true; 
 		}
 		
+		return exeUpdate(lsRule, selKeyId, userInfo, "");
+	}
+	
+	/**
+	 * 执行定义的SQL
+	 * @param lsRule -- 需要执行反馈SQL
+	 * @param selKeyId -- 选择的记录ID
+	 * @param userInfo -- 当前用户信息
+	 * @param forKeyId -- 外键值
+	 * @return
+	 */
+	public boolean exeUpdate(List<Map<String, String>> lsRule, String selKeyId, 
+			Map<String,String> userInfo, String forKeyId) {
 		for (int j = 0, m = lsRule.size(); j < m; j++) {
 			Map<String, String> mpRule = lsRule.get(j);
 			
@@ -210,6 +223,8 @@ public class RuleUtil {
 			
 			//解析目标SQL中的常量
 			destSql = parseConstant(destSql, userInfo);
+			//解析目标SQL中的外键值
+			destSql = destSql.replaceFirst(FKEYID_REGEX, addChar(forKeyId));
 			String baseSql = new String(destSql);
 			//新增记录
 			for (int i = 0, n = srcListData.size(); i < n; i++) {
@@ -291,6 +306,26 @@ public class RuleUtil {
 		param.addStringValue(routeId);
 		param.addStringValue(destFunId);
 		return _dao.queryMap(param);
+	}
+	
+	/**
+	 * 取该路由条件下的其它SQL，第一条不要
+	 * @return
+	 */
+	public List<Map<String, String>> queryOtherRule(String routeId) {
+		List<Map<String, String>> lsRet = FactoryUtil.newList(); 
+		String sql = "select rule_id, src_sql, dest_sql from fun_rule_sql " +
+			"where route_id = ? and event_code like '%,import,%' order by sql_no";
+		
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(routeId);
+		List<Map<String, String>> lsQry = _dao.query(param);
+		if (lsQry.isEmpty()) {
+			return lsRet;
+		} else {
+			lsQry.remove(0);
+			return lsQry;
+		}
 	}
 	
 	/**
