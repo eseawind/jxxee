@@ -162,38 +162,42 @@ public class PooledConnection {
 		
 		ds = new BasicDataSource();
 		//取数据源设置的事务级别
-		int iTranLevel = getTranLevelConstant(dsConfig.getTranLevel());		
+		int iTranLevel = getTranLevelConstant(dsConfig.getTranLevel());
+		int maxnum = Integer.parseInt(dsConfig.getMaxConNum());
 		
 		ds.setDriverClassName(dsConfig.getDriverClass());
 		ds.setUrl(dsConfig.getJdbcUrl());
 		ds.setUsername(dsConfig.getUserName());
 		ds.setPassword(dsConfig.getPassWord());
 
-		ds.setMaxActive(Integer.parseInt(dsConfig.getMaxConNum()));
+		ds.setMaxIdle(maxnum);
+		ds.setMaxActive(maxnum);
 		ds.setMaxWait(Long.parseLong(dsConfig.getMaxWaitTime()));
 		ds.setDefaultAutoCommit(false);
 		ds.setDefaultTransactionIsolation(iTranLevel);
 		
-		//取缺省数据源时SystemVar还没有值，所以在server.xml中取值
+		//取缺省数据源时SystemVar还没有值，所以从server.xml中取值
 		String validTest = dsConfig.getValidTest();
 		String validQuery = dsConfig.getValidQuery();
-		_log.showDebug("...... pool test:" + validTest + ";" + validQuery);
-		if (validTest.equalsIgnoreCase("true") && validQuery.length() > 0) {
+		if (validTest.equalsIgnoreCase("true")) {
 			_log.showDebug("...... pool test use query");
 			ds.setTestOnBorrow(true);
-			ds.setTestOnReturn(true);
-			ds.setTestWhileIdle(true);
+		}
+		if (validQuery.length() > 0) {
 			ds.setValidationQuery(validQuery);
-			//设置检查SQL执行超时5秒
-			ds.setValidationQueryTimeout(5);
+			ds.setValidationQueryTimeout(3);
 		}
 		
-		//MySql5.5中检查还是出现连接失效问题，则启用下面的检查空闲线程
+		//启用线程检查，mysql在数据库端会过期关闭连接可以启用
+		//开启此配置可以实现断开的连接自动恢复的效果
 		if (dsConfig.getValidIdle().equalsIgnoreCase("true")) {
 			_log.showDebug("...... pool idle valid thread started");
-			ds.setMaxIdle(5);
-			ds.setMinEvictableIdleTimeMillis(2*60*1000);
-			ds.setTimeBetweenEvictionRunsMillis(5*60*1000);
+			ds.setMinIdle(5);
+			ds.setTestWhileIdle(true);
+			
+			//10分钟检查一次，空闲30分钟的连接被释放，保留5个空闲连接
+			ds.setMinEvictableIdleTimeMillis(30*60*1000);//30 minus
+			ds.setTimeBetweenEvictionRunsMillis(10*60*1000);//10 minus
 		}
 		
 		//保存该数据源
@@ -243,7 +247,7 @@ public class PooledConnection {
 	}
 
 	/**
-	 * 多次获取数据库连接
+	 * 多次获取数据库连接，避免有效连接数据库端已经断了
 	 * @param conn
 	 * @param ds
 	 * 
@@ -253,7 +257,7 @@ public class PooledConnection {
 		if (ds == null) return null;
 
 		try{
-			for (int i = 0; (conn == null) && (i < 5); i++) {
+			for (int i = 0; (conn == null || conn.isClosed()) && (i < 5); i++) {
 				try {
 					Thread.sleep(500);
 				} catch (InterruptedException e) {

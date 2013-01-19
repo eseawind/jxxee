@@ -273,6 +273,9 @@ public class BaseDao {
 			
 			//结果集转换为List对象
 			lsRet = DaoUtil.getRsToList(rs, recNum);
+			
+			//如果不执行提交方法，在非事务环境中会存在连接泄露
+			tranObj.commit();
 		} catch(SQLException e) {
 			DaoUtil.closeTranObj(tranObj);
 			DaoUtil.showException(e, sql);
