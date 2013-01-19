@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.jxstar.service.BusinessObject;
-import org.jxstar.service.define.DefineDataManger;
 import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.resource.JsMessage;
 
@@ -54,9 +53,18 @@ public class SqlRuleBO extends BusinessObject {
 			setMessage(JsMessage.getValue("sqlrulebo.routenull"));
 			return _returnFaild;
 		}
+		_log.showDebug("============sql rule routeId=" + routeId);
 		
-		//除第一条SQL外的语句
+		//取导入SQL定义，如果没有定义则不处理
+		Map<String, String> mpRule = _ruleUtil.queryRule(routeId, destFunId);
+		if (mpRule.isEmpty()) {
+			setMessage(JsMessage.getValue("sqlrulebo.mainnorule"), destFunId);
+			return _returnFaild;
+		}
+		
+		//取除第一条SQL外的语句
 		List<Map<String, String>> lsOther = _ruleUtil.queryOtherRule(routeId);
+		_log.showDebug("============other sql size=" + lsOther.size());
 		
 		//保存新的记录ID返回前台
 		StringBuilder sbkeyid = new StringBuilder();
@@ -64,12 +72,7 @@ public class SqlRuleBO extends BusinessObject {
 		//执行数据导入
 		for (int i = 0, n = selKeyId.length; i < n; i++) {
 			//执行主表数据导入，返回新增的记录主键ID
-			String newKeyId = _ruleUtil.exeInsert(srcFunId, destFunId, 
-					selKeyId[i], forKeyId, routeId, userInfo);
-			if (newKeyId.equals("true")) {
-				setMessage(JsMessage.getValue("sqlrulebo.mainnorule"), destFunId);
-				return _returnFaild;
-			}
+			String newKeyId = _ruleUtil.exeInsert(mpRule, selKeyId[i], forKeyId, userInfo);
 			if (newKeyId.equals("false")) {
 				setMessage(JsMessage.getValue("sqlrulebo.mainerror"), destFunId);
 				return _returnFaild;
@@ -79,15 +82,17 @@ public class SqlRuleBO extends BusinessObject {
 			//如果没有其它反馈SQL，则不处理
 			if (lsOther.isEmpty()) continue;
 			
+			_log.showDebug("============start execute import event other sql");
 			//新的外键值，一般只有一条
 			String[] newKeyIds = newKeyId.split(";");
 			//继续执行其它反馈SQL
 			for (int j = 0, m = newKeyIds.length; j < m; j++) {
-				if (!_ruleUtil.exeUpdate(lsOther, selKeyId[i], userInfo, newKeyIds[j])) {
+				if (!_ruleUtil.exeUpdate(lsOther, selKeyId[i], newKeyIds[j], userInfo)) {
 					setMessage(JsMessage.getValue("sqlrulebo.updateerror"));
 					return _returnFaild;
 				}
 			}
+			_log.showDebug("============end execute import event other sql\r\n");
 		}
 		//把新增主键值返回到前台
 		String json = "[]";
@@ -118,8 +123,14 @@ public class SqlRuleBO extends BusinessObject {
 		}
 		_log.showDebug("------------sql rule update param funid="+funId+" eventcode="+eventCode+" selkeyid="+ArrayUtil.arrayToString(selKeyId));
 		
+		List<Map<String, String>> lsRule = _ruleUtil.queryUpdateRule(funId, eventCode);
+		if (lsRule.isEmpty()) {
+			_log.showDebug("------------not rule define update sql!");
+			return _returnSuccess; 
+		}
+		
 		for (int i = 0, n = selKeyId.length; i < n; i++) {
-			if (!_ruleUtil.exeUpdate(funId, selKeyId[i], eventCode, userInfo)) {
+			if (!_ruleUtil.exeUpdate(lsRule, selKeyId[i], "", userInfo)) {
 				setMessage(JsMessage.getValue("sqlrulebo.updateerror"));
 				return _returnFaild;
 			}

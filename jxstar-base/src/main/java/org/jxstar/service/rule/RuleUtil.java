@@ -15,6 +15,7 @@ import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.service.control.ControlerUtil;
 import org.jxstar.service.define.DefineDataManger;
+import org.jxstar.util.MapUtil;
 import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.key.CodeCreator;
 import org.jxstar.util.key.KeyCreator;
@@ -28,7 +29,6 @@ import org.jxstar.util.log.Log;
  */
 public class RuleUtil {
 	//外键值标志
-	//private static final String FKEYID = "{FKEYID}";
 	private static final String FKEYID_REGEX = "\\{FKEYID\\}";
 	//新增主键标志
 	private static final String NEW_KEYID = "{NEWKEYID}";
@@ -43,28 +43,18 @@ public class RuleUtil {
 
 	/**
 	 * 执行导入SQL。
-	 * @param srcFunId -- 数据来源的功能ID
-	 * @param destFunId -- 新增数据的目标功能ID
+	 * @param mpRule -- 导入SQL定义信息
 	 * @param srcKeyId -- 来源数据的主键值
-	 * @param forKeyId -- 新增数据的外键值
-	 * @param routeId -- 规则路由ID
+	 * @param forKeyId -- 新增数据的外键值，如果是导入子表记录时需要
 	 * @param userInfo -- 用户信息
-	 * @return String 返回新增的记录主键值，用;分隔，主要用于子表新增记录时用。
-	 * 				  如果执行返回true表示没有定义规则SQL，如果返回false表示执行失败。
+	 * @return String 返回新增的记录主键值，用;分隔，如果返回false表示执行失败。
 	 */
-	public String exeInsert(String srcFunId, String destFunId, 
-			String srcKeyId, String forKeyId, String routeId, 
-			Map<String,String> userInfo) {
-		String faild = "false", success = "true", retKeyId = "";
+	public String exeInsert(Map<String, String> mpRule, 
+			String srcKeyId, String forKeyId, Map<String,String> userInfo) {
+		String faild = "false", retKeyId = "";
 		
-		//取规则定义，如果没有定义则不处理
-		Map<String, String> mpRule = queryRule(routeId, destFunId);
-		if (mpRule.isEmpty()) {
-			_log.showDebug("execute insert sql rule not define: " +
-					"srcfunid is {0} destfunid is {1} routeid is {2}!",
-					srcFunId, destFunId, routeId);
-			return success;
-		}
+		String srcFunId = MapUtil.getValue(mpRule, "src_funid");
+		String destFunId = MapUtil.getValue(mpRule, "dest_funid");
 		
 		DefineDataManger manger = DefineDataManger.getInstance();
 		//取来源功能与目标功能的定义信息
@@ -82,6 +72,7 @@ public class RuleUtil {
 		String ruleId = mpRule.get("rule_id");
 		List<Map<String, String>> lsParam = queryRuleParam(ruleId);//规则参数
 		_log.showDebug("------------src sql=" + srcSql);
+		_log.showDebug("------------src param=" + srcKeyId);
 		_log.showDebug("------------dest sql=" + destSql);
 		
 		//创建主键生成对象
@@ -161,45 +152,35 @@ public class RuleUtil {
 	}
 	
 	/**
-	 * 执行事件触发的反馈SQL规则定义。
-	 * @param funId -- 触发功能ID
-	 * @param selKeyId -- 选择的记录ID
-	 * @param eventCode -- 事件代号
-	 * @param userInfo -- 当前用户信息
-	 * @return
-	 */
-	public boolean exeUpdate(String funId, String selKeyId, String eventCode,
-			Map<String,String> userInfo) {
-		List<Map<String, String>> lsRule = queryUpdateRule(funId, eventCode);
-		if (lsRule.isEmpty()) {
-			_log.showDebug("not define rule sql!");
-			return true; 
-		}
-		
-		return exeUpdate(lsRule, selKeyId, userInfo, "");
-	}
-	
-	/**
-	 * 执行定义的SQL
+	 * 执行定义的SQL语句，不返回主键值，用于反馈SQL定义与导入SQL中的非首条定义
 	 * @param lsRule -- 需要执行反馈SQL
 	 * @param selKeyId -- 选择的记录ID
+	 * @param forKeyId -- 外键值，新增子表记录时需要
 	 * @param userInfo -- 当前用户信息
-	 * @param forKeyId -- 外键值
 	 * @return
 	 */
 	public boolean exeUpdate(List<Map<String, String>> lsRule, String selKeyId, 
-			Map<String,String> userInfo, String forKeyId) {
+			String forKeyId, Map<String,String> userInfo) {
+		if (lsRule == null || selKeyId == null) {
+			_log.showWarn("------------ext update param is null!");
+			return true;
+		}
+		
 		for (int j = 0, m = lsRule.size(); j < m; j++) {
 			Map<String, String> mpRule = lsRule.get(j);
 			
-			//取目标功能ID
-			String destFunId = mpRule.get("dest_funid");
-			//取目标功能的定义信息
+			String srcFunId = MapUtil.getValue(mpRule, "src_funid");
+			String destFunId = MapUtil.getValue(mpRule, "dest_funid");
+			
 			DefineDataManger manger = DefineDataManger.getInstance();
-			Map<String,String> define = manger.getFunData(destFunId);
-			//取目标功能的数据源与表名
-			String dsName = define.get("ds_name");
-			String tableName = define.get("table_name");
+			//取来源功能与目标功能的定义信息
+			Map<String,String> srcDefine = manger.getFunData(srcFunId);
+			Map<String,String> destDefine = manger.getFunData(destFunId);
+			
+			//取来源功能与目标功能的数据源
+			String srcDsName = srcDefine.get("ds_name");
+			String destDsName = destDefine.get("ds_name");
+			String destTable = destDefine.get("table_name");
 			
 			//查找来源SQL、目标SQL、规则参数
 			String srcSql = mpRule.get("src_sql");	//来源SQL
@@ -207,6 +188,7 @@ public class RuleUtil {
 			String ruleId = mpRule.get("rule_id");
 			List<Map<String, String>> lsParam = queryRuleParam(ruleId);//规则参数
 			_log.showDebug("------------src sql=" + srcSql);
+			_log.showDebug("------------src param=" + selKeyId);
 			_log.showDebug("------------dest sql=" + destSql);
 			
 			//创建主键生成对象
@@ -217,9 +199,13 @@ public class RuleUtil {
 			//取来源数据
 			DaoParam srcParam = _dao.createParam(srcSql);
 			srcParam.setUseParse(true);
-			srcParam.setDsName(dsName);
+			srcParam.setDsName(srcDsName);
 			srcParam.addStringValue(selKeyId);
 			List<Map<String, String>> srcListData = _dao.query(srcParam);
+			if (srcListData.isEmpty()) {
+				_log.showWarn("execute update src data list is empty!");
+				return true;
+			}
 			
 			//解析目标SQL中的常量
 			destSql = parseConstant(destSql, userInfo);
@@ -233,7 +219,7 @@ public class RuleUtil {
 				//是否新增主键
 				boolean isNewKeyId = (destSql.indexOf(NEW_KEYID) >= 0);
 				if (isNewKeyId) {
-					newKeyID = keyCreator.createKey(tableName);
+					newKeyID = keyCreator.createKey(destTable);
 					if (newKeyID == null || newKeyID.length() == 0) {
 						//新增记录时生成的主键值为空！
 						_log.showWarn("execute update sql: new keyid is null!");
@@ -253,7 +239,7 @@ public class RuleUtil {
 				_log.showDebug("------------parsed sql=" + destSql);
 				DaoParam param = _dao.createParam(destSql);
 				param.setUseParse(true);
-				param.setDsName(dsName);
+				param.setDsName(destDsName);
 				//根据定义的参数顺序赋值
 				for (int k = 0, p = lsParam.size(); k < p; k++) {
 					Map<String, String> mpParam = lsParam.get(k);
@@ -299,8 +285,9 @@ public class RuleUtil {
 	 * @return
 	 */
 	public Map<String, String> queryRule(String routeId, String destFunId) {
-		String sql = "select rule_id, src_sql, dest_sql from fun_rule_sql " +
+		String sql = "select rule_id, src_sql, dest_sql, dest_funid, src_funid from fun_rule_sql " +
 			"where route_id = ? and dest_funid = ? and event_code like '%,import,%' order by sql_no";
+		_log.showDebug("------------query first import sql=" + sql);
 		
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(routeId);
@@ -314,8 +301,9 @@ public class RuleUtil {
 	 */
 	public List<Map<String, String>> queryOtherRule(String routeId) {
 		List<Map<String, String>> lsRet = FactoryUtil.newList(); 
-		String sql = "select rule_id, src_sql, dest_sql from fun_rule_sql " +
+		String sql = "select rule_id, src_sql, dest_sql, dest_funid, src_funid from fun_rule_sql " +
 			"where route_id = ? and event_code like '%,import,%' order by sql_no";
+		_log.showDebug("------------query other import sql=" + sql);
 		
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(routeId);
@@ -335,8 +323,9 @@ public class RuleUtil {
 	 * @return
 	 */
 	public List<Map<String, String>> queryUpdateRule(String funId, String eventCode) {
-		String sql = "select rule_id, src_sql, dest_sql, dest_funid from fun_rule_sql " +
+		String sql = "select rule_id, src_sql, dest_sql, dest_funid, src_funid from fun_rule_sql " +
 			"where src_funid = ? and event_code like '%,"+eventCode+",%' order by sql_no";
+		_log.showDebug("------------query update sql=" + sql);
 		
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(funId);
@@ -391,6 +380,8 @@ public class RuleUtil {
 	 * @return
 	 */
 	private String addChar(String str) {
+		if (str == null) str = "";
+		
 		StringBuilder sb = new StringBuilder();
 		sb.append("'").append(str).append("'");
 		
