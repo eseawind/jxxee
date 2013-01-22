@@ -8,19 +8,17 @@
 		border:false,
 		layout:'form',
 		autoHeight:true,
-		xtype:'container',
 		style:'padding:5 10 5 10;',
 		items:[{
+			anchor:'100%',
+			border:false,
+			xtype:'container',
+			layout:'column',
 			border:true,
 			xtype:'fieldset',
 			title:'采购申请',
 			collapsible:false,
 			collapsed:false,
-			items:[{
-			anchor:'100%',
-			border:false,
-			xtype:'container',
-			layout:'column',
 			autoHeight:true,
 			items:[{
 				border:false,
@@ -30,12 +28,6 @@
 				style: 'padding-left:10px;',
 				items:[
 					{xtype:'textfield', fieldLabel:'申请单号', name:'mat_app__app_code', readOnly:true, anchor:'100%', maxLength:20},
-					{xtype:'combo', fieldLabel:'申请部门', name:'mat_app__dept_name', defaultval:'fun_getDeptName()',
-						anchor:'100%', triggerClass:'x-form-search-trigger',
-						maxLength:50, editable:true,
-						listeners:{afterrender: function(combo) {
-							JxSelect.initCombo('mat_app', combo, 'node_mat_app_form');
-						}}},
 					{xtype:'numberfield', decimalPrecision:6, fieldLabel:'预算金额万', name:'mat_app__app_money', anchor:'100%', maxLength:12},
 					{xtype:'numberfield', decimalPrecision:2, fieldLabel:'采购数量', name:'mat_app__app_num', anchor:'100%', maxLength:12},
 					{xtype:'hidden', fieldLabel:'主键', name:'mat_app__app_id', anchor:'100%'}
@@ -73,7 +65,7 @@
 						displayField: 'text',
 						value: auditData[0][0]},
 					{xtype:'combo', fieldLabel:'申请类型', name:'mat_app__app_type',
-						anchor:'100%', editable:false, allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*',
+						anchor:'100%', editable:false,
 						store: new Ext.data.SimpleStore({
 							fields:['value','text'],
 							data: apptypeData
@@ -93,6 +85,11 @@
 			border:false,
 			xtype:'container',
 			layout:'column',
+			border:true,
+			xtype:'fieldset',
+			title:'采购申请1',
+			collapsible:false,
+			collapsed:false,
 			autoHeight:true,
 			items:[{
 				border:false,
@@ -101,7 +98,13 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
-					{xtype:'textarea', fieldLabel:'效益分析', name:'mat_app__app_analyse', width:'100%', height:96, maxLength:200}
+					{xtype:'textarea', fieldLabel:'效益分析', name:'mat_app__app_analyse', width:'100%', height:72, maxLength:200},
+					{xtype:'combo', fieldLabel:'申请部门', name:'mat_app__dept_name', defaultval:'fun_getDeptName()',
+						anchor:'100%', triggerClass:'x-form-search-trigger',
+						maxLength:50, editable:true,
+						listeners:{afterrender: function(combo) {
+							JxSelect.initCombo('mat_app', combo, 'node_mat_app_form');
+						}}}
 				]
 			},{
 				border:false,
@@ -110,11 +113,10 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
-					{xtype:'textarea', fieldLabel:'申请理由', name:'mat_app__app_cause', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', width:'100%', height:96, maxLength:200}
+					{xtype:'textarea', fieldLabel:'申请理由', name:'mat_app__app_cause', width:'100%', height:96, maxLength:200}
 				]
 			}
 			]
-		}]
 		}]
 	}];
 	

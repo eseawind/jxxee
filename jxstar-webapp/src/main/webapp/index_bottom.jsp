@@ -135,11 +135,13 @@ var down_firfox = function() {
 	var params = 'funid=sys_attach&keyid=jxstar0001&pagetype=editgrid&eventcode=down&nousercheck=1';
 	Request.fileDown(params);
 };
-var doKey = function(e){//用ExtJs的事件注册时无效
+//用ExtJs的事件注册时无效
+var doKey = function(e){
 	var ev = e || window.event;
 	var obj = ev.target || ev.srcElement;
 	var t = obj.type || obj.getAttribute('type');//获取事件源类型
-	if(ev.keyCode == 8 && t != "password" && t != "text" && t != "textarea"){
+	if(ev.keyCode == 8 && (t == null || 
+	  (t != "password" && t != "text" && t != "textarea"))){
 		return false;
 	}
 };

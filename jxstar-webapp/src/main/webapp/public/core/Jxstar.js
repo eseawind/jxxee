@@ -48,6 +48,8 @@ Ext.ns('Jxstar');
 	Ext.apply(Jxstar, {
 		//每页记录数
 		pageSize: 50,
+		//当前表格记录起始序号，解决分页显示记录时序号不累加的问题，在JxExt中赋值
+		startNo: 0,
 
 		//当前程序会话信息
 		session: {},
@@ -208,6 +210,8 @@ Ext.ns('Jxstar');
 				target.doLayout();
 				//显示表格对象后再加载数据才稳定
 				if (page.isXType('grid')) {
+					page.focus();//聚焦表格对象
+					
 					if (pageParam && pageParam.whereSql && pageParam.whereSql.length > 0) {
 						Jxstar.loadData(page, {where_sql:pageParam.whereSql, where_value:pageParam.whereValue, where_type:pageParam.whereType, is_query:pageParam.isQuery});
 					} else {
@@ -829,12 +833,7 @@ Ext.ns('Jxstar');
 				}
 			}
 			//根据分页工具栏取每页记录数
-			var pageSize = Jxstar.pageSize;
-			var bbar = grid.getBottomToolbar();
-			if (bbar && bbar.isXType('paging')) {
-				pageSize = bbar.pageSize;
-			}
-			
+			var pageSize = JxUtil.getPageSize(grid);
 			var params = Ext.apply({start:0, limit:pageSize}, options);
 			grid.getStore().load({params:params});
 		},
@@ -848,11 +847,12 @@ Ext.ns('Jxstar');
 			if (grid != null && grid.isXType('grid')) {
 				var store = grid.getStore();
 				var pagetype = grid.pageType;
+				var pageSize = JxUtil.getPageSize(grid);
 				//combogrid类型的表格在createSelectWin()方法中加载数据
 				//子表数据也不执行初始加载，否则会报this.grid is null的错误
 				if (store != null && grid.isShow == '1' && (pagetype != 'combogrid' && pagetype.indexOf('sub') < 0)) {
 					store.load({
-						params:{start:0,limit:Jxstar.pageSize}
+						params:{start:0,limit:pageSize}
 					});
 				}
 			}

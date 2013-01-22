@@ -442,25 +442,23 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	**/
 	editCreate : function() {
 		//新建一个初始化的记录对象
+		var g = this.grid;
 		var record = this.createRecord();
-		var store = this.grid.getStore();
+		var store = g.getStore();
 
 		//添加记录
-		this.grid.stopEditing();
+		g.stopEditing();
 		store.insert(0, record);
 		
 		//第一个可编辑列的位置
-		var starti = 1;
-		var sm = this.grid.getSelectionModel();
-		if (sm instanceof Ext.grid.CheckboxSelectionModel) {
-			starti = 2;
-		}
-		this.grid.startEditing(0, starti);
+		var col = JxUtil.getEditCol(g);
+		g.startEditing(0, col);
 		//标记新增的记录为选择记录，不然表格编辑中取不到当前选择的tagRecord
-		if (sm instanceof Ext.grid.CellSelectionModel) {
-			sm.select(0, starti);
-		} else {
+		var sm = g.getSelectionModel();
+		if (sm.selectRow) {
 			sm.selectFirstRow();
+		} else {
+			sm.select(0, col);
 		}
 		
 		if (this.fireEvent('beforecreate', this) == false) return;

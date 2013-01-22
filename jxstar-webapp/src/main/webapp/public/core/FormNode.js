@@ -80,11 +80,23 @@ Jxstar.FormNode.prototype = {
 			return false;
 		}
 
-		var tcfg = {deferHeight:true, items:[{text:' '}]};
+		//添加工具栏的快捷键
+		var tkm = new Ext.ux.ToolbarKeyMap();
+		var tcfg = {deferHeight:true, plugins:tkm, items:[{text:' '}]};
 		//处理：FF下工具栏高度为27px，IE为29px，通过下面设置后为27px
 		if (Ext.isIE) tcfg.style = 'padding:1px;';
 		//创建工具栏
 		var tbar = new Ext.Toolbar(tcfg);
+		//设置form内容区的宽度，缺省宽度800
+		//如果items[0]是container类型，在IE中不能自适应宽度
+		if (fm.items[0]) {
+			var width = fm.formWidth||800;
+			if (typeof width == 'string') {
+				fm.items[0].anchor = width;
+			} else {
+				fm.items[0].width = width;
+			}
+		}
 		
 		//表单控件的初始属性
 		var config = {
@@ -108,19 +120,14 @@ Jxstar.FormNode.prototype = {
 		
 		//设置form的宽度
 		form.on('afterrender', function(page){
-			var width = fm.formWidth||800;
 			var fw = page.getWidth();
-			
-			//如果是百分比
-			if (typeof width == 'string') {
-				width = parseInt(width);
-				width = (isNaN(width) || width >= 100) ? 97 : width;
-				width = Math.round((width/100)*fw);
+			//有些外部panel的宽度小于800，需要重新设置宽度
+			if (fw < 800) {
+				page.getComponent(0).setWidth(fw-5);
 			}
 			
-			if (fw > width) {
-				page.getComponent(0).setWidth(width);
-			}
+			//显示form时，聚焦第一个控件
+			JxUtil.focusFirst(page);
 		});
 
 		//添加表单控件注销事件
@@ -183,6 +190,12 @@ Jxstar.FormNode.prototype = {
 			for (var i = 0, n = items.length; i < n; i++){
 				//处理按钮多语言文字
 				JxLang.eventLang(self.nodeId, items[i]);
+				//处理快捷键
+				var hk = items[i].accKey;
+				if (!Ext.isEmpty(hk)) {
+					items[i].text = items[i].text+'('+ hk.toUpperCase() +')';
+					items[i].keyBinding = {key:hk, ctrl:true, alt:true};
+				}
 				
 				//按钮显示类型[tool|menu]
 				var showType = items[i].showType;
@@ -197,8 +210,12 @@ Jxstar.FormNode.prototype = {
 					
 					items[i].scope = ei;
 					if (a != null && a.length > 0) {
-						items[i].handler = h.createDelegate(ei, [a]);
+						items[i].handler = h.createDelegate(ei, a);
 					} else {
+						//执行前判断按钮disable，上面的方法带参数取不到button
+						h = h.createInterceptor(function(t){
+							return !(t.disabled);
+						});
 						items[i].handler = h;
 					}
 				}

@@ -25,7 +25,7 @@ JxUtil = {};
 				var params = 'funid=login&pagetype=login&eventcode=logout';
 				Request.postRequest(params, function(){
 					JxUtil.isLogout = true;
-					window.location.reload();
+					window.location.href = Jxstar.path;
 				});
 			};
 			//如果是通过刷新退出系统
@@ -649,6 +649,29 @@ JxUtil = {};
 		},
 		
 		/**
+		 * 取当前表格每页记录数设置
+		 * grid --  当前表格对象
+		 **/
+		getPageSize: function(grid) {
+			//根据分页工具栏取每页记录数
+			var pageSize = Jxstar.pageSize;
+			var bbar = grid.getBottomToolbar();
+			if (bbar && bbar.isXType('paging')) {
+				pageSize = bbar.pageSize;
+			} else {
+				//如果分页工具栏放在顶部了
+				var tbar = grid.getTopToolbar();
+				if (tbar) {
+					var pbar = tbar.findByType('paging')[0];
+					if (pbar) {
+						pageSize = pbar.pageSize;
+					}
+				}
+			}
+			return pageSize;
+		},
+		
+		/**
 		 * 设置编辑权限的按钮为disable状态，用于处理已复核记录设置编辑按钮为disable
 		 * toolBar --  工具栏
 		 * disable -- 是否不可用
@@ -981,6 +1004,106 @@ JxUtil = {};
 			
 			return true;
 		},
+		
+		/**
+		* 给tab控件添加快捷键，ctrl+alt+1表示第1个tab
+		*/
+		tabAddKey: function(tab) {
+			var hd = function(tab) {
+				var mappings = [], cnt = tab.items.getCount();
+				for (var i = 0; i < cnt; i++) {
+					//'1' = 49
+					var fn = function(k, e){
+						var index = k - 49;
+						tab.activate(index);
+					};
+					var key = 49+i;
+					mappings[i] = {key:key, ctrl:true, alt:true, fn:fn};
+				}
+				tab.keymap = new Ext.KeyMap(tab.el, mappings);
+				tab.keymap.enable();
+			};
+			
+			JxUtil.delay(1000, function(){if (this.el) hd(this);}, tab);
+		},
+		
+		/**
+		* 判断当前事件代号的按钮是否disable
+		*/
+		isDisableBtn: function(page, eventCode) {
+			var tbar = page.getTopToolbar();
+			if (tbar == null) return true;
+			var btn = JxUtil.getButton(tbar, eventCode);
+			if (btn == null) return true;
+			return btn.disabled;
+		},
+		
+		/**
+		* 聚焦表单第一个控件，方便执行快捷键
+		*/
+		focusFirst: function(page) {
+			if (page == null || !page.isXType('form')) return;
+			
+			var hd = function() {
+				page.form.items.each(function(f){
+					if (f.isFormField && f.rendered && f.name && !f.isXType('hidden')) {
+						f.focus(true);
+						return false;
+					}
+				});
+			};
+			
+			JxUtil.delay(500, hd);
+		},
+		
+		/**
+		* 聚焦表格当前行，方便执行快捷键
+		*/
+		focusFirstRow: function(page) {
+			if (page == null || !page.isXType('grid')) return;
+			
+			var row = JxUtil.getRowNum(page);
+			page.getView().focusRow(row);
+		},
+		
+		/**
+		* 获取表格当前选择的行号
+		*/
+		getRowNum: function(page) {
+			if (page == null || !page.isXType('grid')) return -1;
+		
+			var sm = page.getSelectionModel();
+			if (sm.getSelectedCell) {//单元个选择模式
+				var pos = sm.getSelectedCell();
+				if (pos) {
+					return pos[0];
+				} else {
+					return -1;
+				}
+			} else {//行选模式
+				var s = page.getStore();
+				var r = sm.getSelected();
+				if (r) {
+					return s.indexOf(r);
+				} else {
+					return -1;
+				}
+			}
+		},
+		
+		/**
+		* 获取表格第一个可编辑列的位置
+		*/
+		getEditCol: function(page) {
+			if (page == null || !page.isXType('editorgrid')) return -1;
+			
+			var cm = page.getColumnModel();
+			var cnt = cm.getColumnCount();
+			for (var i = 0; i < cnt; i++) {
+				if (cm.isCellEditable(i, 0)) return i;
+			}
+			return -1;
+		},
 	
 		/**
 		* 解析响应对象的错误信息
@@ -1023,7 +1146,7 @@ JxUtil = {};
 			//会话失效，退出系统 code <= 0 || 
 			if (msg.indexOf(jx.index.login) >= 0) {//'登录'
 				JxUtil.isLogout = true;	//正常退出
-				window.location.reload();
+				window.location.href = Jxstar.path;
 			}
 		},
 		
@@ -1031,9 +1154,11 @@ JxUtil = {};
 		* 延迟执行指定的函数
 		* time -- 延时时间，ms
 		* fn -- 函数
+		* scope -- 指定延时函数中的this对象
+		* args -- 数组，指定fn中的参数
 		*/
-		delay: function(time, fn) {
-			(new Ext.util.DelayedTask(fn)).delay(time);
+		delay: function(time, fn, scope, args) {
+			(new Ext.util.DelayedTask()).delay(time, fn, scope, args);
 		},
 		
 		/**

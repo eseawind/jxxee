@@ -74,6 +74,9 @@ Ext.PagingToolbar.prototype.doLoad = function(start){
 	if(this.fireEvent('beforechange', this, o) !== false){
 		this.store.load({params:o});
 	}
+	
+	//---add by tony, store.load set startno = 0
+	Jxstar.startNo = start;
 };
 
 /**
@@ -145,7 +148,7 @@ Ext.grid.PropertyGrid.prototype.initComponent = function(){
  * 修改方法：取checkbox的值时取 0 或 1，而不是true false。
  **/
 Ext.form.Checkbox.prototype.getValue = function(){
-	if(this.rendered){
+	if(this.rendered && this.el){
 		return this.el.dom.checked ? '1' : '0';
 	}
 	return this.checked ? '1' : '0';
@@ -367,12 +370,12 @@ Ext.layout.FormLayout.prototype.labelSeparator = '';
 /**
  * 修改属性：NumberField聚焦则全选。
  **/
-//Ext.form.NumberField.prototype.selectOnFocus = true;
+Ext.form.NumberField.prototype.selectOnFocus = true;
 
 /**
  * 修改属性：TextField聚焦则全选。
  **/
-//Ext.form.TextField.prototype.selectOnFocus = true;
+Ext.form.TextField.prototype.selectOnFocus = true;
 
 /**
  * 修改属性：BasicForm加载数据后设置为初始值。
@@ -409,7 +412,7 @@ Ext.layout.MenuLayout.prototype.isValidParent = function(c, target) {
  * 修改方法：如果是只读，则需要添加只读样式。
  **/
 Ext.form.Field.prototype.setReadOnly = function(readOnly){
-	if(this.rendered){
+	if(this.rendered && this.el){
 		this.el.dom.readOnly = readOnly;
 		if (readOnly) {//---add by tony
 			this.el.addClass('x-field-only');
@@ -420,15 +423,15 @@ Ext.form.Field.prototype.setReadOnly = function(readOnly){
 	this.readOnly = readOnly;
 };
 Ext.form.TriggerField.prototype.setReadOnly = function(readOnly){
-	if(readOnly != this.readOnly){
+	if(readOnly != this.readOnly && this.el){
 		if (readOnly) {//---add by tony
 			this.el.addClass('x-field-only');
 		} else {
 			this.el.removeClass('x-field-only');
 		}//---add by
-		this.readOnly = readOnly;
 		this.updateEditState();
 	}
+	this.readOnly = readOnly;
 };
 
 /**
@@ -436,7 +439,7 @@ Ext.form.TriggerField.prototype.setReadOnly = function(readOnly){
  * 修改方法：如果是只读，则需要添加只读样式。
  **/
 Ext.form.TriggerField.prototype.updateEditState = function(){
-	if(this.rendered){
+	if(this.rendered && this.el){
 		if (this.readOnly) {
 			this.el.dom.readOnly = true;
 			this.el.addClass('x-field-only');//add by tony.tan
@@ -685,3 +688,145 @@ Ext.Container.prototype.getComponent = function(comp){
 	return this.items.get(comp);
 };
 
+/**
+ * ext-3.3.1
+ * 修改方法：设置form中的字段，回车跳转到下一个控件的效果
+ **/
+Ext.form.Field.prototype.afterRender = function(){
+	Ext.form.Field.superclass.afterRender.call(this);
+	this.initEvents();
+	this.initValue();
+	//add by tony.tan
+	var fn = function(e, t){
+		if (e.getKey() == e.ENTER) {
+			var me = this;
+			var fp = me.findParentByType('form');
+			if (Ext.isEmpty(fp)) return;
+			
+			var items = fp.form.items;
+			//记录第一个有效字段的位置、当前字段的位置、当前字段的下一个位置
+			//必须记录位置，而不能记录控件f，不然循环结束后取不到真实控件
+			var i = 0, first = -1, index = -1, next = -1;
+			items.each(function(f){
+				//textarea控件中回车是文字换行
+				if (f.isFormField && f.rendered && f.name && 
+					!f.isXType('hidden') && !f.isXType('textarea')) {
+					if (first < 0) first = i;
+					if (f.name == me.name) {
+						index = i;
+					} else {
+						if (index >= 0) {
+							next = i;
+							return false;
+						}
+					}
+				}
+				i++;
+			});
+			//JxHint.hint(index+';'+next+';'+first);
+			//如果找到了当前位置，当没有找到下一个有效位置，则取第一个位置
+			if (index >= 0 && next < 0) next = first;
+			if (next >= 0) {
+				var fn = items.get(next);
+				if (fn) fn.focus(true);
+			}
+		}
+	};
+	this.mon(this.el, Ext.EventManager.getKeyEvent(), fn, this);
+};
+
+/**
+ * ext-3.3.1
+ * 修改方法：修改表格行选状态时，回车跳转到下一个控件的效果
+ **/
+Ext.grid.RowSelectionModel.prototype.onEditorKey = function(field, e){
+	var k = e.getKey(), 
+		newCell, 
+		g = this.grid, 
+		last = g.lastEdit,
+		ed = g.activeEditor,
+		shift = e.shiftKey,
+		ae, last, r, c;
+		
+	if(k == e.ENTER){//modify, ed.row --> last.row, last.col
+		e.stopEvent();
+		//ed.completeEdit(); //ENTER is completeEdited
+		if(shift){
+			newCell = g.walkCells(last.row, last.col-1, -1, this.acceptsNav, this);
+		}else{
+			newCell = g.walkCells(last.row, last.col+1, 1, this.acceptsNav, this);
+		}
+	}else if(k == e.TAB){//modify
+		e.stopEvent();//add
+		ed.completeEdit();//add
+		if(this.moveEditorOnEnter !== false){
+			if(shift){
+				newCell = g.walkCells(last.row - 1, last.col, -1, this.acceptsNav, this);
+			}else{
+				newCell = g.walkCells(last.row + 1, last.col, 1, this.acceptsNav, this);
+			}
+		}
+	}
+	if(newCell){
+		r = newCell[0];
+		c = newCell[1];
+
+		this.onEditorSelect(r, last.row);
+
+		if(g.isEditor && g.editing){ // *** handle tabbing while editorgrid is in edit mode
+			ae = g.activeEditor;
+			if(ae && ae.field.triggerBlur){
+				// *** if activeEditor is a TriggerField, explicitly call its triggerBlur() method
+				ae.field.triggerBlur();
+			}
+		}
+		g.startEditing(r, c);
+	}
+	
+	//add by tony 按下ctrl键则完成编辑状态，可执行表格快捷键
+	if (e.ctrlKey && e.altKey && ed) {
+		ed.completeEdit();
+	}
+};
+
+Ext.ux.ToolbarKeyMap = Ext.extend(Object, (function() {
+    var kb, owner, mappings;
+
+    var addKeyBinding = function(c) {
+        if (kb = c.keyBinding) {
+            delete c.keyBinding;
+            if (!kb.fn && c.handler) {
+                kb.fn = function(k, e) {
+                    e.preventDefault();
+                    e.stopEvent();
+                    c.handler.call(c.scope, c, e);
+                }
+            }
+            mappings.push(kb);
+        }
+        if ((c instanceof Ext.Button) && c.menu) {
+            c.menu.cascade(addKeyBinding);
+        }
+    };
+
+    var findKeyNavs = function() {
+        delete this.onRender;
+        if (owner = this.ownerCt) {
+            mappings = [];
+            this.cascade(addKeyBinding);
+            if (!owner.menuKeyMap) {
+                owner.menuKeyMap = new Ext.KeyMap(owner.el, mappings);
+                owner.el.dom.tabIndex = 0;
+            } else {
+                owner.menuKeyMap.addBinding(mappings);
+            }
+        }
+    };
+
+    return {
+        init: function(toolbar) {
+            toolbar.onRender = toolbar.onRender.createSequence(findKeyNavs);
+            toolbar.doLayout = toolbar.doLayout.createSequence(findKeyNavs);
+        }
+    };
+})());

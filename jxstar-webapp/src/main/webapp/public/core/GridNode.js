@@ -101,8 +101,15 @@ Jxstar.GridNode.prototype = {
 		var fields = [];
 		//用于添加列序号列与复选框列
 		var cols = [];
-		//添加序号列
-		var rn = new Ext.grid.RowNumberer();
+		//添加序号列，支持分页显示序号累加
+		var rn = new Ext.grid.RowNumberer({
+			renderer : function(v, p, record, rowIndex){
+				if(this.rowspan){
+					p.cellAttr = 'rowspan="'+this.rowspan+'"';
+				}
+				return rowIndex+1+Jxstar.startNo;
+			}
+		});
 		cols[0] = rn;
 		
 		//定义列控件序号、列字段序号
@@ -182,6 +189,8 @@ Jxstar.GridNode.prototype = {
 			sortInfo: self.param.sorts,
 			pruneModifiedRecords: true
 		});
+		//初始化当前行号，在分页工具栏中设置正确的行号
+		store.on('beforeload', function(){Jxstar.startNo = 0;});
 		//如果表格内容有修改，则提示是否取消编辑。
 		var dataModify = function(st, rs){
 			//开始查询数据的时间
@@ -214,9 +223,6 @@ Jxstar.GridNode.prototype = {
 		Jxstar.et = (new Date()).getTime(); 
 		var useTime = Jxstar.et - Jxstar.st;
 		JxHint.hint('use time(ms): ' + useTime);
-		
-		//每次加载数据后，IE强制回收内存
-		if(Ext.isIE){CollectGarbage();}
 	},
 	
 	//public 传入新的列配置，重新构建表格对象
@@ -269,7 +275,9 @@ Jxstar.GridNode.prototype = {
 
 		//如果是下拉选项数据，则不要工具栏self.pageType != 'combogrid' && 
 		if (self.pageType.indexOf('notool') < 0) {
-			var tcfg = {deferHeight:true, items:[{text:' '}]};
+			//添加工具栏的快捷键
+			var tkm = new Ext.ux.ToolbarKeyMap();
+			var tcfg = {deferHeight:true, plugins:tkm, items:[{text:' '}]};
 			//处理：FF下工具栏高度为27px，IE为29px，通过下面设置后为27px
 			if (Ext.isIE) tcfg.style = 'padding:1px;';
 			//创建工具栏，先创建一个空按钮，保证在chrome中显示正常
@@ -333,6 +341,17 @@ Jxstar.GridNode.prototype = {
 				
 				return true;
 			});
+			
+			//回车进入当前选择行的第一个可编辑控件
+			grid.on('keydown', function(e) {
+				if (e.getKey() == e.ENTER) {
+					var g = this;
+					var row = JxUtil.getRowNum(g);
+					var col = JxUtil.getEditCol(g);
+					if (row < 0) row = 0;
+					g.startEditing(row, col);
+				}
+			}, grid);
 		} else {
 			//双击打开form记录
 			grid.on('rowdblclick', function(grid, n, event) {
@@ -456,7 +475,13 @@ Jxstar.GridNode.prototype = {
 			for (var i = 0, n = items.length; i < n; i++){
 				//处理按钮多语言文字
 				JxLang.eventLang(self.nodeId, items[i]);
-			
+				//处理快捷键
+				var hk = items[i].accKey;
+				if (!Ext.isEmpty(hk)) {
+					items[i].text = items[i].text+'('+ hk.toUpperCase() +')';
+					items[i].keyBinding = {key:hk, ctrl:true, alt:true};
+				}
+				
 				//按钮显示类型[tool|menu]
 				var showType = items[i].showType;
 			
@@ -472,6 +497,10 @@ Jxstar.GridNode.prototype = {
 					if (a != null && a.length > 0) {
 						items[i].handler = h.createDelegate(ei, a);
 					} else {
+						//执行前判断按钮disable，上面的方法带参数取不到button
+						h = h.createInterceptor(function(t){
+							return !(t.disabled);
+						});
 						items[i].handler = h;
 					}
 				}
@@ -504,15 +533,6 @@ Jxstar.GridNode.prototype = {
 					//添加按钮
 					tbar.add(items[i]);	
 				}
-
-				//给按钮事件分配快捷键:CTRL+CHAR
-				/*if (items[i].accKey.length > 0 && items[i].method.length > 0) {
-					var akey = {};
-					akey.key = items[i].accKey;
-					akey.ctrl = true;
-					akey.fn = items[i].handler;
-					akeys.push(akey);
-				}*/
 			}
 			//添加扩展工具栏
 			var fn = self.config.toolext;
@@ -552,7 +572,7 @@ Jxstar.GridNode.prototype = {
 					border:false,
 					style:'padding:0;border-width:0;background:transparent repeat-x 0 -1px;',//去掉工具栏中顶部的白线，与占位高度
 					store:self.page.getStore(),
-					pageSize:Jxstar.pageSize
+					pageSize:20
 				});
 				tbar.add('-', pagetool); 
 				pagetool.inputItem.setHeight(18);
@@ -582,11 +602,6 @@ Jxstar.GridNode.prototype = {
 			} else {
 				tbar.doLayout();
 			}
-			
-			//把快捷键事件分配给表格对象
-			//if (akeys.length > 0) {
-			//	var map = new Ext.KeyMap(self.id, akeys);
-			//}
 		};
 
 		Request.dataRequest(params, hdCall);

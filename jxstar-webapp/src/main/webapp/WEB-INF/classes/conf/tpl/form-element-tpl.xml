@@ -6,7 +6,6 @@
 		border:false,
 		layout:'form',
 		autoHeight:true,
-		xtype:'container',
 		style:'padding:5 10 5 10;',
 		items:[{formitems}]
 	}];

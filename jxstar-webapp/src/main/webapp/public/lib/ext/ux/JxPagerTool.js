@@ -9,7 +9,7 @@
  */
 Ext.ux.JxPagerTool = Ext.extend(Object, {
     init : function(pbar){
-		var pageSizeData = [[50, '50'], [100, '100'], [200, '200']];
+		var pageSizeData = [[20, '20'], [50, '50'], [100, '100'], [200, '200']];
 		var pageSizeCombo = new Ext.form.ComboBox({
 			triggerAction: 'all',
 			mode: 'local', width: 50, editable:false,

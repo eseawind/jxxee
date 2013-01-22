@@ -133,6 +133,10 @@ Jxstar.currentPage = function(define, pageParam) {
 		var curPage = activeTab.getComponent(0);
 		if (curPage == null) return true;
 		
+		//聚焦当前页面，方便执行快捷键
+		if (curPage.isXType('form')) {JxUtil.focusFirst(curPage);}
+		if (curPage.isXType('grid')) {JxUtil.focusFirstRow(curPage);}
+		
 		//取选择记录的主键值
 		var pkvalue = '';
 		var records = fgrid.getSelectionModel().getSelections();
@@ -184,6 +188,9 @@ Jxstar.currentPage = function(define, pageParam) {
 			Jxstar.loadSubData(curPage, pkvalue);
 		}
 	});
+	
+	//给tab切换添加快捷键
+	JxUtil.tabAddKey(tabGridForm);
 
 	return tabGridForm;
 };
