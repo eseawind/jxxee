@@ -487,6 +487,7 @@ Jxstar.GridNode.prototype = {
 			
 				if (items[i].method.length > 0) {
 					var h = ei[items[i].method];
+					if (h == null) continue;
 					var a = items[i].args;
 					//自定义方法用事件代码作为参数
 					if (items[i].method == 'customEvent') {
