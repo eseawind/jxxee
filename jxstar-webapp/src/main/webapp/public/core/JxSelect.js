@@ -428,7 +428,7 @@ JxSelect = {};
 		},
 		
 		//构建查询combosel控件
-		initCombo: function(funId, combo, targetFlag) {
+		initCombo: function(funId, combo, targetFlag, isAll) {
 			var self = this;
 			//继续添加初始参数
 			combo.pageSize = 10;
@@ -436,7 +436,7 @@ JxSelect = {};
 			combo.typeAhead = false;
 			combo.minChars = 0;
 			combo.itemSelector = 'div.search-item';
-			combo.queryParam = 'where_value';
+			combo.queryParam = 'where_value';//后台查询值的参数名
 			combo.loadingText = '正在查询...';
 			combo.listEmptyText = '没有找到数据...';
 			
@@ -459,12 +459,6 @@ JxSelect = {};
 					JxHint.alert(String.format(jx.star.selsrc, colCode));
 					return;
 				}
-					
-				var whereValue = config.whereValue;
-				//解析选择窗口中的[table.field];{table.field}参数
-				whereValue = self.parseWhereValue(whereValue, combo, targetFlag);
-				config.whereValue = whereValue;
-				
 				//要支持可以查询多个字段的值
 				var qryParam = self.comboWhere(config);
 				
@@ -507,11 +501,16 @@ JxSelect = {};
 				//都采用类似查询
 				combo.on('beforequery', function(qe){
 					var lt = config.likeType;//匹配模式：all, left
-					var qv = '';
+					var qv = '', ov = '';
 					//一个值可以查询多个字段
 					for (var i = 0; i < qryParam.plen; i++) {
-						qv += ((lt == 'left') ? '':'%') + qe.query + '%;';
+						ov = isAll ? '%;' : (((lt == 'left') ? '':'%') + qe.query + '%;');
+						qv += ov;
 					}
+					
+					//在查询的时候，解析选择窗口中的[table.field];{table.field}参数
+					qryParam.where_value = self.parseWhereValue(config.whereValue, combo, targetFlag);
+					
 					//组合查询值
 					var pv = qryParam.where_value;
 					if (qv.length > 0) {
@@ -588,7 +587,8 @@ JxSelect = {};
 				//EditGrid中，显示combo时会执行initList，所以需要重新绑定
 				if (combo.list) {
 					combo.view.tpl = combo.tpl;
-					combo.bindStore(store, true);
+					//选false，重新绑定store，否则分页栏无效
+					combo.bindStore(store, false);
 				}
 			};
 			
