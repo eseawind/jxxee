@@ -21,20 +21,7 @@
 			Ext.MessageBox.prompt(jx.base.hint, jx.fun.newid, hintcall);
 		},				copyFun: function(){			var records = this.grid.getSelectionModel().getSelections();			if (!JxUtil.selectone(records)) return;			var selfunid = records[0].get('fun_base__fun_id');					var self = this;			var hintcall = function(btn, text) {				if (btn != 'ok') return;				var hdcall = function() {					self.grid.getStore().reload();				};								var params = 'funid=sys_fun_base&oldfunid='+ selfunid +'&newfunid='+ text +'&pagetype=editgrid&eventcode=copy';								//发送请求				Request.postRequest(params, hdcall);			};			//'请输入新功能ID'			Ext.MessageBox.prompt(jx.base.hint, jx.fun.newid, hintcall);		},
 			
-		createNode: function(){
-			//取选择记录的主键值
-			var params = 'funid='+ this.define.nodeid;
-			
-			//设置请求的参数
-			params += '&pagetype=grid&eventcode=createNode&projectpath=' + Jxstar.session['project_path'];
-
-			//生成文件后自动加载该文件
-			var hdcall = function() {
-				Request.loadJS('/public/data/NodeDefine.js');
-			};
-
-			//发送请求
-			Request.postRequest(params, hdcall);
+		createNode: function(){			var self = this;						//取模块ID			var attr = self.grid.treeNodeAttr;			var modId = '', modText = '', hintText = '';			if(attr != null) {				modId = attr.id;				modText = attr.text;			}			if (modId.length > 0 && modText.length > 0) {				hintText = '生成所有功能数据选“是”，生成【'+ modText +'】模块数据选“否”，或取消？';			} else {				hintText = '确定生成所有功能的数据吗？';			}						var hintcall = function(btn, text) {				if (btn == 'cancel') return;				if (btn == 'yes') modId = '';				//设置请求的参数				var params = 'funid='+ self.define.nodeid + '&moduleid=' + modId;				params += '&pagetype=grid&eventcode=createNode&projectpath=' + Jxstar.session['project_path'];				//生成文件后自动加载该文件				var hdcall = function() {					Request.loadJS('/public/data/NodeDefine.js');				};				//发送请求				Request.postRequest(params, hdcall);			};			Ext.Msg.show({			   title: jx.base.hint,			   msg: hintText,			   buttons: (modId.length > 0) ? Ext.Msg.YESNOCANCEL : Ext.Msg.OKCANCEL,			   fn: hintcall,			   icon: Ext.MessageBox.QUESTION			});
 		},
 
 		createRule: function(){

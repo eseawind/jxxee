@@ -35,17 +35,20 @@
 					return datatypeData[i][1];
 			}
 		}}, field:{name:'fun_col__data_type',type:'string'}},
-	{col:{header:'更新?', width:50, sortable:true, defaultval:'1', editable:true, hcss:'color:#3039b4;',
+	{col:{header:'更新?', width:50, sortable:true, defaultval:'1', align:'center',
+		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.Checkbox(),
 		renderer:function(value) {
 			return value=='1' ? jx.base.yes : jx.base.no;
 		}}, field:{name:'fun_col__is_update',type:'string'}},
-	{col:{header:'编辑?', width:48, sortable:true, defaultval:'1', editable:true, hcss:'color:#3039b4;',
+	{col:{header:'编辑?', width:48, sortable:true, defaultval:'1', align:'center',
+		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.Checkbox(),
 		renderer:function(value) {
 			return value=='1' ? jx.base.yes : jx.base.no;
 		}}, field:{name:'fun_col__is_edit',type:'string'}},
-	{col:{header:'必填?', width:48, sortable:true, defaultval:'0', editable:true, hcss:'color:#3039b4;',
+	{col:{header:'必填?', width:48, sortable:true, defaultval:'0', align:'center',
+		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.Checkbox(),
 		renderer:function(value) {
 			return value=='1' ? jx.base.yes : jx.base.no;
@@ -106,12 +109,14 @@
 					return datastyleData[i][1];
 			}
 		}}, field:{name:'fun_col__format_id',type:'string'}},
-	{col:{header:'表格编辑', width:70, sortable:true, defaultval:'0', editable:true, hcss:'color:#3039b4;',
+	{col:{header:'表格编辑', width:70, sortable:true, defaultval:'0', align:'center',
+		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.Checkbox(),
 		renderer:function(value) {
 			return value=='1' ? jx.base.yes : jx.base.no;
 		}}, field:{name:'fun_col__is_gridedit',type:'string'}},
-	{col:{header:'统计列?', width:55, sortable:true, defaultval:'0', editable:true, hcss:'color:#3039b4;',
+	{col:{header:'统计列?', width:55, sortable:true, defaultval:'0', align:'center',
+		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.Checkbox(),
 		renderer:function(value) {
 			return value=='1' ? jx.base.yes : jx.base.no;
@@ -133,7 +138,7 @@
 	{col:{header:'BLURFUNC', width:100, sortable:true, hidden:true}, field:{name:'fun_col__blur_func',type:'string'}},
 	{col:{header:'KEYUPFUNC', width:100, sortable:true, hidden:true}, field:{name:'fun_col__keyup_func',type:'string'}},
 	{col:{header:'功能标识', width:100, sortable:true, hidden:true}, field:{name:'fun_col__fun_id',type:'string'}},
-	{col:{header:'字段ID', width:100, sortable:true, hidden:true}, field:{name:'fun_col__col_id',type:'string'}}
+	{col:{header:'字段ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'fun_col__col_id',type:'string'}}
 	];
 	
 	config.param = {

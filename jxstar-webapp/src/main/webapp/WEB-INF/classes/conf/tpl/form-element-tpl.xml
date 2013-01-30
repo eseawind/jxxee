@@ -16,7 +16,6 @@
 		{
 			anchor:'100%',
 			border:false,
-			xtype:'container',
 			layout:'column',{fieldset}
 			autoHeight:true,
 			items:[{columnitems}
@@ -28,7 +27,6 @@
 	<element name='columnitem'><![CDATA[
 			{
 				border:false,
-				xtype:'container',
 				columnWidth:{colwidth},
 				layout:'form',
 				style: 'padding-left:10px;',
@@ -114,14 +112,14 @@
 						anchor:'{anchor}', readOnly:false, editable:false, allowBlank:true,
 						store: new Ext.data.SimpleStore({
 							fields:['value','text'],
-							data: {name}Data
+							data: Data{name}
 						}),
 						emptyText: jx.star.select,
 						mode: 'local',
 						triggerAction: 'all',
 						valueField: 'value',
 						displayField: 'text',
-						value: {name}Data[0][0]}
+						value: Data{name}[0][0]}
 	]]>
 	</element>
 

@@ -480,12 +480,27 @@ JxSelect = {};
 				});
 				combo.store = store;
 				
+				//把日期字段提出来，处理日期字段显示格式
+				var dfs = {}, dfn = 0;
+				Ext.each(data.fields, function(item) {
+					if (item.type == 'date') {
+						dfn++;
+						dfs[item.name] = item;
+					}
+				});
+				
 				//计算合计表格宽度，构建字段
 				var ds = data.design, tw = 0, xt = [], j = 0;
 				Ext.each(ds, function(item) {
 					if (!item.h) {
 						tw += item.w;
-						xt[j++] = '<td style="width:'+ item.w +'px;">{'+ item.n +'}</td>';
+						//符合条件的是日期字段
+						if (dfn > 0 && dfs[item.n]) {
+							var f = dfs[item.n].dateFormat;
+							xt[j++] = '<td style="width:'+ item.w +'px;">{[values.'+ item.n +' ? values.'+ item.n +'.format("'+ f +'") : ""]}</td>';
+						} else {
+							xt[j++] = '<td style="width:'+ item.w +'px;">{'+ item.n +'}</td>';
+						}
 					}
 				});
 				

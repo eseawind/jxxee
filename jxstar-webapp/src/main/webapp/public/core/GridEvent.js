@@ -1211,7 +1211,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 					//上传成功后关闭窗口并刷新数据
 					var hdCall = function() {
 						win.close();
-						if (nodeid == 'sys_attach' || nodeid == 'project_attach') {
+						if (nodeid == 'sys_attach' || nodeid == 'project_attach' || attachField) {
 							self.grid.getStore().reload();
 						}
 					};
