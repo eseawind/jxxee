@@ -1319,7 +1319,7 @@ JxUtil = {};
 			} else if (sd.length == 1) {
 				smonth = smonth + '-01-01';
 			}
-			var dt = Date.parseDate(smonth, "Y-m");
+			var dt = Date.parseDate(smonth, "Y-m-d");
 
 			dt = dt.add(Date.MONTH, num);
 			return dt.format('Y-m');
