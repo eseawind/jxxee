@@ -270,12 +270,6 @@ Ext.ns('Jxstar');
 			treePanel = treePanel || target.getComponent(0);
 			dataPanel = dataPanel || target.getComponent(1);
 
-			//取树形定义
-			/*var treeDefine = TreeData[nodeId][0];
-			if (treeDefine == null) {
-				JxHint.alert(jx.star.notree);	//'没有定义树形信息！'
-				return;
-			}*/
 			//根节点ID
 			var ROOT_ID = '10';
 		
@@ -285,12 +279,10 @@ Ext.ns('Jxstar');
 					dataUrl += '&tree_funid='+nodeId+'&user_id='+Jxstar.session['user_id'];
 				
 				var tbar = new Ext.Toolbar();
-				var refresh = {id:'refresh'};
 				var tree = new Ext.tree.TreePanel({
+					teamid: (isTeam) ? team_id : '',
 					tbar: (isTeam) ? null : tbar,
-					title: (isTeam) ? team_title : null,
-					tools: (isTeam) ? [refresh] : null,
-					iconCls: (isTeam) ? 'tree_root' : null,
+					border: (isTeam) ? false : true,
 					
 					autoScroll:true,
 					rootVisible:false,
@@ -321,7 +313,6 @@ Ext.ns('Jxstar');
 						if (title.length > 0) {
 							tbar.items.get(0).setText(title);
 						}
-						
 						node.attributes.tree_no = attr.tree_no;
 						node.attributes.table_name = attr.table_name;
 						node.attributes.node_level = attr.node_level;
@@ -338,8 +329,7 @@ Ext.ns('Jxstar');
 					tree.fireEvent('click', tree.getRootNode());
 				};
 				tbar.add({text:jx.star.refresh, iconCls:'tree_root', handler:hd});
-				refresh.handler = hd;
-
+				
 				//处理目标表格对象查询与属性
 				var delayFun = function() {
 					var tabPanel = dataPanel.getComponent(0);
@@ -503,13 +493,37 @@ Ext.ns('Jxstar');
 					treePanel.doLayout();
 					return;
 				}
-				//如果有多个树形控件，则采用抽屉布局
+				//如果有多个树形控件，不采用抽屉布局，改为card布局
 				var isTeam = data.length > 1;
+				var cur_tree;
 				if (isTeam) {
-					treePanel.layout = new Ext.Container.LAYOUTS['accordion'];
-					treePanel.on('afterrender', function(c){
-						c.getEl().setStyle('border-top-width', '1px');
+					var comboData = new Array();
+					for(var i=0;i<data.length;i++){
+						comboData[i] = [data[i].team_id,data[i].team_title];
+					}
+					
+					var combo = Jxstar.createCombo('sel_tree', comboData, 130);
+					//添加comboBox
+					var tbar = treePanel.getTopToolbar();
+					tbar.add(combo);
+					
+					combo.on('select',function(cb){
+						var value = cb.value;
+						cur_tree = treePanel.find('teamid', value);
+						if(cur_tree == null) return;
+						
+						treePanel.layout.setActiveItem(cur_tree.id);
 					});
+					
+					//添加刷新按钮
+					var hd = function(){
+						cur_tree.getLoader().load(cur_tree.getRootNode());
+						cur_tree.fireEvent('click', cur_tree.getRootNode());
+					};
+					tbar.add('->',{text:'',iconCls:'x-tbar-loading', handler:hd});
+					
+					treePanel.border = true;
+					treePanel.layout = new Ext.Container.LAYOUTS['card'];
 				}
 				
 				for (var i = 0, n = data.length; i < n; i++) { 
@@ -517,11 +531,14 @@ Ext.ns('Jxstar');
 					treePanel.add(tree);
 					treePanel.doLayout();
 				}
+				
+				treePanel.activeItem = 0;
+				cur_tree = treePanel.getComponent(0);
 			}
 			//Request.dataRequest(params, hdCall);//由于是异步，外部方法取不到tree
 			var define = Jxstar.findNode(nodeId);
 			hdCall(define.treeteam);
-
+			
 			return tree;
 		},
 
