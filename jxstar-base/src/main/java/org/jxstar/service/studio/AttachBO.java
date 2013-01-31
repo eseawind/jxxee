@@ -198,8 +198,7 @@ public class AttachBO extends BusinessObject {
 			return _returnFaild;
 		}
 		
-		String myField = getAttachField(requestContext);
-		FileItem item = (FileItem) requestContext.getRequestObject(myField);
+		FileItem item = getAttachItem(requestContext);
 		//取原文件名
 		String orgName = FileUtil.getFileName(item.getName());
 		//取保存文件的完整路径，在insertRecord方法中赋值的
@@ -256,8 +255,7 @@ public class AttachBO extends BusinessObject {
 		String systemPath = SystemVar.getValue("upload.file.path", "D:/ATTACHDOC");
 		
 		//取附件信息
-		String myField = getAttachField(requestContext);
-		FileItem item = (FileItem) requestContext.getRequestObject(myField);
+		FileItem item = getAttachItem(requestContext);
 		if (item == null || item.isFormField()) {
 			throw new BoException(JsMessage.getValue("systembo.attachbo.noupload"));
 		}
@@ -312,24 +310,24 @@ public class AttachBO extends BusinessObject {
 	}
 	
 	/**
-	 * 取file控件的字段名称
+	 * 取上传file对象
 	 */
-	private String getAttachField(RequestContext request) {
-		//取相关表名，是表单附件字段上传的附件才会传表名
-		String tableName = request.getRequestValue("table_name");
+	private FileItem getAttachItem(RequestContext request) {
+		String myField = "attach_path";
 		//取附件相关的字段
 		String attachField = request.getRequestValue("attach_field");
-		
-		String myField = "attach_path";
 		if (attachField.length() > 0) {
-			if (tableName != null && tableName.length() > 0) {
-				myField = tableName+ "__" +attachField; //表单中的字段名格式如：table_name__field_name
-			} else {
-				myField = attachField;
-			}
+			myField = attachField;
 		}
 		
-		return myField;
+		FileItem item = (FileItem) request.getRequestObject(myField);
+		if (item == null || item.isFormField()) {
+			//业务表名
+			String table = request.getRequestValue("table_name");
+			item = (FileItem) request.getRequestObject(table+"__"+attachField);
+		}
+		
+		return item;
 	}
 	
 	/**
