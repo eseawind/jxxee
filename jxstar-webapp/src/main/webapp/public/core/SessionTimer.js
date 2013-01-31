@@ -93,7 +93,7 @@ SessionTimer = {};
 		signedOut: function() {		
 			JxUtil.logout(true);	//退出系统
 			JxUtil.isLogout = true;	//正常退出
-			window.location.reload();
+			window.location.href = Jxstar.path;
 		}
 	});//Ext.apply
 

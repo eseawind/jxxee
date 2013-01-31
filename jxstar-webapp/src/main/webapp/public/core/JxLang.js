@@ -105,17 +105,18 @@ Ext.apply(JxLang, {
 	*/
 	eventLang: function(nodeId, cfg) {
 		if (this.type == this.BASE) return;
+		if (Ext.isEmpty(jeLang)) return;
 		
-		var text, code = cfg.eventCode;
+		var ntext, code = cfg.eventCode;
 		//先根据功能ID取值
 		var lang = jeLang[nodeId];
 		//如果是自定义事件，则有值
-		if (lang) text = lang[code];
+		if (lang) ntext = lang[code];
 		//否则取系统事件中同名事件的值
-		if (!text) text = (jeLang.sysevent)[code] || code;
+		if (Ext.isEmpty(ntext)) ntext = (jeLang.sysevent)[code];
 		
 		//修改按钮的文字
-		cfg.text = text;
+		if (!Ext.isEmpty(ntext)) cfg.text = ntext;
 	},
 	
 	/**
@@ -125,8 +126,10 @@ Ext.apply(JxLang, {
 	*/
 	moduleText: function(moduleId, text) {
 		if (this.type == this.BASE) return text;
+		if (Ext.isEmpty(jfLang)) return text;
 		
-		return jfLang.module[moduleId];
+		var ntext = jfLang.module[moduleId];
+		return (ntext) ? ntext : text;
 	},
 	
 	/**
@@ -136,8 +139,10 @@ Ext.apply(JxLang, {
 	*/
 	funText: function(nodeId, text) {
 		if (this.type == this.BASE) return text;
+		if (Ext.isEmpty(jfLang)) return text;
 		
-		return jfLang.fun[nodeId];
+		var ntext = jfLang.fun[nodeId];
+		return (ntext) ? ntext : text;
 	},
 	
 	//----------------------------------下面处理字段名的多语言文字-----------------------------------
@@ -157,8 +162,11 @@ Ext.apply(JxLang, {
 			var name = items[i].name,
 				label = items[i].fieldLabel;
 			
-			if (name && label) {
-				items[i].fieldLabel = lang[name];
+			if (name && label && lang) {
+				var ntext = lang[name];
+				if (ntext) {
+					items[i].fieldLabel = ntext;
+				}
 			}
 			
 			var subitems = items[i].items;
@@ -179,9 +187,14 @@ Ext.apply(JxLang, {
 		if (nodeId == null || nodeId.length == 0) return;
 		
 		var lang = this.fieldLang(nodeId);
+		if (lang == null) return;
+		
 		for (var i = 0, n = cols.length; i < n; i++) {
 			if (cols[i].col == null || cols[i].field == null) continue;
-			cols[i].col.header = lang[cols[i].field.name];
+			var ntext = lang[cols[i].field.name];
+			if (ntext) {
+				cols[i].col.header = ntext;
+			}
 		}
 	},
 	
