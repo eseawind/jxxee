@@ -509,10 +509,15 @@ Ext.ns('Jxstar');
 					
 					combo.on('select',function(cb){
 						var value = cb.value;
-						cur_tree = treePanel.find('teamid', value);
-						if(cur_tree == null) return;
-						
-						treePanel.layout.setActiveItem(cur_tree.id);
+						cur_tree = null;
+						treePanel.items.each(function(item){
+							if (item.teamid == value) {
+								cur_tree = item;
+							}
+						});
+						if(cur_tree) {
+							treePanel.layout.setActiveItem(cur_tree.id);
+						}
 					});
 					
 					//添加刷新按钮
