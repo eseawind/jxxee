@@ -101,19 +101,22 @@ Jxstar.GridNode.prototype = {
 		var fields = [];
 		//用于添加列序号列与复选框列
 		var cols = [];
-		//添加序号列，支持分页显示序号累加
-		var rn = new Ext.grid.RowNumberer({
-			renderer : function(v, p, record, rowIndex){
-				if(this.rowspan){
-					p.cellAttr = 'rowspan="'+this.rowspan+'"';
-				}
-				return rowIndex+1+Jxstar.startNo;
-			}
-		});
-		cols[0] = rn;
-		
+
 		//定义列控件序号、列字段序号
-		var sn = 1, fn = 0;
+		var sn = 0, fn = 0;
+		if (!self.param.noRowNum) {
+			//添加序号列，支持分页显示序号累加
+			var rn = new Ext.grid.RowNumberer({
+				renderer : function(v, p, record, rowIndex){
+					if(this.rowspan){
+						p.cellAttr = 'rowspan="'+this.rowspan+'"';
+					}
+					return rowIndex+1+Jxstar.startNo;
+				}
+			});
+			cols[sn] = rn;
+			sn++;
+		}
 		
 		//这些类型的表格不需要显示checkbox
 		var noCheck = (self.pageType == 'notoolgrid') || 
