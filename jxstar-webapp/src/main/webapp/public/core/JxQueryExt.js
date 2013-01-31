@@ -115,6 +115,7 @@ JxQueryExt = {};
 					hcfgs.add(JxQueryExt.archCfg);
 				}
 			}
+			
 			//添加到查询工具栏容器中
 			grid.qryCt.add(hcfgs);
 			
@@ -238,26 +239,27 @@ JxQueryExt = {};
 				
 				var str = qrycfg.colname;
 				if (Ext.isEmpty(str)) str = mc.header;
-				if (qrycfg.condtype == 'like') {
-					str += ':';
-				} else {
-					str += qrycfg.condtype;
-				}
-				label = {xtype:'label', text:str};
+				str += ': ';
 				
+				if (coltype == 'date') {
+				//添加日期范围查询控件
+					qrycfg.colname = str;
+					self.dateCfgs(qryrow, qrycfg);
+				} else {
 				//添加一个查询字段
-				var len = qryrow.length;
-				qryrow[len] = label;
-				//保存查询配置值
-				field.data = qrycfg;
-				field.width = 100;
-				field.name = qrycfg.colcode;
-				field.listeners = {specialkey: function(f, e){
-					if (e.getKey() == e.ENTER) {
-						self.exeQry(f);
-					}
-				}};
-				qryrow[len+1] = field;
+					var len = qryrow.length;
+					qryrow[len] = {xtype:'label', text:str};
+					//保存查询配置值
+					field.data = qrycfg;
+					field.width = 100;
+					field.name = qrycfg.colcode;
+					field.listeners = {specialkey: function(f, e){
+						if (e.getKey() == e.ENTER) {
+							self.exeQry(f);
+						}
+					}};
+					qryrow[len+1] = field;
+				}
 				
 				break;
 			}
@@ -296,8 +298,8 @@ JxQueryExt = {};
 			hrs.items.each(function(f){
 				if (f.isXType('field') && f.getName() != 'xx_isarch') {
 					var v = f.getValue();
-					if (Ext.isEmpty(v) == false) {
-						var d = f.data;
+					var d = f.data;
+					if (d && Ext.isEmpty(v) == false) {
 						d.cond_value = v;
 						vfs.add(d);
 					}
@@ -305,6 +307,90 @@ JxQueryExt = {};
 			});
 		});
 		return vfs;
+	},
+	
+	/**
+	 * 添加日期范围查询控件
+	 * qryrow 查询控件行
+	 * qrycfg 查询配置数据
+	 */
+	dateCfgs: function(qryrow, qrycfg) {
+		var self = this;
+		var len = qryrow.length;
+		var colcode = qrycfg.colcode;
+		qryrow[len++] = {xtype:'tbtext', text:qrycfg.colname};
+
+		//今天日期
+		var td = JxUtil.getToday();
+		td = Date.parseDate(td, "Y-m-d");
+		//昨天日期
+		var yd = JxUtil.getToday(-1);
+		yd = Date.parseDate(yd, "Y-m-d");
+		//本周日期开始与结束日期
+		var wd = JxUtil.getWeekDates();
+		var wd1 = Date.parseDate(wd[0], "Y-m-d");
+		var wd2 = Date.parseDate(wd[1], "Y-m-d");
+		//本月日期开始与结束日期
+		var md = JxUtil.getMonthDates();
+		var md1 = Date.parseDate(md[0], "Y-m-d");
+		var md2 = Date.parseDate(md[1], "Y-m-d");
+		
+		//处理查询条件信息 qrycfg:{left_brack, colcode, colname, condtype, cond_value, right_brack, andor, coltype}
+		var sdata = Ext.applyIf({condtype:'>='}, qrycfg);
+		if (sdata.right_brack.length > 0) {
+			sdata.right_brack = '';
+		}
+		var edata = Ext.applyIf({condtype:'<'}, qrycfg);
+		if (sdata.left_brack.length > 0) {
+			edata.left_brack = '';
+		}
+		
+		//回车直接查询
+		var lsn = {specialkey: function(f, e){
+			if (e.getKey() == e.ENTER) {self.exeQry(f);}
+		}};
+		
+		//开始日期
+		var sd = new Ext.form.DateField({
+			xtype:'datefield',width:100,name:colcode,format: "Y-m-d",value:td,data:sdata,listeners:lsn
+		}); 
+		//结束日期
+		var ed = new Ext.form.DateField({
+			xtype:'datefield',width:100,name:colcode,format: "Y-m-d",value:td.add(Date.DAY, 1),data:edata,listeners:lsn
+		});	
+		
+		//设置查询的开始日期与结束日期
+		var rahd = function(radio){
+			if(radio.checked) {
+				var value = radio.inputValue;
+				if(value == 'today') {
+					sd.setValue(td);
+					ed.setValue(td.add(Date.DAY, 1));
+				} else if(value == 'yestoday') {
+					sd.setValue(yd);
+					ed.setValue(yd.add(Date.DAY, 1));
+				} else if(value == 'toweek') {
+					sd.setValue(wd1);
+					ed.setValue(wd2);
+				} else if(value == 'tomonth') {
+					sd.setValue(md1);
+					ed.setValue(md2);
+				}
+			}
+		};
+		var dateRange = [
+				{xtype:'radio',boxLabel:'今天',name:'dateRange',inputValue :'today',checked:true, listeners :{check:rahd}},
+				{xtype:'radio',boxLabel:'昨天',name:'dateRange',inputValue :'yestoday', listeners :{check:rahd}},
+				{xtype:'radio',boxLabel:'本周',name:'dateRange',inputValue :'toweek', listeners :{check:rahd}},
+				{xtype:'radio',boxLabel:'本月',name:'dateRange',inputValue :'tomonth', listeners :{check:rahd}}
+			];	
+		qryrow[len++] = dateRange[0];
+		qryrow[len++] = dateRange[1];
+		qryrow[len++] = dateRange[2];
+		qryrow[len++] = dateRange[3];
+		qryrow[len++] = sd;
+		qryrow[len++] = {xtype:'tbtext',text:'~'};
+		qryrow[len++] = ed;
 	},
 	
 	/**
