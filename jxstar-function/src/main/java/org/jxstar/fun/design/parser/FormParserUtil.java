@@ -355,7 +355,7 @@ public class FormParserUtil {
 					//添加选项数据
 					if (ctlType.equals("combo")) {
 						if (_comboData.length() > 0) _comboData.append("\t");
-						_comboData.append("var "+ctlName+"Data = Jxstar.findComboData('"+ctlName+"');\r\n");
+						_comboData.append("var Data"+ctlName+" = Jxstar.findComboData('"+ctlName+"');\r\n");
 					}
 				}
 			}

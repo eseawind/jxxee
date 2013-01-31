@@ -80,7 +80,7 @@ public class GridParserUtil {
 			//添加选项数据
 			if (ctlType.equals("combo") && comboData.indexOf("var "+ctlName+"Data") < 0) {
 				if (comboData.length() > 0) comboData.append("\t");
-				comboData.append("var "+ctlName+"Data = Jxstar.findComboData('"+ctlName+"');\r\n");
+				comboData.append("var Data"+ctlName+" = Jxstar.findComboData('"+ctlName+"');\r\n");
 			}
 			
 			//该字段解析后的字符串

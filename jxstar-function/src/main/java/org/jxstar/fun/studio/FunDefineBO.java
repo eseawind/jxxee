@@ -6,6 +6,7 @@
  */
 package org.jxstar.fun.studio;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -124,25 +125,27 @@ public class FunDefineBO extends BusinessObject {
 	}
 	
 	/**
-	 * 构建JSON对象。
+	 * 构建所有功能的JSON对象。
 	 * @return
 	 */
 	public String createJson(String realPath) {
-		String sql = "select fun_id, fun_name, layout_page, grid_page, form_page, table_name, "+
-					 "pk_col, fk_col, audit_col, subfun_id, show_form, first_field, is_archive " +
-					 "from fun_base where reg_type not in ('nouse') " + 
-					 "order by module_id, fun_index ";
-
-		DaoParam param = _dao.createParam(sql);
-		param.setDsName(DefineName.DESIGN_NAME);
-		List<Map<String,String>> lsfun = _dao.query(param);
+		return createJson(realPath, "");
+	}
+	
+	/**
+	 * 构建指定模块功能的JSON对象。
+	 * @return
+	 */
+	public String createJson(String realPath, String moduleId) {
+		if (moduleId == null) moduleId = "";
+		List<Map<String,String>> lsfun = queryFun(moduleId);
 		
 		//功能ID
 		String funid = "";
 		//一条功能数据
 		StringBuilder sbItem = new StringBuilder();
-		//所有功能数据
-		StringBuilder sbJson = new StringBuilder("NodeDefine = {\r");
+		//模块功能数据
+		StringBuilder sbJson = new StringBuilder("{\r\n");
 		for (int i = 0, n = lsfun.size(); i < n; i++) {
 			Map<String,String> mpfun = lsfun.get(i);
 			
@@ -171,20 +174,30 @@ public class FunDefineBO extends BusinessObject {
 			sbItem.append("isarch:'"+mpfun.get("is_archive")+"'");
 			
 			if (i < n-1) {
-				sbItem.append("},\r");
+				sbItem.append("},\r\n");
 			} else {
-				sbItem.append("}\r");
+				sbItem.append("}\r\n");
 			}
 			
 			sbJson.append(sbItem);
 			//清除原控件数据
 			sbItem = sbItem.delete(0, sbItem.length());
 		}
-		sbJson.append("};");
+		sbJson.append("}");
 		
-		//数据生成文件
+		//文件内容
+		String content = "";
+		//功能数据文件
 		String fileName = realPath + "/public/data/NodeDefine.js";
-		String content = sbJson.toString();
+		
+		//添加一个模块的功能数据
+		if (moduleId.length() > 0) {
+			content = FileUtil.readFileUtf8(fileName);
+			content += "\r\nExt.apply(NodeDefine, " + sbJson.toString() + ");";
+		} else {
+			content = "\r\nNodeDefine = " + sbJson.toString() + ";";
+		}
+		
 		if (!FileUtil.saveFileUtf8(fileName, content)) {
 			setMessage(JsMessage.getValue("nodedefine.gdfcerror"));
 			return _returnFaild;
@@ -333,6 +346,19 @@ public class FunDefineBO extends BusinessObject {
 			String json = ArrayUtil.listToJson(lsTeam);
 			return "treeteam:" + json + ", ";
 		}
+	}
+	
+	//取指定模块的功能信息
+	private List<Map<String,String>> queryFun(String moduleId) {
+		String sql = "select fun_id, fun_name, layout_page, grid_page, form_page, table_name, "+
+				 "pk_col, fk_col, audit_col, subfun_id, show_form, first_field, is_archive " +
+				 "from fun_base where reg_type not in ('nouse') " +
+				 " and module_id like '"+ moduleId +"%'" +
+				 "order by module_id, fun_index ";
+		
+		DaoParam param = _dao.createParam(sql);
+		param.setDsName(DefineName.DESIGN_NAME);
+		return _dao.query(param);
 	}
 	
 }

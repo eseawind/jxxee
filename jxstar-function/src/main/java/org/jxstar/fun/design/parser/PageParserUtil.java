@@ -88,16 +88,16 @@ public class PageParserUtil {
 		if (format == null || format.length() == 0) return "";
 			
 		if (format.equals("datetime")) {
-			return "'Y-m-d H:i:s'";
+			return "Y-m-d H:i:s";
 		} else if (format.equals("datemin")) {
-			return "'Y-m-d H:i'";
+			return "Y-m-d H:i";
 		} else if (format.equals("datemonth")) {
-			return "'Y-m'";
+			return "Y-m";
 		} else if (format.equals("dateyear")) {
-			return "'Y'";
+			return "Y";
+		} else {
+			return "Y-m-d";
 		}
-		
-		return format;
 	}
 	
 	/**
