@@ -234,7 +234,7 @@ Jxstar.GridNode.prototype = {
 			if (cnt < 6) cnt = 6;//最少显示6行的高度 230
 			var height = 26*4+cnt*21;//4行固定高度+21个像素每行的高度
 			self.page.ownerCt.setHeight(height);
-			self.page.ownerCt.doLayout();
+			form.doLayout();//不加这行，当form出现滚动条时会挡住部分界面
 		}
 	},
 	
