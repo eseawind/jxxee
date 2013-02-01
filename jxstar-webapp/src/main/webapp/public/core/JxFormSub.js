@@ -33,11 +33,13 @@ JxFormSub = {};
 			//标志此功能在form中显示
 			//在GridNode.js中构建表格时不带边框，而且分页工具栏显示在顶部。
 			subdefine.showInForm = true;
+			//第一个子表展开，后面的子表折叠
+			var csed = (i > 0);
 			
 			var subcfg = {
 				title:subtitle, baseCls:'xs-panel', iconCls:'sub_title', data:subid, 
 				cls:'sub_panel', border:true, layout:'fit', collapsible:true, 
-				collapsed:false, anchor:'100%', height:530
+				collapsed:csed, anchor:'100%', height:230
 			};
 			Ext.apply(subcfg, fm.subConfig);
 			cfgitems[cfgitems.length] = subcfg;
