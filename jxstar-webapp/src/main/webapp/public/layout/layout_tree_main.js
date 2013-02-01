@@ -192,6 +192,8 @@ Jxstar.currentPage = function(define, pageParam) {
 	//给tab切换添加快捷键
 	JxUtil.tabAddKey(tabGridForm);
 	//=============================在layout_main基础上添加了下面一段=======================
+	var tbar = null, tt = define.treeteam;
+	if (tt && tt.length > 1) tbar = new Ext.Toolbar();
 	//创建树形布局面板
 	var funLayout = new Ext.Panel({
 		border:false,
@@ -204,7 +206,8 @@ Jxstar.currentPage = function(define, pageParam) {
 			minSize: 160,
 	        maxSize: 300,
 			split:true,
-			border:false
+			border:false,
+			tbar: tbar
 		},{
 			region:'center',
 			layout:'fit',

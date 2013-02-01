@@ -23,6 +23,8 @@ Jxstar.currentPage = function(define, pageParam) {//pageType, parentNodeId
 	pageParam = pageParam || {};
 	var pageType = pageParam.pageType || 'grid';
 
+	var tbar = null, tt = define.treeteam;
+	if (tt && tt.length > 1) tbar = new Ext.Toolbar();
 	//创建树形布局面板
 	var funLayout = new Ext.Panel({
 		border:false,
@@ -35,7 +37,8 @@ Jxstar.currentPage = function(define, pageParam) {//pageType, parentNodeId
 			minSize: 160,
 	        maxSize: 300,
 			split:true,
-			border:false
+			border:false,
+			tbar:tbar
 		},{
 			region:'center',
 			layout:'fit',
