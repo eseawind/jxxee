@@ -278,9 +278,14 @@ JxSelect = {};
 				var gdom = parentField.el.findParentNode('div.x-grid-panel');
 				var grid = Ext.getCmp(gdom.id);
 				if (grid) {
-					var selRecord = JxUtil.getSelectRows(grid);
-					if (selRecord && selRecord.length > 0) {
-						tagRecord = selRecord[0];
+					var last = grid.lastEdit;
+					if (last) {//防止标记到了下一行，实际触发原记录
+						tagRecord = grid.getStore().getAt(last.row);
+					} else {
+						var selRecord = JxUtil.getSelectRows(grid);
+						if (selRecord && selRecord.length > 0) {
+							tagRecord = selRecord[0];
+						}
 					}
 				}
 			} else {
@@ -428,6 +433,7 @@ JxSelect = {};
 		},
 		
 		//构建查询combosel控件
+		//值必须是选择的，则会造成其它附带字段值没法清空
 		initCombo: function(funId, combo, targetFlag, isAll) {
 			var self = this;
 			//继续添加初始参数
@@ -565,13 +571,12 @@ JxSelect = {};
 					setData(cb, record);
 					cb.selValue = cb.getValue();
 				});
-				//当没有选择时，原来有值了，所以需要记录此事件
+				//当没有选择时，记录原值
 				combo.on('focus', function(cb){
 					cb.selValue = cb.getValue();
 				});
 				
-				//如果字段值为空，则清除选择记录;
-				//如果光标离开时的值与上次选择的值不同，则清空选择；要保证输入的值是选择的值
+				//如果值为空或不是选择的值，则清空记录
 				combo.on('blur', function(cb){
 					if (targetFlag.indexOf('form') >= 0) {
 						var value = cb.getValue();
@@ -586,12 +591,13 @@ JxSelect = {};
 				if (targetFlag.indexOf('grid') >= 0) {
 					var editor = combo.gridEditor;
 					if (editor) {
-						//如果不允许为空，清空值时不会执行此事件
+						//如果是必填字段，清空值时不会执行此事件
 						editor.on('complete', function(ed, value, start){
-							//如果原来的值与修改后的值都为空，则不处理
+							//如果原值与新值都为空，则不处理
 							if (Ext.isEmpty(value) && Ext.isEmpty(start)) return;
+							//如果值为空或不是选择的值，则清空记录
 							var incb = ed.field;
-							if (value.length == 0 || (incb.selValue && incb.selValue != value)) {
+							if (value.length == 0 || (value != start && value != incb.selValue)) {
 								var record = JxUtil.emptyRecord(store);
 								setData(incb, record);
 							}
