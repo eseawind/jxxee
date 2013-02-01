@@ -732,7 +732,11 @@ Ext.form.Field.prototype.afterRender = function(){
 			}
 		}
 	};
-	this.mon(this.el, Ext.EventManager.getKeyEvent(), fn, this);
+	//回车进入下一控件的开关
+	var isEnter = Jxstar.systemVar.edit__field__next;
+	if (isEnter == '1') {
+		this.mon(this.el, Ext.EventManager.getKeyEvent(), fn, this);
+	}
 };
 
 /**
@@ -747,25 +751,47 @@ Ext.grid.RowSelectionModel.prototype.onEditorKey = function(field, e){
 		ed = g.activeEditor,
 		shift = e.shiftKey,
 		ae, last, r, c;
-		
-	if(k == e.ENTER){//modify, ed.row --> last.row, last.col
-		e.stopEvent();
-		//ed.completeEdit(); //ENTER is completeEdited
-		if(shift){
-			newCell = g.walkCells(last.row, last.col-1, -1, this.acceptsNav, this);
-		}else{
-			newCell = g.walkCells(last.row, last.col+1, 1, this.acceptsNav, this);
-		}
-	}else if(k == e.TAB){//modify
-		e.stopEvent();//add
-		ed.completeEdit();//add
-		if(this.moveEditorOnEnter !== false){
+	
+	//回车键开关
+	var isEnter = (Jxstar.systemVar.edit__field__next == '1');
+	if (isEnter) {//is enter
+		if(k == e.ENTER){//modify, ed.row --> last.row, last.col
+			//e.stopEvent();
+			//ed.completeEdit(); //ENTER is completeEdited
 			if(shift){
-				newCell = g.walkCells(last.row - 1, last.col, -1, this.acceptsNav, this);
+				newCell = g.walkCells(last.row, last.col-1, -1, this.acceptsNav, this);
 			}else{
-				newCell = g.walkCells(last.row + 1, last.col, 1, this.acceptsNav, this);
+				newCell = g.walkCells(last.row, last.col+1, 1, this.acceptsNav, this);
+			}
+		}else if(k == e.TAB){//modify
+			e.stopEvent();//add
+			ed.completeEdit();//add
+			if(this.moveEditorOnEnter !== false){
+				if(shift){
+					newCell = g.walkCells(last.row - 1, last.col, -1, this.acceptsNav, this);
+				}else{
+					newCell = g.walkCells(last.row + 1, last.col, 1, this.acceptsNav, this);
+				}
 			}
 		}
+	} else {//is old
+        if(k == e.TAB){
+            e.stopEvent();
+            ed.completeEdit();
+            if(shift){
+                newCell = g.walkCells(ed.row, ed.col-1, -1, this.acceptsNav, this);
+            }else{
+                newCell = g.walkCells(ed.row, ed.col+1, 1, this.acceptsNav, this);
+            }
+        }else if(k == e.ENTER){
+            if(this.moveEditorOnEnter !== false){
+                if(shift){
+                    newCell = g.walkCells(last.row - 1, last.col, -1, this.acceptsNav, this);
+                }else{
+                    newCell = g.walkCells(last.row + 1, last.col, 1, this.acceptsNav, this);
+                }
+            }
+        }
 	}
 	if(newCell){
 		r = newCell[0];
@@ -783,7 +809,7 @@ Ext.grid.RowSelectionModel.prototype.onEditorKey = function(field, e){
 		g.startEditing(r, c);
 	}
 	
-	//add by tony 按下ctrl键则完成编辑状态，可执行表格快捷键
+	//add by tony 按下ctrl+alt键则完成编辑状态，用于执行表格快捷键
 	if (e.ctrlKey && e.altKey && ed) {
 		ed.completeEdit();
 	}
