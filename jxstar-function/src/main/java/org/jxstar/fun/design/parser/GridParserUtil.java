@@ -135,8 +135,11 @@ public class GridParserUtil {
 				sbRow.append(", " + fieldjs);
 			}
 			
+			//处理字段名称，如table.field_code as fld
+			code = getBmField(code);
+			code = code.replace(".", "__");
 			//字段信息
-			sbRow.append("}, field:{name:'"+code.replace(".", "__")+"'");
+			sbRow.append("}, field:{name:'"+code+"'");
 			sbRow.append(",type:'"+dataType+"'}}");
 			
 			//行结束
@@ -212,7 +215,7 @@ public class GridParserUtil {
 			}
 		}
 		
-		String fieldCode = mpColumn.get("col_code");
+		String fieldCode = getBmField(mpColumn.get("col_code"));
 		//处理字段长度
 		String code = StringUtil.getNoTableCol(fieldCode);
 		String datalen = MapUtil.getValue(_fieldLen, code, "1000");
@@ -400,8 +403,9 @@ public class GridParserUtil {
 			Map<String,String> mpcol = null;
 			for (int j = 0, m = columnData.size(); j < m; j++) {
 				mpcol = columnData.get(j);
+				String code = getBmField(mpcol.get("col_code"));
 				
-				if (colname.equals(mpcol.get("col_code"))) {
+				if (colname.equals(code)) {
 					mpcol.put("col_width", colwidth);
 					mpcol.put("col_hidden", colhidden);
 					
@@ -422,10 +426,10 @@ public class GridParserUtil {
 		if (cs > lsData.size()) {
 			for (int j = 0; j < cs; j++) {
 				Map<String,String> mpcol = columnData.get(j);
-				String fn = mpcol.get("col_code");
+				String code = getBmField(mpcol.get("col_code"));
 				
 				//如果该字段在设计信息中没有，则添加到设计信息中，并缺省为隐藏
-				if (sbfield.indexOf(fn) < 0) {
+				if (sbfield.indexOf(code) < 0) {
 					mpcol.put("col_hidden", "true");
 					lsData.add(mpcol);
 				}
@@ -435,5 +439,16 @@ public class GridParserUtil {
 		//System.out.println("column data=" + lsData.toString());
 		
 		return lsData;
+	}
+	
+	//取字段别名
+	private String getBmField(String code) {
+		if (code == null || code.length() == 0) return code;
+		
+		int pos = code.indexOf(" as ");
+		if (pos > -1) {
+			code = code.substring(pos+4, code.length());
+		}
+		return code;
 	}
 }
