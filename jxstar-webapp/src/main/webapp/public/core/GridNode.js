@@ -218,7 +218,7 @@ Jxstar.GridNode.prototype = {
 	},
 	
 	//private 加载数据，显示加载时间
-	storeLoad: function() {
+	storeLoad: function(store) {
 		var self = this;
 		Jxstar.loadDataBc(self.page);
 		
@@ -226,6 +226,16 @@ Jxstar.GridNode.prototype = {
 		Jxstar.et = (new Date()).getTime(); 
 		var useTime = Jxstar.et - Jxstar.st;
 		JxHint.hint('use time(ms): ' + useTime);
+		
+		//如果是form中的明细表，则根据记录条数显示表格高度
+		var form = self.page.findParentByType('form');
+		if (form) {
+			var cnt = store.getCount();
+			if (cnt < 6) cnt = 6;//最少显示6行的高度 230
+			var height = 26*4+cnt*21;//4行固定高度+21个像素每行的高度
+			self.page.ownerCt.setHeight(height);
+			self.page.ownerCt.doLayout();
+		}
 	},
 	
 	//public 传入新的列配置，重新构建表格对象
