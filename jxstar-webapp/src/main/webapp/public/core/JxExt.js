@@ -429,9 +429,9 @@ Ext.form.TriggerField.prototype.setReadOnly = function(readOnly){
 		} else {
 			this.el.removeClass('x-field-only');
 		}//---add by
+		this.readOnly = readOnly;
 		this.updateEditState();
 	}
-	this.readOnly = readOnly;
 };
 
 /**
