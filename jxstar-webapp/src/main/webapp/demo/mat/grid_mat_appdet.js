@@ -2,10 +2,10 @@
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 
 	var cols = [
-	{col:{header:'*物资编码', width:100, sortable:true, editable:true, hcss:'color:#0000ff;',
+	{col:{header:'物资编码', width:100, sortable:true, editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.ComboBox({
 			maxLength:1000, name:'mat_base__mat_code', 
-			editable:true, hcss:'color:#0000ff;', allowBlank:false,
+			editable:true, hcss:'color:#3039b4;',
 			triggerClass:'x-form-search-trigger', 
 			listeners:{afterrender: function(combo) {
 				JxSelect.initCombo('mat_appdet', combo, 'node_mat_appdet_editgrid');
