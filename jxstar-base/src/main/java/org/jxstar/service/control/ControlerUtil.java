@@ -11,7 +11,6 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
-
 import org.jxstar.control.action.RequestContext;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.EventDefine;
@@ -89,7 +88,6 @@ public class ControlerUtil {
 	 * @param requestContext - 上下文信息
 	 * @return boolean 返回true表示成功; 返回false表示失败.
 	 */
-	@SuppressWarnings({"rawtypes"})
     private static boolean invoke(String sClassName, String sMethodName,
 			Object[] params, RequestContext requestContext) {
 		if (sClassName == null || sClassName.length() == 0 ||
@@ -98,7 +96,7 @@ public class ControlerUtil {
 			return false;
 		}
 		//创建组件的class对象
-		Class clzz = null;
+		Class<?> clzz = null;
 		try {
 			clzz = Class.forName(sClassName);
 		} catch (ClassNotFoundException e) {
@@ -125,7 +123,7 @@ public class ControlerUtil {
 		
 		//创建组件的方法对象		
 		Method method = null;
-		Class[] clzzParams = getParamClass(params);
+		Class<?>[] clzzParams = getParamClass(params);
 		try {
 			method = clzz.getMethod(sMethodName, clzzParams);
 		} catch (SecurityException e) {
