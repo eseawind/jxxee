@@ -38,13 +38,12 @@ public class LogTest {
 		
 	}
 
-	@SuppressWarnings({"rawtypes"})
 	public static Object loadclass(String classname) {
 		try {
 			//创建资源工具的class对象
-			Class clzz = Class.forName(classname);
+			Class<?> clzz = Class.forName(classname);
 			//调用资源工具的初始化方法
-			Method method = clzz.getMethod("hello", new Class[]{String.class});
+			Method method = clzz.getMethod("hello", String.class);
 			return method.invoke(null, new Object[]{"tanzhi"});
 		} catch (Exception e) {
 			log.showError(e);
