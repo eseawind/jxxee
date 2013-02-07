@@ -55,7 +55,7 @@ public class DaoUtil {
 			int columnNum = rsmd.getColumnCount();
 
 			for (int i = 1; i <= columnNum; i++) {
-				lsRet.add(rsmd.getColumnName(i).toLowerCase());
+				lsRet.add(rsmd.getColumnLabel(i).toLowerCase());
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -106,7 +106,8 @@ public class DaoUtil {
 				
 				map = FactoryUtil.newMap();
 				for (int i = 1; i <= columnNum; i++) {
-					strCol = rsmd.getColumnName(i).toLowerCase();
+					//由getColumnName改为getColumnLabel，DB2中必须用它取别名，其它数据库两者的值相同
+					strCol = rsmd.getColumnLabel(i).toLowerCase();
 					strVal = rs.getString(strCol);
 					if (strVal == null) strVal = "";
 					
