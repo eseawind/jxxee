@@ -51,7 +51,7 @@
 		</DataSource>
 		<DataSource memo="db2数据源示例">
 			<sourcename memo="数据源名">default</sourcename>
-			<schemaname memo="数据库名，构建数据表用">jxstar</schemaname>
+			<schemaname memo="数据库名，构建数据表用">dbadmin</schemaname>
 			<driverclass memo="驱动类">com.ibm.db2.jcc.DB2Driver</driverclass>
 			<jdbcurl memo="访问URL"><![CDATA[jdbc:db2://localhost:50000/jxstar]]></jdbcurl>
 			<username memo="数据库用户">dbadmin</username>
@@ -109,7 +109,7 @@
 		<SystemTask memo="加载数据库脚本模板">
 			<startup memo="是否加载[true|false]">true</startup>
 			<classname memo="任务类名">DmTempletLoader</classname>
-			<initparam memo="支持数据库类型[dbtype=oracle,mysql,sqlserver]">dbtype=oracle,mysql,sqlserver</initparam>
+			<initparam memo="支持数据库类型[dbtype=oracle,mysql,sqlserver]">dbtype=oracle,mysql,sqlserver,db2</initparam>
 		</SystemTask>
 		<SystemTask memo="加载后台任务">
 			<startup memo="是否加载[true|false]">true</startup>

@@ -122,8 +122,8 @@ Jxstar.FormNode.prototype = {
 		form.on('afterrender', function(page){
 			var fw = page.getWidth();
 			//有些外部panel的宽度小于800，需要重新设置宽度
-			if (fw < 800) {
-				page.getComponent(0).setWidth(fw-5);
+			if (fw < 800) {//需要减少20的内部padding宽度
+				page.getComponent(0).setWidth(fw-20);
 			}
 			
 			//显示form时，聚焦第一个控件

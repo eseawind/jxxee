@@ -3,7 +3,7 @@
 	<element name='create_table'>
 	<![CDATA[create table <param:table_name/> (
 <param:table_fields/>
-) in <param:table_space/>;]]>
+);]]>
 	</element>
 	
 	<element name='alter_table_name'>
@@ -35,7 +35,7 @@
 	</element>
 	
 	<element name='create_primary_key'>
-	<![CDATA[alter table <param:table_name/> add primary key (<param:key_field/>);]]>
+	<![CDATA[alter table <param:table_name/> add constraint pk_<param:table_name/> primary key (<param:key_field/>);]]>
 	</element>
 	
 	<element name='create_index'>
