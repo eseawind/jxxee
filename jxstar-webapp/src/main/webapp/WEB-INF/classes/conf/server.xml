@@ -2,7 +2,7 @@
 <Jxstar>
 	<DataSources memo="系统数据源定义">
 		<DataSource memo="oracle数据源示例">
-			<sourcename memo="数据源名">default</sourcename>
+			<sourcename memo="数据源名">default_ora</sourcename>
 			<schemaname memo="数据库名，构建数据表用">jxstar</schemaname>
 			<driverclass memo="驱动类">oracle.jdbc.driver.OracleDriver</driverclass>
 			<jdbcurl memo="访问URL"><![CDATA[jdbc:oracle:thin:@127.0.0.1:1521:orcl]]></jdbcurl>
@@ -48,6 +48,22 @@
 			<datasourcetype memo="数据源来源:[self|context],前者表示采用自带数据源,后者表示采用服务器数据源">self</datasourcetype>
 			<datasourceprefix memo="服务器数据源的JNDI名称,如: jdbc/default">jdbc/default</datasourceprefix>
 			<dbmstype memo="数据库类型">sqlserver</dbmstype>
+		</DataSource>
+		<DataSource memo="db2数据源示例">
+			<sourcename memo="数据源名">default</sourcename>
+			<schemaname memo="数据库名，构建数据表用">jxstar</schemaname>
+			<driverclass memo="驱动类">com.ibm.db2.jcc.DB2Driver</driverclass>
+			<jdbcurl memo="访问URL"><![CDATA[jdbc:db2://localhost:50000/jxstar]]></jdbcurl>
+			<username memo="数据库用户">dbadmin</username>
+			<password memo="数据库密码">dbadmin</password>
+			<maxconnum memo="最大连接数">50</maxconnum>
+			<maxwaittime memo="最大等待时间,ms">5000</maxwaittime>
+			<validtest memo="是否检查连接有效性:[true|false]">false</validtest>
+			<validquery memo="检查连接有效性的SQL">select count(*) from fun_base</validquery>
+			<valididle memo="是否启用检查空闲连接的线程:[true|false]">false</valididle>
+			<datasourcetype memo="数据源来源:[self|context],前者表示采用自带数据源,后者表示采用服务器数据源">self</datasourcetype>
+			<datasourceprefix memo="服务器数据源的JNDI名称,如: jdbc/default">jdbc/default</datasourceprefix>
+			<dbmstype memo="数据库类型">db2</dbmstype>
 		</DataSource>
 	</DataSources>
 
