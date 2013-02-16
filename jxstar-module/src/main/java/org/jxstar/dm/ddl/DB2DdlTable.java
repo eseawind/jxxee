@@ -6,9 +6,15 @@
  */
 package org.jxstar.dm.ddl;
 
+import java.util.List;
+import java.util.Map;
+
 import org.jxstar.dm.DdlField;
 import org.jxstar.dm.DdlIndex;
 import org.jxstar.dm.DdlTable;
+import org.jxstar.dm.DmException;
+import org.jxstar.dm.util.DmConfig;
+import org.jxstar.util.MapUtil;
 
 /**
  * db2表对象管理类。
@@ -36,4 +42,16 @@ public class DB2DdlTable extends DdlTable {
 		_indexObj = new DdlIndex(_parser);
 	}
 	
+	/**
+	 * 处理DB2修改表格结构后执行重组表数据命令
+	 */
+	public List<String> getModifySql(String tableId) throws DmException {
+		List<String> lssql = super.getModifySql(tableId);
+		
+		Map<String,String> mpTable = DmConfig.getTableCfg(tableId);
+		String tableName = MapUtil.getValue(mpTable, "table_name");
+		lssql.add("call sysproc.admin_cmd('reorg table "+ tableName +"');\r\n");
+		
+		return lssql;
+	}
 }
