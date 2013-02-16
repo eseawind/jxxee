@@ -147,10 +147,10 @@ public class MetaData {
 	 * @return
 	 */
 	public String getDataType(String dataType) {
+		dataType = dataType.toLowerCase();
 		
-		if (dataType.equals("double") || dataType.equals("float") || 
-				dataType.equals("numeric") || dataType.equals("number") || 
-				dataType.equals("decimal")) {
+		if (dataType.equals("double") || dataType.indexOf("float") > -1 || 
+				dataType.indexOf("num") > -1 || dataType.equals("decimal")) {
 			return "number";
 		} else if (dataType.indexOf("int") > -1) {
 			return "int";
