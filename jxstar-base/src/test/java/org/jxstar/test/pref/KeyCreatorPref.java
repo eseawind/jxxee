@@ -14,7 +14,7 @@ import org.jxstar.util.key.KeyCreator;
  * 检查重复主键的SQL：
  * select * from (
    select aid, count(*) as cnt from
-   (select substr(task_id, 10, length(task_id)) as aid from wf_taskhis) group by aid) where cnt > 1
+   (select substr(pk, 10, length(pk)-9) as aid from test1) group by aid) where cnt > 1
  *
  * 经测试KeyCreator是否在同一个事务中执行性能相差不大，新增2万个，耗时87,86。
  * 

@@ -19,12 +19,12 @@ import org.jxstar.util.system.SystemInitUtil;
  */
 public class AbstractTest {
 	/**
-	 * 第一个参数为：程序路径，缺省为：d:/tomcat6/webapps/jxstar
-	 * 第二格参数为：配置文件路径，缺省为：d:/tomcat6/webapps/jxstar/WEB-INF/classes/
+	 * 第一个参数为：程序路径，缺省为：d:/works/jxstar/jxstar-webapp/src/main/webapp
+	 * 第二格参数为：配置文件路径，缺省为：d:/works/jxstar/jxstar-webapp/src/main/webapp/WEB-INF/classes/
 	 * @param path
 	 */
 	public static void init(String... path) {
-		String realPath = "d:/tomcat6/webapps/jxstar";
+		String realPath = "d:/works/jxstar/jxstar-webapp/src/main/webapp";
 		if (path.length > 0 && path[0] != null && path[0].length() > 0) {
 			realPath = path[0];
 		}
@@ -45,4 +45,7 @@ public class AbstractTest {
         SystemInitUtil.initSystem(classPath, configFile, false);   
 	}
 	
+	public static void print(String test) {
+		System.out.println(test);
+	}
 }

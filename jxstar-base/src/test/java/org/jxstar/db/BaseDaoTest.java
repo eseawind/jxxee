@@ -22,20 +22,27 @@ import org.jxstar.util.factory.SystemFactory;
  * @version 1.0, 2010-12-17
  */
 public class BaseDaoTest extends AbstractTest {
-	private static BaseDao _dao = BaseDao.getInstance();
+	private static BaseDao _dao = null;
 	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		init();
+		_dao = BaseDao.getInstance();
+		
+		test1();
+	}
+	
+	public static void test1() {
 		TransactionManager _tranMng = (TransactionManager) SystemFactory.createSystemObject("TransactionManager");
 		//开始一个事务
 		_tranMng.startTran();
 		try {
-			DaoParam param = _dao.createParam("update dm_tablecfg set table_title = table_title||'12' where table_name = 'test_table' ");
+			DaoParam param = _dao.createParam("update dm_tablecfg set table_title = table_title||'12' where table_name = 'mat_test' ");
 			_dao.update(param);
 			
-			DaoParam param1 = _dao.createParam("select table_title from dm_tablecfg where table_name = 'test_table' ");
+			DaoParam param1 = _dao.createParam("select table_title from dm_tablecfg where table_name = 'mat_test' ");
 			Map<String,String> mp = _dao.queryMap(param1);
 			System.out.println("table_title=" + mp.get("table_title"));
 			_tranMng.commitTran();
