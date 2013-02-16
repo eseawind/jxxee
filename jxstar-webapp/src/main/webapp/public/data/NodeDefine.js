@@ -125,8 +125,6 @@ NodeDefine = {
 'mat_app1':{nodeid:'mat_app1', nodetitle:'采购申请', layout:'/public/layout/layout_main.js', gridpage:'/demo/mat/grid_mat_app1.js', formpage:'/demo/mat/form_mat_app1.js', tablename:'mat_app', pkcol:'mat_app__app_id', fkcol:'', auditcol:'mat_app__app_status', subfunid:'', showform:'form', first:'', status:{audit0:'10',audit1:'11',audit2:'12',audit3:'13',audit4:'30',audit_b:'',audit_e:''}, isarch:'0'},
 'mat_app2':{nodeid:'mat_app2', nodetitle:'采购反馈', layout:'/public/layout/layout_main.js', gridpage:'/demo/mat/grid_mat_app2.js', formpage:'/demo/mat/form_mat_app2.js', tablename:'mat_app', pkcol:'mat_app__app_id', fkcol:'', auditcol:'mat_app__app_status', subfunid:'', showform:'form', first:'', status:{audit0:'13',audit1:'20',audit2:'',audit3:'',audit4:'',audit_b:'10',audit_e:'30'}, isarch:'0'},
 'mat_stat':{nodeid:'mat_stat', nodetitle:'采购申请统计', layout:'/public/layout/layout_total.js', gridpage:'', formpage:'', tablename:'', pkcol:'', fkcol:'', auditcol:'', subfunid:'', showform:'', first:'', isarch:'0'},
-'mat_appdet':{nodeid:'mat_appdet', nodetitle:'采购申请明细', layout:'', gridpage:'/demo/mat/grid_mat_appdet.js', formpage:'', tablename:'mat_appdet', pkcol:'mat_appdet__det_id', fkcol:'mat_appdet__app_id', auditcol:'', subfunid:'', showform:'', first:'', subChkEdit:true, isarch:'0'}
-};
-Ext.apply(NodeDefine, {
+'mat_appdet':{nodeid:'mat_appdet', nodetitle:'采购申请明细', layout:'', gridpage:'/demo/mat/grid_mat_appdet.js', formpage:'', tablename:'mat_appdet', pkcol:'mat_appdet__det_id', fkcol:'mat_appdet__app_id', auditcol:'', subfunid:'', showform:'', first:'', subChkEdit:true, isarch:'0'},
 'mat_test':{nodeid:'mat_test', nodetitle:'应用测试', layout:'/public/layout/layout_main.js', gridpage:'/demo/mat/grid_mat_test.js', formpage:'/demo/mat/form_mat_test.js', tablename:'mat_test', pkcol:'mat_test__test_id', fkcol:'', auditcol:'mat_test__auditing', subfunid:'', showform:'form', first:'', isarch:'0'}
-});
+};

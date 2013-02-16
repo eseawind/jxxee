@@ -2,7 +2,7 @@
 <Jxstar>
 	<DataSources memo="系统数据源定义">
 		<DataSource memo="oracle数据源示例">
-			<sourcename memo="数据源名">default_ora</sourcename>
+			<sourcename memo="数据源名">default</sourcename>
 			<schemaname memo="数据库名，构建数据表用">jxstar</schemaname>
 			<driverclass memo="驱动类">oracle.jdbc.driver.OracleDriver</driverclass>
 			<jdbcurl memo="访问URL"><![CDATA[jdbc:oracle:thin:@127.0.0.1:1521:orcl]]></jdbcurl>
@@ -50,12 +50,12 @@
 			<dbmstype memo="数据库类型">sqlserver</dbmstype>
 		</DataSource>
 		<DataSource memo="db2数据源示例">
-			<sourcename memo="数据源名">default</sourcename>
-			<schemaname memo="数据库名，构建数据表用">dbadmin</schemaname>
+			<sourcename memo="数据源名">default_db2</sourcename>
+			<schemaname memo="数据库名，构建数据表用">db2admin</schemaname>
 			<driverclass memo="驱动类">com.ibm.db2.jcc.DB2Driver</driverclass>
 			<jdbcurl memo="访问URL"><![CDATA[jdbc:db2://localhost:50000/jxstar]]></jdbcurl>
-			<username memo="数据库用户">dbadmin</username>
-			<password memo="数据库密码">dbadmin</password>
+			<username memo="数据库用户">db2admin</username>
+			<password memo="数据库密码">db2admin</password>
 			<maxconnum memo="最大连接数">50</maxconnum>
 			<maxwaittime memo="最大等待时间,ms">5000</maxwaittime>
 			<validtest memo="是否检查连接有效性:[true|false]">false</validtest>
