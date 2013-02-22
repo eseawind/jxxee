@@ -1,7 +1,8 @@
 ﻿Jxstar.currentPage = function() {
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 
-	var eventextData = Jxstar.findComboData('eventext');
+	var Dataeventext = Jxstar.findComboData('eventext');
+	var Dataregstatus = Jxstar.findComboData('regstatus');
 
 	var cols = [
 	{col:{header:'*类路径与名', width:284, sortable:true, editable:true, hcss:'color:#0000ff;',
@@ -27,7 +28,7 @@
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
 				fields:['value','text'],
-				data: eventextData
+				data: Dataeventext
 			}),
 			emptyText: jx.star.select,
 			mode: 'local',
@@ -35,16 +36,37 @@
 			valueField: 'value',
 			displayField: 'text',
 			editable:false,
-			value: eventextData[0][0]
+			value: Dataeventext[0][0]
 		}),
 		renderer:function(value){
-			for (var i = 0; i < eventextData.length; i++) {
-				if (eventextData[i][0] == value)
-					return eventextData[i][1];
+			for (var i = 0; i < Dataeventext.length; i++) {
+				if (Dataeventext[i][0] == value)
+					return Dataeventext[i][1];
 			}
 		}}, field:{name:'fun_event_invoke__position',type:'string'}},
-	{col:{header:'调用ID', width:100, sortable:true, hidden:true}, field:{name:'fun_event_invoke__invoke_id',type:'string'}},
-	{col:{header:'事件ID', width:100, sortable:true, hidden:true}, field:{name:'fun_event_invoke__event_id',type:'string'}}
+	{col:{header:'调用ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'fun_event_invoke__invoke_id',type:'string'}},
+	{col:{header:'事件ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'fun_event_invoke__event_id',type:'string'}},
+	{col:{header:'状态', width:52, sortable:true, defaultval:'0', align:'center',
+		editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.ComboBox({
+			store: new Ext.data.SimpleStore({
+				fields:['value','text'],
+				data: Dataregstatus
+			}),
+			emptyText: jx.star.select,
+			mode: 'local',
+			triggerAction: 'all',
+			valueField: 'value',
+			displayField: 'text',
+			editable:false,
+			value: Dataregstatus[0][0]
+		}),
+		renderer:function(value){
+			for (var i = 0; i < Dataregstatus.length; i++) {
+				if (Dataregstatus[i][0] == value)
+					return Dataregstatus[i][1];
+			}
+		}}, field:{name:'fun_event_invoke__status',type:'string'}}
 	];
 	
 	config.param = {
@@ -57,6 +79,26 @@
 	};
 	
 	
+	var renderTask = function(value, metaData, record) {
+		var color = value == '0' ? 'green' : 'red'
+		var title = value || '';
+		var cbo = Jxstar.findComboData('regstatus');
+		for (var i = 0; i < cbo.length; i++) {
+			if (cbo[i][0] == value) {
+				title = cbo[i][1]; break;
+			}
+		}
+		
+		var html = '<span style="color:'+ color +'; font-weight:bold;">'+ title +'</span>';
+		return html;
+	};
+	
+	for (var i = 0; i < cols.length; i++) {
+		if (cols[i].field.name.indexOf('__status') > 0) {
+			cols[i].col.renderer = renderTask;
+			break;
+		}
+	}
 		
 	return new Jxstar.GridNode(config);
 }

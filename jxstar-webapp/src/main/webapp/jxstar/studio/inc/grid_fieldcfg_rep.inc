@@ -15,7 +15,7 @@
 					r.set('dm_fieldcfg__default_value', '0');
 				} else if (datatype == 'number') {
 					r.set('dm_fieldcfg__data_size', '22');
-					r.set('dm_fieldcfg__data_scale', '2');
+					r.set('dm_fieldcfg__data_scale', '6');
 					r.set('dm_fieldcfg__default_value', '0');
 				} else if (datatype == 'date') {
 					r.set('dm_fieldcfg__data_size', '7');

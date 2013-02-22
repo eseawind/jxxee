@@ -223,9 +223,12 @@ Jxstar.GridNode.prototype = {
 		Jxstar.loadDataBc(self.page);
 		
 		//加载数据所花的时间
-		Jxstar.et = (new Date()).getTime(); 
-		var useTime = Jxstar.et - Jxstar.st;
-		JxHint.hint('use time(ms): ' + useTime);
+		var isHint = Jxstar.systemVar.show__use__time;
+		if (Ext.isEmpty(isHint) || isHint == '1') {
+			Jxstar.et = (new Date()).getTime(); 
+			var useTime = Jxstar.et - Jxstar.st;
+			JxHint.hint('use time(ms): ' + useTime);
+		}
 		
 		//如果是form中的明细表，则根据记录条数显示表格高度
 		var form = self.page.findParentByType('form');

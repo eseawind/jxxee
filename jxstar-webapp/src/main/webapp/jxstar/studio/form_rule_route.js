@@ -1,15 +1,16 @@
 ﻿Jxstar.currentPage = function() {
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 	
-		var items = [{
-		height: '97%',
-		width: '97%',
-		border: false,
-		layout: 'form',
-		style: 'padding:10px;',
-		items: [{
+	var Dataregstatus = Jxstar.findComboData('regstatus');
+	var items = [{
+		width:'97%',
+		border:false,
+		layout:'form',
+		autoHeight:true,
+		style:'padding:5 10 5 10;',
+		items:[{
 			anchor:'100%',
-			border: false,
+			border:false,
 			layout:'column',
 			autoHeight:true,
 			items:[{
@@ -20,8 +21,8 @@
 				items:[
 					{xtype:'textfield', fieldLabel:'来源功能ID', name:'fun_rule_route__src_funid', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:25},
 					{xtype:'textfield', fieldLabel:'目标功能ID', name:'fun_rule_route__fun_id', readOnly:true, anchor:'100%', maxLength:25},
-					{xtype:'hidden', fieldLabel:'路由ID', name:'fun_rule_route__route_id', anchor:'62%'},
-					{xtype:'hidden', fieldLabel:'参数类型', name:'fun_rule_route__where_type', anchor:'62%'}
+					{xtype:'hidden', fieldLabel:'路由ID', name:'fun_rule_route__route_id', anchor:'59%'},
+					{xtype:'hidden', fieldLabel:'参数类型', name:'fun_rule_route__where_type', anchor:'59%'}
 				]
 			},{
 				border:false,
@@ -34,19 +35,31 @@
 						maxLength:100, editable:true,
 						onTriggerClick: function() {
 							if (this.menu == null) {
-								var selcfg = {pageType:'combogrid', nodeId:'fun_layout', layoutPage:'', sourceField:'funall_layout.layout_path', targetField:'fun_rule_route.layout_page', whereSql:"", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',fieldName:'fun_rule_route.layout_page'};
+								var selcfg = {pageType:'combogrid', nodeId:'fun_layout', layoutPage:'', sourceField:'funall_layout.layout_path', targetField:'fun_rule_route.layout_page', whereSql:"funall_layout.layout_path like '%tree%'", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',queryField:'',likeType:'',fieldName:'fun_rule_route.layout_page'};
 								this.menu = Jxstar.createComboMenu(this);
 								JxSelect.createComboGrid(selcfg, this.menu, 'node_rule_route_form');
 							}
 							this.menu.show(this.el);
 						}},
-					{xtype:'hidden', fieldLabel:'页面参数名', name:'fun_rule_route__where_value', anchor:'62%'}
+					{xtype:'combo', fieldLabel:'状态', name:'fun_rule_route__status', defaultval:'0',
+						anchor:'100%', editable:false,
+						store: new Ext.data.SimpleStore({
+							fields:['value','text'],
+							data: Dataregstatus
+						}),
+						emptyText: jx.star.select,
+						mode: 'local',
+						triggerAction: 'all',
+						valueField: 'value',
+						displayField: 'text',
+						value: Dataregstatus[0][0]},
+					{xtype:'hidden', fieldLabel:'页面参数名', name:'fun_rule_route__where_value', anchor:'57%'}
 				]
 			}
 			]
 		},{
 			anchor:'100%',
-			border: false,
+			border:false,
 			layout:'column',
 			autoHeight:true,
 			items:[{
@@ -67,6 +80,7 @@
 		funid: 'rule_route'
 	};
 
+	
 	
 	
 	return new Jxstar.FormNode(config);
