@@ -267,7 +267,7 @@ public class RuleUtil {
 	 * @return
 	 */
 	public String queryRoute(String srcFunId, String destFunId) {
-		String sql = "select route_id from fun_rule_route where src_funid = ? and fun_id = ?";
+		String sql = "select route_id from fun_rule_route where status = '0' and src_funid = ? and fun_id = ?";
 		
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(srcFunId);
@@ -286,7 +286,7 @@ public class RuleUtil {
 	 */
 	public Map<String, String> queryRule(String routeId, String destFunId) {
 		String sql = "select rule_id, src_sql, dest_sql, dest_funid, src_funid from fun_rule_sql " +
-			"where route_id = ? and dest_funid = ? and event_code like '%,import,%' order by sql_no";
+			"where status = '0' and route_id = ? and dest_funid = ? and event_code like '%,import,%' order by sql_no";
 		_log.showDebug("------------query first import sql=" + sql);
 		
 		DaoParam param = _dao.createParam(sql);
@@ -302,7 +302,7 @@ public class RuleUtil {
 	public List<Map<String, String>> queryOtherRule(String routeId) {
 		List<Map<String, String>> lsRet = FactoryUtil.newList(); 
 		String sql = "select rule_id, src_sql, dest_sql, dest_funid, src_funid from fun_rule_sql " +
-			"where route_id = ? and event_code like '%,import,%' order by sql_no";
+			"where status = '0' and route_id = ? and event_code like '%,import,%' order by sql_no";
 		_log.showDebug("------------query other import sql=" + sql);
 		
 		DaoParam param = _dao.createParam(sql);
@@ -324,7 +324,7 @@ public class RuleUtil {
 	 */
 	public List<Map<String, String>> queryUpdateRule(String funId, String eventCode) {
 		String sql = "select rule_id, src_sql, dest_sql, dest_funid, src_funid from fun_rule_sql " +
-			"where src_funid = ? and event_code like '%,"+eventCode+",%' order by sql_no";
+			"where status = '0' and src_funid = ? and event_code like '%,"+eventCode+",%' order by sql_no";
 		_log.showDebug("------------query update sql=" + sql);
 		
 		DaoParam param = _dao.createParam(sql);

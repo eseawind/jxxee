@@ -165,7 +165,7 @@ public class EventDefine {
 			String funID, String eventCode, String position) {
 		StringBuilder sbsql = new StringBuilder();
 			sbsql.append("select invoke_id, module_name, method_name, position ");
-			sbsql.append("from fun_event_invoke where ");
+			sbsql.append("from fun_event_invoke where status = '0' and ");
 			sbsql.append("exists (select * from fun_event where ");
 			sbsql.append("fun_event.event_id = fun_event_invoke.event_id ");
 			sbsql.append("and fun_id = ? and event_code = ?) ");
@@ -199,7 +199,7 @@ public class EventDefine {
 			String funID, String eventCode, String position) {
 		StringBuilder sbsql = new StringBuilder();
 			sbsql.append("select invoke_id, module_name, method_name, position ");
-			sbsql.append("from fun_event_invoke where ");
+			sbsql.append("from fun_event_invoke where status = '0' and ");
 			sbsql.append("exists (select * from fun_event where ");
 			sbsql.append("fun_event.event_id = fun_event_invoke.event_id and fun_id = ?) ");
 			
