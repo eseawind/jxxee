@@ -174,11 +174,8 @@ public class CompareDB extends CompareData {
     	DaoParam srcParam = _dao.createParam(srcsql);
     	srcParam.addStringValue(tableName);
     	List<Map<String,String>> lsSrc = _dao.query(srcParam);
-    	//Oracle中处理缺省值中的换行符号
-    	String dbType = DBTypeUtil.getDbmsType(_dsname);
-    	if (dbType.equals(DBTypeUtil.ORACLE)) {
-    		lsSrc = clearDefaultChar(lsSrc);
-    	}
+    	//Oracle、SQLServer中处理缺省值中的换行符号
+    	lsSrc = clearDefaultChar(lsSrc);
     	
     	//取表配置ID
     	String tableId = TableConfig.getTableId(tableName);
