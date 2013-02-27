@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
+import org.jxstar.dao.util.DBTypeUtil;
 import org.jxstar.dm.DmException;
 import org.jxstar.dm.DmFactory;
 import org.jxstar.dm.MetaData;
@@ -174,7 +175,10 @@ public class CompareDB extends CompareData {
     	srcParam.addStringValue(tableName);
     	List<Map<String,String>> lsSrc = _dao.query(srcParam);
     	//Oracle中处理缺省值中的换行符号
-    	lsSrc = clearDefaultChar(lsSrc);
+    	String dbType = DBTypeUtil.getDbmsType(_dsname);
+    	if (dbType.equals(DBTypeUtil.ORACLE)) {
+    		lsSrc = clearDefaultChar(lsSrc);
+    	}
     	
     	//取表配置ID
     	String tableId = TableConfig.getTableId(tableName);
@@ -390,13 +394,10 @@ public class CompareDB extends CompareData {
     	for (Map<String,String> mpData : lsData) {
     		String key = "default_value";
     		String value = mpData.get(key);
-    		if (value != null) {
-    			value = value.replaceAll("\n", "");
-    		} else {
-    			value = "";
-    		}
+    		if (value == null) value = "";
     		
     		if (value.length() > 0) {
+    			value = value.trim();
     			if (DmUtil.hasYinHao(value)) {
     				value = value.substring(1, value.length()-1);
     			} else if (value.equals("null")) {
