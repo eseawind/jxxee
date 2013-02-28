@@ -255,7 +255,7 @@ public class ReportXlsTotal extends ReportXls {
 					strValue = StringFormat.getDataValue(strValue, format);
 				}
 				//处理单元格类型，方便表格中的计算公式生效
-				if (format.equals("int") || format.indexOf("number") >= 0) {
+				if (format.equals("int") || format.indexOf("num") == 0) {
 					if (strValue.length() == 0) strValue = "0";
 					cell.setCellValue(Double.parseDouble(strValue));
 				} else {

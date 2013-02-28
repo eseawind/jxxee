@@ -143,7 +143,7 @@ public class ExportXlsBO extends BusinessObject {
 
 				sfCell = hfRow.createCell(j+1);
 				sfCell.setCellType(HSSFCell.CELL_TYPE_STRING);
-				if (colformat.equals("int") || colformat.indexOf("number") >= 0) {
+				if (colformat.equals("int") || colformat.indexOf("num") == 0) {
 					if (colvalue.length() == 0) colvalue = "0";
 					sfCell.setCellValue(Double.parseDouble(colvalue));
 				} else {

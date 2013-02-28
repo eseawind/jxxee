@@ -68,7 +68,7 @@ public class ReportUtil {
         
         style = style.toLowerCase();
         if (style.indexOf("int") >= 0 || style.indexOf("money") >= 0 || 
-                style.indexOf("number") >= 0 || style.indexOf("float") >= 0 || style.indexOf("account") >= 0){
+                style.indexOf("num") == 0 || style.indexOf("float") >= 0 || style.indexOf("account") >= 0){
             double d = Double.parseDouble(value);
             if (d > -0.0000001 && d < 0.0000001){
                 value = "";                         

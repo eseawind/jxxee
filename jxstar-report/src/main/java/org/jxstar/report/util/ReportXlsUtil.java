@@ -224,7 +224,7 @@ public class ReportXlsUtil extends ReportUtil {
 					if (isOutZero.equals("0")) strValue = getZeroOut(strValue, strStyle);
 				}
 				//处理单元格类型，方便表格中的计算公式生效
-				if (strStyle.equals("int") || strStyle.indexOf("number") >= 0) {
+				if (strStyle.equals("int") || strStyle.indexOf("num") == 0) {
 					if (strValue.length() == 0) strValue = "0";
 					cell.setCellValue(Double.parseDouble(strValue));
 				} else {
@@ -365,7 +365,7 @@ public class ReportXlsUtil extends ReportUtil {
 				} else {
 					cell.setCellValue(strValue.trim());
 					//处理单元格类型，方便表格中的计算公式生效
-					if (strStyle.equals("int") || strStyle.indexOf("number") >= 0) {
+					if (strStyle.equals("int") || strStyle.indexOf("num") == 0) {
 						if (strValue.length() == 0) strValue = "0";
 						cell.setCellValue(Double.parseDouble(strValue));
 					} else {
