@@ -501,8 +501,8 @@ public class FormParserUtil {
 			if (n != '2') {
 				retJs = ", decimalPrecision:" + n;
 			}
-		} else if (format.equals("money") || format.equals("numset")) {
-			//money处理金额、单价的小数位；numset处理数量的小数
+		} else if (format.equals("numdyn") || format.equals("numset")) {
+			//numset取设置的小数位；numdyn取动态的小数；
 			retJs = ", decimalPrecision:6, format:'"+format+"'";
 		}
 		

@@ -299,12 +299,12 @@ public class GridParserUtil {
 		
 		if (format.equals("int")) {
 			retJs = "renderer:JxUtil.formatInt()";
-		} else if (format.indexOf("number") >= 0) {
+		} else if (format.indexOf("number") == 0) {
 			char n = '2';
 			if (format.length() > 6) n = format.charAt(6);
 
 			retJs = "renderer:JxUtil.formatNumber("+n+")";
-		} else if (format.equals("money") || format.equals("numset")) {
+		} else if (format.equals("numdyn") || format.equals("numset")) {
 			//动态小数位缺省设置为6
 			retJs = "renderer:JxUtil.formatNumber(6)";
 		} else {
@@ -332,8 +332,8 @@ public class GridParserUtil {
 			if (n != '2') {
 				prestr = "decimalPrecision:" + n;
 			}
-		} else if (format.equals("money") || format.equals("numset")) {
-			//money处理金额、单价的小数位；numset处理数量的小数；在grid中需要添加name属性
+		} else if (format.equals("numdyn") || format.equals("numset")) {
+			//numset取设置的小数位；numdyn取动态的小数；在grid中需要添加name属性
 			prestr = "format:'"+ format +"', name:'"+ name +"'";
 		}
 		
