@@ -10,15 +10,14 @@
 		autoHeight:true,
 		style:'padding:5 10 5 10;',
 		items:[{
+			anchor:'100%',
+			border:false,
+			layout:'column',
 			border:true,
 			xtype:'fieldset',
 			title:'采购申请',
 			collapsible:false,
 			collapsed:false,
-			items:[{
-			anchor:'100%',
-			border:false,
-			layout:'column',
 			autoHeight:true,
 			items:[{
 				border:false,
@@ -28,7 +27,8 @@
 				items:[
 					{xtype:'textfield', fieldLabel:'申请单号', name:'mat_app__app_code', readOnly:true, anchor:'100%', maxLength:20},
 					{xtype:'textfield', fieldLabel:'申请人', name:'mat_app__app_user', defaultval:'fun_getUserName()', readOnly:true, anchor:'100%', maxLength:20},
-					{xtype:'textfield', fieldLabel:'项目名称', name:'mat_app__project_name', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:50},
+					{xtype:'textfield', fieldLabel:'效益分析', name:'mat_app__app_analyse', anchor:'100%', maxLength:200},
+					{xtype:'textfield', fieldLabel:'申请理由', name:'mat_app__app_cause', anchor:'100%', maxLength:200},
 					{xtype:'combo', fieldLabel:'记录状态', name:'mat_app__auditing', defaultval:'0',
 						anchor:'100%', readOnly:true, editable:false,
 						store: new Ext.data.SimpleStore({
@@ -41,7 +41,7 @@
 						valueField: 'value',
 						displayField: 'text',
 						value: Dataaudit[0][0]},
-					{xtype:'numberfield', decimalPrecision:2, fieldLabel:'采购数量', name:'mat_app__app_num', anchor:'100%', maxLength:12},
+					{xtype:'numberfield', fieldLabel:'采购数量', name:'mat_app__app_num', anchor:'100%', maxLength:12},
 					{xtype:'hidden', fieldLabel:'主键', name:'mat_app__app_id', anchor:'100%'},
 					{xtype:'hidden', fieldLabel:'申请部门ID', name:'mat_app__dept_id', defaultval:'fun_getDeptId()', anchor:'100%'}
 				]
@@ -59,6 +59,7 @@
 							JxSelect.initCombo('mat_app', combo, 'node_mat_app_form');
 						}}},
 					{xtype:'textfield', fieldLabel:'采购负责人', name:'mat_app__stock_user', anchor:'100%', maxLength:20},
+					{xtype:'textfield', fieldLabel:'项目名称', name:'mat_app__project_name', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:50},
 					{xtype:'numberfield', decimalPrecision:6, fieldLabel:'预算金额万', name:'mat_app__app_money', anchor:'100%', maxLength:12},
 					{xtype:'combo', fieldLabel:'申请类型', name:'mat_app__app_type',
 						anchor:'100%', editable:false,
@@ -76,30 +77,6 @@
 				]
 			}
 			]
-		},{
-			anchor:'100%',
-			border:false,
-			layout:'column',
-			autoHeight:true,
-			items:[{
-				border:false,
-				columnWidth:0.495,
-				layout:'form',
-				style: 'padding-left:10px;',
-				items:[
-					{xtype:'textarea', fieldLabel:'申请理由', name:'mat_app__app_cause', width:'100%', height:96, maxLength:200}
-				]
-			},{
-				border:false,
-				columnWidth:0.495,
-				layout:'form',
-				style: 'padding-left:10px;',
-				items:[
-					{xtype:'textarea', fieldLabel:'效益分析', name:'mat_app__app_analyse', width:'100%', height:96, maxLength:200}
-				]
-			}
-			]
-		}]
 		}]
 	}];
 	

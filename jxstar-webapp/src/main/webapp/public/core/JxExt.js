@@ -815,6 +815,10 @@ Ext.grid.RowSelectionModel.prototype.onEditorKey = function(field, e){
 	}
 };
 
+/**
+ * ext-3.3.1
+ * 添加控件：工具栏中的支持快捷键设置的控件
+ **/
 Ext.ux.ToolbarKeyMap = Ext.extend(Object, (function() {
     var kb, owner, mappings;
 
@@ -856,3 +860,88 @@ Ext.ux.ToolbarKeyMap = Ext.extend(Object, (function() {
         }
     };
 })());
+
+//获取数量字段的小数长度，它的长度是根据计量单位中设置的保留小数位来确定的；
+//设计思路是：先根据当前字段控件找到父容器(form|grid)；然后从其扩展属性中取数量字段与单位字段对应关系；
+//根据计量单位的值找到其保留小数位；
+//此数据是在custom.js中从计量单位功能加载的；
+//Jxstar.UnitData = [{unit_name:'米', keep_num:5}, {unit_name:'袋', keep_num:6}];
+JxUtil.getDecimalPrecision = function(field) {
+	var form = field.ownerCt;//不为空说明是form，为空说明是grid
+	var precfg, tagRecord, prelen;//数量与单位字段名称、当前数据记录、获取的数值精度
+	if (form) {
+		if (form.isXType('form') == false) {
+			form = form.findParentByType('form');
+		}
+		if (form) {
+			tagRecord = form.getForm();
+			precfg = form.formNode.param.precisionField;
+		}
+	} else {
+		var gdom = field.el.findParentNode('div.x-grid-panel');
+		var grid = Ext.getCmp(gdom.id);
+		if (grid) {
+			var last = grid.lastEdit;
+			if (last) {//防止标记到了下一行，实际触发原记录
+				tagRecord = grid.getStore().getAt(last.row);
+			} else {
+				var selRecord = JxUtil.getSelectRows(grid);
+				if (selRecord && selRecord.length > 0) {
+					tagRecord = selRecord[0];
+				}
+			}
+			precfg = grid.gridNode.param.precisionField;
+		}
+	}
+	//找到目标记录且有数值、单位字段设置
+	if (tagRecord && precfg) {
+		var unitName, unitValue, unitLen;
+		if (field.name) unitName = precfg[field.name];
+		if (unitName) unitValue = tagRecord.get(unitName);
+		if (unitValue && (typeof(Jxstar.UnitData) != 'undefined')) {
+			for (var i = 0; i < Jxstar.UnitData.length; i++) {
+				if (Jxstar.UnitData[i].unit_name == unitValue) {
+					unitLen = Jxstar.UnitData[i].keep_num;
+					break;
+				}
+			}
+		}
+		if (unitLen != null) prelen = unitLen;
+		//JxHint.hint('unitName=' + unitName + ';unitValue=' + unitValue + ';unitLen=' + unitLen);
+	}
+	if (prelen == null) {
+		var len = parseInt(Jxstar.systemVar.sys__numset__len);
+		prelen = isNaN(len) ? 2 : len;
+	}
+	//JxHint.hint('prelen=' + prelen);
+	return prelen;
+};
+
+/**
+ * ext-3.3.1
+ * 修改方法：NumberField处理小数位精度，beforeBlur方法只调用一次，fixPrecision方法要调用很多次
+ **/
+Ext.form.NumberField.prototype.beforeBlur = function() {
+	var v = this.parseValue(this.getRawValue());
+	
+	//------------add by tony
+	if (this.format == 'money') {
+		var len = parseInt(Jxstar.systemVar.sys__money__len);
+		this.decimalPrecision = isNaN(len) ? 2 : len;
+	}
+	if (this.format == 'numset') {
+		if (Jxstar.systemVar.sys__numset__use == '1') {
+			var len = parseInt(Jxstar.systemVar.sys__numset__len);
+			this.decimalPrecision = isNaN(len) ? 2 : len;
+		} else {
+			if (JxUtil.getDecimalPrecision) {
+				this.decimalPrecision = JxUtil.getDecimalPrecision(this);
+			}
+		}
+	}
+	//------------end
+	
+	if (!Ext.isEmpty(v)) {
+		this.setValue(v);
+	}
+};

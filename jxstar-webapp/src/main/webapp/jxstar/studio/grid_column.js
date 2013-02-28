@@ -1,9 +1,9 @@
 ﻿Jxstar.currentPage = function() {
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 
-	var datatypeData = Jxstar.findComboData('datatype');
-	var ctltypeData = Jxstar.findComboData('ctltype');
-	var datastyleData = Jxstar.findComboData('datastyle');
+	var Datadatatype = Jxstar.findComboData('datatype');
+	var Datactltype = Jxstar.findComboData('ctltype');
+	var Datadatastyle = Jxstar.findComboData('datastyle');
 
 	var cols = [
 	{col:{header:'*字段代码', width:224, sortable:true, editable:true, hcss:'color:#0000ff;',
@@ -19,7 +19,7 @@
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
 				fields:['value','text'],
-				data: datatypeData
+				data: Datadatatype
 			}),
 			emptyText: jx.star.select,
 			mode: 'local',
@@ -27,12 +27,12 @@
 			valueField: 'value',
 			displayField: 'text',
 			editable:false, allowBlank:false,
-			value: datatypeData[0][0]
+			value: Datadatatype[0][0]
 		}),
 		renderer:function(value){
-			for (var i = 0; i < datatypeData.length; i++) {
-				if (datatypeData[i][0] == value)
-					return datatypeData[i][1];
+			for (var i = 0; i < Datadatatype.length; i++) {
+				if (Datadatatype[i][0] == value)
+					return Datadatatype[i][1];
 			}
 		}}, field:{name:'fun_col__data_type',type:'string'}},
 	{col:{header:'更新?', width:50, sortable:true, defaultval:'1', align:'center',
@@ -56,14 +56,14 @@
 	{col:{header:'序号', width:67, sortable:true, align:'right',
 		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.NumberField({
-			maxLength:12
+			decimalPrecision:0, maxLength:12
 		}),renderer:JxUtil.formatInt()}, field:{name:'fun_col__col_index',type:'int'}},
 	{col:{header:'*控件类型', width:84, sortable:true, defaultval:'text', align:'center',
 		editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
 				fields:['value','text'],
-				data: ctltypeData
+				data: Datactltype
 			}),
 			emptyText: jx.star.select,
 			mode: 'local',
@@ -71,12 +71,12 @@
 			valueField: 'value',
 			displayField: 'text',
 			editable:false, allowBlank:false,
-			value: ctltypeData[0][0]
+			value: Datactltype[0][0]
 		}),
 		renderer:function(value){
-			for (var i = 0; i < ctltypeData.length; i++) {
-				if (ctltypeData[i][0] == value)
-					return ctltypeData[i][1];
+			for (var i = 0; i < Datactltype.length; i++) {
+				if (Datactltype[i][0] == value)
+					return Datactltype[i][1];
 			}
 		}}, field:{name:'fun_col__col_control',type:'string'}},
 	{col:{header:'控件名称', width:100, sortable:true, editable:true, hcss:'color:#3039b4;',
@@ -88,12 +88,12 @@
 				JxSelect.initCombo('sys_fun_col', combo, 'node_sys_fun_col_editgrid');
 			}}
 		})}, field:{name:'fun_col__control_name',type:'string'}},
-	{col:{header:'*数据样式', width:70, sortable:true, defaultval:'text', align:'center',
+	{col:{header:'*数据样式', width:82, sortable:true, defaultval:'text', align:'center',
 		editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
 				fields:['value','text'],
-				data: datastyleData
+				data: Datadatastyle
 			}),
 			emptyText: jx.star.select,
 			mode: 'local',
@@ -101,12 +101,12 @@
 			valueField: 'value',
 			displayField: 'text',
 			editable:false, allowBlank:false,
-			value: datastyleData[0][0]
+			value: Datadatastyle[0][0]
 		}),
 		renderer:function(value){
-			for (var i = 0; i < datastyleData.length; i++) {
-				if (datastyleData[i][0] == value)
-					return datastyleData[i][1];
+			for (var i = 0; i < Datadatastyle.length; i++) {
+				if (Datadatastyle[i][0] == value)
+					return Datadatastyle[i][1];
 			}
 		}}, field:{name:'fun_col__format_id',type:'string'}},
 	{col:{header:'表格编辑', width:70, sortable:true, defaultval:'0', align:'center',

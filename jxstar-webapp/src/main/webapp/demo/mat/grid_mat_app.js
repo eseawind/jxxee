@@ -1,8 +1,8 @@
 ﻿Jxstar.currentPage = function() {
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 
-	var auditData = Jxstar.findComboData('audit');
-	var apptypeData = Jxstar.findComboData('apptype');
+	var Dataaudit = Jxstar.findComboData('audit');
+	var Dataapptype = Jxstar.findComboData('apptype');
 
 	var cols = [
 	{col:{header:'记录状态', width:73, sortable:true, align:'center',
@@ -10,7 +10,7 @@
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
 				fields:['value','text'],
-				data: auditData
+				data: Dataaudit
 			}),
 			emptyText: jx.star.select,
 			mode: 'local',
@@ -18,12 +18,12 @@
 			valueField: 'value',
 			displayField: 'text',
 			editable:false,
-			value: auditData[0][0]
+			value: Dataaudit[0][0]
 		}),
 		renderer:function(value){
-			for (var i = 0; i < auditData.length; i++) {
-				if (auditData[i][0] == value)
-					return auditData[i][1];
+			for (var i = 0; i < Dataaudit.length; i++) {
+				if (Dataaudit[i][0] == value)
+					return Dataaudit[i][1];
 			}
 		}}, field:{name:'mat_app__auditing',type:'string'}},
 	{col:{header:'申请单号', width:100, sortable:true}, field:{name:'mat_app__app_code',type:'string'}},
@@ -37,7 +37,7 @@
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
 				fields:['value','text'],
-				data: apptypeData
+				data: Dataapptype
 			}),
 			emptyText: jx.star.select,
 			mode: 'local',
@@ -45,12 +45,12 @@
 			valueField: 'value',
 			displayField: 'text',
 			editable:false,
-			value: apptypeData[0][0]
+			value: Dataapptype[0][0]
 		}),
 		renderer:function(value){
-			for (var i = 0; i < apptypeData.length; i++) {
-				if (apptypeData[i][0] == value)
-					return apptypeData[i][1];
+			for (var i = 0; i < Dataapptype.length; i++) {
+				if (Dataapptype[i][0] == value)
+					return Dataapptype[i][1];
 			}
 		}}, field:{name:'mat_app__app_type',type:'string'}},
 	{col:{header:'申请人', width:74, sortable:true}, field:{name:'mat_app__app_user',type:'string'}},

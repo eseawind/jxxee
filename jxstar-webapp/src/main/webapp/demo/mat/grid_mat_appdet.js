@@ -17,12 +17,12 @@
 	{col:{header:'*申请数量', width:84, sortable:true, defaultval:'1', align:'right',
 		editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.NumberField({
-			decimalPrecision:2, maxLength:12, allowBlank:false
+			maxLength:12, allowBlank:false
 		}),renderer:JxUtil.formatNumber(2)}, field:{name:'mat_appdet__mat_num',type:'float'}},
 	{col:{header:'*计划单价(万元)', width:115, sortable:true, defaultval:'0', align:'right',
 		editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.NumberField({
-			decimalPrecision:2, maxLength:12, allowBlank:false
+			maxLength:12, allowBlank:false
 		}),renderer:JxUtil.formatNumber(2)}, field:{name:'mat_appdet__mat_price',type:'float'}},
 	{col:{header:'预算金额(万元)', width:120, sortable:true, defaultval:'0', align:'right',
 		editable:true, hcss:'color:#3039b4;',
