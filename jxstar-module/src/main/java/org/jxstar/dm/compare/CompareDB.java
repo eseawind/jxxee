@@ -11,7 +11,6 @@ import java.util.Map;
 
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
-import org.jxstar.dao.util.DBTypeUtil;
 import org.jxstar.dm.DmException;
 import org.jxstar.dm.DmFactory;
 import org.jxstar.dm.MetaData;
