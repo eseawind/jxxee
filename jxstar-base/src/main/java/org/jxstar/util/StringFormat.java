@@ -35,13 +35,13 @@ public class StringFormat {
 		} else if (style.equals("int")) {
 			if (value.length() == 0) value = "0";
 			strRet = StringFormat.StringToInteger(value);
-		} else if (style.indexOf("number") >= 0) {
+		} else if (style.indexOf("number") == 0) {
 			if (value.length() == 0) value = "0";			
 			String num = style.substring(6, style.length());
 			if (num.length() == 0) num = "2";
 			
 			strRet = StringFormat.StringToNumber(value, Integer.parseInt(num));
-		} else if (style.indexOf("money") >= 0) {
+		} else if (style.indexOf("money") == 0) {
 			if (value.length() == 0) value = "0";
 			String num = style.substring(5, style.length());
 			if (num.length() == 0) num = "2";
