@@ -11,7 +11,6 @@ import java.util.Map;
 
 import org.jxstar.fun.design.templet.ElementTemplet;
 import org.jxstar.util.MapUtil;
-import org.jxstar.util.StringValidator;
 
 /**
  * 统计报表的统计条件控件解析工具类，参照FORM页面解析控件实现。
@@ -170,7 +169,7 @@ public class ConditionJson {
 		//处理数字控件样式
 		if (ctlType.equals("number")) {
 			//处理数据校验
-			retJs = retJs.replace("xtype:'numberfield'", "xtype:'numberfield', " + numberFormat(format));
+			retJs = retJs.replace("xtype:'numberfield'", "xtype:'numberfield'" + numberFormat(format));
 		}
 		//处理日期控件样式
 		if (ctlType.equals("date")) {
@@ -201,16 +200,13 @@ public class ConditionJson {
 		String retJs = "";
 		
 		if (format.equals("int")) {
-			retJs = "allowDecimals:false";
+			retJs = ", decimalPrecision:0";
 		} else if (format.indexOf("number") >= 0) {
 			char n = '2';
 			if (format.length() > 6) n = format.charAt(6);
-			boolean isInt = StringValidator.validValue(""+n, "int");
-			if (!isInt) n = '2';
-
-			retJs = "decimalPrecision:"+n;
-		} else {
-			retJs = "decimalPrecision:2";
+			if (n != '2') {
+				retJs = ", decimalPrecision:" + n;
+			}
 		}
 		
 		return retJs;

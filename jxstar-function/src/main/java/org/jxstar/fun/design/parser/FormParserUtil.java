@@ -458,7 +458,7 @@ public class FormParserUtil {
 		//处理数字控件样式
 		if (ctlType.equals("number")) {
 			//处理数据校验
-			retJs = retJs.replace("xtype:'numberfield'", "xtype:'numberfield', " + numberFormat(format));
+			retJs = retJs.replace("xtype:'numberfield'", "xtype:'numberfield'" + numberFormat(format));
 		}
 		//处理日期控件样式
 		if (ctlType.equals("date")) {
@@ -494,16 +494,16 @@ public class FormParserUtil {
 		String retJs = "";
 		
 		if (format.equals("int")) {
-			retJs = "allowDecimals:false";
-		} else if (format.indexOf("number") >= 0) {
+			retJs = ", decimalPrecision:0";
+		} else if (format.indexOf("number") == 0) {
 			char n = '2';
 			if (format.length() > 6) n = format.charAt(6);
-			boolean isInt = StringValidator.validValue(""+n, "int");
-			if (!isInt) n = '2';
-
-			retJs = "decimalPrecision:"+n;
-		} else {
-			retJs = "decimalPrecision:2";
+			if (n != '2') {
+				retJs = ", decimalPrecision:" + n;
+			}
+		} else if (format.equals("money") || format.equals("numset")) {
+			//money处理金额、单价的小数位；numset处理数量的小数
+			retJs = ", decimalPrecision:6, format:'"+format+"'";
 		}
 		
 		return retJs;

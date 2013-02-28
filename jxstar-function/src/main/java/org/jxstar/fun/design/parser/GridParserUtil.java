@@ -226,7 +226,7 @@ public class GridParserUtil {
 		if (ctlType.equals("number")) {
 			if (retJs.length() > 0) retJs += ",";
 			//处理数字控件保留精度
-			retJs = decimalPrecision(retJs, format);
+			retJs = numberFormat(retJs, format, fieldCode.replace(".", "__"));
 			//处理数据控件显示精度
 			retJs += numberRender(format);
 		}
@@ -304,6 +304,9 @@ public class GridParserUtil {
 			if (format.length() > 6) n = format.charAt(6);
 
 			retJs = "renderer:JxUtil.formatNumber("+n+")";
+		} else if (format.equals("money") || format.equals("numset")) {
+			//动态小数位缺省设置为6
+			retJs = "renderer:JxUtil.formatNumber(6)";
 		} else {
 			retJs = "renderer:JxUtil.formatNumber(2)";
 		}
@@ -315,17 +318,30 @@ public class GridParserUtil {
 	 * 处理数字的小数位，必须在控件中加精度参数
 	 * @param retJs -- 解析串
 	 * @param format -- 数据格式
+	 * @param name -- 字段名，格式如：table_name__field_name
 	 * @return
 	 */
-	private String decimalPrecision(String retJs, String format) {
-		if (format.indexOf("number") >= 0) {
+	private String numberFormat(String retJs, String format, String name) {
+		String prestr = "";
+		
+		if (format.equals("int")) {
+			prestr = "decimalPrecision:0";
+		} else if (format.indexOf("number") == 0) {
 			char n = '2';
 			if (format.length() > 6) n = format.charAt(6);
-
-			retJs = retJs.replaceFirst("maxLength:", "decimalPrecision:"+ n +", maxLength:");
+			if (n != '2') {
+				prestr = "decimalPrecision:" + n;
+			}
+		} else if (format.equals("money") || format.equals("numset")) {
+			//money处理金额、单价的小数位；numset处理数量的小数；在grid中需要添加name属性
+			prestr = "format:'"+ format +"', name:'"+ name +"'";
 		}
 		
-		return retJs;
+		if (prestr.length() > 0) {
+			return retJs = retJs.replaceFirst("maxLength:", prestr +", maxLength:");
+		} else {
+			return retJs;
+		}
 	}
 	
 	/**
