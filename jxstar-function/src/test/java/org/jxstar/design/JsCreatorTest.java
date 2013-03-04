@@ -9,10 +9,10 @@ import org.jxstar.fun.design.PageParserBO;
 import org.jxstar.test.AbstractTest;
 
 public class JsCreatorTest extends AbstractTest {
-	
+	private static String path = "D:/我的项目/志华环讯/面辅料进销存/SVNDB/40程序文件/app";
 	
 	public static void main(String[] args) {
-		init("D:/tomcat6/webapps/pm");
+		init(path);
 		/*PageTemplet pageTpl = PageTemplet.getInstance();
 		pageTpl.read(path+"/WEB-INF/tpl/grid-page-tpl.txt", "grid");
 		
@@ -30,10 +30,8 @@ public class JsCreatorTest extends AbstractTest {
 	
 	@SuppressWarnings("rawtypes")
 	public static void createpage() {
-		String path = "D:/tomcat6/webapps/pm/";
-		
 		BaseDao dao = BaseDao.getInstance();
-		String sql = "select * from fun_base where module_id >= '1011'";
+		String sql = "select * from fun_base where (module_id like '1013%' or module_id like '1014%')";
 		DaoParam param = dao.createParam(sql);
 		List ls = dao.query(param);
 		System.out.println("............total fun num:" + ls.size());

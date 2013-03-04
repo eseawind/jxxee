@@ -78,7 +78,7 @@ public class GridParserUtil {
 			String format = mpColumn.get("format_id");
 			
 			//添加选项数据
-			if (ctlType.equals("combo") && comboData.indexOf("var "+ctlName+"Data") < 0) {
+			if (ctlType.equals("combo") && comboData.indexOf("var Data"+ctlName+" ") < 0) {
 				if (comboData.length() > 0) comboData.append("\t");
 				comboData.append("var Data"+ctlName+" = Jxstar.findComboData('"+ctlName+"');\r\n");
 			}

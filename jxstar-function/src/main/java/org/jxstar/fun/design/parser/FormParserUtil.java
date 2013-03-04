@@ -353,7 +353,7 @@ public class FormParserUtil {
 					String ctlName = mpColumn.get("control_name");
 					
 					//添加选项数据
-					if (ctlType.equals("combo")) {
+					if (ctlType.equals("combo") && _comboData.indexOf("var Data"+ctlName+" ") < 0) {
 						if (_comboData.length() > 0) _comboData.append("\t");
 						_comboData.append("var Data"+ctlName+" = Jxstar.findComboData('"+ctlName+"');\r\n");
 					}

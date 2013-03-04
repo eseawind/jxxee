@@ -164,6 +164,7 @@ public class FunDefineBO extends BusinessObject {
 			sbItem.append("subfunid:'"+mpfun.get("subfun_id")+"', ");
 			sbItem.append("showform:'"+mpfun.get("show_form")+"', ");
 			sbItem.append("first:'"+mpfun.get("first_field")+"', ");
+			sbItem.append("regtype:'"+mpfun.get("reg_type")+"', ");
 			//添加扩展属性
 			sbItem.append(getFunAttr(funid));
 			//添加业务状态设置
@@ -207,7 +208,7 @@ public class FunDefineBO extends BusinessObject {
 	
 	
 	/**
-	 * 创建一个功能的定义对象。
+	 * 创建一个功能的定义对象，系统查询事件中使用。
 	 * @param funId
 	 * @return
 	 */
@@ -350,7 +351,7 @@ public class FunDefineBO extends BusinessObject {
 	//取指定模块的功能信息
 	private List<Map<String,String>> queryFun(String moduleId) {
 		String sql = "select fun_id, fun_name, layout_page, grid_page, form_page, table_name, "+
-				 "pk_col, fk_col, audit_col, subfun_id, show_form, first_field, is_archive " +
+				 "pk_col, fk_col, audit_col, subfun_id, show_form, first_field, is_archive, reg_type " +
 				 "from fun_base where reg_type not in ('nouse') " +
 				 " and module_id like '"+ moduleId +"%'" +
 				 "order by module_id, fun_index ";
