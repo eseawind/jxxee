@@ -910,7 +910,7 @@ JxUtil.getDecimalPrecision = function(field) {
 		//JxHint.hint('unitName=' + unitName + ';unitValue=' + unitValue + ';unitLen=' + unitLen);
 	}
 	if (prelen == null) {
-		var len = parseInt(Jxstar.systemVar.sys__numset__len);
+		var len = parseInt(Jxstar.systemVar.sys__numdyn__len);
 		prelen = isNaN(len) ? 2 : len;
 	}
 	//JxHint.hint('prelen=' + prelen);
@@ -925,13 +925,13 @@ Ext.form.NumberField.prototype.beforeBlur = function() {
 	var v = this.parseValue(this.getRawValue());
 	
 	//------------add by tony
-	if (this.format == 'money') {
-		var len = parseInt(Jxstar.systemVar.sys__money__len);
+	if (this.format == 'numset') {
+		var len = parseInt(Jxstar.systemVar.sys__numset__len);
 		this.decimalPrecision = isNaN(len) ? 2 : len;
 	}
-	if (this.format == 'numset') {
-		if (Jxstar.systemVar.sys__numset__use == '1') {
-			var len = parseInt(Jxstar.systemVar.sys__numset__len);
+	if (this.format == 'numdyn') {
+		if (Jxstar.systemVar.sys__numdyn__use == '1') {
+			var len = parseInt(Jxstar.systemVar.sys__numdyn__len);
 			this.decimalPrecision = isNaN(len) ? 2 : len;
 		} else {
 			if (JxUtil.getDecimalPrecision) {

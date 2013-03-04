@@ -1,8 +1,8 @@
 ﻿Jxstar.currentPage = function() {
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 
-	var right_typeData = Jxstar.findComboData('right_type');
-	var btnshowData = Jxstar.findComboData('btnshow');
+	var Dataright_type = Jxstar.findComboData('right_type');
+	var Databtnshow = Jxstar.findComboData('btnshow');
 
 	var cols = [
 	{col:{header:'域？', width:45, sortable:true, defaultval:'0', align:'center',
@@ -42,7 +42,7 @@
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
 				fields:['value','text'],
-				data: right_typeData
+				data: Dataright_type
 			}),
 			emptyText: jx.star.select,
 			mode: 'local',
@@ -50,12 +50,12 @@
 			valueField: 'value',
 			displayField: 'text',
 			editable:false,
-			value: right_typeData[0][0]
+			value: Dataright_type[0][0]
 		}),
 		renderer:function(value){
-			for (var i = 0; i < right_typeData.length; i++) {
-				if (right_typeData[i][0] == value)
-					return right_typeData[i][1];
+			for (var i = 0; i < Dataright_type.length; i++) {
+				if (Dataright_type[i][0] == value)
+					return Dataright_type[i][1];
 			}
 		}}, field:{name:'fun_event__right_type',type:'string'}},
 	{col:{header:'显示类型', width:71, sortable:true, defaultval:'tool', align:'center',
@@ -63,7 +63,7 @@
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
 				fields:['value','text'],
-				data: btnshowData
+				data: Databtnshow
 			}),
 			emptyText: jx.star.select,
 			mode: 'local',
@@ -71,18 +71,18 @@
 			valueField: 'value',
 			displayField: 'text',
 			editable:false,
-			value: btnshowData[0][0]
+			value: Databtnshow[0][0]
 		}),
 		renderer:function(value){
-			for (var i = 0; i < btnshowData.length; i++) {
-				if (btnshowData[i][0] == value)
-					return btnshowData[i][1];
+			for (var i = 0; i < Databtnshow.length; i++) {
+				if (Databtnshow[i][0] == value)
+					return Databtnshow[i][1];
 			}
 		}}, field:{name:'fun_event__show_type',type:'string'}},
 	{col:{header:'序号', width:49, sortable:true, align:'right',
 		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.NumberField({
-			maxLength:12
+			decimalPrecision:0, maxLength:12
 		}),renderer:JxUtil.formatInt()}, field:{name:'fun_event__event_index',type:'int'}},
 	{col:{header:'隐藏？', width:50, sortable:true, defaultval:'0', align:'center',
 		editable:true, hcss:'color:#3039b4;',
@@ -108,6 +108,87 @@
 	};
 	
 	
+	//显示事件的类设置
+	var showClass = function(fun_id, event_code, target) {
+		var url = Jxstar.path + '/commonAction.do?eventcode=queryinfo&funid=fun_event_info&pagetype=grid';
+		url += '&user_id='+Jxstar.session['user_id'];
+		
+		//显示数据
+		var hdcall = function(grid) {
+			JxUtil.delay(500, function(){
+				var params = Ext.apply({start:0, limit:50}, {info_funid:fun_id, info_code:event_code});
+				var store = grid.getStore();
+				store.proxy.setUrl(url);
+				store.load({params:params});
+			});
+		};
+		
+		Jxstar.showData({
+			filename: '/jxstar/studio/grid_fun_event_info.js',
+			title: '调用类列表',
+			callback: hdcall,
+			pagetype: 'notoolgrid',
+			width: 600,
+			height: 350,
+		});
+	};
+	
+	//显示域的事件明细
+	var showDomain = function(fun_id, domain_code, target) {
+		//过滤条件
+		var where_sql = 'domain_id in (select domain_id from funall_domain where domain_code = ?)';
+		var where_type = 'string';
+		var where_value = domain_code;
+		
+		//加载数据
+		var hdcall = function(grid) {
+			//显示数据
+			JxUtil.delay(500, function(){
+				//设置外键值
+				grid.fkValue = where_value;
+				grid.srcFunId = fun_id;
+
+				Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type});
+			});
+		};
+
+		//显示数据
+		var define = Jxstar.findNode('event_domain_det');
+		Jxstar.showData({
+			filename: define.gridpage,
+			title: define.nodetitle,
+			callback: hdcall
+		});
+	};
+	
+	cols[cols.length] = {col:
+		{header:'查看', width:80, align:'center', 
+			renderer: function(value, metaData, record) {
+				var isdo = record.get('fun_event__is_domain');
+				var html = '';
+				if (isdo == '1') {
+					html = '<a name="qryevent" href="#">查看域</a>';
+				} else {
+					html = '<a name="clsset" href="#">查看类</a>';
+				}
+				return html;
+			},
+			listeners: {click: function(col, grid, row, e){
+				var target = e.getTarget();
+				var rec = grid.getStore().getAt(row);
+				var fun_id = rec.get('fun_event__fun_id');
+				var event_code = rec.get('fun_event__event_code');
+				
+				if (target.name == 'clsset') {
+					showClass(fun_id, event_code, target);
+				}
+				if (target.name == 'qryevent') {
+					showDomain(fun_id, event_code, target);
+				}
+			}}
+		}
+	};
+
 	config.eventcfg = {
 		f_invoke: function(){
 			var records = this.grid.getSelectionModel().getSelections();

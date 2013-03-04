@@ -417,11 +417,10 @@ Ext.ns('Jxstar');
 							}
 						}
 						
-						//右边表格中的表名与树形数据表是相同的，则只显示下级数据
-						var table_name = attr.table_name;
-						var right_table = grid.gridNode ? grid.gridNode.define.tablename : '';
-						if (table_name.length > 0 && table_name == right_table && 
-						   (attr.tree_no == '1' || attr.tree_no == '')) {
+						//如果是树型功能，则只显示下级数据
+						//以前是根据左边表名相等来判断是否需要增加级别过滤
+						var reg_type = grid.gridNode ? grid.gridNode.define.regtype : '';
+						if (reg_type == 'treemain' && (attr.tree_no == '1' || attr.tree_no == '')) {
 							if (attr.has_level == '1' && treeLevel > 1) {
 								where_sql += ' and (' + attr.node_level + ' = ? or ' + attr.node_level + ' = ?)';
 								where_value += ';' + treeLevel + ';' + (treeLevel-1);
@@ -626,7 +625,7 @@ Ext.ns('Jxstar');
 			var formpanel = tabpanel.getComponent(1);
 			if (formpanel == null) return;
 			var formpage = formpanel.getComponent(0);
-			if (formpage == null) return;
+			if (formpage == null || !formpage.isXType('form')) return;
 			
 			var form = formpage.getForm();
 			form.myGrid = items.grid;

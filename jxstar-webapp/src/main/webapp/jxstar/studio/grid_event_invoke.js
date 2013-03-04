@@ -5,7 +5,7 @@
 	var Dataregstatus = Jxstar.findComboData('regstatus');
 
 	var cols = [
-	{col:{header:'*类路径与名', width:284, sortable:true, editable:true, hcss:'color:#0000ff;',
+	{col:{header:'*类名(含包名)', width:284, sortable:true, editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.TextField({
 			maxLength:200, allowBlank:false
 		})}, field:{name:'fun_event_invoke__module_name',type:'string'}},
@@ -16,10 +16,10 @@
 	{col:{header:'序号', width:50, sortable:true, defaultval:'1', align:'right',
 		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.NumberField({
-			maxLength:12
+			decimalPrecision:0, maxLength:12
 		}),renderer:JxUtil.formatInt()}, field:{name:'fun_event_invoke__invoke_index',type:'int'}},
 	{col:{header:'类说明', width:100, sortable:true, hidden:true}, field:{name:'fun_event_invoke__invoke_memo',type:'string'}},
-	{col:{header:'系统事件代码', width:79, sortable:true, editable:true, hcss:'color:#3039b4;',
+	{col:{header:'系统事件代码', width:90, sortable:true, editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.TextField({
 			maxLength:20
 		})}, field:{name:'fun_event_invoke__event_code',type:'string'}},
