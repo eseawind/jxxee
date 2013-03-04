@@ -637,7 +637,7 @@ public class TreeQuery extends BusinessObject {
 		treesql.append(" '"+ mpTree.get("has_level") +"' as has_level, ");
 		
 		//缺省都不是叶子节点
-		treesql.append(" 'false' as leaf ");
+		treesql.append(" 'true' as leaf ");
 		
 		treesql.append(" from " + mpTree.get("table_name") + " ");
 		

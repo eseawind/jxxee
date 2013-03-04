@@ -163,8 +163,11 @@ public class EventDefine {
 	 */
 	private static List<Map<String, String>> getCustomModule(
 			String funID, String eventCode, String position) {
+		//是否系统事件注册类
+		String issys = funID.equals(SYSEVENT) ? "1" : "0";
+		
 		StringBuilder sbsql = new StringBuilder();
-			sbsql.append("select invoke_id, module_name, method_name, position ");
+			sbsql.append("select invoke_id, module_name, method_name, position, '"+ issys +"' as issys ");
 			sbsql.append("from fun_event_invoke where status = '0' and ");
 			sbsql.append("exists (select * from fun_event where ");
 			sbsql.append("fun_event.event_id = fun_event_invoke.event_id ");
@@ -198,7 +201,7 @@ public class EventDefine {
 	private static List<Map<String, String>> getExtModule(
 			String funID, String eventCode, String position) {
 		StringBuilder sbsql = new StringBuilder();
-			sbsql.append("select invoke_id, module_name, method_name, position ");
+			sbsql.append("select invoke_id, module_name, method_name, position, '0' as issys ");
 			sbsql.append("from fun_event_invoke where status = '0' and ");
 			sbsql.append("exists (select * from fun_event where ");
 			sbsql.append("fun_event.event_id = fun_event_invoke.event_id and fun_id = ?) ");
