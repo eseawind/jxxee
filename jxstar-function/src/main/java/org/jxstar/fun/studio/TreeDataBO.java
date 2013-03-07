@@ -6,22 +6,23 @@
  */
 package org.jxstar.fun.studio;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 
 import org.jxstar.dao.DaoParam;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.DefineName;
 import org.jxstar.util.FileUtil;
+import org.jxstar.util.MapUtil;
 import org.jxstar.util.resource.JsMessage;
 
 /**
  * 创建树形定义JSON数据文件。
+ * 现在采用动态取树形定义数据，不需要生成静态文件。
  *
  * @author TonyTan
  * @version 1.0, 2011-3-1
+ * @deprecated
  */
 public class TreeDataBO extends BusinessObject {
 	private static final long serialVersionUID = 1L;
@@ -38,7 +39,7 @@ public class TreeDataBO extends BusinessObject {
 		//一个树形定义的数据
 		StringBuilder sbItem = new StringBuilder();
 		//所有树形定义的数据
-		StringBuilder sbJson = new StringBuilder("TreeData = {\r");
+		StringBuilder sbJson = new StringBuilder("TreeData = {\r\n");
 		for (int i = 0, n = lsTree.size(); i < n; i++) {
 			Map<String,String> mpTree = lsTree.get(i);
 			
@@ -49,25 +50,25 @@ public class TreeDataBO extends BusinessObject {
 			} else {
 			//不是同一个功能
 				if (i == 0) {
-					sbItem.append("'" + funId + "':[\r");
+					sbItem.append("'" + funId + "':[\r\n");
 					sbItem.append(jsonTree(mpTree));
 				} else {
 					//结束上一个功能
 					String oneItem = sbItem.substring(0, sbItem.length()-2);
-					oneItem += "\r],\r";
+					oneItem += "\r\n],\r\n";
 					sbJson.append(oneItem);
 					sbItem = sbItem.delete(0, sbItem.length());//清除上一个功能的数据
 					
 					//开始下一个功能
 					curFunId = funId;
-					sbItem.append("'" + funId + "':[\r");
+					sbItem.append("'" + funId + "':[\r\n");
 					sbItem.append(jsonTree(mpTree));
 				}
 			}
 		}
 		if (sbItem.length() > 0) {
-			String item = sbItem.substring(0, sbItem.length()-2);
-			sbJson.append(item).append("\r]\r};");
+			String item = sbItem.substring(0, sbItem.length()-3);
+			sbJson.append(item).append("\r\n]\r\n};");
 		} else {
 			sbJson.append("};");
 		}
@@ -102,6 +103,8 @@ public class TreeDataBO extends BusinessObject {
 	 * @return
 	 */
 	private String jsonTree(Map<String,String> mpTree) {
+		return "\t" + MapUtil.toJson(mpTree) + ",\r\n";
+		/*
 		StringBuilder sbItem = new StringBuilder();
 		sbItem.append("\t{");
 		
@@ -116,6 +119,6 @@ public class TreeDataBO extends BusinessObject {
 		}
 		String item = sbItem.substring(0, sbItem.length()-1);
 
-		return item + "},\r";
+		return item + "},\r\n";*/
 	}
 }

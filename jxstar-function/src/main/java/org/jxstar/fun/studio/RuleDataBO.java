@@ -14,6 +14,7 @@ import org.jxstar.dao.DaoParam;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.DefineName;
 import org.jxstar.util.FileUtil;
+import org.jxstar.util.StringUtil;
 import org.jxstar.util.resource.JsMessage;
 
 /**
@@ -42,7 +43,7 @@ public class RuleDataBO extends BusinessObject {
 		//一个路由条件的数据
 		StringBuilder sbItem = new StringBuilder();
 		//所有路由条件的数据
-		StringBuilder sbJson = new StringBuilder("RuleData = {\r");
+		StringBuilder sbJson = new StringBuilder("RuleData = {\r\n");
 		for (int i = 0, n = lsRule.size(); i < n; i++) {
 			Map<String,String> mpRule = lsRule.get(i);
 
@@ -53,25 +54,25 @@ public class RuleDataBO extends BusinessObject {
 			} else {
 			//不是同一个功能
 				if (i == 0) {
-					sbItem.append("'" + funId + "':[\r");
+					sbItem.append("'" + funId + "':[\r\n");
 					sbItem.append(jsonRoute(mpRule));
 				} else {
 					//结束上一个功能
-					String oneItem = sbItem.substring(0, sbItem.length()-2);
-					oneItem += "\r],\r";
+					String oneItem = sbItem.substring(0, sbItem.length()-3);
+					oneItem += "\r\n],\r\n";
 					sbJson.append(oneItem);
 					sbItem = sbItem.delete(0, sbItem.length());//清除上一个功能的数据
 					
 					//开始下一个功能
 					curFunId = funId;
-					sbItem.append("'" + funId + "':[\r");
+					sbItem.append("'" + funId + "':[\r\n");
 					sbItem.append(jsonRoute(mpRule));
 				}
 			}
 		}
 		if (sbItem.length() > 0) {
-			String item = sbItem.substring(0, sbItem.length()-2);
-			sbJson.append(item).append("\r]\r};");
+			String item = sbItem.substring(0, sbItem.length()-3);
+			sbJson.append(item).append("\r\n]\r\n};");
 		} else {
 			sbJson.append("};");
 		}
@@ -89,7 +90,7 @@ public class RuleDataBO extends BusinessObject {
 	//一个路由条件
 	private String jsonRoute(Map<String,String> mpRule) {
 		String whereSql = mpRule.get("where_sql");
-		whereSql = whereSql.replace("'", "\\'");
+		whereSql = StringUtil.strForJson(whereSql);
 		
 		StringBuilder sbItem = new StringBuilder();
 		sbItem.append("\t{srcNodeId:'" + mpRule.get("src_funid") + "',");
@@ -97,7 +98,7 @@ public class RuleDataBO extends BusinessObject {
 		sbItem.append("layout:'" + mpRule.get("layout_page") + "',");
 		sbItem.append("whereSql:'" + whereSql + "',");
 		sbItem.append("whereType:'" + mpRule.get("where_type") + "',");
-		sbItem.append("whereValue:'" + mpRule.get("where_value") + "'},\r");
+		sbItem.append("whereValue:'" + mpRule.get("where_value") + "'},\r\n");
 		
 		return sbItem.toString();
 	}
