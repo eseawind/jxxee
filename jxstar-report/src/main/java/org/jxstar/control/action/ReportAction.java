@@ -268,7 +268,14 @@ public class ReportAction extends Action {
 		//取报表定义信息
 		Map<String,String> mpReport = ReportDao.getReport(reportId);
 		mpRet.put("report", mpReport);
-		mpRet.put("reportName", mpReport.get("report_name"));
+		
+		//扩展可以修改打印报表的名称
+		String reportName = getRequestValue(request, "reportName");
+		if (reportName.length() == 0) {
+			mpRet.put("reportName", mpReport.get("report_name"));
+		} else {
+			mpRet.put("reportName", reportName);
+		}
 		
 		//取报表主区域SQL
 		String mainSql = "";
