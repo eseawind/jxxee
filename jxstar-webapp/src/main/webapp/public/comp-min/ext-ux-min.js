@@ -46,7 +46,7 @@ Ext.ns("Ext.ux.form");Ext.ux.form.FileUploadField=Ext.extend(Ext.form.DisplayFie
  * licensing@sencha.com
  * http://www.sencha.com/license
  */
-Ext.ux.JxPagerTool=Ext.extend(Object,{init:function(b){var e=[[50,"50"],[100,"100"],[200,"200"]];var d=new Ext.form.ComboBox({triggerAction:"all",mode:"local",width:50,editable:false,store:new Ext.data.SimpleStore({fields:["value","text"],data:e}),valueField:"value",displayField:"text",value:50,listeners:{select:function(h,f,g){b.pageSize=f.get("value");b.changePage(1);return true}}});var c=Ext.Toolbar;var a=b.items.indexOf(b.displayItem);b.insert(a+1,new c.TextItem(", 每页"));b.insert(a+2,d);b.insert(a+3,new c.TextItem("条"))}});
+Ext.ux.JxPagerTool=Ext.extend(Object,{init:function(b){var e=[[20,"20"],[50,"50"],[100,"100"],[200,"200"]];var d=new Ext.form.ComboBox({triggerAction:"all",mode:"local",width:50,editable:false,store:new Ext.data.SimpleStore({fields:["value","text"],data:e}),valueField:"value",displayField:"text",value:50,listeners:{select:function(h,f,g){b.pageSize=f.get("value");b.changePage(1);return true}}});var c=Ext.Toolbar;var a=b.items.indexOf(b.displayItem);b.insert(a+1,new c.TextItem(", 每页"));b.insert(a+2,d);b.insert(a+3,new c.TextItem("条"))}});
 /*
  * Ext JS Library 3.3.1
  * Copyright(c) 2006-2010 Sencha Inc.

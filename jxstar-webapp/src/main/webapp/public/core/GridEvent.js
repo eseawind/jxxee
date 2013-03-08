@@ -87,7 +87,17 @@ Jxstar.GridEvent = function(define) {
 		* @param {Jxstar.GridEvent} this
 		* @param {srcFunId:'', destFunId:'', data:[{impKeyId:'', newKeyId:''}...]} data
 		**/
-		'afterimport'
+		'afterimport',
+		/**
+		* @param {Jxstar.GridEvent} this
+		* @param {{reportId:'', printType:'', printScope:'', printMode:''}} data
+		**/
+		'beforeprint',
+		/**
+		* @param {Jxstar.GridEvent} this
+		* @param {{reportId:'', printType:'', printScope:'', printMode:''}} data
+		**/
+		'afterprint'
 	);
 
 	Jxstar.GridEvent.superclass.constructor.call(this, define);

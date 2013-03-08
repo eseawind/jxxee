@@ -89,7 +89,17 @@ Jxstar.FormEvent = function(define) {
 		/**
 		* @param {Jxstar.FormEvent} this
 		**/
-		'initother'
+		'initother',
+		/**
+		* @param {Jxstar.FormEvent} this
+		* @param {{reportId:'', printType:'', printScope:'', printMode:''}} data
+		**/
+		'beforeprint',
+		/**
+		* @param {Jxstar.FormEvent} this
+		* @param {{reportId:'', printType:'', printScope:'', printMode:''}} data
+		**/
+		'afterprint'
 	);
 
 	Jxstar.FormEvent.superclass.constructor.call(this, define);

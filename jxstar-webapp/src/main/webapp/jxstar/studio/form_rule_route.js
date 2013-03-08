@@ -19,6 +19,7 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
+					{xtype:'textfield', fieldLabel:'序号', name:'fun_rule_route__route_no', defaultval:'1', anchor:'53%', maxLength:10},
 					{xtype:'textfield', fieldLabel:'来源功能ID', name:'fun_rule_route__src_funid', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:25},
 					{xtype:'textfield', fieldLabel:'目标功能ID', name:'fun_rule_route__fun_id', readOnly:true, anchor:'100%', maxLength:25},
 					{xtype:'hidden', fieldLabel:'路由ID', name:'fun_rule_route__route_id', anchor:'59%'},
@@ -30,6 +31,7 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
+					{xtype:'emptybox'},
 					{xtype:'trigger', fieldLabel:'导入布局', name:'fun_rule_route__layout_page',
 						anchor:'100%', triggerClass:'x-form-search-trigger',
 						maxLength:100, editable:true,

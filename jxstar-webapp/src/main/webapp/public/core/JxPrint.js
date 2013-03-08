@@ -188,6 +188,11 @@ JxPrint = {};
 			return false;
 		}
 		
+		//扩展事件用的参数
+		var data = {reportId:reportId, printType:printType, printScope:printScope, printMode:printMode};
+		//触发打印前事件
+		if (pageNode.event.fireEvent('beforeprint', pageNode.event, data) == false) return false;
+		
 		//请求参数
 		var e = encodeURIComponent; //编码
 		var params = 'funid='+ funId +'&reportId='+ reportId +'&printType='+printType+'&printMode='+printMode;
@@ -196,6 +201,18 @@ JxPrint = {};
 			params += '&isDefault=1';
 		}
 		params += '&user_id=' + Jxstar.session['user_id'];
+		
+		//扩展打印请求参数
+		if (typeof pageNode.event.dataPrintParam == 'function') {
+			var ret = pageNode.event.dataPrintParam(data);
+			if (ret && ret.length > 0) {
+				if (ret.charAt(0) != '&') {
+					ret = '&' + ret;
+				}
+				params += ret;
+			}
+		}
+		
 		//发送后台请求
 		var href = Jxstar.path + "/reportAction.do?" + params;
 		
@@ -207,6 +224,9 @@ JxPrint = {};
 			var winName = "w_report_" + parseInt(Math.random() * 10000);
 			this.newPrintWindow(href+paramWhere, winName, 800, 600);
 		}
+		
+		//触发打印后事件
+		pageNode.event.fireEvent('afterprint', pageNode.event, data);
 	},
 	
 	//通过post方式导出xls报表
