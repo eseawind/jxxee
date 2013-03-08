@@ -32,7 +32,7 @@ public class RuleDataBO extends BusinessObject {
 	 */
 	public String createJson(String realPath) {
 		String sql = "select fun_id, src_funid, where_sql, where_type, where_value, layout_page "+
-					 "from fun_rule_route where status = '0' order by fun_id";
+					 "from fun_rule_route where status = '0' order by fun_id, route_no";
 		
 		DaoParam param = _dao.createParam(sql);
 		param.setDsName(DefineName.DESIGN_NAME);
