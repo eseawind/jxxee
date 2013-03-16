@@ -167,9 +167,9 @@ public class SignPicUtil {
 		return MapUtil.getValue(mpData, "start_date");
 	}
 	
-	//取标记时间最近的有效的印章版本记录
+	//取标记时间最近的印章版本记录
 	private static String querySignetId(String dataDiff, String dataId, String markDate, boolean isAll) {
-		String sql = "select signet_id from wf_signet where state = '1' and " +
+		String sql = "select signet_id from wf_signet where state in ('1', '7') and " +
 				"data_diff = ? and data_id = ? ";
 		if (!isAll) {
 			sql += " and version_date < ? ";

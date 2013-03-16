@@ -179,7 +179,7 @@ public class CheckSheetBO extends BusinessObject {
 		String markDate = queryMarkDate(funId, dataId);
 		Map<String,String> appData = null;
 		
-		String sql = "select report_id, where_sql from wf_sheet where state = '1' " +
+		String sql = "select report_id, where_sql from wf_sheet where state in ('1', '7') " +
 			"and process_id = ? ";
 		if (!isAll) {
 			sql += " and version_date < ? ";
@@ -217,7 +217,7 @@ public class CheckSheetBO extends BusinessObject {
 	
 	//取流程发起时间
 	private String queryMarkDate(String funId, String dataId) {
-		String sql = "select start_date from wf_instancehis where fun_id = ? and data_id = ? order start_date desc";
+		String sql = "select start_date from wf_instancehis where fun_id = ? and data_id = ? order by start_date desc";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(funId);
 		param.addStringValue(dataId);
