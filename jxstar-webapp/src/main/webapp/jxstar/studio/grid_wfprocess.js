@@ -1,8 +1,8 @@
 ﻿Jxstar.currentPage = function() {
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 
-	var prostateData = Jxstar.findComboData('prostate');
-	var protypeData = Jxstar.findComboData('protype');
+	var Dataprostate = Jxstar.findComboData('prostate');
+	var Dataprotype = Jxstar.findComboData('protype');
 
 	var cols = [
 	{col:{header:'状态', width:73, sortable:true, defaultval:'1', align:'center',
@@ -10,7 +10,7 @@
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
 				fields:['value','text'],
-				data: prostateData
+				data: Dataprostate
 			}),
 			emptyText: jx.star.select,
 			mode: 'local',
@@ -18,12 +18,12 @@
 			valueField: 'value',
 			displayField: 'text',
 			editable:false,
-			value: prostateData[0][0]
+			value: Dataprostate[0][0]
 		}),
 		renderer:function(value){
-			for (var i = 0; i < prostateData.length; i++) {
-				if (prostateData[i][0] == value)
-					return prostateData[i][1];
+			for (var i = 0; i < Dataprostate.length; i++) {
+				if (Dataprostate[i][0] == value)
+					return Dataprostate[i][1];
 			}
 		}}, field:{name:'wf_process__process_state',type:'string'}},
 	{col:{header:'*过程编号', width:122, sortable:true, editable:true, hcss:'color:#0000ff;',
@@ -35,10 +35,24 @@
 			maxLength:50, allowBlank:false
 		})}, field:{name:'wf_process__process_name',type:'string'}},
 	{col:{header:'过程类型', width:100, sortable:true, hidden:true, defaultval:'1', align:'center',
+		editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.ComboBox({
+			store: new Ext.data.SimpleStore({
+				fields:['value','text'],
+				data: Dataprotype
+			}),
+			emptyText: jx.star.select,
+			mode: 'local',
+			triggerAction: 'all',
+			valueField: 'value',
+			displayField: 'text',
+			editable:false,
+			value: Dataprotype[0][0]
+		}),
 		renderer:function(value){
-			for (var i = 0; i < protypeData.length; i++) {
-				if (protypeData[i][0] == value)
-					return protypeData[i][1];
+			for (var i = 0; i < Dataprotype.length; i++) {
+				if (Dataprotype[i][0] == value)
+					return Dataprotype[i][1];
 			}
 		}}, field:{name:'wf_process__process_type',type:'string'}},
 	{col:{header:'*功能名称', width:130, sortable:true, editable:true, hcss:'color:#0000ff;',
@@ -47,7 +61,7 @@
 			editable:false, allowBlank:false,
 			triggerClass:'x-form-search-trigger', 
 			onTriggerClick: function() {
-				var selcfg = {pageType:'combogrid', nodeId:'sel_fun', layoutPage:'/public/layout/layout_tree.js', sourceField:'fun_base.fun_name;fun_id;module_id', targetField:'wf_process.fun_name;fun_id;module_id', whereSql:"reg_type in ('main','treemain')", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'1',fieldName:'wf_process.fun_name'};
+				var selcfg = {pageType:'combogrid', nodeId:'sel_fun', layoutPage:'/public/layout/layout_tree.js', sourceField:'fun_base.fun_name;fun_id;module_id', targetField:'wf_process.fun_name;fun_id;module_id', whereSql:"reg_type in ('main','treemain')", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'1',queryField:'',likeType:'',fieldName:'wf_process.fun_name'};
 				JxSelect.createSelectWin(selcfg, this, 'node_wf_process_editgrid');
 			}
 		})}, field:{name:'wf_process__fun_name',type:'string'}},
@@ -63,7 +77,8 @@
 		editor:new Ext.form.TextField({
 			maxLength:20
 		})}, field:{name:'wf_process__chg_user',type:'string'}},
-	{col:{header:'变更日期', width:100, sortable:true, defaultval:'fun_getToday()', editable:false,
+	{col:{header:'变更日期', width:100, sortable:true, defaultval:'fun_getToday()', align:'center',
+		editable:false,
 		editor:new Ext.form.DateField({
 			format: 'Y-m-d',
 			minValue: '1900-01-01'
@@ -71,15 +86,16 @@
 		renderer:function(value) {
 			return value ? value.format('Y-m-d') : '';
 		}}, field:{name:'wf_process__chg_date',type:'date'}},
-	{col:{header:'异步执行?', width:69, sortable:true, defaultval:'0', editable:true, hcss:'color:#3039b4;',
+	{col:{header:'异步执行?', width:69, sortable:true, defaultval:'0', align:'center',
+		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.Checkbox(),
 		renderer:function(value) {
 			return value=='1' ? jx.base.yes : jx.base.no;
 		}}, field:{name:'wf_process__exe_delay',type:'string'}},
-	{col:{header:'变更人ID', width:100, sortable:true, hidden:true, defaultval:'fun_getUserId()'}, field:{name:'wf_process__chg_userid',type:'string'}},
-	{col:{header:'过程ID', width:100, sortable:true, hidden:true}, field:{name:'wf_process__process_id',type:'string'}},
-	{col:{header:'原版过程ID', width:100, sortable:true, hidden:true}, field:{name:'wf_process__old_processid',type:'string'}},
-	{col:{header:'模块ID', width:100, sortable:true, hidden:true}, field:{name:'wf_process__module_id',type:'string'}}
+	{col:{header:'变更人ID', width:100, sortable:true, colindex:10000, hidden:true, defaultval:'fun_getUserId()'}, field:{name:'wf_process__chg_userid',type:'string'}},
+	{col:{header:'过程ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'wf_process__process_id',type:'string'}},
+	{col:{header:'原版过程ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'wf_process__old_processid',type:'string'}},
+	{col:{header:'模块ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'wf_process__module_id',type:'string'}}
 	];
 	
 	config.param = {
@@ -91,7 +107,37 @@
 		funid: 'wf_process'
 	};
 	
+	
 	config.eventcfg = {
+		setSheet: function(){
+			var records = this.grid.getSelectionModel().getSelections();
+			if (!JxUtil.selectone(records)) return;
+
+			//过滤条件
+			var where_sql = 'wf_sheet.process_id = ?';
+			var where_type = 'string';
+			var where_value = records[0].get('wf_process__process_id');
+			
+			//加载数据
+			var hdcall = function(grid) {
+				JxUtil.delay(500, function(){
+					//设置外键值
+					grid.fkValue = where_value;
+					Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type});
+				});
+			};
+
+			//显示数据
+			var define = Jxstar.findNode('wf_sheet');
+			Jxstar.showData({
+				filename: define.gridpage,
+				title: define.nodetitle,
+				pagetype: 'subgrid',
+				nodedefine: define,
+				callback: hdcall
+			});
+		},
+	
 		deleteWf: function(){
 			var self = this;
 			var records = self.grid.getSelectionModel().getSelections();

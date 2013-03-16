@@ -729,7 +729,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		};
 		
 		//从后台取报表定义信息
-		var params = 'funid=rpt_list&pagetype=grid&eventcode=checkrept&selfunid='+ funid +'&repttype=form&wheresql=';
+		var params = 'funid=rpt_list&pagetype=grid&eventcode=checkrpt&selfunid='+ funid +'&dataid='+ keyid +'&repttype=form&wheresql=';
 		Request.dataRequest(params, hdCall);
 	},
 

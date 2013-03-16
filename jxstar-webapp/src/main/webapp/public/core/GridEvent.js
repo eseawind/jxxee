@@ -389,6 +389,18 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	* 基础提交事件
 	**/
 	baseAudit : function(auditval, eventcode) {
+		var store = this.grid.getStore();
+		var mrow = store.getModifiedRecords();
+		if (mrow.length > 0) {
+			//记录已被修改，是否需要先保存？
+			if (confirm(jx.event.saveyes)) {
+				this.editSave();
+				return false;
+			} else {
+				store.rejectChanges();
+			}
+		}
+	
 		var keyids = [];
 		var cm = this.grid.getColumnModel();
 		var records = JxUtil.getSelectRows(this.grid);
@@ -677,7 +689,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		var store = this.grid.getStore();
 		var mrow = store.getModifiedRecords();
 		if (mrow.length == 0) {
-			//JxHint.alert(jx.event.nomodify);	//没有修改记录，不需要保存！
+			JxHint.alert(jx.event.nomodify);	//没有修改记录，不需要保存！
 			return;
 		}
 		if (this.fireEvent('beforesave', this) == false) return;
@@ -772,10 +784,9 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		var funid = self.define.nodeid;
 		var records = JxUtil.getSelectRows(self.grid);
 		if (!JxUtil.selectone(records)) return;
-			
+		
+		var keyid = records[0].get(self.define.pkcol);
 		var viewReport = function (reportId) {
-			var keyid = records[0].get(self.define.pkcol);
-			
 			var pk = self.define.pkcol.replace('__', '.');
 			var whereSql = pk + ' = ?';
 			
@@ -814,7 +825,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		};
 		
 		//从后台取报表定义信息
-		var params = 'funid=rpt_list&pagetype=grid&eventcode=checkrept&selfunid='+ funid +'&repttype=form&wheresql=';
+		var params = 'funid=rpt_list&pagetype=grid&eventcode=checkrpt&selfunid='+ funid +'&dataid='+ keyid +'&repttype=form&wheresql=';
 		Request.dataRequest(params, hdCall);
 	},
 
@@ -1328,6 +1339,18 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	* 批量审批同意选择的记录。
 	**/
 	agree: function() {
+		var store = this.grid.getStore();
+		var mrow = store.getModifiedRecords();
+		if (mrow.length > 0) {
+			//记录已被修改，是否需要先保存？
+			if (confirm(jx.event.saveyes)) {
+				this.editSave();
+				return false;
+			} else {
+				store.rejectChanges();
+			}
+		}
+		
 		var self = this;
 		var records = JxUtil.getSelectRows(self.grid);
 		if (!JxUtil.selected(records)) return;
@@ -1359,6 +1382,18 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	* 弹出完成分配任务界面。
 	**/
 	check: function() {
+		var store = this.grid.getStore();
+		var mrow = store.getModifiedRecords();
+		if (mrow.length > 0) {
+			//记录已被修改，是否需要先保存？
+			if (confirm(jx.event.saveyes)) {
+				this.editSave();
+				return false;
+			} else {
+				store.rejectChanges();
+			}
+		}
+	
 		var records = JxUtil.getSelectRows(this.grid);
 		if (!JxUtil.selected(records)) return;
 		

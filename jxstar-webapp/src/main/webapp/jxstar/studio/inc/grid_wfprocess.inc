@@ -1,4 +1,33 @@
 ﻿	config.eventcfg = {
+		setSheet: function(){
+			var records = this.grid.getSelectionModel().getSelections();
+			if (!JxUtil.selectone(records)) return;
+
+			//过滤条件
+			var where_sql = 'wf_sheet.process_id = ?';
+			var where_type = 'string';
+			var where_value = records[0].get('wf_process__process_id');
+			
+			//加载数据
+			var hdcall = function(grid) {
+				JxUtil.delay(500, function(){
+					//设置外键值
+					grid.fkValue = where_value;
+					Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type});
+				});
+			};
+
+			//显示数据
+			var define = Jxstar.findNode('wf_sheet');
+			Jxstar.showData({
+				filename: define.gridpage,
+				title: define.nodetitle,
+				pagetype: 'subgrid',
+				nodedefine: define,
+				callback: hdcall
+			});
+		},
+	
 		deleteWf: function(){
 			var self = this;
 			var records = self.grid.getSelectionModel().getSelections();
