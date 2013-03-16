@@ -557,7 +557,7 @@ public class TreeQuery extends BusinessObject {
 		if (teamId.length() > 0) {
 			sb.append(" and team_id = ?");
 		}
-		sb.append("order by tree_no");
+		sb.append(" order by tree_no");
 		DaoParam param = _dao.createParam(sb.toString());
 		param.addStringValue(funId);
 		
