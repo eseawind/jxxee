@@ -37,7 +37,7 @@
 						maxLength:100, editable:true,
 						onTriggerClick: function() {
 							if (this.menu == null) {
-								var selcfg = {pageType:'combogrid', nodeId:'fun_layout', layoutPage:'', sourceField:'funall_layout.layout_path', targetField:'fun_rule_route.layout_page', whereSql:"funall_layout.layout_path like '%tree%'", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',queryField:'',likeType:'',fieldName:'fun_rule_route.layout_page'};
+								var selcfg = {pageType:'combogrid', nodeId:'fun_layout', layoutPage:'', sourceField:'funall_layout.layout_path', targetField:'fun_rule_route.layout_page', whereSql:"layout_path like '%tree%' or layout_path like '%layout_main.%'", whereValue:'', whereType:'', isSame:'0', isShowData:'1', isMoreSelect:'0',isReadonly:'0',queryField:'',likeType:'',fieldName:'fun_rule_route.layout_page'};
 								this.menu = Jxstar.createComboMenu(this);
 								JxSelect.createComboGrid(selcfg, this.menu, 'node_rule_route_form');
 							}

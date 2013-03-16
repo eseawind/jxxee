@@ -960,13 +960,32 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		var loaddata = function(grid) {
 			//显示数据
 			JxUtil.delay(500, function(){
-				//处理树形页面的情况
-				if (!grid.isXType('grid')) {
-					grid = grid.getComponent(1).getComponent(0);
-					if (!grid.isXType('grid')) {
-						grid = grid.getComponent(0).getComponent(0);
+				//如果采用了导入布局页面
+				if(!grid.isXType('grid')){
+					var tree = grid.getComponent(0).getComponent(0);
+					//如果左边是树形页面
+					if(tree.isXType('treepanel')){
+						//如果右边是表格页面
+						if (grid.getComponent(1).getComponent(0).isXType('grid')) {
+							grid = grid.getComponent(1).getComponent(0);alert('1');
+						}else if(grid.getComponent(1).getComponent(0).isXType('tabpanel')){
+						//如果右边是tabpanel页面
+							grid = grid.getComponent(1).getComponent(0).getComponent(0).getComponent(0);alert('2');
+						}else{
+							JxHint.alert('找不到表格页面！');
+						}
+					}
+					//如果左边不是树形页面
+					else{
+						//如果是tabpanel页面
+						if(grid.isXType('tabpanel')){
+							grid = grid.getComponent(0).getComponent(0);alert('3');
+						}else{
+							JxHint.alert('找不到表格页面！');
+						}
 					}
 				}
+				alert('0');
 
 				//设置外键值与目标功能ID
 				grid.destParentId = fkValue;
