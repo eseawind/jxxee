@@ -40,24 +40,24 @@
 		editor:new Ext.form.TextField({
 			maxLength:100
 		})}, field:{name:'wf_sheet__report_file',type:'string'}},
-	{col:{header:'使用过滤条件', width:224, sortable:true, editable:true, hcss:'color:#3039b4;',
-		editor:new Ext.form.TextField({
-			maxLength:200
-		})}, field:{name:'wf_sheet__where_sql',type:'string'}},
 	{col:{header:'版本', width:43, sortable:true, defaultval:'1', align:'right',
 		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.NumberField({
 			decimalPrecision:0, maxLength:12
 		}),renderer:JxUtil.formatInt()}, field:{name:'wf_sheet__version_code',type:'int'}},
-	{col:{header:'版本日期', width:84, sortable:true, defaultval:'fun_getToday()', align:'center',
+	{col:{header:'版本日期', width:113, sortable:true, defaultval:'fun_getToday()', align:'center',
 		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.DateField({
-			format: 'Y-m-d',
+			format: 'Y-m-d H:i',
 			minValue: '1900-01-01'
 		}),
 		renderer:function(value) {
-			return value ? value.format('Y-m-d') : '';
+			return value ? value.format('Y-m-d H:i') : '';
 		}}, field:{name:'wf_sheet__version_date',type:'date'}},
+	{col:{header:'使用过滤条件', width:224, sortable:true, editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.TextField({
+			maxLength:200
+		})}, field:{name:'wf_sheet__where_sql',type:'string'}},
 	{col:{header:'主键', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'wf_sheet__sheet_id',type:'string'}},
 	{col:{header:'报表ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'wf_sheet__report_id',type:'string'}},
 	{col:{header:'过程ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'wf_sheet__process_id',type:'string'}}

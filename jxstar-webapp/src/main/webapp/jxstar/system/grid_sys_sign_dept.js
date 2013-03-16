@@ -44,14 +44,14 @@
 		editor:new Ext.form.NumberField({
 			decimalPrecision:0, maxLength:12
 		}),renderer:JxUtil.formatInt()}, field:{name:'wf_signet__version_code',type:'int'}},
-	{col:{header:'*版本日期', width:100, sortable:true, defaultval:'fun_getToday()', align:'center',
+	{col:{header:'*版本日期', width:115, sortable:true, defaultval:'fun_getToday()', align:'center',
 		editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.DateField({
-			format: 'Y-m-d', allowBlank:false,
+			format: 'Y-m-d H:i', allowBlank:false,
 			minValue: '1900-01-01'
 		}),
 		renderer:function(value) {
-			return value ? value.format('Y-m-d') : '';
+			return value ? value.format('Y-m-d H:i') : '';
 		}}, field:{name:'wf_signet__version_date',type:'date'}},
 	{col:{header:'创建人', width:62, sortable:true, defaultval:'fun_getUserName()', editable:false,
 		editor:new Ext.form.TextField({
