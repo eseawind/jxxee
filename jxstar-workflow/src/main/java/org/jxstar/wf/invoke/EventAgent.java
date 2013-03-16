@@ -128,6 +128,8 @@ public class EventAgent {
 		mpRequest.put("data_id", instance.getDataId());
 		mpRequest.put("process_id", instance.getProcessId());
 		mpRequest.put("process_name", instance.getProcessName());
+		mpRequest.put("app_data", instance.getAppData());//add by mark report
+		mpRequest.put("instance_id", instance.getInstanceId());//add by mark report
 		mpRequest.put("instance_desc", instance.getInstanceDesc());
 		mpRequest.put("instance_state", instance.getRunState());
 		
