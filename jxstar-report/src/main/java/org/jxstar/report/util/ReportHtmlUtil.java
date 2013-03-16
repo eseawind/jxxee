@@ -375,6 +375,8 @@ public class ReportHtmlUtil extends ReportUtil {
         String curUserId = MapUtil.getValue(mpUser, "user_id");
         //取记录主键值
         String dataId = getKeyValue(funId, mpData);
+        //根据功能ID与数据ID取过程实例标记时间
+        String markDate = SignPicUtil.getMarkDate(funId, dataId);
         
         StringBuilder sbRet = new StringBuilder(); 
         //保存已取审批信息的节点ID
@@ -420,7 +422,7 @@ public class ReportHtmlUtil extends ReportUtil {
             String userId = mpCheck.get("check_userid");
             //如果显示部门印章，如果没有设置印章，则直接退出
             if (colCode.equals("check_sign")) {
-            	valHtml = signPicHtml(userId, curUserId, colCode, mpSign);
+            	valHtml = signPicHtml(userId, curUserId, colCode, mpSign, markDate);
             	if (valHtml.length() == 0) continue;
             	
             	int[] vpos = getPosition(viewPos);
@@ -430,7 +432,7 @@ public class ReportHtmlUtil extends ReportUtil {
             		scriptFun = "f_setCellPic(180, 180, "+ vpos[0] +", "+ vpos[1] +", ";
             	}
             } else if (colCode.equals("check_user")) {
-            	valHtml = signPicHtml(userId, curUserId, colCode, mpSign);
+            	valHtml = signPicHtml(userId, curUserId, colCode, mpSign, markDate);
             	if (valHtml.length() == 0) {
             		valHtml = mpCheck.get(colCode);
             	} else {
@@ -493,10 +495,11 @@ public class ReportHtmlUtil extends ReportUtil {
      * @param userId -- 用户ID
      * @param colCode -- 报表字段名
      * @param mpSign -- 是否显示印章的设置信息
+     * @param markDate -- 过程实例开始时间
      * @return
      */
     private static String signPicHtml(String userId, String curUserId, 
-    		String colCode, Map<String,String> mpSign) {
+    		String colCode, Map<String,String> mpSign, String markDate) {
     	if (userId == null || userId.length() == 0 || 
     			mpSign == null || mpSign.isEmpty() ||
     			colCode == null || colCode.length() == 0) return "";
@@ -505,13 +508,13 @@ public class ReportHtmlUtil extends ReportUtil {
     		//流程节点是否显示个人签名
     		String use = mpSign.get("user_sign");
     		if (use.equals("1")) {
-    			return SignPicUtil.getUserSign(userId, curUserId);
+    			return SignPicUtil.getUserSign(userId, curUserId, markDate);
     		}
     	} else if (colCode.equals("check_sign")) {
     		//流程节点是否显示部门印章
     		String use = mpSign.get("dept_sign");
     		if (use.equals("1")) {
-    			return SignPicUtil.getDeptSign(userId, curUserId);
+    			return SignPicUtil.getDeptSign(userId, curUserId, markDate);
     		}
     	}
     	
