@@ -14,6 +14,8 @@ import org.jxstar.service.util.TaskUtil;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.key.KeyCreator;
+import org.jxstar.wf.define.WfDefineDao;
+import org.jxstar.wf.util.ProcessUtil;
 
 /**
  * 查找审批单定义信息。
@@ -46,10 +48,11 @@ public class CheckSheetBO extends BusinessObject {
 	}
 	
 	/**
-	 * 取当前业务记录使用的报表模块ID：
-	 * 1、先根据取当前业务记录找过程实例ID，再根据过程实例ID找报表ID；
-	 * 2、如果在当前实例表中找不到，则到历史实例表中找，如果有多记录，则找最近一条过程实例记录；
-	 * 3、如果在标记表中没有记录，则直接根据功能ID找报表模板；
+	 * 查看审批单时找审批单的规则：
+	 * 1、在审批单标记表中取“发起审批流程”时标记的审批单报表ID；
+	 * 2、如果没有找到审批单标记记录，则从审批单版本设置中取版本日期小于“发起审批流程”时间的版本设置；
+                           如果没有就取最新版本的审批单设置；
+	 * 3、如果没有找到审批单版本记录，则根据功能ID到报表定义表找当前功能的序号最小的审批表单定义；
 	 * 
 	 * ReportInfoBO.queryCheckReport -- 原来用这个方法找审批表单
 	 * @param funId -- 功能ID
@@ -59,10 +62,21 @@ public class CheckSheetBO extends BusinessObject {
 	public String checkReport(String funId, String dataId) {
 		_log.showDebug(".........find report id, funId={0}, dataId={1}.", funId, dataId);
 		
+		//1、在审批单标记表中取“发起审批流程”时标记的审批单报表ID；
 		String reportId = getReportIdByMark(funId, dataId);
 		_log.showDebug(".........find mark reportid={0}.", reportId);
 		
-		//如果没有找到报表ID，则直接根据功能ID找报表ID
+		//2、如果没有找到审批单标记记录，则从审批单版本设置中取版本日期小于“发起审批流程”时间的版本设置；
+		//   如果没有就取最新版本的审批单设置；
+		if (reportId.length() == 0) {
+			reportId = getReportIdBySheet(funId, dataId, false);
+			if (reportId.length() == 0) {
+				reportId = getReportIdBySheet(funId, dataId, true);
+			}
+			_log.showDebug(".........find sheet reportid={0}.", reportId);
+		}
+		
+		//3、如果没有找到报表ID，则直接根据功能ID找报表ID
 		if (reportId.length() == 0) {
 			reportId = queryReportId(funId);
 			_log.showDebug(".........find define reportid={0}.", reportId);
@@ -156,5 +170,59 @@ public class CheckSheetBO extends BusinessObject {
 		
 		Map<String, String> mpData = _dao.queryMap(param);
 		return MapUtil.getValue(mpData, "report_id");
+	}
+	
+	//取审批发起时间最近的版本设置
+	private String getReportIdBySheet(String funId, String dataId, boolean isAll) {
+		Map<String,String> mpDefine = WfDefineDao.getInstance().queryProcessByFunId(funId);
+		String processId = mpDefine.get("process_id");
+		String markDate = queryMarkDate(funId, dataId);
+		Map<String,String> appData = null;
+		
+		String sql = "select report_id, where_sql from wf_sheet where state = '1' " +
+			"and process_id = ? ";
+		if (!isAll) {
+			sql += " and version_date < ? ";
+		}
+		sql += " order by version_code desc";
+		
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(processId);
+		if (!isAll) {
+			param.addDateValue(markDate);
+		}
+		
+		List<Map<String,String>> lsData = _dao.query(param);
+		if (lsData.isEmpty()) return ""; 
+		
+		//解析过滤条件，找出过滤条件为真的审批单，支持定义各分厂的审批单
+		for (Map<String,String> mpData : lsData) {
+			String whereSql = mpData.get("where_sql");
+			String reportId = mpData.get("report_id");
+			
+			if (whereSql.length() > 0) {
+				if (appData == null) {
+					appData = ProcessUtil.queryFunData(funId, dataId);
+				}
+				
+				whereSql = TaskUtil.parseAppField(whereSql, appData, true);
+				if (ConditionUtil.validCondition(whereSql)) return reportId;
+			} else {
+				return reportId;
+			}
+		}
+		
+		return "";
+	}
+	
+	//取流程发起时间
+	private String queryMarkDate(String funId, String dataId) {
+		String sql = "select start_date from wf_instancehis where fun_id = ? and data_id = ? order start_date desc";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(funId);
+		param.addStringValue(dataId);
+		
+		Map<String, String> mpData = _dao.queryMap(param);
+		return MapUtil.getValue(mpData, "start_date");
 	}
 }
