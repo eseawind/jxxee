@@ -100,7 +100,7 @@ public class InsertSqlBO extends BusinessObject {
 		String[][] tableWheres = getTableWhere();
 		
 		StringBuilder sbInsert = new StringBuilder();
-		sbInsert.append("\n--export funid "+funId+"...\n");
+		sbInsert.append("\r\n--export funid "+funId+"...\r\n");
 		
 		for (int i = tableWheres.length-1; i >= 0; i--) {
 			String[] tableWhere = tableWheres[i];
@@ -109,7 +109,21 @@ public class InsertSqlBO extends BusinessObject {
 			
 			sbInsert.append(batchMakeSQL(tableWhere[0], whereSql));
 		}
-		sbInsert.append("commit;\n");
+		sbInsert.append("commit;\r\n");
+		
+		return sbInsert;
+	}
+	
+	/**
+	 * 导出一个表中的所有数据
+	 * @param tableName
+	 * @return
+	 */
+	public StringBuilder tableExpSql(String tableName) {
+		StringBuilder sbInsert = new StringBuilder();
+		sbInsert.append("\r\n--export table ["+ tableName +"]...\r\n");
+		sbInsert.append(batchMakeSQL(tableName, ""));
+		sbInsert.append("commit;\r\n");
 		
 		return sbInsert;
 	}
@@ -128,15 +142,15 @@ public class InsertSqlBO extends BusinessObject {
 		};
 		
 		StringBuilder sbInsert = new StringBuilder();
-		sbInsert.append("\n--export dm config...\n");
+		sbInsert.append("\r\n--export dm config...\r\n");
 		
 		for (int i = tableWheres.length-1; i >= 0; i--) {
 			String[] tableWhere = tableWheres[i];
 			sbInsert.append(batchMakeSQL(tableWhere[0], tableWhere[1]));
 			
-			sbInsert.append("update " + tableWhere[0] + " set state = '1' where " + tableWhere[1] + ";\n\n");
+			sbInsert.append("update " + tableWhere[0] + " set state = '1' where " + tableWhere[1] + ";\r\n\r\n");
 		}
-		sbInsert.append("commit;\n");
+		sbInsert.append("commit;\r\n");
 		
 		return sbInsert;
 	}
@@ -197,7 +211,7 @@ public class InsertSqlBO extends BusinessObject {
 	 */
 	public StringBuilder batchMakeSQL(String tableName, String whereSql) {
 		StringBuilder sbInsert = new StringBuilder();
-		//sbInsert.append("\n--export tablename "+tableName+"...\n");
+		//sbInsert.append("\r\n--export tablename "+tableName+"...\r\n");
 		
 		List<Map<String, String>> lsData = queryData(tableName, whereSql);
 		for (Map<String, String> mp : lsData) {
@@ -287,7 +301,7 @@ public class InsertSqlBO extends BusinessObject {
 		sbInsert.append(sbField.substring(0, sbField.length()-2));
 		sbInsert.append(") values(");
 		sbInsert.append(sbValue.substring(0, sbValue.length()-2));
-		sbInsert.append(");\n");
+		sbInsert.append(");\r\n");
 		
 		_log.showDebug(sbInsert.toString());
 		
