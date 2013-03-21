@@ -78,7 +78,6 @@ Jxstar.currentPage = {
 			//创建设计面板，用于处理滚动条
 			designPanel = new Ext.Panel({
 				border: false,
-				height: 500,
 				html: htmls.join('')
 			});
 			

@@ -39,7 +39,7 @@ Ext.apply(JxWfGraph, {
 				border: false,
 				layout: 'fit',
 				closable: true,
-				autoScroll: true,
+				autoScroll: false,
 				iconCls: 'function'
 			});
 		} else {
@@ -62,7 +62,7 @@ Ext.apply(JxWfGraph, {
 			var tabid = 'wfnav_graph_tab';
 			//设计面板html
 			var htmls = [
-				'<div id="mx_graph_show_nav" style="height:100%;width:100%;background-color:white;overflow:auto;">',
+				'<div id="mx_graph_show_nav" style="height:100%;width:100%;background-color:white;overflow:none;">',
 					'<center id="mx_splash" style="padding-top:230px;">',
 						'<img src="public/lib/graph/images/loading.gif">',
 					'</center>',
@@ -75,7 +75,6 @@ Ext.apply(JxWfGraph, {
 				id: tabid,
 				border: true,
 				layout: 'fit',
-				autoScroll: true,
 				//tbar: tbar,
 				html: htmls.join('')
 			});

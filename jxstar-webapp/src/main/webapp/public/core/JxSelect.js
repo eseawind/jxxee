@@ -315,6 +315,7 @@ JxSelect = {};
 		* targetField: 目标字段，如果是统计参数，不能添加表名
 		*/
 		setControlData: function(srcRecords, fieldCtl, srcField, tagField) {
+			var self = this;
 			var fieldCt = fieldCtl.ownerCt;
 			//统计条件值输入控件
 			if (fieldCt.isXType('toolbar')) {

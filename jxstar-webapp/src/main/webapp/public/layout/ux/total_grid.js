@@ -64,7 +64,7 @@ JxTotalGrid = {};
 		totalgrid.on('cellclick', self.showDrill);
 		
 		//添加统计、打印、另存数据按钮
-		toolbar.addButton({iconCls:'eb_stat', text:'统计', handler:function(){self.exeStat(config.nodeid, totalgrid);}});
+		toolbar.addButton({iconCls:'eb_stat', text:'统计', handler:function(){self.exeStat(config.nodeid, totalgrid, config);}});
 		toolbar.addButton({iconCls:'eb_print', text:'打印', handler:function(){self.outputXls(config.reportId, totalgrid);}});
 		toolbar.addButton({iconCls:'eb_expxls', text:'另存数据', handler:function(){Request.exportCSV(totalgrid, '统计数据.csv', false);}});
 		toolbar.doLayout();
@@ -73,7 +73,7 @@ JxTotalGrid = {};
 	},
 	
 	//执行统计
-	exeStat: function(nodeid, grid) {
+	exeStat: function(nodeid, grid, config) {
 		var tbar = grid.getTopToolbar();
 		var params = '';
 		var novalid = false;
@@ -117,7 +117,19 @@ JxTotalGrid = {};
 			}
 			
 			grid.getStore().loadData(data);
+			
+			//执行外部扩展的统计事件
+			if (config.extStatEvent) {
+				config.extStatEvent(grid, config);
+			}
 		};
+		
+		//扩展外部统计参数
+		if (typeof config.extStatParam == 'string') {
+			params += config.extStatParam;
+		} else if (typeof config.extStatParam == 'function') {
+			params += config.extStatParam(grid);
+		}
 		
 		//发送后台请求
 		params = 'funid=rpt_list&pagetype=grid&eventcode=totalexe&rpt_funid=' + nodeid + params;

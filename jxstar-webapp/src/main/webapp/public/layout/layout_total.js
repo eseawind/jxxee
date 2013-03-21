@@ -4,13 +4,15 @@
  */
   
 /**
- * 统计功能模板
+ * 统计功能模板。
+ * 需要支持扩展外部统计参数，同时支持扩展外部统计事件；
+ * totalParam = {extStatEvent: function(totalGrid, config){}, extStatParam:'&param1=xxx&param2=xxx'}
  * 
  * @author TonyTan
  * @version 1.0, 2011-01-01
  */
 
-Jxstar.currentPage = function(define, pageParam) {
+Jxstar.currentPage = function(define, totalParam) {
 	if (define == null) {
 		JxHint.alert('layout_total define param define is null!');
 		return;
@@ -34,6 +36,11 @@ Jxstar.currentPage = function(define, pageParam) {
 		if (config.cols == null || config.cols.length == 0) {
 			JxHint.alert('构建统计表格的参数错误！');
 			return;
+		}
+		
+		//扩展外部统计参数与统计事件
+		if (totalParam) {
+			Ext.apply(config, totalParam);
 		}
 		
 		config.nodeid = funid;
