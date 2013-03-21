@@ -161,6 +161,7 @@ public class InsertSqlBO extends BusinessObject {
 	 */
 	public String[][] getTableWhere() {
 		String[][] strs = {
+			{"rpt_param", "area_id in (select area_id from rpt_area where report_id in (select report_id from rpt_list where fun_id = ?))"},
 			{"rpt_detail", "area_id in (select area_id from rpt_area where report_id in (select report_id from rpt_list where fun_id = ?))"},
 			{"rpt_area", "report_id in (select report_id from rpt_list where fun_id = ?)"},
 			{"rpt_head", "report_id in (select report_id from rpt_list where fun_id = ?)"},
