@@ -485,6 +485,9 @@ public abstract class AbstractTotal implements ReportTotal {
 		if (isTotal == true) {
 			for (int i = 0, n = lsDetail.size(); i < n; i++) {
 				mpItem = lsDetail.get(i);
+				isstat = MapUtil.getValue(mpItem, "is_stat", "0");
+				if (!isstat.equals("1")) continue;
+				
 				express = mpItem.get("express");
 				if((null == express)||(express.indexOf("/") <= 0)) continue;
 				colcode = mpItem.get("col_code");
