@@ -206,7 +206,7 @@ Jxstar.FormNode.prototype = {
 					var a = items[i].args;
 					//自定义方法用事件代码作为参数
 					if (items[i].method == 'customEvent') {
-						a = items[i].eventCode
+						a = [items[i].eventCode];
 					}
 					
 					items[i].scope = ei;
