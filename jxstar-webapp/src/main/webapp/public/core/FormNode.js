@@ -195,6 +195,7 @@ Jxstar.FormNode.prototype = {
 				if (!Ext.isEmpty(hk)) {
 					items[i].text = items[i].text+'('+ hk.toUpperCase() +')';
 					items[i].keyBinding = {key:hk, ctrl:true, alt:true};
+					items[i].tooltip = {text:'Ctrl+Alt+' + hk.toUpperCase()};
 				}
 				
 				//按钮显示类型[tool|menu]
