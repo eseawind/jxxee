@@ -52,6 +52,15 @@ public class StringUtil {
 		
 		return d;
 	}
+	
+	/**
+	 * 判断一个字符串是否是数字
+	 * @param str
+	 * @return
+	 */
+	public static boolean isNum(String str){
+		return str.matches("^[-+]?(([0-9]+)([.]([0-9]+))?|([.]([0-9]+))?)$");
+	}
 
 	/**
 	 * 转换字符串中的特殊符号，适用JSON描述，前三个用得比较少，忽略。
