@@ -31,7 +31,7 @@ public class BaseDaoTest extends AbstractTest {
 		init();
 		_dao = BaseDao.getInstance();
 		
-		test1();
+		test2();
 	}
 	
 	public static void test1() {
@@ -39,15 +39,22 @@ public class BaseDaoTest extends AbstractTest {
 		//开始一个事务
 		_tranMng.startTran();
 		try {
-			DaoParam param = _dao.createParam("update dm_tablecfg set table_title = table_title||'12' where table_name = 'mat_test' ");
+			DaoParam param = _dao.createParam("update dm_tablecfg set table_title = table_title||'12' where table_name = 'mat_app' ");
 			_dao.update(param);
 			
-			DaoParam param1 = _dao.createParam("select table_title from dm_tablecfg where table_name = 'mat_test' ");
+			DaoParam param1 = _dao.createParam("select table_title from dm_tablecfg where table_name = 'mat_app' ");
 			Map<String,String> mp = _dao.queryMap(param1);
 			System.out.println("table_title=" + mp.get("table_title"));
 			_tranMng.commitTran();
 		} catch (TransactionException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static void test2() {
+		DaoParam param1 = _dao.createParam("select table_title from dm_tablecfg where table_name = 'mat_app' ");
+		param1.setUseTransaction(false);
+		Map<String,String> mp = _dao.queryMap(param1);
+		System.out.println("table_title=" + mp.get("table_title"));
 	}
 }
