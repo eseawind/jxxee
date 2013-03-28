@@ -88,7 +88,7 @@ public class ControlerUtil {
 	 * @param requestContext - 上下文信息
 	 * @return boolean 返回true表示成功; 返回false表示失败.
 	 */
-    private static boolean invoke(String sClassName, String sMethodName,
+    public static boolean invoke(String sClassName, String sMethodName,
 			Object[] params, RequestContext requestContext) {
 		if (sClassName == null || sClassName.length() == 0 ||
 				sMethodName == null || sMethodName.length() == 0) {
