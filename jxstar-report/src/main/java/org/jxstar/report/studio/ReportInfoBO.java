@@ -55,7 +55,8 @@ public class ReportInfoBO extends BusinessObject {
 	 * @return
 	 */
 	public String queryCheckReport(String funId, String reportType, String whereSql) {
-		String sql = "select report_id, report_name from rpt_list where (fun_id like ? or fun_id = ?) ";
+		String sql = "select report_id, report_name from rpt_list where " +
+				"(status = '0' or status is null) and (fun_id like ? or fun_id = ?) ";
 		if (reportType != null && reportType.length() > 0) {
 			sql += " and report_type = '"+ reportType +"' ";
 		}
