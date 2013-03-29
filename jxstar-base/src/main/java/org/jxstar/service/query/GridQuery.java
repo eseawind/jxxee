@@ -120,9 +120,13 @@ public class GridQuery extends BusinessObject {
 		} else {
 			ordersql = " order by " + sort + " " + dir;
 			//防止排序后分页数据不对添加的排序字段
-			String sf = getSortField(funid);
-			if (sf.length() > 0) {
-				ordersql += ", " + sf;
+			String field = getSortField(funid);
+			if (field.length() > 0) {
+				//如果是SqlServer数据库，两个相同的字段排序会报错
+				String f = StringUtil.getNoTableCol(field);
+				if (sort.indexOf(f) < 0) {
+					ordersql += ", " + field;
+				}
 			}
 		}
 		_log.showDebug("gridquery order sql:" + ordersql);
