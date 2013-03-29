@@ -6,6 +6,7 @@
  */
 package org.jxstar.dao;
 
+import java.sql.CallableStatement;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -36,8 +37,7 @@ public class DaoUtil {
 	/**
 	 * 获取结果集中的字段名。
 	 * 
-	 * @param rs --
-	 *            结果集
+	 * @param rs -- 结果集
 	 * @return List
 	 * @throws SQLException
 	 */
@@ -164,12 +164,9 @@ public class DaoUtil {
 	/**
 	 * 给预编译语句赋值。
 	 * 
-	 * @param astrVal --
-	 *            参数值
-	 * @param astrType --
-	 *            参数类型
-	 * @param aps --
-	 *            预编译语句
+	 * @param astrVal -- 参数值
+	 * @param astrType -- 参数类型
+	 * @param aps -- 预编译语句
 	 * @return PreparedStatement
 	 */
 	public static PreparedStatement setPreStmParams(List<String> lsValue, 
@@ -178,12 +175,10 @@ public class DaoUtil {
 			throw new SQLException("setPreStmParams(): astrVal param is null! ");
 		}
 		if (lsType == null) {
-			throw new SQLException(
-					"setPreStmParams(): astrType param is null! ");
+			throw new SQLException("setPreStmParams(): astrType param is null! ");
 		}
 		if (aps == null) {
-			throw new SQLException(
-					"setPreStmParams(): PreparedStatement param is null! ");
+			throw new SQLException("setPreStmParams(): PreparedStatement param is null! ");
 		}
 
 		try {
@@ -243,10 +238,73 @@ public class DaoUtil {
 	}	
 	
 	/**
+	 * 注册输出参数。
+	 * @param start -- 输入参数的格式，从1开始
+	 * @param lsOutType -- 输出参数类型
+	 * @param aps -- 预编译语句
+	 * @return
+	 */
+	public static CallableStatement setStmOutParams(int start, List<Integer> lsOutType, 
+			CallableStatement aps) throws SQLException {
+		if (lsOutType == null) {
+			throw new SQLException("setOutStmParams(): lsOutType param is null! ");
+		}
+		if (aps == null) {
+			throw new SQLException("setOutStmParams(): CallableStatement param is null! ");
+		}
+
+		try {
+			for (int i = 1, n = lsOutType.size(); i <= n; i++) {
+				int itype = lsOutType.get(i - 1);
+				
+				aps.registerOutParameter(start+i, itype);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new SQLException("setOutStmParams(): " + e.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SQLException("setOutStmParams(): " + e.toString());
+		}
+		
+		return aps;
+	}
+	
+	/**
+	 * 注册输出参数。
+	 * @param start -- 输入参数的格式，从1开始
+	 * @param typenum -- 输出参数个数
+	 * @param aps -- 预编译语句
+	 * @param -- 把输出参数的值设置到参数对象中
+	 * @return
+	 */
+	public static void getStmOutParams(int start, int typenum,
+			CallableStatement aps, CallParam param) throws SQLException {
+		if (aps == null) {
+			throw new SQLException("setOutStmParams(): CallableStatement param is null! ");
+		}
+
+		try {
+			for (int i = 1; i <= typenum; i++) {
+				int index = start + i;
+				String value = aps.getString(index);
+				if (value == null) value = "";
+				
+				param.setOutValue(value);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new SQLException("setOutStmParams(): " + e.toString());
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new SQLException("setOutStmParams(): " + e.toString());
+		}
+	}
+	
+	/**
 	 * ResultSet 转换为 JSON。
 	 * 
-	 * @param rs --
-	 *            结果集
+	 * @param rs -- 结果集
 	 * @return String
 	 * @throws SQLException
 	 */
