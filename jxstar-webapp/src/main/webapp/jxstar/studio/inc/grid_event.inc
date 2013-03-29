@@ -19,7 +19,7 @@
 			callback: hdcall,
 			pagetype: 'notoolgrid',
 			width: 600,
-			height: 350,
+			height: 350
 		});
 	};
 	
@@ -106,6 +106,36 @@
 			Jxstar.showData({
 				filename: '/jxstar/studio/pub/layout_invoke.js',
 				title: jx.fun.invoke,	//'调用类注册'
+				callback: hdcall
+			});
+		},
+		
+		checkSet: function(){
+			var funId = this.grid.fkValue;
+			//过滤条件
+			var where_sql = 'fun_check.event_code = ? and fun_check.fun_id = ?';
+			var where_type = 'string;string';
+			var where_value = 'audit;'+funId;
+			
+			//加载数据
+			var hdcall = function(layout) {
+				//显示数据
+				JxUtil.delay(500, function(){
+					//调用类表
+					var grid = layout.getComponent(0).getComponent(0);
+					//设置外键值
+					grid.fkValue = funId;
+
+					Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type});
+				});
+			};
+
+			//显示数据
+			var define = Jxstar.findNode('fun_check');
+			Jxstar.showData({
+				nodedefine: define,
+				filename: define.layout,
+				title: define.nodetitle,
 				callback: hdcall
 			});
 		},
