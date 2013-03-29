@@ -27,7 +27,7 @@ public class CallDaoTest extends AbstractTest {
 		//添加输入参数
 		param.addStringValue("CG201303000051");
 		//添加输出参数
-		param.regStringParam();
+		param.regStringOutParam();
 		
 		//执行存储过程
 		boolean ret = dao.execute(param);

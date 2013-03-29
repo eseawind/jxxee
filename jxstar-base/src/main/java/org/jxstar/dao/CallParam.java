@@ -24,7 +24,7 @@ public class CallParam extends DaoParam {
 	 * 注册字符类型的参数
 	 * @return
 	 */
-	public DaoParam regStringParam() {
+	public DaoParam regStringOutParam() {
 		_lsOutType.add(Types.VARCHAR);
 		return this;
 	}
@@ -32,7 +32,7 @@ public class CallParam extends DaoParam {
 	 * 注册日期类型的参数
 	 * @return
 	 */
-	public DaoParam regDateParam() {
+	public DaoParam regDateOutParam() {
 		_lsOutType.add(Types.DATE);
 		return this;
 	}
@@ -40,7 +40,7 @@ public class CallParam extends DaoParam {
 	 * 注册数字类型的参数
 	 * @return
 	 */
-	public DaoParam regDoubleParam() {
+	public DaoParam regDoubleOutParam() {
 		_lsOutType.add(Types.DOUBLE);
 		return this;
 	}
@@ -48,7 +48,7 @@ public class CallParam extends DaoParam {
 	 * 注册整数类型的参数
 	 * @return
 	 */
-	public DaoParam regIntParam() {
+	public DaoParam regIntOutParam() {
 		_lsOutType.add(Types.INTEGER);
 		return this;
 	}
