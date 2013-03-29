@@ -17,6 +17,7 @@ import org.jxstar.dao.JsonDao;
 import org.jxstar.dao.util.DBTypeUtil;
 import org.jxstar.service.BoException;
 import org.jxstar.service.BusinessObject;
+import org.jxstar.service.define.DefineName;
 import org.jxstar.service.define.FunctionDefine;
 import org.jxstar.service.define.FunctionDefineManger;
 import org.jxstar.service.util.PageSQL;
@@ -118,6 +119,11 @@ public class GridQuery extends BusinessObject {
 			}
 		} else {
 			ordersql = " order by " + sort + " " + dir;
+			//防止排序后分页数据不对添加的排序字段
+			String sf = getSortField(funid);
+			if (sf.length() > 0) {
+				ordersql += ", " + sf;
+			}
 		}
 		_log.showDebug("gridquery order sql:" + ordersql);
 		
@@ -205,5 +211,15 @@ public class GridQuery extends BusinessObject {
 		}
 		
 		return lsRet.toArray(new String[lsRet.size()]);
+	}
+	
+	//防止排序后分页数据不对添加的排序字段
+	private String getSortField(String funId) {
+		String sql = "select attr_value from fun_attr where attr_name = 'sortField' and fun_id = ?";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(funId);
+		
+		Map<String,String> mp = _dao.queryMap(param);
+		return MapUtil.getValue(mp, "attr_value").trim();
 	}
 }
