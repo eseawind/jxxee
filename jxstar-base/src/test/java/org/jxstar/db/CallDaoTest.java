@@ -9,6 +9,12 @@ import org.jxstar.test.AbstractTest;
 
 /**
  * 调用存储过程测试，可以获取输出参数值。
+ * 注册一个oracle存储过程：
+ * create or replace procedure p_test(v_code varchar2, v_out out varchar2) is
+	begin
+	   update mat_app set project_name = 'test call dao' where app_code = v_code;
+	   v_out := 'aaa';
+	end p_test;
  *
  * @author TonyTan
  * @version 1.0, 2013-3-29
