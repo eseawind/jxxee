@@ -135,6 +135,8 @@ public class CommonAction extends Action {
 				message = JsMessage.getValue("commonaction.faild");
 			}
 			responseContext.setMessage(message);
+			responseContext.setResponseData(requestContext.getReturnData());
+			
 			return responseContext;
 		}
 		
