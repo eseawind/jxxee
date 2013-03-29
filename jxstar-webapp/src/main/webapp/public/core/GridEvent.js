@@ -438,9 +438,16 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 				//重新加载数据
 				self.grid.getStore().reload();
 			};
+			
+			//处理检查项提示信息
+			var errorcall = function(data, extData) {
+				if (eventcode == 'audit' && extData) {
+					JxUtil.checkResult(extData);
+				}
+			};
 
 			//发送请求
-			Request.postRequest(params, endcall);
+			Request.postRequest(params, endcall, {errorcall:errorcall});
 		};
 
 		var shint = '';

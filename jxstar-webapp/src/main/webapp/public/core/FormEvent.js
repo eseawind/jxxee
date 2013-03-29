@@ -666,9 +666,16 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 				var createBtn = JxUtil.getButton(toolBar, 'create');
 				if (createBtn) createBtn.setDisabled(false);
 			};
+			
+			//处理检查项提示信息
+			var errorcall = function(data, extData) {
+				if (eventcode == 'audit' && extData) {
+					JxUtil.checkResult(extData);
+				}
+			};
 
 			//发送请求
-			Request.postRequest(params, endcall);
+			Request.postRequest(params, endcall, {errorcall:errorcall});
 		};
 
 		var shint = '';

@@ -1006,6 +1006,68 @@ JxUtil = {};
 		},
 		
 		/**
+		* 显示检查项执行失败的结果信息
+		* 后台返回的检查项数据内容为：
+		* checkMsg:[{checkName:'', result:true},
+		*  {checkName:'', result:false, faildDesc:'', keyid:'', message:'', data:{}},...]
+		*/
+		checkResult: function(extData) {
+			if (!extData || extData.length == 0) return;
+			var cds = extData.checkMsg;
+			//解析失败信息中的参数值
+			for (var i = 0, n = cds.length; i < n; i++) {
+				var data = cds[i];
+				var faild = data.faildDesc;
+				if (!data.result && faild.length > 0 && faild.indexOf('[') > -1) {
+					faild = faild.replace(/\[/g, '{');
+					faild = faild.replace(/\]/g, '}');
+					var tpl = new Ext.XTemplate(faild);
+					data.faildDesc = tpl.apply(data.data);
+				}
+			}
+			
+			//构建提示消息的模板
+			var tpl = new Ext.XTemplate(
+				'<div style="background-color:#fff;">',
+				'<table style="font-size:13px;width:100%;">',
+				  '<tr style="font-weight:bold;background-color:#ccc;height:28px;">'+
+				    '<td style="width:150px;">检查项</td>'+
+					'<td style="width:40px;">结果</td>'+
+					'<td style="width:190px;">失败提示</td>'+
+				  '</tr>',
+				'<tpl for="checkMsg">',
+				  '<tr style="background-color:#eee;height:28px;">',
+					'<td>{checkName}</td>',
+					'<tpl if="result == false">',
+					  '<td><span class="eb_audit_cancel">&nbsp;&nbsp;&nbsp;&nbsp;</span></td>',
+					'</tpl>',
+					'<tpl if="result == true">',
+					  '<td><span class="eb_select">&nbsp;&nbsp;&nbsp;&nbsp;</span></td>',
+					'</tpl>',
+					'<td>{faildDesc} {message}</td>',
+				  '</tr>',
+				'</tpl>',
+				'</table>',
+				'</div>'
+			);
+			
+			//创建对话框
+			var win = new Ext.Window({
+				title:'检查项执行结果',
+				layout:'fit',
+				width:400,
+				height:300,
+				resizable: false,
+				modal: true,
+				autoScroll: true,
+				closeAction: 'close',
+				tpl: tpl,
+				data: extData
+			});
+			win.show();
+		},
+		
+		/**
 		* 给tab控件添加快捷键，ctrl+alt+1表示第1个tab
 		*/
 		tabAddKey: function(tab) {

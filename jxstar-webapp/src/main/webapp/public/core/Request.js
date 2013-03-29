@@ -103,19 +103,21 @@ Request = {};
 		/**
 		* 异步发送事件请求
 		* params 是post参数，如果参数值中有特殊符号或中文，则需要encodeURIComponent处理一下，
-		  在外部调用时处理，在此不统一处理，避免造成重复。
+				 在外部调用时处理，在此不统一处理，避免造成重复。
 		* hdCall 是执行成功的回调函数
 		* options 扩展选项参数有：
-		* wait 是否显示执行进度条，值有：true|false
-		* type 是响应的数据类型有：xml|json，默认为json
-		* action 有event与query
-		* query_type 查询类型，缺省为0，0为普通查询、1为高级查询
-		* has_page 是否加分页处理，缺省为0，0为不加分页查询、1为加分页查询
+		* 	wait 是否显示执行进度条，值有：true|false
+		* 	type 是响应的数据类型有：xml|json，默认为json
+		* 	action 有event与query
+		* 	query_type 查询类型，缺省为0，0为普通查询、1为高级查询
+		* 	has_page 是否加分页处理，缺省为0，0为不加分页查询、1为加分页查询
+		*   errorcall 失败回调方法，特殊用途，如：检查项失败后，要显示检查情况
 		* 
-		* result的参数有：
-		* success -- 执行是否成功
-		* message -- 提示信息
-		* data -- 响应的数据
+		* result 的参数有：
+		* 	success -- 执行是否成功
+		* 	message -- 提示信息
+		* 	data -- 响应的数据
+		* 	extData -- 扩展的响应数据
 		**/
 		asynchRequest: function(params, hdCall, options) {
 			SessionTimer.resetTimer();
@@ -167,12 +169,17 @@ Request = {};
 							JxHint.hint(msg);
 						}
 
-						//成功执行外部的回调函数
-						if (hdCall != null) hdCall(result.data);
+						//成功执行外部的回调函数；增加extData参数，防止覆盖返回数据
+						if (hdCall != null) hdCall(result.data, result.extData);
 					} else {
-						var msg = result.message;
-						if (msg.length == 0) msg = jx.req.faild;		//'执行失败！'
-						JxHint.alert(msg);
+						//如果注册了执行失败的回调函数，则不提示失败消息
+						if (options && options.errorcall) {
+							options.errorcall(result.data, result.extData);
+						} else {
+							var msg = result.message;
+							if (msg.length == 0) msg = jx.req.faild;		//'执行失败！'
+							JxHint.alert(msg);
+						}
 					}
 					
 					if (useWait && myMask) {myMask.hide(); myMask = null;}
