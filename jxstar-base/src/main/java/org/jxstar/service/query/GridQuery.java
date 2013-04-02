@@ -17,7 +17,6 @@ import org.jxstar.dao.JsonDao;
 import org.jxstar.dao.util.DBTypeUtil;
 import org.jxstar.service.BoException;
 import org.jxstar.service.BusinessObject;
-import org.jxstar.service.define.DefineName;
 import org.jxstar.service.define.FunctionDefine;
 import org.jxstar.service.define.FunctionDefineManger;
 import org.jxstar.service.util.PageSQL;
