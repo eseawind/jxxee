@@ -15,6 +15,17 @@ import org.jxstar.test.AbstractTest;
 	   update mat_app set project_name = 'test call dao' where app_code = v_code;
 	   v_out := 'aaa';
 	end p_test;
+ * 注册一个sqlserver存储过程：
+	CREATE PROCEDURE dbo.p_test
+	(
+	@vcode varchar(20),
+	@vout varchar(20) output
+	)
+	AS
+	BEGIN
+		update mat_app set project_name = 'test call dao' where app_code = @vcode;
+	    set @vout = 'aaa';
+	END
  *
  * @author TonyTan
  * @version 1.0, 2013-3-29
