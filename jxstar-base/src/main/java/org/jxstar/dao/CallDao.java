@@ -131,8 +131,9 @@ public class CallDao {
 			}
 			
 			long curTime = System.currentTimeMillis();
-			int iret = ps.executeUpdate();
-			if (iret >= 0) ret = true;
+			//不处理返回值，因为有时执行成功也会返回负数
+			ps.executeUpdate();
+			ret = true;
 			
 			//处理输出参数
 			if (!lsOutType.isEmpty()) {
@@ -143,11 +144,7 @@ public class CallDao {
 			
 			//公共事务数据库更新才需要提交
 			if (param.isUseTransaction()) {
-				if (iret >= 0) {
-					tranObj.commit();
-				} else {
-					tranObj.rollback();
-				}
+				tranObj.commit();
 			}
 			
 			DaoUtil.showUpdateTime(curTime, sql);
