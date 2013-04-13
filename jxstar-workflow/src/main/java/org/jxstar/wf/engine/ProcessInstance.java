@@ -134,6 +134,9 @@ public class ProcessInstance {
 			throw new WfException(JsMessage.getValue("process.errorok"));
 		}
 		
+		//清理不再需要处理的任务
+		context.getTaskInstance().clearOther();
+		
 		//触发完成事件
 		if (!isSubProcess()) {
 			eventAgent.fireEvent(EventCode.PROCESS_COMPLETED, context);
@@ -158,6 +161,9 @@ public class ProcessInstance {
 		if (!instanceDao.completeProcess(this)) {//"修改过程状态为“终止”失败！"
 			throw new WfException(JsMessage.getValue("process.errorzz"));
 		}
+		
+		//清理不再需要处理的任务
+		context.getTaskInstance().clearOther();
 		
 		if (!isSubProcess()) {
 			//触发终止事件

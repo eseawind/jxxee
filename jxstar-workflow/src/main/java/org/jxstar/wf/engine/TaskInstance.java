@@ -130,6 +130,13 @@ public class TaskInstance {
 		node.leave(context);
 	}
 	
+	/**
+	 * 当并发节点任务实例退回、否决、完成时，需要清理其它分支的待执行的任务。
+	 */
+	public void clearOther() {
+		_taskDao.delOtherTask(this);
+	}
+	
 	/*****************  任务实例参数信息 ******************/
 	private String 	processId;		//过程ID
 	private String 	nodeId;			//节点ID

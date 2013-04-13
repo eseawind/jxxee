@@ -380,4 +380,31 @@ public class TaskInstanceDao {
 		return true;
 	}
 
+	/**
+	 * 当并发节点中有一个分支退回、否决、完成时，清理其它分支的任务与分配信息；
+	 * @param task
+	 * @return
+	 */
+	public boolean delOtherTask(TaskInstance task) {
+		if (task == null) return true;
+		
+		String taskId = task.getTaskId();
+		String instanceId = task.getInstanceId();
+		if (taskId == null || taskId.length() == 0) return true;
+		if (instanceId == null || instanceId.length() == 0) return true;
+		
+		String sql = "delete from wf_assign where instance_id = ? and task_id <> ?";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(instanceId);
+		param.addStringValue(taskId);
+		if (!_dao.update(param)) return false;
+		
+		sql = "delete from wf_task where instance_id = ? and task_id <> ?";
+		param = _dao.createParam(sql);
+		param.addStringValue(instanceId);
+		param.addStringValue(taskId);
+		if (!_dao.update(param)) return false;
+		
+		return true;
+	}
 }
