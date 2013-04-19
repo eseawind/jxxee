@@ -127,6 +127,7 @@ Request = {};
 			var dataType = options.type || 'json';
 			var action = options.action;
 			var sync = options.sync || false;
+			var timeout = options.timeout || 60000;
 			
 			//添加用户名判断
 			params += '&user_id=' + Jxstar.session['user_id'];
@@ -149,6 +150,7 @@ Request = {};
 			Ext.Ajax.request({
 				method: 'POST',
 				url: Jxstar.path + '/commonAction.do',
+				timeout: timeout,
 				success: function(response) {
 					var result = {};
 					if (dataType == 'xml') {
@@ -174,7 +176,7 @@ Request = {};
 					} else {
 						//如果注册了执行失败的回调函数，则不提示失败消息
 						if (options && options.errorcall) {
-							options.errorcall(result.data, result.extData);
+							options.errorcall(result);
 						} else {
 							var msg = result.message;
 							if (msg.length == 0) msg = jx.req.faild;		//'执行失败！'

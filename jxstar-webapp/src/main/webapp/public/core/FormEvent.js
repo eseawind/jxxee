@@ -668,9 +668,14 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 			};
 			
 			//处理检查项提示信息
-			var errorcall = function(data, extData) {
-				if (eventcode == 'audit' && extData) {
-					JxUtil.checkResult(extData);
+			//result:{success:false, message:'', data:{}, extData:{}}
+			var errorcall = function(result) {
+				if (eventcode == 'audit' && result.extData) {
+					JxUtil.checkResult(result.extData);
+				} else {
+					var msg = result.message;
+					if (msg.length == 0) msg = jx.req.faild;
+					JxHint.alert(msg);
 				}
 			};
 
