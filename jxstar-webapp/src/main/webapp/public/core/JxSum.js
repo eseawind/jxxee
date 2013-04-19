@@ -73,14 +73,16 @@ Jxstar.JxSum = Ext.extend(Ext.util.Observable, {
             p.id = c.id;
             p.style = c.style;
             p.css = i == 0 ? 'x-grid3-cell-first eb_sum' : (i == last ? 'x-grid3-cell-last ' : '');
-            /*if(cf.summaryType || cf.summaryRenderer){
-                p.value = (cf.summaryRenderer || c.renderer)(o.data[c.name], p, o);
-            }else{
-                p.value = '';
-            }*/
+			
 			p.value = o.data[c.name];//处理小数点之前的0为空的问题
 			p.value = Ext.data.Types.FLOAT.convert(p.value);
-			if(p.value == undefined || p.value === "") p.value = "&#160;";
+			if (p.value == undefined || p.value === "") {
+				p.value = "&#160;";
+			} else {//处理汇总值的小数位
+				if (!isNaN(p.value) && cf.renderer) {
+					p.value = (cf.renderer)(p.value);
+				}
+			}
             buf[buf.length] = this.cellTpl.apply(p);
         }
 
