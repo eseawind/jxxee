@@ -704,8 +704,8 @@ JxUtil = {};
 					var initReadOnly = f.initialConfig.readOnly;
 					var initDisabled = f.initialConfig.disabled;
 
-					if (f.isXType('field')) {
-						if (f.isXType('checkbox', true) || f.isXType('radio', true)) {
+					if (f.isXType('field')) {//添加fileuploadfield，解决disable后不能enable的问题
+						if (f.isXType('checkbox', true) || f.isXType('radio', true) || f.isXType('fileuploadfield', true)) {
 							if (!initDisabled) {
 								f.setDisabled(false);
 							}
