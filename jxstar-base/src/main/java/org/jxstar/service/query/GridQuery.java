@@ -81,6 +81,12 @@ public class GridQuery extends BusinessObject {
 		} else {
 			//取功能定义查询where
 			try {
+				//如果是选择或导入页面类型，不处理归档
+				if (pagetype.equals("combogrid") || 
+						pagetype.equals("selgrid") || pagetype.equals("import")) {
+					querytype = "1";//标记为高级查询，不处理归档
+				}
+				
 				where = WhereUtil.queryWhere(funid, userid, wheresql, querytype);
 			} catch (BoException e) {
 				setMessage(e.getMessage());
