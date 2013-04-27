@@ -16,6 +16,7 @@ public class StringFormatTest {
 	public static void main(String[] args) {
 		strToNum(6);
 		strToNum(2);
+		strToNum(3);
 		strToInt();
 		strToCur(2);
 	}
@@ -25,11 +26,14 @@ public class StringFormatTest {
 		String value1 = "-22.3300";
 		String value2 = "32";
 		String value3 = "-12";
+		String value4 = "99368.0095";
 		
+		hint("---------------"+ len +" len-------------");
 		hint(value+"="+StringFormat.StringToNumber(value, len));
 		hint(value1+"="+StringFormat.StringToNumber(value1, len));
 		hint(value2+"="+StringFormat.StringToNumber(value2, len));
 		hint(value3+"="+StringFormat.StringToNumber(value3, len));
+		hint(value4+"="+StringFormat.StringToNumber(value4, len));
 	}
 	
 	private static void strToInt() {
