@@ -102,12 +102,9 @@ public class XlsDataParser implements DataParser {
 				        cal.setTime(date);
 				        return DateUtil.calendarToDate(cal);
 				    } else {
-				    	String value = Double.toString(cell.getNumericCellValue());
-				    	//处理大数字中的科学计数法
-				    	if (value.indexOf('E') >= 0 || value.indexOf('e') >= 0) {
-					    	DecimalFormat df = new DecimalFormat();
-					    	value = df.format(cell.getNumericCellValue());
-				    	}
+				    	//处理科学计数法与数字中的格式字符
+				    	DecimalFormat df = new DecimalFormat("###.#########");
+				    	String value = df.format(cell.getNumericCellValue());
 				    	
 				    	//去掉double类型数据的尾部的".0"，因为有些数字型的文本字段列也会识别为double类型
 				    	String strTmp[] = value.split("\\.");
