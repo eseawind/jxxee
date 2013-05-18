@@ -296,6 +296,28 @@ public class DataImpUtil {
 		return _dao.query(param);
 	}
 	
+	//取导入数据字段的数据长度
+	public static Map<String,String> queryFieldLen(String funId, String impId) {
+		String sql = "select v_column_info.field_name, v_column_info.data_size " + 
+				"from v_column_info, fun_base, imp_field where v_column_info.table_name = fun_base.table_name " +  
+				"and v_column_info.field_name = imp_field.field_name and fun_base.fun_id = ? " + 
+				"and imp_field.is_param = '0' and imp_field.imp_id = ?";
+		
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(funId);
+		param.addStringValue(impId);
+		
+		List<Map<String,String>> lsData = _dao.query(param);
+		
+		//取字段长度存到MAP中
+		Map<String,String> mpRet = FactoryUtil.newMap();
+		for (Map<String,String> mpData : lsData) {
+			mpRet.put(mpData.get("field_name"), mpData.get("data_size"));
+		}
+		
+		return mpRet;
+	}
+	
 	/**
 	 * 取模板中显示的字段
 	 * @param impId

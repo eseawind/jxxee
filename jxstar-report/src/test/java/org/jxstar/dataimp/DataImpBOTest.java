@@ -9,7 +9,6 @@ import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Map;
 
-import org.jxstar.dataimp.DataImpBO;
 import org.jxstar.test.AbstractTest;
 import org.jxstar.util.factory.FactoryUtil;
 
@@ -25,8 +24,8 @@ public class DataImpBOTest extends AbstractTest {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		init("D:/works/jxstar/jxstar-webapp/src/main/webapp");
-
+		init("d:/tomcat6/webapps/jxstar_ee");
+		
 		dataImp();
 	}
 
@@ -40,13 +39,13 @@ public class DataImpBOTest extends AbstractTest {
 		
 		FileInputStream ins = null;
 		try {
-			ins = new FileInputStream(new File("d:/imp_mat_app1.xls"));
+			ins = new FileInputStream(new File("d:/imp_mat_app.xls"));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		
-		List<String> lsKeys = impbo.dataImp(ins, funId, "1", fkValue, userInfo);
+		List<String> lsKeys = impbo.dataImp(ins, funId, null, fkValue, userInfo);
+		System.out.println(".............error:" + impbo.getMessage());
 		System.out.println(".............success imp:" + lsKeys);
 		System.out.println("..........all valid info:" + impbo.getValidInfo());
 	}

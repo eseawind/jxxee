@@ -5,6 +5,7 @@ package org.jxstar.dataimp;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
@@ -181,6 +182,9 @@ public class DataImpBO extends BusinessObject {
 		//新增SQL的参数
 		List<Map<String,String>> lsField = DataImpUtil.queryField(impId);
 		
+		//取导入字段的长度
+		Map<String,String> mpFieldLen = DataImpUtil.queryFieldLen(funId, impId);
+		
 		//判断是否有主键标志与编码标志
 		boolean isNewKeyId = (insertSql.indexOf(DataImpUtil.NEW_KEYID) >= 0);
 		if (isNewKeyId) {
@@ -190,15 +194,15 @@ public class DataImpBO extends BusinessObject {
 		if (isNewCode) {
 			insertSql = insertSql.replaceFirst(DataImpUtil.NEW_CODE_REGEX, "?");
 		}
-		_log.showDebug(".........insert sql:" + insertSql);
+		_log.showDebug("..........insert sql:" + insertSql);
 		//构建参数对象
 		DaoParam param = _dao.createParam(insertSql);
 		param.setUseParse(true);
 		
 		//开始导入数据
-		int index = 1;
+		int index = 0, indexok = 0;
 		for (Map<String,String> mpData : gridData) {
-			_log.showDebug("--------------------- start import new data ---------------------");
+			index++;
 			Map<String,String> relatData = null;
 			if (hasRelat) {//取得相关关系数据集
 				relatData = DataImpUtil.queryRelat(lsRelatSql, formData, mpData);
@@ -235,7 +239,7 @@ public class DataImpBO extends BusinessObject {
 						value = MapUtil.getValue(relatData, field_name);
 					}
 				}
-				_log.showDebug("..........field_name={0}, data_type={1}, data_src={2}, value={3}", field_name, data_type, data_src, value);
+				//_log.showDebug("..........field_name={0}, data_type={1}, data_src={2}, value={3}", field_name, data_type, data_src, value);
 				//日期值修补
 				if (data_type.equals("date") && value.length() > 0) {
 					value = DataImpUtil.repDateValue(value);
@@ -245,8 +249,11 @@ public class DataImpBO extends BusinessObject {
 					value = value.replace(",", "");
 				}
 				
+				//取字段长度
+				String field_len = MapUtil.getValue(mpFieldLen, field_name, "0");
+				
 				//字段值有效性校验
-				isValid = validValue(field_title, value, data_type, is_must, index);
+				isValid = validValue(field_title, value, data_type, is_must, field_len, index);
 				if (isValid) {
 					param.addValue(value);
 					param.addType(data_type);
@@ -262,21 +269,23 @@ public class DataImpBO extends BusinessObject {
 				} else {
 					lsImpKeys.add(keyId);
 				}
+				
+				indexok++;
+				_log.showDebug("..........success size:" + indexok);
 			}
 			
 			//清除新增参数
 			param.clearParam();
-			index++;
 		}
 		
 		return lsImpKeys;
 	}
 	
 	//字段值有效性校验
-	private boolean validValue(String fieldtitle, String value, String datatype, String ismust, int row) {
+	private boolean validValue(String fieldtitle, String value, String datatype, String ismust, String field_len, int row) {
 		//必填项校验
 		if (ismust.equals("1") && value.length() == 0) {
-			String msg = MessageFormat.format("第【{0}】行，字段【{1}】的值必须填写；", row, fieldtitle);
+			String msg = MessageFormat.format("第【{0}】行，字段【{1}】的值【{2}】必须填写；", row, fieldtitle, value);
 			_validInfo.append(msg);
 			_log.showDebug(msg);
 			return false;
@@ -284,7 +293,7 @@ public class DataImpBO extends BusinessObject {
 		//数值校验
 		if ((datatype.equals("double") || datatype.equals("int")) && value.length() > 0) {
 			if (!StringValidator.validValue(value, StringValidator.DOUBLE_TYPE)) {
-				String msg = MessageFormat.format("第【{0}】行，字段【{1}】的值必须是数值类型；", row, fieldtitle);
+				String msg = MessageFormat.format("第【{0}】行，字段【{1}】的值【{2}】必须是数值类型；", row, fieldtitle, value);
 				_validInfo.append(msg);
 				_log.showDebug(msg);
 				return false;
@@ -293,10 +302,25 @@ public class DataImpBO extends BusinessObject {
 		//日期校验
 		if (datatype.equals("date") && value.length() > 0) {
 			if (!StringValidator.validValue(value, StringValidator.DATE_TYPE)) {
-				String msg = MessageFormat.format("第【{0}】行，字段【{1}】的值必须是日期类型(YYYY-MM-DD)；", row, fieldtitle);
+				String msg = MessageFormat.format("第【{0}】行，字段【{1}】的值【{2}】必须是日期类型(YYYY-MM-DD)；", row, fieldtitle, value);
 				_validInfo.append(msg);
 				_log.showDebug(msg);
 				return false;
+			}
+		}
+		//长度校验
+		if (datatype.equals("string") && value.length() > 0) {
+			int len = Integer.parseInt(field_len);
+			try {
+				int len1 = value.getBytes("GBK").length;
+				if (len1 > len) {
+					String msg = MessageFormat.format("第【{0}】行，字段【{1}】的值【{2}】长度为【{3}】超过【{4}】个字节；", row, fieldtitle, value, len1, len);
+					_validInfo.append(msg);
+					_log.showDebug(msg);
+					return false;
+				}
+			} catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
 			}
 		}
 		return true;
