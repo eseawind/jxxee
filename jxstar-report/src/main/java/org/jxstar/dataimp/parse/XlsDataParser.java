@@ -5,6 +5,7 @@ package org.jxstar.dataimp.parse;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -101,7 +102,13 @@ public class XlsDataParser implements DataParser {
 				        cal.setTime(date);
 				        return DateUtil.calendarToDate(cal);
 				    } else {
-				    	String value = String.valueOf(cell.getNumericCellValue());
+				    	String value = Double.toString(cell.getNumericCellValue());
+				    	//处理大数字中的科学计数法
+				    	if (value.indexOf('E') >= 0 || value.indexOf('e') >= 0) {
+					    	DecimalFormat df = new DecimalFormat();
+					    	value = df.format(cell.getNumericCellValue());
+				    	}
+				    	
 				    	//去掉double类型数据的尾部的".0"，因为有些数字型的文本字段列也会识别为double类型
 				    	String strTmp[] = value.split("\\.");
 						if (strTmp.length == 2 && strTmp[1].equals("0")) {
