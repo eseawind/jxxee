@@ -31,7 +31,6 @@
 					{xtype:'textfield', fieldLabel:'项目名称', name:'mat_app__project_name', allowBlank:false, labelStyle:'color:#0000FF;', labelSeparator:'*', anchor:'100%', maxLength:50},
 					{xtype:'numberfield', fieldLabel:'采购数量', name:'mat_app__app_num', defaultval:'0', anchor:'100%', maxLength:22},
 					{xtype:'numberfield', decimalPrecision:6, fieldLabel:'预算金额万', name:'mat_app__app_money', defaultval:'0', anchor:'100%', maxLength:22},
-					{xtype:'textfield', fieldLabel:'特殊说明', name:'mat_app__app_desc', anchor:'100%', maxLength:200},
 					{xtype:'hidden', fieldLabel:'主键', name:'mat_app__app_id', anchor:'100%'},
 					{xtype:'hidden', fieldLabel:'申请部门ID', name:'mat_app__dept_id', defaultval:'fun_getDeptId()', anchor:'100%'}
 				]
