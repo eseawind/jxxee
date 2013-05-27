@@ -252,7 +252,19 @@ JxSelect = {};
 					var gdom = parentField.el.findParentNode('div.x-grid-panel');
 					var subgrid = Ext.getCmp(gdom.id);
 					if (subgrid) {
-						var tagRecord = JxUtil.getParentForm(subgrid);
+						var form = JxUtil.getParentForm(subgrid);
+						var tagRecord = form.myRecord;
+						//如果主表单没有打开，form.myRecord为null，则取表格记录
+						if (!tagRecord) {
+							var mGrid = JxUtil.getParentGrid(subgrid);
+							if (mGrid) {
+								var records = JxUtil.getSelectRows(mGrid);
+								if (records && records.length > 0) {
+									tagRecord = records[0];
+								}
+							}
+						}
+						
 						if (tagRecord) {
 							whereValue = JxUtil.parseWhereValue(whereValue, tagRecord, true);
 						}
@@ -577,6 +589,8 @@ JxSelect = {};
 					cb.selValue = cb.getValue();
 				});
 				
+				//如果不是只读，则清空选择值，然后保留输入值
+				var readonly = config.isReadonly;
 				//如果值为空或不是选择的值，则清空记录
 				combo.on('blur', function(cb){
 					if (targetFlag.indexOf('form') >= 0) {
@@ -584,6 +598,9 @@ JxSelect = {};
 						if (value.length == 0 || (cb.selValue && cb.selValue != value)) {
 							var record = JxUtil.emptyRecord(store);
 							setData(cb, record);
+						}
+						if (readonly == '0') {
+							cb.setValue(value);
 						}
 					}
 				});
@@ -601,6 +618,9 @@ JxSelect = {};
 							if (value.length == 0 || (value != start && value != incb.selValue)) {
 								var record = JxUtil.emptyRecord(store);
 								setData(incb, record);
+							}
+							if (readonly == '0') {
+								cb.setValue(value);
 							}
 						});
 					}
