@@ -165,7 +165,8 @@ public class LoginEvent extends BusinessObject {
 		DaoParam param = _dao.createParam(sql);
 		Map<String,String> mp = _dao.queryMap(param);
 		
-		return Integer.parseInt(mp.get("cnt"));
+		//加1表示含当前用户
+		return Integer.parseInt(mp.get("cnt")) + 1;
 	}
 	
 	/**
