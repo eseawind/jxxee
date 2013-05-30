@@ -101,10 +101,13 @@ public class ReportDao {
 	 * @param pageWhere -- 页面传递的SQL
 	 * @return
 	 */
-	public static String getCheckMainSql(String reportId, String pageWhere) {
+	public static String getCheckMainSql(String reportId, String pageWhere) throws ReportException {
 		StringBuilder ret = new StringBuilder();
 
 		Map<String,String> mpMain = getMainArea(reportId);
+		if (mpMain.isEmpty()) {//"没有定义报表主数据区域！"
+			throw new ReportException(JsMessage.getValue("reportdao.hint01"));
+		}
 		//select部分
 		ret.append(mpMain.get("data_sql"));
 
