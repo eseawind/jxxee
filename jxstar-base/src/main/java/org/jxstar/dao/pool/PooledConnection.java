@@ -179,11 +179,9 @@ public class PooledConnection {
 		//取缺省数据源时SystemVar还没有值，所以从server.xml中取值
 		String validTest = dsConfig.getValidTest();
 		String validQuery = dsConfig.getValidQuery();
-		if (validTest.equalsIgnoreCase("true")) {
+		if (validTest.equalsIgnoreCase("true") && validQuery.length() > 0) {
 			_log.showDebug("...... pool test use query");
 			ds.setTestOnBorrow(true);
-		}
-		if (validQuery.length() > 0) {
 			ds.setValidationQuery(validQuery);
 			ds.setValidationQueryTimeout(3);
 		}
