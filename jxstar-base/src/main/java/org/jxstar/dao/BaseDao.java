@@ -130,11 +130,7 @@ public class BaseDao {
 				con = PooledConnection.getInstance().getConnection(dataSource);
 				if (con != null) con.setAutoCommit(true);
 			}
-			
-			if (con == null){
-				_log.showWarn("connection is null sql=" + sql);
-				return false;
-			}
+			if (con == null) return false;
 
 			ps = con.prepareStatement(sql);
 			if (!lsValue.isEmpty()) {
@@ -256,11 +252,7 @@ public class BaseDao {
 				con = PooledConnection.getInstance().getConnection(dataSource);
 				if (con != null) con.setAutoCommit(true);
 			}
-			
-			if (con == null) {
-				_log.showWarn("connection is null sql=" + sql);
-				return lsRet;
-			}
+			if (con == null) return lsRet;
 			
 			ps = con.prepareStatement(sql);
 			if (!lsValue.isEmpty()) {
@@ -275,6 +267,7 @@ public class BaseDao {
 			lsRet = DaoUtil.getRsToList(rs, recNum);
 			
 			//如果不执行提交方法，在非事务环境中会存在连接泄露
+			//MySQL数据库连接总是出现断开的连接就是因为此造成
 			if (param.isUseTransaction()) {
 				tranObj.commit();
 			}
