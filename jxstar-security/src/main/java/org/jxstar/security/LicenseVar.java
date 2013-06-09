@@ -22,6 +22,8 @@ public class LicenseVar {
 	public static final String VERSION_TYPE = "license.version.type";
 	//许可无效标志
 	public static final String INVALID = "license.invalid";
+	//安全管理类有效标志
+	public static final String FLAG_VALID = "license.flag.valid";
 		
 	public static String getValue(String keyName) {
 		return getValue(keyName, "");
