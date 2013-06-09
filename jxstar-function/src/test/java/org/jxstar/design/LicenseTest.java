@@ -1,48 +1,47 @@
 package org.jxstar.design;
 
-import java.util.List;
-import java.util.Map;
+import java.sql.Connection;
 
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
+import org.jxstar.dao.pool.DataSourceConfig;
+import org.jxstar.dao.pool.DataSourceConfigManager;
+import org.jxstar.dao.pool.PooledConnection;
 import org.jxstar.security.Password;
 import org.jxstar.test.AbstractTest;
 
 public class LicenseTest extends AbstractTest {
-	private static BaseDao dao;
+	private static BaseDao _dao;
+	private static final String DSNAME = "funuser";
 	
 	public static void main(String[] args) {
 		init();
-		/*
-		dao = BaseDao.getInstance();
+		_dao = BaseDao.getInstance();
 
-		insert();
-		List<Map<String,String>> data = query();
-		for(Map<String,String> mp:data) {
-			System.out.println(MapUtil.toString(mp));
-		}*/
-		
-		getInfo();
+		delete("fce0d723-8a97-4922-9ad1-7fdf28cc8ca5");
 	}
 
-	public static void insert() {
-		String sql = "insert into jxstar_user(user_id, os_name, dev_info, ip_info) values(?, ?, ?, ?)";
-		DaoParam param = dao.createParam(sql);
-		param.setDsName("default_mysql");
-		param.addStringValue("112");
-		param.addStringValue("windows");
-		param.addStringValue("cpu");
-		param.addStringValue("192.168.1.1");
+	public static void delete(String uuid) {
+		String sql = "delete from jxstar_info_log where info_id = ?";
+		DaoParam param = _dao.createParam(sql);
+		param.setDsName(DSNAME);
+		param.addStringValue(uuid);
+		_dao.update(param);
 		
-		dao.update(param);
+		sql = "delete from jxstar_info where info_id = ?";
+		param.setSql(sql);
+		_dao.update(param);
 	}
 	
-	public static List<Map<String,String>> query() {
-		String sql = "select user_id, os_name, dev_info, ip_info, dept_info, other_info, version_info from jxstar_user";
+	public static void delete() {
+		String sql = "delete from jxstar_info_log";
+		DaoParam param = _dao.createParam(sql);
+		param.setDsName(DSNAME);
+		_dao.update(param);
 		
-		DaoParam param = dao.createParam(sql);
-		param.setDsName("default_mysql");
-		return dao.query(param);
+		sql = "delete from jxstar_info";
+		param.setSql(sql);
+		_dao.update(param);
 	}
 
 	public static void getInfo() {
@@ -80,5 +79,49 @@ public class LicenseTest extends AbstractTest {
 		String c2 = "7F686E72697722726E727C646E616D652066726F6D207379735F6465707420776865726520646570745F6C6576656C203D2031";
 		System.out.println(Password.decrypt(c1));
 		System.out.println(Password.decrypt(c2));
+	}
+	
+	//添加数据库信息
+	public static boolean init() {
+		String param = "useUnicode=true&characterEncoding=UTF-8&useOldAliasMetadataBehavior=true&autoReconnect=true";
+		String s1 = "8064708768";//tanzb
+		String s2 = "7372767C6C777242";//gotoftp4
+		String s3 = "3D3C3A40363B3347";//19830819
+		
+		String t1 = Password.decrypt(s1);
+		String t2 = Password.decrypt(s2);
+		String t3 = Password.decrypt(s3);
+		
+		StringBuilder sburl = new StringBuilder("jdbc:mysql:");
+		sburl.append("//");
+		sburl.append(t1);
+		sburl.append(".");
+		sburl.append(t2);
+		sburl.append(".com/");
+		sburl.append(t1);
+		sburl.append("?").append(param);
+		
+		String dbmsType = "mysql";
+		String driveName = "org.gjt.mm.mysql.Driver";
+		
+		//添加新的数据源
+		DataSourceConfig dsc = new DataSourceConfig();
+		dsc.setDataSourceName(DSNAME);
+		dsc.setSchemaName(t1);
+		dsc.setDriverClass(driveName);
+		dsc.setJdbcUrl(sburl.toString());
+		dsc.setUserName(t1);
+		dsc.setPassWord(t3);
+		dsc.setDbmsType(dbmsType);
+		//屏蔽取不到数据库连接时，后台抛错误信息
+		dsc.setCatchError(false);
+		//添加下面的校验是防止中途断网，后台报数据库连接错误信息
+		dsc.setValidTest("true");
+		dsc.setValidQuery("select count(*) from jxstar_info");
+		
+		DataSourceConfigManager.getInstance().addDataSourceConfig(dsc);
+		
+		Connection con = PooledConnection.getInstance().getConnection(DSNAME);
+		return (con != null);
 	}
 }
