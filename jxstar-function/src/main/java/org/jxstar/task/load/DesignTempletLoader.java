@@ -48,9 +48,16 @@ public class DesignTempletLoader extends SystemLoader {
 		if (!verType.equals("SE")) {
 			int code = _safe.validCode();
 			if (code > 0) {
-				LicenseVar.setValue(LicenseVar.INVALID, "1");
+				_safe.setTmpValid("0");
 				return false;
 			}
+		}
+		
+		//检查安全类标志，如果没有则标记非法许可
+		String flagValid = LicenseVar.getValue(LicenseVar.FLAG_VALID, "0");
+		if (flagValid.equals("0")) {
+			_safe.setTmpValid("0");
+			return false;
 		}
 		
 		LicenseVar.setValue(LicenseVar.INVALID, "0");
