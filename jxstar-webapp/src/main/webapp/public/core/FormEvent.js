@@ -622,6 +622,8 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		if (self.form.isDirty()) {
 			if (confirm(jx.event.saveyes)) {		//'记录已被修改，是否需要先保存？'
 				self.save();return;
+			} else {
+				return;
 			}
 		}
 		
