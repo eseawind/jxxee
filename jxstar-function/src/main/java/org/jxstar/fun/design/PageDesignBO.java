@@ -11,6 +11,7 @@ import java.util.Map;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.dao.util.BigFieldUtil;
 import org.jxstar.fun.design.parser.PageParserUtil;
+import org.jxstar.security.LicenseVar;
 import org.jxstar.security.SafeManager;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.DefineName;
@@ -79,6 +80,14 @@ public class PageDesignBO extends BusinessObject {
 		//----------------------------许可检测-----------------------------
 		SafeManager safe = SafeManager.getInstance();
 		String verName = safe.getVerName();
+		//检查安全类标志
+		String flagValid = LicenseVar.getValue(LicenseVar.FLAG_VALID, "0");
+		if (flagValid.equals("0")) {
+			safe.setTmpValid("0");
+			setMessage(JsMessage.getValue("license.notvalid"), 0);
+			return _returnFaild;
+		}
+		
 		//学习版不检测合法性，其它版本都检测
 		if (!verName.equals("SE")) {
 			int code = safe.checkCode();
