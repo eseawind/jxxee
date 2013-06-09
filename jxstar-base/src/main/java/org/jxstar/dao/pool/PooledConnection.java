@@ -130,14 +130,10 @@ public class PooledConnection {
 		try {
 			conn = ds.getConnection();
 			//_log.showDebug("get connection is:" + conn);
-
-			if (conn == null || conn.isClosed()) {
-				conn = null;
-				conn = queueConnect(conn, ds);
-			}
 			
 			if (conn == null || conn.isClosed()) {
-				return null;	
+				_log.showError("get connection is null!");
+				return null;
 			}
 			
 			int iTranLevel = getTranLevelConstant(dsConfig.getTranLevel());
@@ -220,13 +216,9 @@ public class PooledConnection {
 			
 			conn = ds.getConnection();
 			//_log.showDebug("getConnection: " + conn);
-
-			if (conn == null || conn.isClosed()) {
-				conn = null;
-				conn = queueConnect(conn, ds);
-			}
 			
 			if (conn == null || conn.isClosed()) {
+				_log.showError("get connection is null!");
 				return null;
 			}
 			
@@ -250,7 +242,9 @@ public class PooledConnection {
 	 * @param ds
 	 * 
 	 * @return Connection
+	 * @deprecated 连接池中的连接在数据库端断了后判断还是连接状态，此方法意义不大
 	 */
+	/*
 	private Connection queueConnect(Connection conn, DataSource ds) {
 		if (ds == null) return null;
 
@@ -269,7 +263,7 @@ public class PooledConnection {
 		}
 		
 		return conn;
-	}
+	}*/
 	
 	/**
 	 * 根据字符常量，取JDBC的事务级别
