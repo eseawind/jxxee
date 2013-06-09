@@ -104,6 +104,7 @@ public class SafeManager {
 			} else {
 				bs = lic.userNum;
 			}
+			numValid();
 			
 			String num = SafeUtil.encode(bs);
 			if (num == null || num.length() == 0) 
@@ -207,8 +208,6 @@ public class SafeManager {
 	 * @return
 	 */
 	public String getEndTime() {
-		flagValid();
-		
 		License lic = readLicense("");
 		if (lic != null) {
 			return SafeUtil.encode(lic.tmpEnd);
@@ -325,9 +324,27 @@ public class SafeManager {
 	 */
 	private void flagValid() {
 		String name = LicenseVar.FLAG_VALID;
-		BigDecimal db = new BigDecimal("32");
-		String val = db.subtract(new BigDecimal("31")).toString();
-		
-		LicenseVar.setValue(name, val);
+		String val = LicenseVar.getValue(name);
+		if (val.length() == 0) {
+			BigDecimal db = new BigDecimal("32");
+			val = db.subtract(new BigDecimal("31")).toString();
+			
+			LicenseVar.setValue(name, val);
+		}
+	}
+	
+	/**
+	 * 用于标记安全管理类是否有效，防止用户替换管理类
+	 * 1表示有效，0表示无效
+	 */
+	private void numValid() {
+		String name = LicenseVar.NUM_VALID;
+		String val = LicenseVar.getValue(name);
+		if (val.length() == 0) {
+			BigDecimal db = new BigDecimal("32");
+			val = db.subtract(new BigDecimal("31")).toString();
+			
+			LicenseVar.setValue(name, val);
+		}
 	}
 }

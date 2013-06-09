@@ -12,6 +12,7 @@ import org.jxstar.fun.design.parser.FormPageParser;
 import org.jxstar.fun.design.parser.GridPageParser;
 import org.jxstar.fun.design.parser.PageParser;
 import org.jxstar.fun.design.parser.PageParserUtil;
+import org.jxstar.security.LicenseVar;
 import org.jxstar.security.SafeManager;
 import org.jxstar.service.BoException;
 import org.jxstar.service.BusinessObject;
@@ -46,6 +47,14 @@ public class PageParserBO extends BusinessObject {
 		//----------------------------许可检测-----------------------------
 		SafeManager safe = SafeManager.getInstance();
 		String verName = safe.getVerName();
+		//安全类标志检查
+		String flagValid = LicenseVar.getValue(LicenseVar.FLAG_VALID, "0");
+		if (flagValid.equals("0")) {
+			safe.setTmpValid("0");
+			setMessage(JsMessage.getValue("license.notvalid"), 0);
+			return _returnFaild;
+		}
+		
 		//学习版不检测合法性，其它版本都检测
 		if (!verName.equals("SE")) {
 			int code = safe.checkCode();
@@ -60,6 +69,13 @@ public class PageParserBO extends BusinessObject {
 			int regNum = PageParserUtil.getFunNum();
 			if (funNum < regNum) {
 				setMessage(JsMessage.getValue("license.funnum", funNum));
+				return _returnFaild;
+			}
+			//数量安全标识检查
+			String numValid = LicenseVar.getValue(LicenseVar.NUM_VALID, "0");
+			if (numValid.equals("0")) {
+				safe.setTmpValid("0");
+				setMessage(JsMessage.getValue("license.notvalid"), 9);
 				return _returnFaild;
 			}
 		}

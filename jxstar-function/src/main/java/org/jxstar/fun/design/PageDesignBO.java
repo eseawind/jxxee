@@ -80,7 +80,7 @@ public class PageDesignBO extends BusinessObject {
 		//----------------------------许可检测-----------------------------
 		SafeManager safe = SafeManager.getInstance();
 		String verName = safe.getVerName();
-		//检查安全类标志
+		//安全类标志检查
 		String flagValid = LicenseVar.getValue(LicenseVar.FLAG_VALID, "0");
 		if (flagValid.equals("0")) {
 			safe.setTmpValid("0");
@@ -102,6 +102,13 @@ public class PageDesignBO extends BusinessObject {
 			int regNum = PageParserUtil.getFunNum();
 			if (funNum < regNum) {
 				setMessage(JsMessage.getValue("license.funnum", funNum));
+				return _returnFaild;
+			}
+			//数量安全标识检查
+			String numValid = LicenseVar.getValue(LicenseVar.NUM_VALID, "0");
+			if (numValid.equals("0")) {
+				safe.setTmpValid("0");
+				setMessage(JsMessage.getValue("license.notvalid"), 9);
 				return _returnFaild;
 			}
 		}

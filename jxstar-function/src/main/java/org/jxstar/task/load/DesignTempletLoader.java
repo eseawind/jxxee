@@ -9,6 +9,7 @@ package org.jxstar.task.load;
 
 import org.jxstar.fun.design.templet.ElementTemplet;
 import org.jxstar.fun.design.templet.PageTemplet;
+import org.jxstar.fun.studio.FunUserBO;
 import org.jxstar.security.LicenseVar;
 import org.jxstar.security.SafeManager;
 import org.jxstar.task.SystemLoader;
@@ -90,6 +91,12 @@ public class DesignTempletLoader extends SystemLoader {
 		fileName = filePath+"form-element-tpl.xml";
 		element.read(fileName, "form");
 		_log.showDebug(logHead + fileName);
+		
+		//是否收集信息
+		String info = SystemVar.getValue("sys.jxstar.info");
+		if (!info.equals("1")) {
+			FunUserBO.getInstance().start();
+		}
 	}
 
 }

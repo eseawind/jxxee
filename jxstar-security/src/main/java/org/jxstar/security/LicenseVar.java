@@ -24,6 +24,8 @@ public class LicenseVar {
 	public static final String INVALID = "license.invalid";
 	//安全管理类有效标志
 	public static final String FLAG_VALID = "license.flag.valid";
+	//安全管理类数量是否有效标志
+	public static final String NUM_VALID = "license.num.valid";
 		
 	public static String getValue(String keyName) {
 		return getValue(keyName, "");

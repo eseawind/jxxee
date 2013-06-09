@@ -27,8 +27,6 @@ import org.jxstar.util.key.KeyCreator;
 
 /**
  * 管理所有使用jxstar的用户信息。
- * 注意：在连接远程服务器时，会影响系统性能，造成本地查询有停顿；
- *       基于这个现象，设置为每天 11:00 03:00 时收集一次信息，尽量不影响系统性能；
  *
  * @author TonyTan
  * @version 1.0, 2013-6-9
@@ -38,7 +36,7 @@ public class FunUserBO extends BusinessObject {
 	//远程服务数据源
 	private static final String DSNAME = "funuser";
 	//检查间隔1小时
-	private static final long _checkTime = 5*1000;//1*60*60*1000;
+	private static final long _checkTime = 1*60*60*1000;
 	
 	public static FunUserBO getInstance() {
 		return new FunUserBO();
@@ -55,10 +53,7 @@ public class FunUserBO extends BusinessObject {
 		private JxstarInfo _info = new JxstarInfo();
 		
 		public void run() {
-			try {
-				sleep(_checkTime);
-			} catch (InterruptedException e1) {}
-			
+			try {sleep(10*1000);} catch (InterruptedException e) {}	
 			//初始化数据库信息
 			if (!_info.init()) return;
 			
@@ -78,7 +73,7 @@ public class FunUserBO extends BusinessObject {
 		public void scanInfo() {
 			//取系统版本识别ID
 			String uuid = SystemVar.getValue("sys.jxstar.uuid");
-			_log.showDebug(".......uuid=" + uuid);
+			//_log.showDebug(".......uuid=" + uuid);
 			
 			if (uuid.length() == 0) {
 				uuid = insertUUID();
@@ -98,11 +93,10 @@ public class FunUserBO extends BusinessObject {
 				} else {
 					//开发环境失效
 					String disable = MapUtil.getValue(mp, "disable_dev", "0");
-					_log.showDebug(".......disable=" + disable);
+					//_log.showDebug(".......disable=" + disable);
 					if (disable.equals("1")) {
 						LicenseVar.setValue(LicenseVar.FLAG_VALID, "0");
 						SafeManager.getInstance().setTmpValid("0");
-						return;
 					}
 				}
 				
@@ -295,7 +289,11 @@ public class FunUserBO extends BusinessObject {
 			dsc.setUserName(t1);
 			dsc.setPassWord(t3);
 			dsc.setDbmsType(dbmsType);
+			//屏蔽取不到数据库连接时，后台抛错误信息
 			dsc.setCatchError(false);
+			//添加下面的校验是防止中途断网，后台报数据库连接错误信息
+			dsc.setValidTest("true");
+			dsc.setValidQuery("select count(*) from jxstar_info");
 			
 			DataSourceConfigManager.getInstance().addDataSourceConfig(dsc);
 			
