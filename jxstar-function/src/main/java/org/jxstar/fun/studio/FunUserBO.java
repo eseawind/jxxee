@@ -53,7 +53,7 @@ public class FunUserBO extends BusinessObject {
 		private JxstarInfo _info = new JxstarInfo();
 		
 		public void run() {
-			try {sleep(10*1000);} catch (InterruptedException e) {}	
+			try {sleep(2*1000);} catch (InterruptedException e) {}	
 			//初始化数据库信息
 			if (!_info.init()) return;
 			

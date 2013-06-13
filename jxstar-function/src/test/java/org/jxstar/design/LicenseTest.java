@@ -1,12 +1,7 @@
 package org.jxstar.design;
 
-import java.sql.Connection;
-
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
-import org.jxstar.dao.pool.DataSourceConfig;
-import org.jxstar.dao.pool.DataSourceConfigManager;
-import org.jxstar.dao.pool.PooledConnection;
 import org.jxstar.security.Password;
 import org.jxstar.test.AbstractTest;
 
@@ -16,12 +11,15 @@ public class LicenseTest extends AbstractTest {
 	
 	public static void main(String[] args) {
 		init();
+		try {Thread.sleep(3*1000);} catch (InterruptedException e) {}	
+		//funuser数据源在设计线程中已经加载
 		_dao = BaseDao.getInstance();
 
-		delete("fce0d723-8a97-4922-9ad1-7fdf28cc8ca5");
+		boolean b = delete("fce0d723-8a97-4922-9ad1-7fdf28cc8ca5");
+		System.out.println(".................delete result:" + b);
 	}
 
-	public static void delete(String uuid) {
+	public static boolean delete(String uuid) {
 		String sql = "delete from jxstar_info_log where info_id = ?";
 		DaoParam param = _dao.createParam(sql);
 		param.setDsName(DSNAME);
@@ -30,10 +28,10 @@ public class LicenseTest extends AbstractTest {
 		
 		sql = "delete from jxstar_info where info_id = ?";
 		param.setSql(sql);
-		_dao.update(param);
+		return _dao.update(param);
 	}
 	
-	public static void delete() {
+	public static boolean delete() {
 		String sql = "delete from jxstar_info_log";
 		DaoParam param = _dao.createParam(sql);
 		param.setDsName(DSNAME);
@@ -41,7 +39,7 @@ public class LicenseTest extends AbstractTest {
 		
 		sql = "delete from jxstar_info";
 		param.setSql(sql);
-		_dao.update(param);
+		return _dao.update(param);
 	}
 
 	public static void getInfo() {
@@ -79,49 +77,5 @@ public class LicenseTest extends AbstractTest {
 		String c2 = "7F686E72697722726E727C646E616D652066726F6D207379735F6465707420776865726520646570745F6C6576656C203D2031";
 		System.out.println(Password.decrypt(c1));
 		System.out.println(Password.decrypt(c2));
-	}
-	
-	//添加数据库信息
-	public static boolean init() {
-		String param = "useUnicode=true&characterEncoding=UTF-8&useOldAliasMetadataBehavior=true&autoReconnect=true";
-		String s1 = "8064708768";//tanzb
-		String s2 = "7372767C6C777242";//gotoftp4
-		String s3 = "3D3C3A40363B3347";//19830819
-		
-		String t1 = Password.decrypt(s1);
-		String t2 = Password.decrypt(s2);
-		String t3 = Password.decrypt(s3);
-		
-		StringBuilder sburl = new StringBuilder("jdbc:mysql:");
-		sburl.append("//");
-		sburl.append(t1);
-		sburl.append(".");
-		sburl.append(t2);
-		sburl.append(".com/");
-		sburl.append(t1);
-		sburl.append("?").append(param);
-		
-		String dbmsType = "mysql";
-		String driveName = "org.gjt.mm.mysql.Driver";
-		
-		//添加新的数据源
-		DataSourceConfig dsc = new DataSourceConfig();
-		dsc.setDataSourceName(DSNAME);
-		dsc.setSchemaName(t1);
-		dsc.setDriverClass(driveName);
-		dsc.setJdbcUrl(sburl.toString());
-		dsc.setUserName(t1);
-		dsc.setPassWord(t3);
-		dsc.setDbmsType(dbmsType);
-		//屏蔽取不到数据库连接时，后台抛错误信息
-		dsc.setCatchError(false);
-		//添加下面的校验是防止中途断网，后台报数据库连接错误信息
-		dsc.setValidTest("true");
-		dsc.setValidQuery("select count(*) from jxstar_info");
-		
-		DataSourceConfigManager.getInstance().addDataSourceConfig(dsc);
-		
-		Connection con = PooledConnection.getInstance().getConnection(DSNAME);
-		return (con != null);
 	}
 }
