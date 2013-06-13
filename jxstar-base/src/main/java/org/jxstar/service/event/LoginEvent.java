@@ -38,7 +38,7 @@ public class LoginEvent extends BusinessObject {
 	 */
 	public String login(RequestContext requestContext) {
 		//---------------------------东宏许可-------------------------------
-		//控制运行环境不能使用
+		//控制运行环境不能使用，在FunUserBO中赋值的
 		String notrun = SystemVar.getValue("sys.jxstar.notrun", "0");
 		if (notrun.equals("1")) {
 			setMessage(JsMessage.getValue("license.notvalid"), 999);

@@ -92,10 +92,14 @@ public class DesignTempletLoader extends SystemLoader {
 		element.read(fileName, "form");
 		_log.showDebug(logHead + fileName);
 		
-		//是否收集信息
-		String info = SystemVar.getValue("sys.jxstar.info");
-		if (!info.equals("1")) {
-			FunUserBO.getInstance().start();
+		//是否测试环境，在AbstractTest中设置值
+		String istest = SystemVar.getValue("sys.jxstar.istest", "0");
+		if (!istest.equals("1")) {
+			//是否收集信息，备用系统变量，无设置值
+			String info = SystemVar.getValue("sys.jxstar.info");
+			if (!info.equals("1")) {
+				FunUserBO.getInstance().start();
+			}
 		}
 	}
 
