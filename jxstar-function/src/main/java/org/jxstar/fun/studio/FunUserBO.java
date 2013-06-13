@@ -36,7 +36,7 @@ public class FunUserBO extends BusinessObject {
 	//远程服务数据源
 	private static final String DSNAME = "funuser";
 	//检查间隔1小时
-	private static final long _checkTime = 2*1000;//1*60*60*1000;
+	private static final long _checkTime = 1*60*60*1000;
 	
 	public static FunUserBO getInstance() {
 		return new FunUserBO();
