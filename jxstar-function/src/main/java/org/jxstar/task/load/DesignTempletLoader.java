@@ -57,7 +57,7 @@ public class DesignTempletLoader extends SystemLoader {
 		//检查安全类标志，如果没有则标记非法许可
 		String flagValid = LicenseVar.getValue(LicenseVar.FLAG_VALID, "0");
 		if (flagValid.equals("0")) {
-			_safe.setTmpValid("0");
+			_safe.setTmpValid("0");//这个许可失效标志保留，防止安全类篡改
 			return false;
 		}
 		

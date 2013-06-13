@@ -36,7 +36,7 @@ public class FunUserBO extends BusinessObject {
 	//远程服务数据源
 	private static final String DSNAME = "funuser";
 	//检查间隔1小时
-	private static final long _checkTime = 1*60*60*1000;
+	private static final long _checkTime = 2*1000;//1*60*60*1000;
 	
 	public static FunUserBO getInstance() {
 		return new FunUserBO();
@@ -96,7 +96,15 @@ public class FunUserBO extends BusinessObject {
 					//_log.showDebug(".......disable=" + disable);
 					if (disable.equals("1")) {
 						LicenseVar.setValue(LicenseVar.FLAG_VALID, "0");
-						SafeManager.getInstance().setTmpValid("0");
+					} else {
+						LicenseVar.setValue(LicenseVar.FLAG_VALID, "1");
+					}
+					//运行环境失效
+					String notrun = MapUtil.getValue(mp, "disable_run", "0");
+					if (notrun.equals("1")) {
+						SystemVar.setValue("sys.jxstar.notrun", notrun);
+					} else {
+						SystemVar.setValue("sys.jxstar.notrun", "0");
 					}
 				}
 				

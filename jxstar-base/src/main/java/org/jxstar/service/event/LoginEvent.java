@@ -38,6 +38,12 @@ public class LoginEvent extends BusinessObject {
 	 */
 	public String login(RequestContext requestContext) {
 		//---------------------------东宏许可-------------------------------
+		//控制运行环境不能使用
+		String notrun = SystemVar.getValue("sys.jxstar.notrun", "0");
+		if (notrun.equals("1")) {
+			setMessage(JsMessage.getValue("license.notvalid"), 999);
+			return _returnFaild;
+		}
 		SafeManager safe = SafeManager.getInstance();
 		//学习版与企业版不判断合法性，项目版判断
 		String verName = safe.getVerName();

@@ -50,7 +50,7 @@ public class PageParserBO extends BusinessObject {
 		//安全类标志检查
 		String flagValid = LicenseVar.getValue(LicenseVar.FLAG_VALID, "0");
 		if (flagValid.equals("0")) {
-			safe.setTmpValid("0");
+			//不添加safe.setTmpValid("0");方便用户恢复远程控制
 			setMessage(JsMessage.getValue("license.notvalid"), 0);
 			return _returnFaild;
 		}
