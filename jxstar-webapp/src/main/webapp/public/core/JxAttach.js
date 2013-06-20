@@ -466,8 +466,6 @@ JxAttach = {};
 					}
 				};
 				
-				//发送下载请求
-				Request.postRequest(param.params, hdcall);
 				//发送删除请求
 				if (JxAttach.uploadType == '1') {//删除远程附件
 					var url = JxAttach.uploadUrl + '/fileAction.do?' + param.params + '&nousercheck=1';

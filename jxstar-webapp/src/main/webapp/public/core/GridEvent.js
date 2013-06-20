@@ -1693,6 +1693,37 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		var funId = this.define.nodeid;
 		//pageNode, funId, reportId, printType, printScope, printMode
 		JxPrint.exePrint(pageNode, funId, reportId, printType, printScope, printMode);
+	},
+	
+	/**
+	* public 
+	* 批量显示选择记录的图片
+	**/
+	showPic: function() {
+		var self = this;
+		var records = JxUtil.getSelectRows(self.grid);
+		if (!JxUtil.selected(records)) return;
+		
+		//从附件目录中取图片文件
+		var pkcol = self.define.pkcol;
+		var funId = self.define.nodeid;
+		var tablename = self.define.tablename;
+		var url = Jxstar.path + '/commonAction.do?funid='+ funId +'&pagetype=grid&eventcode=showpic&tablename='+ tablename;
+		url += '&dataType=json&user_id='+Jxstar.session['user_id'];
+		for (var i = 0, n = records.length; i < n; i++) {
+			var keyid = records[i].get(pkcol);
+			url += '&keyid=' + keyid;
+		}
+		
+		var viewPicture = function (url) {
+			var tabPanel = self.grid.findParentByType('tabpanel');
+			if (tabPanel) {
+				var shower = new ImageShower({parentCtl:tabPanel, url:url});
+				var tab = shower.show();
+				tabPanel.activate(tab);
+			}
+		};
+		viewPicture(url);
 	}
 });
 
