@@ -938,9 +938,7 @@ Ext.ns('Jxstar');
 				} else {
 					var sum = new Jxstar.JxSum();
 					sum.init(grid);
-					var markup = sum.renderSummary({data: sumData[0]});
-					var body = grid.getView().mainBody;
-					body.insertHtml('beforeEnd', markup);
+					sum.refresh({data: sumData[0]});
 				}
 			}
 		},
