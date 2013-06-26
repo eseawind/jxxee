@@ -20,6 +20,13 @@ JxFormSub = {};
 		var define = Jxstar.findNode(fm.funid);
 		var subfunid = define.subfunid;
 		if (subfunid == null || subfunid.length == 0) return;
+		//如果设置不显示在tab的子功能ID，则form中只显示这些子功能ID
+		var notTabFunId = define.notTabFunId || '';
+		if (notTabFunId.length > 0) {
+			subfunid = notTabFunId;
+		}
+		//是否缺省展开form中的所有子功能
+		var subExpand = define.subExpand || false;
 		
 		var cfgitems = fm.items;
 		var subfunids = subfunid.split(',');
@@ -35,6 +42,8 @@ JxFormSub = {};
 			subdefine.showInForm = true;
 			//第一个子表展开，后面的子表折叠
 			var csed = (i > 0);
+			//缺省展开form中的所有子功能
+			if (subExpand) csed = false;
 			
 			var subcfg = {
 				title:subtitle, baseCls:'xs-panel', iconCls:'sub_title', data:subid, 
@@ -146,6 +155,9 @@ JxFormSub = {};
 			fevent.fireEvent('initother', fevent);
 		});
 		fevent.on('afteraudit', function(event) {
+			fevent.fireEvent('initother', fevent);
+		});
+		fevent.on('aftercustom', function(event) {
 			fevent.fireEvent('initother', fevent);
 		});
 	}
