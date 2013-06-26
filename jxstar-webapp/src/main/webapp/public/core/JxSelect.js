@@ -117,7 +117,7 @@ JxSelect = {};
 							//取目标grid或form，根据ID查找
 							var tagRecord = self.selectTagRecord(parentField, targetFlag);
 							//给目标表赋值
-							self.setSelectData(srcRecords, tagRecord, config.isSame, config.sourceField, config.targetField)
+							self.setSelectData(srcRecords, tagRecord, config.isSame, config.sourceField, config.targetField);
 						}
 						//隐藏选择的窗口
 						win.close();
@@ -227,7 +227,7 @@ JxSelect = {};
 						//取目标grid或form，根据ID查找
 						var tagRecord = self.selectTagRecord(parentField, targetFlag);
 						//给目标表赋值
-						self.setSelectData(srcRecords, tagRecord, config.isSame, config.sourceField, config.targetField)
+						self.setSelectData(srcRecords, tagRecord, config.isSame, config.sourceField, config.targetField);
 					}
 					//隐藏选择的窗口
 					menuDiv.hide();
@@ -565,12 +565,12 @@ JxSelect = {};
 					var fieldCt = cb.ownerCt;
 					//查询值或统计参数值的输入控件赋值
 					if (fieldCt && fieldCt.initialConfig.name && fieldCt.initialConfig.name.indexOf('_qv') > 0) {
-						self.setControlData(record, cb, config.sourceField, config.targetField);
+						self.setControlData([record], cb, config.sourceField, config.targetField);
 					} else {
 						//取目标grid或form，根据ID查找
 						var tagRecord = self.selectTagRecord(cb, targetFlag);
 						//给目标表赋值
-						self.setSelectData([record], tagRecord, config.isSame, config.sourceField, config.targetField)
+						self.setSelectData([record], tagRecord, config.isSame, config.sourceField, config.targetField);
 						
 						//如果是EditGrid，则需给combo赋值
 						if (targetFlag.indexOf('grid') >= 0) {
