@@ -35,16 +35,28 @@
 					url += '/fileAction.do?' + params + '&dataType=byte&nousercheck=1&dc=' + (new Date()).getTime();
 					return url;
 				};
+				//显示图片
 				JxUtil.showImage = function(img) {
-					var url = showUrl(img.getAttribute('dataId'));
+					var el = Ext.get(img);
+					if (el.toolTip) {el.toolTip.show(); return;}
+					
+					var url = showUrl(el.getAttribute('dataId'));
 					var html = '<img src="'+ url +'">';
-					new Ext.ToolTip({
-						target: img,
-						autoHeight: true,
+					var cfg = {
+						target: el,
 						autoWidth: true,
+						autoHeight: true,
 						html: html,
+						anchor: 'left',//设置该参数，可以自动控制tip显示位置，防止图片被挡住
 						dismissDelay: 15000
-					});
+					};
+					//IE下面tip显示错位，不能使用autoWidth参数
+					if (Ext.isIE) {
+						cfg.autoWidth = false;
+						cfg.width = 50;
+					}
+					el.toolTip = new Ext.ToolTip(cfg);
+					el.toolTip.show();
 				};
 				
 				var html = '<img src="'+ showUrl(dataId) +'" dataId="'+ dataId +'" onmouseover="JxUtil.showImage(this);" style="width:30px; height:30px; cursor:pointer;">';
