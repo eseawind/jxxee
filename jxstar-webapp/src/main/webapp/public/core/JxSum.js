@@ -216,8 +216,9 @@ Jxstar.JxSum = Ext.extend(Ext.util.Observable, {
     },
 	
 	refresh : function(data) {
-		var markup = this.renderSummary(data);
 		var body = this.grid.getView().mainBody;
+		if (!body) return;
+		var markup = this.renderSummary(data);
 		
 		body.select('.x-grid3-summary-row').remove();
 		body.insertHtml('beforeEnd', markup);

@@ -928,8 +928,6 @@ Ext.ns('Jxstar');
 		* page: 页面对象
 		*/
 		viewSumData: function(grid) {
-			var totalText = ' ';
-			var cm = grid.getColumnModel();
 			var sumData = grid.getStore().reader.jsonData.data.sum;
 			
 			if (sumData != null && sumData.length > 0) {
