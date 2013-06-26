@@ -57,6 +57,8 @@ Jxstar.currentPage = function(define, pageParam) {
 		Jxstar.createPage(funid, 'formpage', newtab, {pageType:fpageType});
 	}
 	
+	//取不显示在tab中的明细功能ID
+	var notTabFunId = define.notTabFunId || '';
 	//取子功能ID
 	var subfunid = define.subfunid;
 	if (subfunid != null && subfunid.length > 0 && !define.showFormSub) {
@@ -64,6 +66,8 @@ Jxstar.currentPage = function(define, pageParam) {
 		for (var i = 0, n = subfunids.length; i < n; i++) {
 			var subid = subfunids[i];
 			if (subid.length == 0) continue;
+			//这类明细功能一般会显示在form下面，支持多个明细表摆放在不同的位置
+			if (notTabFunId == subid || notTabFunId.indexOf(subid+',') >= 0) continue;
 			
 			var subdefine = Jxstar.findNode(subid);
 			var newtab = tabGridForm.add({
