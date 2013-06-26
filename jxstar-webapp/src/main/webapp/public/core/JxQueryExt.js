@@ -253,11 +253,11 @@ JxQueryExt = {};
 					field.data = qrycfg;
 					field.width = 100;
 					field.name = qrycfg.colcode;
-					field.listeners = {specialkey: function(f, e){
-						if (e.getKey() == e.ENTER) {
-							self.exeQry(f);
-						}
-					}};
+					//comsel控件定义时带listeners参数，所以采用apply方法
+					field.listeners = Ext.apply(
+						field.listeners||{},
+						{specialkey: function(f, e){if (e.getKey() == e.ENTER) {self.exeQry(f);}}}
+					);
 					qryrow[len+1] = field;
 				}
 				
