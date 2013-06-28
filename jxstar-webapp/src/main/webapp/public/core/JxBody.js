@@ -135,6 +135,46 @@
 		//创建头部的菜单，main_menu是显示菜单的DIV标示
 		JxMenu.createMainMenu('main_menu');
 	} else {
+		//显示流程导航图标；parentNode -- 父级树节点; moduleLevel -- 显示模块级别，填写1或2
+		var viewNavIcon = function(parentNode, moduleLevel) {
+			if (!moduleLevel || moduleLevel < 1) moduleLevel = 1;
+			
+			var hdCall = function(data) {
+				if (data != null) data = data.root; 
+				if (data == null || data.length == 0) return;
+				for (var i = 0, n = data.length; i < n; i++) {
+					var moduleId = data[i].wfnav_graph__module_id;
+					if (moduleId.length == 0 || moduleId.length != moduleLevel*4) continue;
+					
+					var oneNode = parentNode.findChild('id', moduleId);
+					if (Ext.isEmpty(oneNode)) continue;
+					
+					var graphId = data[i].wfnav_graph__graph_id;
+					var graphTitle = data[i].wfnav_graph__graph_name;
+					if (graphId.length == 0) continue;
+					
+					var anchor = oneNode.getUI().getAnchor();
+					var cls = 'wfnav-icon';
+					if (Ext.isChrome) cls += ' wfnav-icon-chrome';
+					//删除以前创建图标，二级模块显示用，否则会重复创建
+					var wfnav = Ext.fly(anchor).next('.wfnav-icon');
+					if (wfnav) wfnav.remove();
+					
+					var chg = 'onmouseover="this.style.marginRight=\'3px\';" onmouseout="this.style.marginRight=\'4px\';"';
+					var navIcon = Ext.fly(anchor).insertHtml('afterEnd', 
+						'<span '+ chg +' class="'+ cls +'" graphid="'+ graphId +'" title="'+ graphTitle +'" graphtitle="'+ graphTitle +'"></span>', true);
+					navIcon.on('click', function(e, t){
+						e.stopEvent();
+						JxWfGraph.showGraphFun(t.getAttribute('graphid'), null, false, t.getAttribute('graphtitle'));
+					});
+				}
+			};
+			var where_sql = encodeURIComponent('auditing = 1');
+			var params = 'eventcode=query_data&funid=queryevent&pagetype=grid'+
+				'&query_funid=wfnav_graph&where_sql=' + where_sql;
+			Request.dataRequest(params, hdCall);
+		};
+		
 		var dataUrl = Jxstar.path + '/commonAction.do?funid=queryevent&eventcode=query_menu&user_id='+Jxstar.session['user_id'];
 		var treeMenu = new Ext.tree.TreePanel({
 			id: 'tree_main_menu',
@@ -166,40 +206,13 @@
 				load:function(loader, node, response){
 					var menuJson = Ext.decode(response.responseText);
 					JxUtil.putRightNodes(menuJson);
-					//如果是根节点，则显示流程导航图标
-					var hdCall = function(data) {
-						if (data != null) data = data.root; 
-						if (data == null || data.length == 0) return;
-						for (var i = 0, n = data.length; i < n; i++) {
-							var moduleId = data[i].wfnav_graph__module_id;
-							if (moduleId.length == 0) continue;
-							
-							var oneNode = treeMenu.getRootNode().findChild('id', moduleId);
-							if (Ext.isEmpty(oneNode)) continue;
-							
-							var graphId = data[i].wfnav_graph__graph_id;
-							var graphTitle = data[i].wfnav_graph__graph_name;
-							if (graphId.length == 0) continue;
-							
-							var anchor = oneNode.getUI().getAnchor();
-							var cls = 'wfnav-icon';
-							if (Ext.isChrome) cls += ' wfnav-icon-chrome';
-							var chg = 'onmouseover="this.style.marginRight=\'3px\';" onmouseout="this.style.marginRight=\'4px\';"';
-							var navIcon = Ext.get(anchor).insertHtml('afterEnd', 
-								'<span '+ chg +' class="'+ cls +'" graphid="'+ graphId +'" graphtitle="'+ graphTitle +'"></span>', true);
-							navIcon.on('click', function(e, t){
-								e.stopEvent();
-								JxWfGraph.showGraphFun(t.getAttribute('graphid'), null, false, t.getAttribute('graphtitle'));
-							});
-						}
-					};
-					var params = 'eventcode=query_data&funid=queryevent&pagetype=grid'+
-						'&query_funid=wfnav_graph&where_sql=auditing=1';
-					Request.dataRequest(params, hdCall);
+					//显示一级模块的流程导航图
+					viewNavIcon(treeMenu.getRootNode(), 1);
 				}
 			}}),
 			root: new Ext.tree.AsyncTreeNode({text:'main_menu_root'})
 		});
+		
 		//打开功能
 		treeMenu.on('click', function(node){
 			if (node.isLeaf()) {
@@ -219,6 +232,10 @@
 				if (!ct.hasClass('x-tree-node-ct-ext')) {
 					ct.addClass('x-tree-node-ct-ext');
 				}
+			}
+			//显示二级模块的流程导航图标
+			if (node.id.length == 4) {
+				viewNavIcon(node, 2);
 			}
 		});
 
