@@ -27,6 +27,7 @@ import org.jxstar.util.key.KeyCreator;
 
 /**
  * 管理所有使用jxstar的用户信息。
+ * 一般只有一台客户端机器写入日志的，说明是生产服务，否则为开发服务。
  *
  * @author TonyTan
  * @version 1.0, 2013-6-9
@@ -202,6 +203,7 @@ public class FunUserBO extends BusinessObject {
 			SafeManager safe = SafeManager.getInstance();
 			License lic = safe.readLicense("");
 			if (lic != null) {
+				sblic.append(SystemVar.getValue("index.name")).append(";");
 				sblic.append(SafeUtil.encode(lic.versionType)).append(";");
 				sblic.append(SafeUtil.encode(lic.tmpEnd)).append(";");
 				sblic.append(SafeUtil.encode(lic.tmpValid)).append(";");
