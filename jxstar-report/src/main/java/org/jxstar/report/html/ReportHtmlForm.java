@@ -35,14 +35,14 @@ public class ReportHtmlForm extends ReportHtml {
             mpValue = _lsMainRecord.get(i);
 
             if (i == 0) {
-                sbRet.append(ReportHtmlUtil.fillForm(mpValue, _lsMainCol, _mpUser, "tblobj", i + 1, _lsMainRecord.size()));
+                sbRet.append(ReportHtmlUtil.fillForm(funId, mpValue, _lsMainCol, _mpUser, "tblobj", i + 1, _lsMainRecord.size()));
                 sbRet.append(ReportHtmlUtil.fillCheckInfo(funId, areaId, "tblobj", mpValue, _mpUser));
                 sbRet.append(ReportHtmlUtil.fillHead("tblobj" ,_lsHeadInfo, _mpUser));
             } else {
                 //插入新table
                 sbRet.append("newTblObj = f_insertTable(tblValue, tblobj);\r\n");
 
-                sbRet.append(ReportHtmlUtil.fillForm(mpValue, _lsMainCol, _mpUser, "newTblObj", i + 1, _lsMainRecord.size()));
+                sbRet.append(ReportHtmlUtil.fillForm(funId, mpValue, _lsMainCol, _mpUser, "newTblObj", i + 1, _lsMainRecord.size()));
                 sbRet.append(ReportHtmlUtil.fillCheckInfo(funId, areaId, "newTblObj", mpValue, _mpUser));
                 sbRet.append(ReportHtmlUtil.fillHead("newTblObj" ,_lsHeadInfo, _mpUser));
             }

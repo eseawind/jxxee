@@ -113,8 +113,14 @@ public class SignPicUtil {
 	}
 	
 	//取图片附件的URL
-	private static String signURL(String dataId, String tableName, String fieldName, 
+	public static String signURL(String dataId, String tableName, String fieldName, 
 			String funId, String curUserId) {
+		if (dataId == null) dataId = "";
+		if (tableName == null) tableName = "";
+		if (fieldName == null) fieldName = "";
+		if (funId == null) funId = "";
+		if (curUserId == null) curUserId = "";
+		
 		String uploadType = SystemVar.getValue("upload.server.type", "0");
 		String uploadUrl = SystemVar.getValue("upload.server.url");
 		String path = ".";

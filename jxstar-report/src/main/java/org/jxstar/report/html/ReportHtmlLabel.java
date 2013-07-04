@@ -20,7 +20,8 @@ public class ReportHtmlLabel extends ReportHtml {
 
 	public Object output() throws ReportException {
 		_log.showDebug("html label report output ...");
-
+		String funId = _mpReptInfo.get("fun_id");
+		
         StringBuilder sbRet = new StringBuilder();
         //获取javascript变量声明
         sbRet.append(ReportHtmlUtil.defineHead());
@@ -50,10 +51,10 @@ public class ReportHtmlLabel extends ReportHtml {
 
 				//填写一条记录
 				if (i == 0) {
-					sbRet.append(ReportHtmlUtil.fillForm(mpData, lsCol, _mpUser, "tblobj", i + 1, maxPage));
+					sbRet.append(ReportHtmlUtil.fillForm(funId, mpData, lsCol, _mpUser, "tblobj", i + 1, maxPage));
 					sbRet.append(ReportHtmlUtil.fillHead("tblobj" ,_lsHeadInfo, _mpUser));
 				} else {
-					sbRet.append(ReportHtmlUtil.fillForm(mpData, lsCol, _mpUser, "newTblObj", i + 1, maxPage));
+					sbRet.append(ReportHtmlUtil.fillForm(funId, mpData, lsCol, _mpUser, "newTblObj", i + 1, maxPage));
 					sbRet.append(ReportHtmlUtil.fillHead("newTblObj" ,_lsHeadInfo, _mpUser));
 				}
 			}

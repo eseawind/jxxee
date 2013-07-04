@@ -42,22 +42,22 @@ public class ReportHtmlFormGrid extends ReportHtml {
             mpValue = _lsMainRecord.get(i);
 
             if (i == 0) {
-                sbRet.append(ReportHtmlUtil.fillForm(mpValue, _lsMainCol, _mpUser, "tblobj", i + 1, _lsMainRecord.size()));
+                sbRet.append(ReportHtmlUtil.fillForm(funId, mpValue, _lsMainCol, _mpUser, "tblobj", i + 1, _lsMainRecord.size()));
                 sbRet.append(ReportHtmlUtil.fillCheckInfo(funId, areaId, "tblobj", mpValue, _mpUser));
                 sbRet.append(ReportHtmlUtil.fillHead("tblobj", _lsHeadInfo, _mpUser));
                 
                 //填写从表信息
-                sbRet.append(fillSubArea("tblobj", mpValue));
+                sbRet.append(fillSubArea(funId, "tblobj", mpValue));
             } else {
                 //插入新table
                 sbRet.append("newTblObj = f_insertTable(tblValue, tblobj);\r\n");
 
-                sbRet.append(ReportHtmlUtil.fillForm(mpValue, _lsMainCol, _mpUser, "newTblObj", i + 1, _lsMainRecord.size()));
+                sbRet.append(ReportHtmlUtil.fillForm(funId, mpValue, _lsMainCol, _mpUser, "newTblObj", i + 1, _lsMainRecord.size()));
                 sbRet.append(ReportHtmlUtil.fillCheckInfo(funId, areaId, "newTblObj", mpValue, _mpUser));
                 sbRet.append(ReportHtmlUtil.fillHead("newTblObj", _lsHeadInfo, _mpUser));
                 
                 //填写从表信息
-                sbRet.append(fillSubArea("newTblObj", mpValue));
+                sbRet.append(fillSubArea(funId, "newTblObj", mpValue));
             }
         }
         
@@ -67,11 +67,12 @@ public class ReportHtmlFormGrid extends ReportHtml {
 	/**
 	 * 填写子表内容，返回的子表内容报表可能存在多页。
 	 * 
+	 * @param funId -- 功能ID
 	 * @param jsTblObj -- 表格对象
 	 * @param mpData -- 主表记录值
 	 * @return
 	 */
-	private String fillSubArea(String jsTblObj, Map<String, String> mpData) throws ReportException {
+	private String fillSubArea(String funId, String jsTblObj, Map<String, String> mpData) throws ReportException {
 		StringBuilder sbRet = new StringBuilder();
 		String strPKCol = _mpMainArea.get("pk_col");
 		
@@ -135,7 +136,7 @@ public class ReportHtmlFormGrid extends ReportHtml {
 			//如果还有新页，则创建新的表格对象
 			if ((i + 1) < maxPage) {
 				sbRet.append("newTblObj = f_insertTable(tblValue, tblobj);\r\n");
-				sbRet.append(ReportHtmlUtil.fillForm(mpData, _lsMainCol, _mpUser, "newTblObj", 0, 0));
+				sbRet.append(ReportHtmlUtil.fillForm(funId, mpData, _lsMainCol, _mpUser, "newTblObj", 0, 0));
 				jsTblObj = "newTblObj";
 			}
 		}

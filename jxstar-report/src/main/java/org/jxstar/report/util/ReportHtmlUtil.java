@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
+import org.jxstar.service.define.FunDefineDao;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.StringUtil;
@@ -109,6 +110,7 @@ public class ReportHtmlUtil extends ReportUtil {
 
     /**
      * 填写form格式的html报表
+     * @param funId -- 功能ID
      * @param mpData -- 记录值
      * @param lsField -- 字段信息
      * @param mpUser -- 当前用户
@@ -118,6 +120,7 @@ public class ReportHtmlUtil extends ReportUtil {
      * @return String
      */
     public static String fillForm(
+    		String funId,
     		Map<String,String> mpData,
             List<Map<String,String>> lsField,
             Map<String,String> mpUser,
@@ -153,6 +156,10 @@ public class ReportHtmlUtil extends ReportUtil {
             sbRet.append("posi[0] = " + posi[0] + ";\r\n");
             sbRet.append("posi[1] = " + posi[1] + ";\r\n");
 
+            //是否显示图片
+            boolean isImage = false;
+            String userId = MapUtil.getValue(mpUser, "user_id");
+            
             if (strColCode.equalsIgnoreCase("{CURUSERNAME}")) {
             //当前用户
                 strValue = MapUtil.getValue(mpUser, "user_name");
@@ -171,21 +178,40 @@ public class ReportHtmlUtil extends ReportUtil {
             } else {
             //设置cell的显示值，如果是图片字段，则不用处理
                 if (!strStyle.equals("image")) {
-                    strValue = mpData.get(strColCode);
-                    strValue = (strValue != null)?strValue:"";
-                    strValue = (strValue.equalsIgnoreCase("null"))?"":strValue;
-                    
-                    //取选项显示值
-                    strValue = getComboTitle(strValue, strColTag);
-                    //转换数据格式
-                    strValue = convertValue(strValue, strStyle);
-                    if (isOutZero.equals("0")) strValue = getZeroOut(strValue, strStyle);
+                	if (strStyle.equals("barcode")) {//显示条码图片
+                		isImage = true;
+                		strValue = mpData.get(strColCode);
+                		strValue = printBarcode(strValue, userId);
+    				} else {
+	                    strValue = mpData.get(strColCode);
+	                    strValue = (strValue != null)?strValue:"";
+	                    strValue = (strValue.equalsIgnoreCase("null"))?"":strValue;
+	                    
+	                    //取选项显示值
+	                    strValue = getComboTitle(strValue, strColTag);
+	                    //转换数据格式
+	                    strValue = convertValue(strValue, strStyle);
+	                    if (isOutZero.equals("0")) strValue = getZeroOut(strValue, strStyle);
+    				}
+                } else {
+                	//显示图片
+                	strValue = printCellImage(funId, strColCode, userId, mpData);
+                	if (strValue.length() > 0) {
+                		isImage = true;
+                	} else {
+                		strValue = mpData.get(strColCode);
+                	}
                 }
             }
             
             //设置当前字段内容
-            sbRet.append("cellValue = \"" + StringUtil.strForJson(strValue) + "\";\r\n");
-            sbRet.append("f_setCellValueByPos(posi ,cellValue ,"+jsTblObj+");\r\n");
+            if (!isImage) {
+            	sbRet.append("cellValue = \"" + StringUtil.strForJson(strValue) + "\";\r\n");
+            	sbRet.append("f_setCellValueByPos(posi ,cellValue ,"+jsTblObj+");\r\n");
+            } else {
+            	sbRet.append("cellValue = \"" + strValue + "\";\r\n");
+            	sbRet.append("f_setTdPic(2, 2, posi ,cellValue ,"+jsTblObj+");\r\n");
+            }
         }
 
         return sbRet.toString();
@@ -519,5 +545,56 @@ public class ReportHtmlUtil extends ReportUtil {
     	}
     	
     	return "";
+    }
+    
+    /**
+     * 在html中显示条码图片
+     * @param codeValue -- 条码值
+     * @param userId -- 当前用ID
+     * @return
+     */
+    private static String printBarcode(String codeValue, String userId) {
+		StringBuilder sburl = new StringBuilder();
+		sburl.append("./fileAction.do?funid=sys_attach&pagetype=editgrid&eventcode=barcode&dataType=byte");
+		sburl.append("&codevalue="+ codeValue +"&user_id="+ userId);
+		
+		String url = sburl.toString();
+    	if (url.length() > 0) {
+    		return "<img width='100%' height='100%' src='"+ url +"' />";
+		} else {
+			return "";
+		}
+    }
+    
+    /**
+     * 在html中显示附件图片
+     * @return 
+     */
+    private static String printCellImage(String funId, String fieldName, String userId, 
+    		Map<String,String> mpData) {
+		//取功能基础信息
+		Map<String,String> mpFun = FunDefineDao.queryFun(funId);
+		if (mpFun == null || mpFun.isEmpty()) {
+			_log.showDebug("--------printCellImage(): not find function is null!!");
+			return "";
+		}
+		//取功能表名
+		String tableName = mpFun.get("table_name");
+		//取主键，不带表名
+		String pkcol = mpFun.get("pk_col");
+		pkcol = StringUtil.getNoTableCol(pkcol);
+		//取主键值
+		String dataId = mpData.get(pkcol);
+		if (dataId == null || dataId.length() == 0) {
+			_log.showDebug("--------printCellImage(): not find data id!!");
+			return "";
+		}
+    	
+		String url = SignPicUtil.signURL(dataId, tableName, fieldName, funId, userId);
+		if (url.length() > 0) {
+    		return "<img width='100%' height='100%' src='"+ url +"' />";
+		} else {
+			return "";
+		}
     }
 }
