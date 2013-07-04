@@ -204,6 +204,22 @@ function f_setCellPic(width, height, px, py, posi, picHtml, tblObj) {
 }
 
 /**
+*	将图片填写到相应的单元格中
+*/
+function f_setTdPic(px, py, posi, picHtml, tblObj) {
+	var tdObj = f_getCellObj(tblObj, posi);
+
+	if (tdObj == null) {
+		return ;
+	}
+	
+	var width = tdObj.offsetWidth - 10;//预留像素
+	var height = tdObj.offsetHeight;
+	var html = '<div style="position:relative;padding:'+ px +'px;width:'+width+'px;height:'+height+'px;">' + picHtml + '</div>';
+	tdObj.innerHTML = html;
+}
+
+/**
 *	根据当前字段填写位置，将内容填写到相应的单元格中
 */
 function f_setCellValueByPos(posi, cellVal, tblObj) {

@@ -672,8 +672,9 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 			//处理检查项提示信息
 			//result:{success:false, message:'', data:{}, extData:{}}
 			var errorcall = function(result) {
-				if (eventcode == 'audit' && result.extData) {
-					JxUtil.checkResult(result.extData);
+				var extd = result.extData;
+				if (eventcode == 'audit' && extd && extd.checkMsg) {
+					JxUtil.checkResult(extd);
 				} else {
 					var msg = result.message;
 					if (msg.length == 0) msg = jx.req.faild;

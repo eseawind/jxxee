@@ -324,10 +324,8 @@ JxGroupExt = {};
 		Jxstar.createPage('sys_stat', 'gridpage', win.getComponent(0));
 		
 		//添加主从关系
-		JxUtil.delay(1000, function(){
-			var mg = win.getComponent(0).getComponent(0);	
+		var hdcall = function(mg) {
 			self.statGrid = mg;
-			
 			mg.on('rowclick', function(g, n, e){
 				var record = g.getStore().getAt(n);
 				if (record == null) return false;
@@ -353,7 +351,20 @@ JxGroupExt = {};
 				where_type:'string;string'
 			};
 			Jxstar.loadData(mg, options);
-		});
+		};
+		var cnt = 0;
+		var delay = function() {
+			if (cnt++ > 6) return;//最多6次
+			JxUtil.delay(500, function(){
+				var mg = win.getComponent(0).getComponent(0);
+				if (mg) {
+					hdcall(mg); return;
+				} else {
+					delay();//递归处理
+				}
+			});
+		};
+		delay();//处理延时问题
 		
 		win.on('destroy', function() {
 			self.loadStaCase(pageNode, self.statCombo);

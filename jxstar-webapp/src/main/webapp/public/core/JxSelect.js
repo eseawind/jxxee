@@ -253,7 +253,10 @@ JxSelect = {};
 					var subgrid = Ext.getCmp(gdom.id);
 					if (subgrid) {
 						var form = JxUtil.getParentForm(subgrid);
-						var tagRecord = form.myRecord;
+						var tagRecord = null;
+						//可编辑子表且没有主form对象时，form为null
+						if (form) tagRecord = form.myRecord;
+						
 						//如果主表单没有打开，form.myRecord为null，则取表格记录
 						if (!tagRecord) {
 							var mGrid = JxUtil.getParentGrid(subgrid);
