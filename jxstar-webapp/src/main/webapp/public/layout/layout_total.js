@@ -24,6 +24,17 @@ Jxstar.currentPage = function(define, totalParam) {
 		JxUtil.loadJS('/public/layout/ux/total_grid.js', true);
 		JxUtil.loadJS('/public/lib/ext/ux/ColumnHeaderGroup.js', true);
 	}
+	
+	//加载统计扩展参数：
+	//{statParam:'&param1=xxx&param2=xxx', preStatEvent: function(totalGrid, config){}}
+	var jsurl = define.gridpage;
+	if (jsurl && jsurl.length > 0) {
+		if (!totalParam) totalParam = {};
+		JxUtil.loadJS(jsurl, true);
+		Ext.apply(totalParam, Jxstar.statParam());
+		Jxstar.statParam = null;
+	}
+	
 	//创建临时数据面板，从后台到数据后将替换模板内容
 	var tmpPanel = new Ext.Panel({border:false,layout:'fit'});
 	
@@ -50,7 +61,7 @@ Jxstar.currentPage = function(define, totalParam) {
 	};
 	
 	//调用后台取统计报表的条件与统计列
-	var params = 'funid=rpt_list&pagetype=grid&eventcode=totalgrid&rpt_funid=' + funid;
+	var params = 'funid=queryevent&pagetype=grid&eventcode=totalgrid&rpt_funid=' + funid;
 	Request.postRequest(params, hdcall);
 	
 	return tmpPanel;

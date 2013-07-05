@@ -78,6 +78,11 @@ JxTotalGrid = {};
 		var params = '';
 		var novalid = false;
 		
+		//执行外部扩展的统计前事件
+		if (config.preStatEvent) {
+			if (!config.preStatEvent(grid, config)) return;
+		}
+		
 		//取工具栏中的参数值与有效性
 		tbar.items.each(function(item){
 			if (item.isXType('field')) {
@@ -132,7 +137,12 @@ JxTotalGrid = {};
 		}
 		
 		//发送后台请求
-		params = 'funid=rpt_list&pagetype=grid&eventcode=totalexe&rpt_funid=' + nodeid + params;
+		if (config.statParam) {//取外部参数
+			params = config.statParam + params;
+		} else {
+			params = 'funid=sysevent&pagetype=grid&eventcode=totalexe&rpt_funid=' + nodeid + params;
+		}
+		
 		Request.postRequest(params, hdcall);
 	},
 	
