@@ -38,6 +38,9 @@
 'sys_role_data':[
 	{srcNodeId:'sys_datatype',destNodeId:'sys_role_data',layout:'',whereSql:'',whereType:'',whereValue:''}
 ],
+'sys_role_field':[
+	{srcNodeId:'sel_fun_col',destNodeId:'sys_role_field',layout:'',whereSql:'col_code not like \'%id\'',whereType:'',whereValue:''}
+],
 'sys_role_fun':[
 	{srcNodeId:'sel_fun',destNodeId:'sys_role_fun',layout:'/public/layout/layout_tree.js',whereSql:'reg_type in (\'main\', \'treemain\', \'selfun\', \'result\') and module_id not like \'1010%\'',whereType:'',whereValue:''}
 ],

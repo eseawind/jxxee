@@ -173,6 +173,7 @@ JxPrint = {};
 		var whereSql = '';
 		var whereValue = '';
 		var whereType = '';
+		var queryType = '0';
 		if (printScope == 'select') {
 			whereSql = this.selectWhere(pageNode);
 			if (whereSql.length == 0) {
@@ -184,6 +185,7 @@ JxPrint = {};
 			whereSql = wheres[0];
 			whereValue = wheres[1];
 			whereType = wheres[2];
+			queryType = wheres[3];
 		} else {
 			return false;
 		}
@@ -195,7 +197,7 @@ JxPrint = {};
 		
 		//请求参数
 		var e = encodeURIComponent; //编码
-		var params = 'funid='+ funId +'&reportId='+ reportId +'&printType='+printType+'&printMode='+printMode;
+		var params = 'funid='+ funId +'&reportId='+ reportId +'&printType='+printType+'&printMode='+printMode+'&queryType='+ queryType;
 		var paramWhere = '&whereSql='+e(whereSql)+'&whereValue='+e(whereValue)+'&whereType='+ whereType;
 		if (reportId.length == 0) {
 			params += '&isDefault=1';
@@ -270,12 +272,13 @@ JxPrint = {};
 	* private 取当前查询结果的where子句
 	**/
 	queryWhere: function(pageNode) {
-		var wheres = [3];
+		var wheres = [4];
 		//取当前where子句
 		var dsOption = pageNode.page.getStore().lastOptions.params || {}; 
 		wheres[0] = dsOption.where_sql || '';
 		wheres[1] = dsOption.where_value || '';
 		wheres[2] = dsOption.where_type || '';
+		wheres[3] = dsOption.query_type || '0';
 		
 		return wheres;
 	},

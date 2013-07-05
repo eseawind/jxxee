@@ -308,7 +308,7 @@ Request = {};
 		 * 通过POST的方式向后台发送请求，后台取得文件内容，返回前台下载，
 		 * 替换原来采用document.getElementById('frmhidden').src = href;的方式。
 		 * getParams -- GET请求的参数，URL字符串
-		 * postParams -- POST请求的参数，格式为：{exp_text:'', where_sql:'', where_value:'', where_type:''}
+		 * postParams -- POST请求的参数，格式为：{exp_text:'', where_sql:'', where_value:'', where_type:'', query_type:''}
 		 */
 		expFile: function(getParams, postParams) {
 			//如果没有form则自动创建
@@ -322,6 +322,7 @@ Request = {};
 						target:'frmhidden',
 						cls:'x-hidden',
 						cn:[{tag:'input',name:'exp_text',id:'exp_text',type:'hidden'},
+						    {tag:'input',name:'query_type',id:'query_type',type:'hidden'},
 						    {tag:'input',name:'where_sql',id:'where_sql',type:'hidden'},
 						    {tag:'input',name:'where_value',id:'where_value',type:'hidden'},
 						    {tag:'input',name:'where_type',id:'where_type',type:'hidden'}]
@@ -330,6 +331,7 @@ Request = {};
 			//POST请求参数
 			var pps = postParams||{};
 			fd.child('#exp_text').set({value:pps.exp_text||''});
+			fd.child('#query_type').set({value:pps.query_type||'0'});
 			fd.child('#where_sql').set({value:pps.where_sql||''});
 			fd.child('#where_value').set({value:pps.where_value||''});
 			fd.child('#where_type').set({value:pps.where_type||''});

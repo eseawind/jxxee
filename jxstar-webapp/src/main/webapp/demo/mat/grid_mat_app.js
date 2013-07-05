@@ -75,12 +75,15 @@
 	};
 	
 	JxAttach.addAttachCol(cols);
+	config.param.showQryCase = true;
 	config.param.showStat = true;
 
 	config.initpage = function(gridNode){
 		var event = gridNode.event;
 		
+		//data = {reportId:reportId, printType:printType, printScope:printScope, printMode:printMode};
 		event.on('beforeprint', function(e, data){
+			if (data.printScope == 'query') return;
 			var records = JxUtil.getSelectRows(this.grid);
 			if (!JxUtil.selectone(records)) return false;
 			
@@ -91,6 +94,7 @@
 	
 	config.eventcfg = {
 		dataPrintParam: function(data) {
+			if (data.printScope == 'query') return;
 			var records = JxUtil.getSelectRows(this.grid);
 			if (!JxUtil.selectone(records)) return '';
 			
