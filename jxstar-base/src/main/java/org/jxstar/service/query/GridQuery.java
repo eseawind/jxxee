@@ -20,6 +20,7 @@ import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.FunctionDefine;
 import org.jxstar.service.define.FunctionDefineManger;
 import org.jxstar.service.util.PageSQL;
+import org.jxstar.service.util.SysHideField;
 import org.jxstar.service.util.WhereUtil;
 import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.MapUtil;
@@ -161,6 +162,10 @@ public class GridQuery extends BusinessObject {
 		_log.showDebug("gridquery allsql:" + pagesql);
 		_log.showDebug("gridquery wheretype:" + wheretype);
 		_log.showDebug("gridquery wherevalue:" + wherevalue);
+		
+		//查询是否有隐藏字段设置
+		List<String> hideCols = SysHideField.getHideCols(userid, funid);
+		if (!hideCols.isEmpty()) param.setHideCols(hideCols);
 		
 		//查询页面数据
 		JsonDao jsonDao = JsonDao.getInstance();

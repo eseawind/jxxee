@@ -98,8 +98,9 @@ public class JsonDao {
 			rs = ps.executeQuery();
 			DaoUtil.showQueryTime(curTime, sql);
 			
+			List<String> hcs = param.getHideCols();
 			//结果集转换为Json对象字符串
-			retJson = DaoUtil.getRsToJson(rs, cols);
+			retJson = DaoUtil.getRsToJson(rs, cols, hcs);
 			
 			//由于查询操作的connection需要释放，所以执行提交操作
 			tranObj.commit();

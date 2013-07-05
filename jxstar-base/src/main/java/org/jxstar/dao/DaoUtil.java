@@ -73,10 +73,12 @@ public class DaoUtil {
 	 * 
 	 * @param rs -- 结果集
 	 * @param recNum -- 控制取recNum条记录，如果<=0，则不限制数量
+	 * @param hideCols -- 需要隐藏数据的列
 	 * @return List
 	 * @throws SQLException
 	 */
-	public static List<Map<String,String>> getRsToList(ResultSet rs, int recNum) throws SQLException {
+	public static List<Map<String,String>> getRsToList(ResultSet rs, int recNum, 
+			List<String> hideCols) throws SQLException {
 		if (rs == null) {
 			throw new SQLException("getRsToList(): ResultSet param is null! ");
 		}
@@ -110,6 +112,10 @@ public class DaoUtil {
 					strCol = rsmd.getColumnLabel(i).toLowerCase();
 					strVal = rs.getString(strCol);
 					if (strVal == null) strVal = "";
+					//隐藏此字段的值
+					if (hideCols != null && !hideCols.isEmpty()) {
+						if (hideCols.contains(strCol)) strVal = "";
+					}
 					
 					//如果是日期类型的字段，转换为日期对象
 					if (rsmd.getColumnType(i) == java.sql.Types.DATE || 
@@ -305,18 +311,20 @@ public class DaoUtil {
 	 * ResultSet 转换为 JSON。
 	 * 
 	 * @param rs -- 结果集
+	 * @param cols -- 字段列，带表名
+	 * @param hideCols -- 隐藏数据的字段列，不带表名
 	 * @return String
 	 * @throws SQLException
 	 */
-	public static String getRsToJson(ResultSet rs, String[] astrCol) 
-		throws SQLException {
+	public static String getRsToJson(ResultSet rs, String[] cols, 
+			List<String> hideCols) throws SQLException {
 		if (rs == null) {
 			throw new SQLException("getRsToJson(): ResultSet param is null! ");
 		}
-		if (astrCol == null) {
-			throw new SQLException("getRsToJson(): astrCol param is null! ");
+		if (cols == null) {
+			throw new SQLException("getRsToJson(): cols param is null! ");
 		}
-		if (astrCol.length == 0) return "";
+		if (cols.length == 0) return "";
 		
 		//允许查询输出最多数据条数
 		String sMaxNum = SystemVar.getValue("db.query.maxnum", "50000");
@@ -328,6 +336,7 @@ public class DaoUtil {
 		StringBuilder sbJson = new StringBuilder();
 		try {
 			String strVal = null;
+			String strCol = null;
 			while (rs.next()) {
 				count++;
 				if (count > maxNum) {
@@ -337,9 +346,14 @@ public class DaoUtil {
 
 				sbJson.append("{");
 				//组织一行数据
-				for (int i = 1, n = astrCol.length; i <= n; i++) {
+				for (int i = 1, n = cols.length; i <= n; i++) {
 					strVal = rs.getString(i);
 					if (strVal == null) strVal = "";
+					//隐藏此字段的值
+					if (hideCols != null && !hideCols.isEmpty()) {
+						strCol = rsmd.getColumnLabel(i).toLowerCase();
+						if (hideCols.contains(strCol)) strVal = "";
+					}
 					
 					//如果是日期类型的字段，转换为日期对象
 					if (rsmd.getColumnType(i) == java.sql.Types.DATE || 
@@ -376,11 +390,11 @@ public class DaoUtil {
 							}
 						}
 						
-						sbJson.append("'"+astrCol[i-1]+"'").append(":").append(strVal).append(",");
+						sbJson.append("'"+cols[i-1]+"'").append(":").append(strVal).append(",");
 					} else {
 						strVal = StringUtil.strForJson(strVal);
 	
-						sbJson.append("'"+astrCol[i-1]+"'").append(":'").append(strVal).append("',");
+						sbJson.append("'"+cols[i-1]+"'").append(":'").append(strVal).append("',");
 					}
 				}
 

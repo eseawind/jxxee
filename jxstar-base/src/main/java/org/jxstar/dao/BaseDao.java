@@ -263,8 +263,9 @@ public class BaseDao {
 			rs = ps.executeQuery();
 			DaoUtil.showQueryTime(curTime, sql);
 			
+			List<String> hcs = param.getHideCols();
 			//结果集转换为List对象
-			lsRet = DaoUtil.getRsToList(rs, recNum);
+			lsRet = DaoUtil.getRsToList(rs, recNum, hcs);
 			
 			//如果不执行提交方法，在非事务环境中会存在连接泄露
 			//MySQL数据库连接总是出现断开的连接就是因为此造成

@@ -36,7 +36,9 @@ public class DaoParam {
 	private List<String> _lsType = null;
 	//参数值
 	private List<String> _lsValue = null;
-	
+	//不显示值的字段名，不带表名
+	private List<String> _hideCols = null;
+
 	public DaoParam() {
 		_lsType = FactoryUtil.newList();
 		_lsValue = FactoryUtil.newList();
@@ -229,5 +231,21 @@ public class DaoParam {
 		_lsValue.clear();
 		_dsName = "";
 		return this;
+	}
+	
+	/**
+	 * 取不显示数据的字段名，不带表名
+	 * @return
+	 */
+	public List<String> getHideCols() {
+		return _hideCols;
+	}
+
+	/**
+	 * 设置不显示数据的字段名，不带表名
+	 * @param notDataCols
+	 */
+	public void setHideCols(List<String> hideCols) {
+		this._hideCols = hideCols;
 	}
 }
