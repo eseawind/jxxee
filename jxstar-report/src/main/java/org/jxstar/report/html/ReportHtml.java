@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.report.Report;
@@ -39,6 +38,9 @@ public abstract class ReportHtml implements Report {
     protected String _pageSql = "";
     protected String _pageSqlType = "";
     protected String _pageSqlValue = "";
+    
+    //需要隐藏数据显示的字段
+    protected List<String> _hideCols = null;
     
     protected String _reportId = "";
     //当前用户信息
@@ -132,6 +134,9 @@ public abstract class ReportHtml implements Report {
 
         //页面传递sql语句参数类型
         _pageSqlType = MapUtil.getValue(mpParam, "whereType");
+        
+        //需要隐藏数据的字段
+        _hideCols = (List<String>) mpParam.get("hideCols");
             
         //获取相应的报表信息
         loadReportInfo();
@@ -157,6 +162,9 @@ public abstract class ReportHtml implements Report {
         param.setDsName(dsName);
         param.setType(_sqlType);
         param.setValue(_sqlValue);
+        //设置要隐藏数据的字段
+		param.setHideCols(_hideCols);
+		
         //获取主区域记录信息
         _lsMainRecord = _dao.query(param);
         _log.showDebug("main record size = " + _lsMainRecord.size());

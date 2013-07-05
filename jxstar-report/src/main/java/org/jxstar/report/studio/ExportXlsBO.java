@@ -22,6 +22,7 @@ import org.jxstar.service.BoException;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.ColumnDefine;
 import org.jxstar.service.define.FunDefineDao;
+import org.jxstar.service.util.SysHideField;
 import org.jxstar.service.util.WhereUtil;
 import org.jxstar.util.StringFormat;
 import org.jxstar.util.StringUtil;
@@ -93,6 +94,10 @@ public class ExportXlsBO extends BusinessObject {
 			param.setType(where_type);
 			param.setValue(where_value);
 		}
+		//查询是否有隐藏字段设置
+		List<String> hideCols = SysHideField.getHideCols(user_id, funid);
+		if (!hideCols.isEmpty()) param.setHideCols(hideCols);
+		
 		List<Map<String,String>> lsData = _dao.query(param);
 		_log.showDebug("===========exp file query data size=" + lsData.size());
 		

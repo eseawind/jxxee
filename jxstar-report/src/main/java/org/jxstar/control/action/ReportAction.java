@@ -7,6 +7,7 @@
 package org.jxstar.control.action;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
@@ -22,6 +23,7 @@ import org.jxstar.report.Report;
 import org.jxstar.report.ReportException;
 import org.jxstar.report.util.ReportDao;
 import org.jxstar.report.util.ReportFactory;
+import org.jxstar.service.util.SysHideField;
 import org.jxstar.service.util.SysLogUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.factory.FactoryUtil;
@@ -206,16 +208,16 @@ public class ReportAction extends Action {
 	    mpRet.put("all_params", request.getParameterMap());
 	    
 		//判断用户信息-----------------------
-		String curUserId = "";
+		String userid = "";
 		Map<String,String> mpUser = (Map<String,String>) request.getSession().
 										getAttribute(JsParam.CURRUSER);
 		if (mpUser == null || mpUser.isEmpty()) {
 			throw new ReportException(JsMessage.getValue("commonaction.nologin"));
 		} else {
 			//判断当前用户是否有效
-			curUserId = mpUser.get("user_id");
+			userid = mpUser.get("user_id");
 			String reqUserId = getRequestValue(request, "user_id");
-			if (!reqUserId.equals(curUserId)) {
+			if (!reqUserId.equals(userid)) {
 				throw new ReportException(JsMessage.getValue("commonaction.nouser"));
 			}
 		}
@@ -288,9 +290,13 @@ public class ReportAction extends Action {
 		if (isCheck.equals("true")) {
 			mainSql = ReportDao.getCheckMainSql(reportId, whereSql);
 		} else {
-			mainSql = ReportDao.getMainAreaSql(funid, reportId, whereSql, curUserId, queryType);
+			mainSql = ReportDao.getMainAreaSql(funid, reportId, whereSql, userid, queryType);
 		}
 		mpRet.put("mainSql", mainSql);
+		
+		//查询是否有隐藏字段设置
+		List<String> hideCols = SysHideField.getHideCols(userid, funid);
+		mpRet.put("hideCols", hideCols);
 		
 		//设置当前程序的实际路径
 		String realPath = request.getSession().getServletContext().getRealPath("/");
