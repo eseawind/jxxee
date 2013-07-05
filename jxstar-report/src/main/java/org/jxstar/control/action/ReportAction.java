@@ -263,6 +263,9 @@ public class ReportAction extends Action {
 		
 		String whereValue = getRequestValue(request, "whereValue");
 		mpRet.put("whereValue", whereValue);
+		
+		String queryType = getRequestValue(request, "queryType");
+		mpRet.put("queryType", queryType);
 		//取页面参数 end-----------------------
 		
 		//取报表定义信息
@@ -285,7 +288,7 @@ public class ReportAction extends Action {
 		if (isCheck.equals("true")) {
 			mainSql = ReportDao.getCheckMainSql(reportId, whereSql);
 		} else {
-			mainSql = ReportDao.getMainAreaSql(funid, reportId, whereSql, curUserId);
+			mainSql = ReportDao.getMainAreaSql(funid, reportId, whereSql, curUserId, queryType);
 		}
 		mpRet.put("mainSql", mainSql);
 		
@@ -302,8 +305,8 @@ public class ReportAction extends Action {
 		mpRet.put("realPath", realPath);
 		
 		_log.showDebug("-----------ReportAction initAction param: funid={0} printType={1} " +
-				"whereSql={2} whereValue={3} whereType={4} realPath={5}", 
-				funid, printType, whereSql, whereValue, whereType, realPath);
+				"whereSql={2} whereValue={3} whereType={4} realPath={5} queryType={6}", 
+				funid, printType, whereSql, whereValue, whereType, realPath, queryType);
 		
 		return mpRet;
 	}

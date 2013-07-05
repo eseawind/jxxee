@@ -47,6 +47,8 @@ public class ExportXlsBO extends BusinessObject {
 		//String orderclause = request.getParameter("orderclause");
 		String user_id = request.getRequestValue("user_id");
 		String selfield = request.getRequestValue("selfield");
+		//查询方式：0 -- 普通查询 1 -- 高级查询
+		String querytype = request.getRequestValue("query_type");
 		//String zerotonull = request.getParameter("zerotonull");
 		_log.showDebug("==========exp file param funid=" + funid + ";where_sql=" + where_sql+";where_value="+where_value+";where_type="+where_type);
 		
@@ -55,7 +57,7 @@ public class ExportXlsBO extends BusinessObject {
 		
 		//取功能定义where
 		try {
-			where_sql = WhereUtil.queryWhere(funid, user_id, where_sql, "0");
+			where_sql = WhereUtil.queryWhere(funid, user_id, where_sql, querytype);
 		} catch (BoException e) {
 			_log.showError(e);
 			setMessage(e.getMessage());

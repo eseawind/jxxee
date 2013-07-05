@@ -55,10 +55,11 @@ public class ReportDao {
 	 * @param reportId -- 报表id
 	 * @param pageWhere --前台页面where
 	 * @param userid -- 当前用户id
+	 * @param querytype -- 高级查询 1、普通查询 0
 	 * @return
 	 */
 	public static String getMainAreaSql(String funid, String reportId, 
-							String pageWhere, String userid) throws ReportException{
+							String pageWhere, String userid, String queryType) throws ReportException{
 		StringBuilder ret = new StringBuilder();
 
 		Map<String,String> mpMain = getMainArea(reportId);
@@ -71,7 +72,7 @@ public class ReportDao {
 
 		//where部分
 		String areaWhere = mpMain.get("data_where");
-		String mainWhere = getWhereClause(areaWhere, pageWhere, funid, userid);
+		String mainWhere = getWhereClause(areaWhere, pageWhere, funid, userid, queryType);
 		if (mainWhere.length() > 0) {
 			ret.append(" where " + mainWhere);
 		}
@@ -151,9 +152,11 @@ public class ReportDao {
 	 * @param pageWhere -- 前台页面where
 	 * @param funid -- 功能id
 	 * @param userid -- 当前用户id
+	 * @param querytype -- 高级查询 1、普通查询 0
 	 * @return
 	 */
-	private static String getWhereClause(String areaWhere, String pageWhere, String funid, String userid) {
+	private static String getWhereClause(String areaWhere, String pageWhere, 
+			String funid, String userid, String queryType) {
 		String baseWhere = areaWhere;
 		
 		if (areaWhere.length() > 0) {
@@ -169,7 +172,7 @@ public class ReportDao {
 		//添加归档处理、数据权限、外部where
 		String where = "";
 		try {
-			where = WhereUtil.systemWhere(funid, userid, baseWhere);
+			where = WhereUtil.systemWhere(funid, userid, baseWhere, queryType);
 		} catch (BoException e) {
 			_log.showError(e);
 		}

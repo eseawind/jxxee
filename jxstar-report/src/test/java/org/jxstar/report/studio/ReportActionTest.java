@@ -117,7 +117,7 @@ public class ReportActionTest extends AbstractTest {
 		mpRet.put("report", mpReport);
 		
 		//取报表主区域SQL
-		String mainSql = ReportDao.getMainAreaSql(funid, reportId, whereSql, curUserId);
+		String mainSql = ReportDao.getMainAreaSql(funid, reportId, whereSql, curUserId, "0");
 		mpRet.put("mainSql", mainSql);
 		
 		//设置当前程序的实际路径
