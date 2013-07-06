@@ -229,8 +229,10 @@ public class DaoParam {
 	public DaoParam clearParam() {
 		_lsType.clear();
 		_lsValue.clear();
-		_hideCols.clear();
 		_dsName = "";
+		if (_hideCols != null) {
+			_hideCols.clear();
+		}
 		
 		return this;
 	}
