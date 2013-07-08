@@ -184,7 +184,7 @@ public class PooledConnection {
 		String validTest = dsConfig.getValidTest();
 		String validQuery = dsConfig.getValidQuery();
 		if (validTest.equalsIgnoreCase("true") && validQuery.length() > 0) {
-			_log.showDebug("...... pool test use query");
+			_log.showDebug("pool test use query...");
 			ds.setTestOnBorrow(true);
 			ds.setValidationQuery(validQuery);
 			ds.setValidationQueryTimeout(3);
@@ -193,7 +193,7 @@ public class PooledConnection {
 		//启用线程检查，mysql在数据库端会过期关闭连接可以启用
 		//开启此配置可以实现断开的连接自动恢复的效果
 		if (dsConfig.getValidIdle().equalsIgnoreCase("true")) {
-			_log.showDebug("...... pool idle valid thread started");
+			_log.showDebug("pool idle valid thread started...");
 			ds.setMinIdle(5);
 			ds.setTestWhileIdle(true);
 			
