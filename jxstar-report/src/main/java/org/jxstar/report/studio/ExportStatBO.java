@@ -109,12 +109,11 @@ public class ExportStatBO extends BusinessObject {
 				sfCell = hfRow.createCell(j);
 				if (j == 0) continue;
 				String value = rowconts[j-1];
-				if (value.length() == 0) continue;
 				
 				//是否为数字，设置不同的样式
 				boolean isDouble = StringValidator.validValue(value, 
 						StringValidator.DOUBLE_TYPE);
-				if (isDouble) {
+				if (isDouble && value.length() > 0) {//空值会报错
 					sfCell.setCellType(HSSFCell.CELL_TYPE_NUMERIC);
 					sfCell.setCellValue(Double.parseDouble(value));
 				} else {
