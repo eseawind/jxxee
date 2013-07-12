@@ -109,6 +109,7 @@ public class ExportStatBO extends BusinessObject {
 				sfCell = hfRow.createCell(j);
 				if (j == 0) continue;
 				String value = rowconts[j-1];
+				if (value.length() == 0) continue;
 				
 				//是否为数字，设置不同的样式
 				boolean isDouble = StringValidator.validValue(value, 

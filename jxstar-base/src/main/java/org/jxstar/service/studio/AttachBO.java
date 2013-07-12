@@ -220,7 +220,7 @@ public class AttachBO extends BusinessObject {
 		//如果保存的文件名与原文件名不同，则需要修改文件名
 		String saveName = file.getName();
 		if (!saveName.equals(orgName)) {
-			if (!updatePath(attachId, filePath+saveName)) {
+			if (!updatePath(attachId, saveName)) {//不保存filePath，没意义
 				setMessage(JsMessage.getValue("systembo.attachbo.savefileerror"));
 				return _returnFaild;
 			}
@@ -296,7 +296,7 @@ public class AttachBO extends BusinessObject {
 		param.addStringValue(dataFunId);
 		
 		param.addStringValue(funName);
-		param.addStringValue(attachPath);
+		param.addStringValue(fileName);//不保存attachPath，没意义
 		param.addDateValue(DateUtil.getTodaySec());
 		param.addStringValue(userName);
 		param.addStringValue(userId);
