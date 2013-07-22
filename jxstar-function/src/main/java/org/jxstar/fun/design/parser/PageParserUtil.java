@@ -41,12 +41,59 @@ public class PageParserUtil {
 		List<Map<String,String>> lsData = _dao.query(param);
 		if (lsData.isEmpty()) return mpData;
 		
-		for (int i = 0, n = lsData.size(); i < n; i++) {
-			Map<String,String> mp = lsData.get(i);
+		for (Map<String,String> mp : lsData) {
 			mpData.put(mp.get("field_name"), mp.get("data_size"));
 		}
 		
 		return mpData;
+	}
+	
+	/**
+	 * 取一个功能的字段长度信息，因为存在一个功能用到多个表的问题；
+	 * 用于处理主从关联表一起保存时，控制从表字段长度的问题。
+	 * @param funId
+	 * @return
+	 */
+	public static Map<String,String> funFieldLen(String funId) {
+		Map<String,String> mpData = FactoryUtil.newMap();
+		if (funId == null) return mpData;
+		
+		List<String> lstab = funTables(funId);
+		for (String tab : lstab) {
+			Map<String,String> mp = fieldLength(tab);
+			mpData.putAll(mp);
+		}
+		
+		return mpData;
+	}
+	
+	/**
+	 * 取功能字段列表中用到了几个表名
+	 * @param funId
+	 * @return
+	 */
+	public static List<String> funTables(String funId) {
+		List<String> lstab = FactoryUtil.newList();
+		if (funId == null) return lstab;
+		
+		String sql = "select col_code from fun_col where fun_id = ? order by col_code";
+		DaoParam param = _dao.createParam(sql);
+		param.setDsName(DefineName.DESIGN_NAME);
+		param.addStringValue(funId);
+		
+		List<Map<String,String>> lsData = _dao.query(param);
+		if (lsData.isEmpty()) return lstab;
+		
+		for (Map<String,String> mp : lsData) {
+			String colcode = mp.get("col_code");
+			if (colcode.indexOf(".") >= 0){
+				String table = colcode.substring(0, colcode.indexOf("."));
+				if (!lstab.contains(table) && table.length() > 0) {
+					lstab.add(table);
+				}
+			}
+		}
+		return lstab;
 	}
 	
 	/**
