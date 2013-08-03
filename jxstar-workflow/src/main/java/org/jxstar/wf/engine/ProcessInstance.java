@@ -135,7 +135,8 @@ public class ProcessInstance {
 		}
 		
 		//清理不再需要处理的任务
-		context.getTaskInstance().clearOther();
+		TaskInstance task = context.getTaskInstance();
+		if (task != null) task.clearOther();
 		
 		//触发完成事件
 		if (!isSubProcess()) {
@@ -163,7 +164,8 @@ public class ProcessInstance {
 		}
 		
 		//清理不再需要处理的任务
-		context.getTaskInstance().clearOther();
+		TaskInstance task = context.getTaskInstance();
+		if (task != null) task.clearOther();
 		
 		if (!isSubProcess()) {
 			//触发终止事件
