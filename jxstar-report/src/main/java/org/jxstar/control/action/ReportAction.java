@@ -17,8 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.jxstar.dao.transaction.TransactionException;
-import org.jxstar.dao.transaction.TransactionManager;
 import org.jxstar.report.Report;
 import org.jxstar.report.ReportException;
 import org.jxstar.report.util.ReportDao;
@@ -27,7 +25,6 @@ import org.jxstar.service.util.SysHideField;
 import org.jxstar.service.util.SysLogUtil;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.factory.FactoryUtil;
-import org.jxstar.util.factory.SystemFactory;
 import org.jxstar.util.resource.JsMessage;
 import org.jxstar.util.resource.JsParam;
 
@@ -38,53 +35,45 @@ import org.jxstar.util.resource.JsParam;
  * @version 1.0, 2010-11-11
  */
 public class ReportAction extends Action {
-	// 事务管理对象
-	private static TransactionManager _tranMng = null;
 	
+	/**
+	 * 报表数据输出没有启用平台事务管理。
+	 */
 	public void execute(HttpServletRequest request, HttpServletResponse response) {
-		try {
-			//创建事务对象并开始事务
-			_tranMng = (TransactionManager) SystemFactory.createSystemObject("TransactionManager");
-			_tranMng.startTran();
-			
-			//判断前台参数是否有效，并初始化参数
-			Map<String, Object> mpParam = initAction(request);
-			
-			//记录操作日志
-			writeLog(mpParam);
-			
-			//报表输出类型
-			String printType = (String) mpParam.get("printType");
-			
-			//输出excel报表
-			if (printType.equals("xls")) {
-				HSSFWorkbook xlswb = (HSSFWorkbook) outputXls(mpParam);
-				
-				String reportName = (String) mpParam.get("reportName");
-				responseXls(xlswb, reportName, request, response);
-			} else if (printType.equals("html")) {
-			//输出html报表
-				outputHtml(mpParam, request, response);
-			} else {
-			//当前报表类型不支持
-				_log.showWarn("print type ["+ printType +"] is not valid!!");
+		//判断前台参数是否有效，并初始化参数
+		ReportContext context = initAction(request);
+		if (!context.isSucceed()) {
+			responseWrite(response, context.getMessage());
+			return;
+		}
+		Map<String, Object> initParam = context.getInitParam();
+		if (initParam == null || initParam.isEmpty()) {
+			responseWrite(response, "报表初始化参数为空！");
+			return;
+		}
+		
+		//记录操作日志
+		writeLog(initParam);
+		
+		//报表输出类型
+		String printType = (String) initParam.get("printType");
+		
+		//输出excel报表
+		if (printType.equals("xls")) {
+			HSSFWorkbook xlswb = (HSSFWorkbook) outputXls(context);
+			if (xlswb == null) {
+				responseWrite(response, context.getMessage());
+				return;
 			}
 			
-			try {
-				_tranMng.commitTran();
-			} catch (TransactionException e) {
-				_log.showError(e);
-			}
-		} catch (ReportException e) {
-			_log.showError(e);
-			try {
-				_tranMng.rollbackTran();
-			} catch (TransactionException e2) {
-				_log.showError(e2);
-			}
-			
-			//反馈响应信息
-			responseWrite(response, e.getMessage());
+			String reportName = (String) initParam.get("reportName");
+			responseXls(xlswb, reportName, request, response);
+		} else if (printType.equals("html")) {
+		//输出html报表
+			outputHtml(initParam, request, response);
+		} else {
+		//当前报表类型不支持
+			_log.showWarn("print type ["+ printType +"] is not valid!!");
 		}
 	}
 	
@@ -110,7 +99,9 @@ public class ReportAction extends Action {
 	 * @throws ReportException
 	 */
 	@SuppressWarnings("unchecked")
-	private Object outputXls(Map<String, Object> mpParam) throws ReportException {
+	private Object outputXls(ReportContext context) {
+		Map<String, Object> mpParam = context.getInitParam();
+		
 		Object ret = null;
 		//取报表定义对象
 		Map<String,String> mpReport = (Map<String,String>) mpParam.get("report");
@@ -127,10 +118,16 @@ public class ReportAction extends Action {
 		Report report = ReportFactory.newInstance(className);
 		
 		//初始化报表对象
-		report.initReport(mpParam);
+		try {
+			report.initReport(mpParam);
 			
-		//构建报表输出对象
-		ret = report.output();
+			//构建报表输出对象
+			ret = report.output();
+		} catch (ReportException e) {
+			_log.showError(e);
+			context.setMessage(e.getMessage(), false);
+			return null;
+		}
 		
 		return ret;
 	}
@@ -175,7 +172,7 @@ public class ReportAction extends Action {
 	 * @throws ReportException
 	 */
 	private void responseXls(HSSFWorkbook xlswb, String reportName, HttpServletRequest request, 
-						HttpServletResponse response) throws ReportException {
+						HttpServletResponse response) {
 		//设置响应头信息
 		response.setHeader("Content-Type", "application/vnd.ms-excel");
 		String userAgent = request.getHeader("User-Agent");
@@ -190,8 +187,7 @@ public class ReportAction extends Action {
 			out.close();
 			_log.showDebug("---------file output end!");
 		} catch (Exception e) {
-			e.printStackTrace();//"报表文件流输出出错！"
-			throw new ReportException(JsMessage.getValue("reportaction.error01"));
+			e.printStackTrace();
 		}
 	}
 	
@@ -202,7 +198,9 @@ public class ReportAction extends Action {
 	 * @throws ReportException
 	 */
 	@SuppressWarnings("unchecked")
-	private Map<String, Object> initAction(HttpServletRequest request) throws ReportException {
+	private ReportContext initAction(HttpServletRequest request) {
+		ReportContext context = new ReportContext(request);
+		
 	    Map<String, Object> mpRet = FactoryUtil.newMap();
 	    //保存所有请求参数，特殊报表中用（暂时用于统计报表模板输出）
 	    mpRet.put("all_params", request.getParameterMap());
@@ -212,13 +210,15 @@ public class ReportAction extends Action {
 		Map<String,String> mpUser = (Map<String,String>) request.getSession().
 										getAttribute(JsParam.CURRUSER);
 		if (mpUser == null || mpUser.isEmpty()) {
-			throw new ReportException(JsMessage.getValue("commonaction.nologin"));
+			context.setMessage(JsMessage.getValue("commonaction.nologin"), false);
+			return context;
 		} else {
 			//判断当前用户是否有效
 			userid = mpUser.get("user_id");
 			String reqUserId = getRequestValue(request, "user_id");
 			if (!reqUserId.equals(userid)) {
-				throw new ReportException(JsMessage.getValue("commonaction.nouser"));
+				context.setMessage(JsMessage.getValue("commonaction.nouser"), false);
+				return context;
 			}
 		}
 		mpRet.put("user", mpUser);
@@ -226,14 +226,18 @@ public class ReportAction extends Action {
 		//取页面参数-----------------------
 		String funid = getRequestValue(request, JsParam.FUNID);
 		//"初始化出错：功能ID不能为空！"
-		if (funid.length() == 0) 
-			throw new ReportException(JsMessage.getValue("reportaction.error02"));
+		if (funid.length() == 0) {
+			context.setMessage(JsMessage.getValue("reportaction.error02"), false);
+			return context;
+		}
 		mpRet.put(JsParam.FUNID, funid);
 		
 		String printType = getRequestValue(request, "printType");
 		//"初始化出错：报表输出类型不能为空！"
-		if (printType.length() == 0) 
-			throw new ReportException(JsMessage.getValue("reportaction.error03"));
+		if (printType.length() == 0) {
+			context.setMessage(JsMessage.getValue("reportaction.error03"), false);
+			return context;
+		}
 		mpRet.put("printType", printType);
 		
 		//打印方式：0 预览 1 直接打印
@@ -249,7 +253,8 @@ public class ReportAction extends Action {
 				reportId = ReportDao.getDefReportId(funid);
 			}
 			if (reportId.length() == 0) {
-				throw new ReportException(JsMessage.getValue("reportaction.error04"));
+				context.setMessage(JsMessage.getValue("reportaction.error04"), false);
+				return context;
 			}
 		}
 		mpRet.put("reportId", reportId);
@@ -287,10 +292,17 @@ public class ReportAction extends Action {
 		
 		//是否审批表单，如果是，则根据记录ID查询值
 		String isCheck = getRequestValue(request, "isCheck");
-		if (isCheck.equals("true")) {
-			mainSql = ReportDao.getCheckMainSql(reportId, whereSql);
-		} else {
-			mainSql = ReportDao.getMainAreaSql(funid, reportId, whereSql, userid, queryType);
+		try {
+			if (isCheck.equals("true")) {
+				mainSql = ReportDao.getCheckMainSql(reportId, whereSql);
+			} else {
+				mainSql = ReportDao.getMainAreaSql(funid, reportId, whereSql, userid, queryType);
+			}
+		} catch (ReportException e) {
+			_log.showError(e);
+			
+			context.setMessage(e.getMessage(), false);
+			return context;
 		}
 		mpRet.put("mainSql", mainSql);
 		
@@ -302,7 +314,8 @@ public class ReportAction extends Action {
 		String realPath = request.getSession().getServletContext().getRealPath("/");
 		if (realPath == null || realPath.equals("null")) {
 			//"初始化出错：程序事件路径为空！"
-			throw new ReportException(JsMessage.getValue("reportaction.error05"));
+			context.setMessage(JsMessage.getValue("reportaction.error05"), false);
+			return context;
 		}
 		realPath = realPath.replace('\\', '/');
 		if (realPath.charAt(realPath.length()-1) == '/') {
@@ -314,7 +327,8 @@ public class ReportAction extends Action {
 				"whereSql={2} whereValue={3} whereType={4} realPath={5} queryType={6}", 
 				funid, printType, whereSql, whereValue, whereType, realPath, queryType);
 		
-		return mpRet;
+		context.setInitParam(mpRet);
+		return context;
 	}
 	
 	/**
@@ -340,6 +354,9 @@ public class ReportAction extends Action {
 	 */
 	private void responseWrite(HttpServletResponse response, String msg) {
 		try {
+			if (msg == null || msg.length() == 0) {
+				msg = "输出报表文件出错！";
+			}
 			response.getWriter().write(msg);
 		} catch (IOException e) {
 			e.printStackTrace();
