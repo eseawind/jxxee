@@ -58,7 +58,7 @@ public class PageParserUtil {
 		Map<String,String> mpData = FactoryUtil.newMap();
 		if (funId == null) return mpData;
 		
-		List<String> lstab = funTables(funId);
+		List<String> lstab = getFunTables(funId);
 		for (String tab : lstab) {
 			Map<String,String> mp = fieldLength(tab);
 			mpData.putAll(mp);
@@ -68,11 +68,11 @@ public class PageParserUtil {
 	}
 	
 	/**
-	 * 取功能字段列表中用到了几个表名
+	 * 取功能字段列表中用到了几个表名；用于页面生成时取字段长度。
 	 * @param funId
 	 * @return
 	 */
-	public static List<String> funTables(String funId) {
+	public static List<String> getFunTables(String funId) {
 		List<String> lstab = FactoryUtil.newList();
 		if (funId == null) return lstab;
 		

@@ -38,7 +38,9 @@ public class GridParserUtil {
 		String retCol = "var cols = null;";
 		
 		//取字段长度信息
-		_fieldLen = PageParserUtil.fieldLength(tableName);
+		//_fieldLen = PageParserUtil.fieldLength(tableName);
+		//用于处理主从关联表一起保存时，控制从表字段长度的问题
+		_fieldLen = PageParserUtil.funFieldLen(tableName);
 		
 		//取字段定义对象
 		ColumnDefine colDefine = FunDefineDao.queryColDefine(funId);
