@@ -47,7 +47,7 @@ PortletFun = {};
 		var hdcall = function(funJson) {
 			var funHtml = self.createPortlet(funJson);
 			
-			target.add({html:funHtml,border:false});
+			target.add({html:funHtml,border:false,autoScroll:true});
 			target.doLayout();
 		};
 		
@@ -90,7 +90,7 @@ PortletFun = {};
 			rows[i] = rowTpl.apply(funJson[i]);
 			//列表中只显示7条记录
 			cnt++;
-			if (cnt > 6) break; 
+			//if (cnt > 6) break; 
 		}
 		
 		return tableTpl.apply({rows:rows.join('')});

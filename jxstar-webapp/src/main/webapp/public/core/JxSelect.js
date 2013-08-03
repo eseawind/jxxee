@@ -461,6 +461,8 @@ JxSelect = {};
 			combo.queryParam = 'where_value';//后台查询值的参数名
 			combo.loadingText = '正在查询...';
 			combo.listEmptyText = '没有找到数据...';
+			//当数据比较多时，会造成不能选择值，值比较少的控件适合用这种方式
+			combo.isAll = combo.isAll || isAll || (Jxstar.systemVar.edit__combo__all == '1');
 			
 			var colCode = combo.getName();
 			//从后台取设计信息，构建控件元素
@@ -537,6 +539,8 @@ JxSelect = {};
 				
 				//都采用类似查询
 				combo.on('beforequery', function(qe){
+					var cb = qe.combo;
+					var isAll = cb.isAll;//是否显示所有数据
 					var lt = config.likeType;//匹配模式：all, left
 					var qv = '', ov = '';
 					//一个值可以查询多个字段
@@ -546,7 +550,7 @@ JxSelect = {};
 					}
 					
 					//在查询的时候，解析选择窗口中的[table.field];{table.field}参数
-					qryParam.where_value = self.parseWhereValue(config.whereValue, combo, targetFlag);
+					qryParam.where_value = self.parseWhereValue(config.whereValue, cb, targetFlag);
 					
 					//组合查询值
 					var pv = qryParam.where_value;
@@ -640,7 +644,7 @@ JxSelect = {};
 			//从后台取设计信息
 			var params = 'funid=queryevent&selfunid='+ funId;
 			params += '&colcode='+ colCode.replace('__', '.') +'&pagetype=grid&eventcode=query_selctl';
-			Request.postRequest(params, endcall);
+			Request.dataRequest(params, endcall);
 		},
 		
 		//private 支持取多条记录中某个字段的值

@@ -231,11 +231,12 @@ Jxstar.GridNode.prototype = {
 		}
 		
 		//如果是form中的明细表，则根据记录条数显示表格高度
+		var ah = self.param.autoHeight;
 		var form = self.page.findParentByType('form');
-		if (form) {
+		if (form && (Ext.isEmpty(ah) || ah)) {
 			var cnt = store.getCount();
 			if (cnt < 6) cnt = 6;//最少显示6行的高度 230
-			var height = 26*4+cnt*21;//4行固定高度+21个像素每行的高度
+			var height = 26*5+cnt*21;//5行固定高度+21个像素每行的高度
 			self.page.ownerCt.setHeight(height);
 			form.doLayout();//不加这行，当form出现滚动条时会挡住部分界面
 		}
@@ -593,7 +594,7 @@ Jxstar.GridNode.prototype = {
 			}
 			
 			//添加分页栏
-			if (self.state == '0' && self.define.showInForm) {
+			if (self.state == '0' && self.define.showInForm && !self.param.hidePageTool) {
 				var pagetool = new Ext.PagingToolbar({
 					border:false,
 					style:'padding:0;border-width:0;background:transparent repeat-x 0 -1px;',//去掉工具栏中顶部的白线，与占位高度
@@ -603,24 +604,6 @@ Jxstar.GridNode.prototype = {
 				tbar.add('-', pagetool); 
 				pagetool.inputItem.setHeight(18);
 				tbar.doLayout();
-			}
-			
-			//如果是单元选择模式，则增加选项“是否行选”
-			var sm = self.page.getSelectionModel();
-			if (self.state == '0' && sm instanceof Ext.grid.CellSelectionModel) {
-				var setSelMode = function(cb, checked){
-					var grid = self.page;
-					
-					grid.selModel.destroy();
-					if (checked) {
-						grid.selModel = new Ext.grid.RowSelectionModel();
-					} else {
-						grid.selModel = new Ext.grid.CellSelectionModel();
-					}
-					
-					grid.selModel.init(grid);
-				};
-				tbar.add('-', {xtype:'checkbox', boxLabel:'是否行选', handler:setSelMode}); 
 			}
 			
 			if (tbar.items != null && tbar.items.getCount() == 1) {

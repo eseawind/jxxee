@@ -533,6 +533,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 	/**
 	* private
 	* 提交时：检查是否存在已复核的记录；取消时：检查是否存在未复核记录
+	* auditval -- 1 表示删除、保存、提交检查；0 表示反提交检查
 	**/
 	checkAudit: function(auditval, srctype) {
 		var self = this;
@@ -552,8 +553,8 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		if (Ext.isEmpty(state)) state = self.audit0;
 		
 		if (auditval == self.audit0) {
-			if (state == self.audit0){
-				JxHint.alert(jx.event.curaudit0);		//'当前记录未复核，不能操作！'
+			if (state != self.audit1){
+				JxHint.alert(jx.event.curaudit0);	//'当前记录不是已提交，不能操作！'
 				return true;
 			}
 		} else if (auditval == self.audit1) {

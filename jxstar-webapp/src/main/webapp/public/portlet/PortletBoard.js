@@ -59,7 +59,7 @@ PortletBoard = {};
 				}
 				var panelHtml = self.createHtml(msgHtml, msgJson.length);
 				
-				target.add({html:panelHtml});
+				target.add({html:panelHtml,autoScroll:true});
 				target.doLayout();
 			}
 		};
@@ -108,9 +108,7 @@ PortletBoard = {};
 		);
 	
 		var rows = [];
-		//列表中只显示6条最新消息
-		var len = msgJson.length > 6 ? 6 : msgJson.length;
-		for (var i = 0; i < len; i++) {
+		for (var i = 0; i < msgJson.length; i++) {
 			var msgVal = {};
 			msgVal.msgid = msgJson[i].plet_msg__msg_id;
 			var msgtitle = msgJson[i].plet_msg__msg_title;

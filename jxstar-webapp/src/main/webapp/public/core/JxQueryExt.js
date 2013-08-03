@@ -20,6 +20,12 @@ JxQueryExt = {};
 	 * 构建查询方案选项控件
 	 */
 	showCase: function(nodeg) {
+		//只是把通用查询放在第二行
+		if (Jxstar.systemVar.page__query__two == '1') {
+			JxQueryExt.renderToolQry(nodeg);
+			return;
+		}
+		
 		var self = this, grid = nodeg.page;
 		var tbar = grid.getTopToolbar();
 		tbar.add('-');
@@ -110,9 +116,16 @@ JxQueryExt = {};
 			} else {
 				hcfgs = JxQueryExt.hcfg();
 		        Jxstar.addBaseQry(nodeg, hcfgs);
-				//如果查询做归档处理，则显示归档checkbox
-				if (nodeg.define.isarch == '1') {
-					hcfgs.add(JxQueryExt.archCfg);
+				//显示高级查询按钮
+				if (Jxstar.systemVar.page__query__two == '1') {
+					hcfgs.add({xtype:'button', iconCls:'eb_qryh', tooltip:jx.star.hqry, handler:function(){	//'高级查询'
+						Jxstar.showQuery(nodeg);
+					}});
+				} else {
+					//如果查询做归档处理，则显示归档checkbox
+					if (nodeg.define.isarch == '1') {
+						hcfgs.add(JxQueryExt.archCfg);
+					}
 				}
 			}
 			

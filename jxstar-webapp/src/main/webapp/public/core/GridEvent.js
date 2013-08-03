@@ -17,6 +17,7 @@ Jxstar.GridEvent = function(define) {
 	//设置业务状态值
 	this.audit0 = '0';
 	this.audit1 = '1';
+	this.audit2 = '2';
 	this.audit6 = '6';
 	this.audit_b = '';
 	this.audit_e = '7';//可以用于终止与注销
@@ -274,6 +275,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	/**
 	* private
 	* 提交时：检查是否存在已复核的记录；取消时：检查是否存在未复核记录
+	* auditval -- 1 表示删除、保存、提交检查；0 表示反提交检查
 	**/
 	checkAudit: function(auditval) {
 		if (Ext.isEmpty(auditval)) auditval = this.audit1;
@@ -287,13 +289,13 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			if (Ext.isEmpty(state)) state = this.audit0;
 			
 			if (auditval == this.audit0) {
-				if (state == this.audit0){
-					JxHint.alert(jx.event.selaudit0);	//选择的记录中存在未复核的记录，不能操作！
+				if (state != this.audit1){
+					JxHint.alert(jx.event.selaudit0);	//选择的记录不是已提交的记录，不能操作！
 					return true;
 				}
 			} else if (auditval == this.audit1) {
 				if (state != this.audit0 && state != this.audit6){
-					JxHint.alert(jx.event.selaudit1);	//选择的记录中存在已复核的记录，不能操作！
+					JxHint.alert(jx.event.selaudit1);	//选择的记录中存在已提交的记录，不能操作！
 					return true;
 				}
 			}
@@ -1725,6 +1727,14 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			}
 		};
 		viewPicture(url);
+	},
+	
+	/**
+	* public 
+	* 刷新数据
+	**/
+	refresh: function() {
+		this.grid.getStore().reload();
 	}
 });
 

@@ -180,6 +180,8 @@ JxPrint = {};
 				JxHint.alert(jx.print.selectno);	//'没有选择一条记录，不能执行此操作！'
 				return false;
 			}
+			//选择模式不处理归档
+			queryType = '1';
 		} else if (printScope == 'query') {
 			var wheres = this.queryWhere(pageNode);
 			whereSql = wheres[0];

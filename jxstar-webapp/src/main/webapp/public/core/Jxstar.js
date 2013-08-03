@@ -351,6 +351,9 @@ Ext.ns('Jxstar');
 
 					//添加节点点击事件，查询树形数据
 					tree.on('click', function(node){
+						//如果有自定义点击事件，则不处理
+						if (tree.hasCustClick) return;
+						
 						//切换到第一个标签页
 						if (tabPanel.isXType('tabpanel')) {
 							tabPanel.activate(tabPanel.getComponent(0));
@@ -963,6 +966,9 @@ Ext.ns('Jxstar');
 		* nodeId: 功能ID
 		*/
 		validNode: function(nodeId) {
+			//集成页面不判断授权
+			if (Jxstar.isone == '1') return true;
+			
 			var self = this;
 			//如果是管理员，则不校验
 			if (JxUtil.isAdminUser()) return true;

@@ -53,7 +53,7 @@ PortletMsg = {};
 			}
 			var panelHtml = PortletMsg.createHtml(msgHtml, msgJson.length);
 			
-			target.add({html:panelHtml});
+			target.add({html:panelHtml,autoScroll:true});
 			target.doLayout();
 		};
 		//加载显示“新”的消息记录
@@ -116,9 +116,7 @@ PortletMsg = {};
 		);
 	
 		var rows = [];
-		//列表中只显示6条最新消息
-		var len = msgJson.length > 6 ? 6 : msgJson.length;
-		for (var i = 0; i < len; i++) {
+		for (var i = 0; i < msgJson.length; i++) {
 			var msgVal = {}, data = msgJson[i];
 			
 			var msgid = data.msg_id,

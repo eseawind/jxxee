@@ -10,7 +10,7 @@
 	{col:{header:'序号', width:47, sortable:true, align:'right',
 		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.NumberField({
-			decimalPrecision:0, maxLength:12
+			decimalPrecision:0, maxLength:22
 		}),renderer:JxUtil.formatInt()}, field:{name:'rpt_list__report_index',type:'int'}},
 	{col:{header:'*报表名称', width:211, sortable:true, editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.TextField({
@@ -22,7 +22,7 @@
 		})}, field:{name:'rpt_list__report_file',type:'string'}},
 	{col:{header:'*所属功能', width:122, sortable:true, editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.TextField({
-			maxLength:25, allowBlank:false
+			maxLength:100, allowBlank:false
 		})}, field:{name:'rpt_list__fun_id',type:'string'}},
 	{col:{header:'*所属模块', width:100, sortable:true, editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.TextField({

@@ -49,9 +49,9 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
         this.createImage();
 
 		this.addbtn = this.wrap.createChild(this.addbtnCfg ||
-                {tag: "img", src: Ext.BLANK_IMAGE_URL, alt: "", cls: "x-form-image-btn x-tool " + this.addbtnCls, title: '上传图片', style: 'right:18px;'});
+                {tag: "img", src: Ext.BLANK_IMAGE_URL, alt: "", cls: "x-form-image-btn x-tool " + this.addbtnCls, title: '上传图片', style:'right:20px;'});
 		this.delbtn = this.wrap.createChild(this.delbtnCfg ||
-                {tag: "img", src: Ext.BLANK_IMAGE_URL, alt: "", cls: "x-form-image-btn x-tool " + this.delbtnCls, title: '删除图片'});				
+                {tag: "img", src: Ext.BLANK_IMAGE_URL, alt: "", cls: "x-form-image-btn x-tool " + this.delbtnCls, title: '删除图片', style:'right:2px;'});				
 		this.initBtn();
 		
 		this.resizeEl = this.positionEl = this.wrap;
@@ -61,8 +61,10 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
     afterRender : function(){
         Ext.ux.form.JxImageField.superclass.afterRender.call(this);
 		if(this.rendered){
-			this.imageEl.setWidth(this.imageEl.getWidth() - 2);
-			this.imageEl.setHeight(this.imageEl.getHeight() - 18);
+			JxUtil.delay(500, function() {//在fieldset中计算宽度不准，要加延时
+				this.imageEl.setWidth(this.imageEl.getWidth() - 2);
+				//this.imageEl.setHeight(this.imageEl.getHeight() - 20);
+			}, this);
 			this.loadImage(Ext.BLANK_IMAGE_URL);
 		}
     },
@@ -167,7 +169,13 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 				url = this.uploadUrl;
 			}
 			
-			this.imageUrl = url + '/fileAction.do?' + param.params + '&dataType=byte&&nousercheck=1&dc=' + (new Date()).getTime();
+			param = param.params;
+			//加载图片前的事件
+			if (this.loadImageParam) {
+				param = this.loadImageParam(this);
+			}
+			
+			this.imageUrl = url + '/fileAction.do?' + param + '&dataType=byte&&nousercheck=1&dc=' + (new Date()).getTime();
 		}
 		this.imageEl.dom.src = this.imageUrl;
 	},

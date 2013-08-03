@@ -162,6 +162,7 @@ JxGroupExt = {};
 		
 		//保存统计方案
 		var hdcall = function(text) {
+			var e = encodeURIComponent;
 			var chars = '', chartitles = '', nums = '', numtitles = '';
 			//取分组字段
 			charStore.each(function(r){
@@ -184,8 +185,8 @@ JxGroupExt = {};
 				store.reload();
 			};
 			var params = 'funid=sys_stat&statfunid=' + self.funid +'&pagetype=grid&eventcode=savecase';
-				params += '&keyid=' + self.selStatId + '&statname=' + text + '&chars=' + chars;
-				params += '&chartitles=' + chartitles + '&nums=' + nums + '&numtitles=' + numtitles;
+				params += '&keyid=' + self.selStatId + '&statname=' + e(text) + '&chars=' + e(chars);
+				params += '&chartitles=' + e(chartitles) + '&nums=' + nums + '&numtitles=' + e(numtitles);
 			Request.dataRequest(params, endcall);
 		};
 		

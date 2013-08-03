@@ -51,7 +51,7 @@ PortletWarn = {};
 				warnHtml = PortletWarn.createPortlet(warnJson);
 			}
 			
-			target.add({html:warnHtml});
+			target.add({html:warnHtml,autoScroll:true});
 			target.doLayout();
 		};
 		//加载显示“待办任务”的上报消息

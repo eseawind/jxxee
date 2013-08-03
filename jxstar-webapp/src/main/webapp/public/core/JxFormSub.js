@@ -94,6 +94,18 @@ JxFormSub = {};
 						Jxstar.loadSubData(subgrid, pkvalue);
 					}
 					
+					//设置子表标题栏的点击事件
+					if (subp.header) {
+						subp.header.setStyle('cursor', 'pointer');
+						subp.header.on('click', function(){
+							if (this.collapsed) {
+								this.expand(true);
+							} else {
+								this.collapse(true);
+							}
+						}, subp);
+					}
+					
 					//可以调整明细表的大小
 					if (fm.subResizable && subp.el && (subp.outRe == null)) {
 						var re = new Ext.Resizable(subp.el, {

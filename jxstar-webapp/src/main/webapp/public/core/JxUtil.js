@@ -65,7 +65,7 @@ JxUtil = {};
 			Jxstar.showData({
 				filename: define.gridpage,
 				title: define.nodetitle,
-				pagetype: 'notool',
+				//pagetype: 'notool',
 				width: 360,
 				height: 450,
 				callback: hdcall
