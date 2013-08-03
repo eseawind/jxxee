@@ -113,7 +113,13 @@ public class ExportStatBO extends BusinessObject {
 				//是否为数字，设置不同的样式
 				boolean isDouble = StringValidator.validValue(value, 
 						StringValidator.DOUBLE_TYPE);
-				if (isDouble && value.length() > 0) {//空值会报错
+				//第一列为标题显示文本；科学计数法的值都显示为文本
+				boolean isNum = false;
+				if (j > 1 && isDouble && value.length() > 0) {
+					String v = Double.toString(Double.parseDouble(value));
+					if (v.indexOf('E') < 0) isNum = true;
+				}
+				if (isNum) {
 					sfCell.setCellType(HSSFCell.CELL_TYPE_NUMERIC);
 					sfCell.setCellValue(Double.parseDouble(value));
 				} else {
