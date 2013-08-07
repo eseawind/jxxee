@@ -88,6 +88,7 @@ public class CameraBO extends BusinessObject {
 		String srcFile = requestContext.getRequestValue("pic_file");
 		String fileName = FileUtil.getFileName(srcFile);
 		String destFile = filePath + "/" + fileName;
+		_log.showDebug("srcfile=" + srcFile + ";destfile=" + destFile);
 		//拷贝文件
 		boolean ret = FileUtil.moveFile(srcFile, destFile, true);
 		if (!ret) {
