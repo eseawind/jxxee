@@ -48,7 +48,7 @@ public class CommonAction extends Action {
 			try {
 				response.getWriter().write(reponseText);
 			} catch (IOException e) {
-				e.printStackTrace();
+				_log.showError(e);
 			}
 		}
 	}
