@@ -6,14 +6,12 @@
  */
 package org.jxstar.control.action;
 
-import java.io.IOException;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.jxstar.report.Report;
-import org.jxstar.report.ReportException;
 import org.jxstar.report.util.ReportFactory;
 import org.jxstar.util.MapUtil;
 
@@ -68,10 +66,8 @@ public class ReportHtmlAction extends Action {
             if (printMode.equals("1")) {
             	response.getWriter().println("f_window_print();");
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ReportException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+        	_log.showError(e);
         }
     }
 }
