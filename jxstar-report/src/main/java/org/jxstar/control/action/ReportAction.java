@@ -6,7 +6,6 @@
  */
 package org.jxstar.control.action;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -123,7 +122,7 @@ public class ReportAction extends Action {
 			
 			//构建报表输出对象
 			ret = report.output();
-		} catch (ReportException e) {
+		} catch (Exception e) {
 			_log.showError(e);
 			context.setMessage(e.getMessage(), false);
 			return null;
@@ -158,8 +157,8 @@ public class ReportAction extends Action {
 		//重定向到报表目标文件
         try {
             response.sendRedirect(url);
-        } catch (IOException e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+        	_log.showError(e);
         }
 	}
 	
@@ -187,7 +186,7 @@ public class ReportAction extends Action {
 			out.close();
 			_log.showDebug("---------file output end!");
 		} catch (Exception e) {
-			e.printStackTrace();
+			_log.showError(e);
 		}
 	}
 	
@@ -298,7 +297,7 @@ public class ReportAction extends Action {
 			} else {
 				mainSql = ReportDao.getMainAreaSql(funid, reportId, whereSql, userid, queryType);
 			}
-		} catch (ReportException e) {
+		} catch (Exception e) {
 			_log.showError(e);
 			
 			context.setMessage(e.getMessage(), false);
@@ -358,8 +357,8 @@ public class ReportAction extends Action {
 				msg = "输出报表文件出错！";
 			}
 			response.getWriter().write(msg);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			_log.showError(e);
 		}
 	}
 }

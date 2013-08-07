@@ -6,7 +6,6 @@
  */
 package org.jxstar.control.action;
 
-import java.io.IOException;
 import java.util.Map;
 
 import javax.servlet.ServletOutputStream;
@@ -39,8 +38,8 @@ public class FileAction extends Action {
 			//反馈响应信息
 			try {
 				response.getWriter().write(reponseText);
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				_log.showError(e);
 			}
 		}
 	}
@@ -152,8 +151,8 @@ public class FileAction extends Action {
 				out.flush();
 				out.close();
 				_log.showDebug("---------file output end!");
-			} catch (IOException e) {
-				e.printStackTrace();
+			} catch (Exception e) {
+				_log.showError(e);
 			}
 			return null;
 		} else {
