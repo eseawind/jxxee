@@ -57,22 +57,28 @@ public class ReportAction extends Action {
 		//报表输出类型
 		String printType = (String) initParam.get("printType");
 		
-		//输出excel报表
-		if (printType.equals("xls")) {
-			HSSFWorkbook xlswb = (HSSFWorkbook) outputXls(context);
-			if (xlswb == null) {
-				responseWrite(response, context.getMessage());
-				return;
+		//捕获所有异常，提高服务的稳定性
+		try {
+			//输出excel报表
+			if (printType.equals("xls")) {
+				HSSFWorkbook xlswb = (HSSFWorkbook) outputXls(context);
+				if (xlswb == null) {
+					responseWrite(response, context.getMessage());
+					return;
+				}
+				
+				String reportName = (String) initParam.get("reportName");
+				responseXls(xlswb, reportName, request, response);
+			} else if (printType.equals("html")) {
+			//输出html报表
+				outputHtml(initParam, request, response);
+			} else {
+			//当前报表类型不支持
+				_log.showWarn("print type ["+ printType +"] is not valid!!");
 			}
-			
-			String reportName = (String) initParam.get("reportName");
-			responseXls(xlswb, reportName, request, response);
-		} else if (printType.equals("html")) {
-		//输出html报表
-			outputHtml(initParam, request, response);
-		} else {
-		//当前报表类型不支持
-			_log.showWarn("print type ["+ printType +"] is not valid!!");
+		} catch (Exception e) {
+			_log.showError(e);
+			return;
 		}
 	}
 	

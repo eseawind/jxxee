@@ -29,7 +29,13 @@ public class FileAction extends Action {
 	
 	public void execute(HttpServletRequest request,
 			HttpServletResponse response) {
-		ResponseContext responseContext = processAction(request, response);
+		ResponseContext responseContext = null;
+		try {//捕获所有异常，提高服务的稳定性
+			responseContext = processAction(request, response);
+		} catch (Exception e) {
+			_log.showError(e);
+			return;
+		}
 		
 		if (responseContext != null) {
 			String reponseText = responseContext.reponseText();
