@@ -627,7 +627,7 @@ JxSelect = {};
 								setData(incb, record);
 							}
 							if (readonly == '0') {
-								cb.setValue(value);
+								ed.setValue(value);
 							}
 						});
 					}

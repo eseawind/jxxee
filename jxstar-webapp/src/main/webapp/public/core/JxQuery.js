@@ -367,7 +367,32 @@ JxQuery = {};
 			cancelText: jx.base.cancel,	//'取消'
 			
 			listeners: {
-				show: function(){selectField(fieldCombo, true);}
+				show: function(){selectField(fieldCombo, true);},
+				validateedit: function(ed, changes, r, rowIndex){
+					//判断s是否包含不是c的字符
+					var ischar = function(s, c) {
+						if (s != null && s.length > 0) {
+							for (var i = 0; i < s.length; i++) {
+								if (s.charAt(i) != c) {
+									return false;
+								}
+							}
+						}
+						return true;
+					};
+					//括号字段只能输入()
+					var lv = changes['left_brack'];
+					var rv = changes['right_brack'];
+					if (lv != null && lv.length > 0 && !ischar(lv, '(')) {
+						JxHint.alert('列【（】中只能输入 ( 字符！');
+						return false;
+					}
+					if (rv != null && rv.length > 0 && !ischar(rv, ')')) {
+						JxHint.alert('列【）】中只能输入 ) 字符！');
+						return false;
+					}
+					return true;
+				}
 			}
 		});
 		//覆盖该方法，可以不提交修改进入下一行，但会有脚本错误
@@ -438,7 +463,9 @@ JxQuery = {};
 			//取原字段的值
 			var rowIndex = editor.lastClickIndex;
 			var record = condStore.getAt(rowIndex);
-			var oldval = record.get('cond_value');
+			var oldval ='';
+			if(record != null) oldval = record.get('cond_value');
+			
 			if (field.isXType('datefield')) {
 				oldval = Ext.isDate(oldval) ? oldval.dateFormat('Y-m-d') : oldval;
 				if (oldval.length > 0) oldval = oldval.split(' ')[0];

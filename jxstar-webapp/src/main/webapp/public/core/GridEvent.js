@@ -1140,8 +1140,9 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		
 		//取当前功能ID
 		var nodeid = this.define.nodeid;
+		var isAttach = this.define.isAttach;
 		//如果是图文附件功能的新增按钮
-		if (nodeid == 'sys_attach' || nodeid == 'project_attach') {
+		if (nodeid == 'sys_attach' || nodeid == 'project_attach' || isAttach) {
 			//取来源数据记录ID
 			dataId = this.grid.attachDataId || '';
 			//取来源数据功能ID
@@ -1189,7 +1190,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 					}}
 				});
 				win.on('close', function(){
-					if (nodeid == 'sys_attach' || nodeid == 'project_attach') {
+					if (nodeid == 'sys_attach' || nodeid == 'project_attach' || isAttach) {
 						self.grid.getStore().reload();
 					}
 				});
@@ -1276,7 +1277,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 					//上传成功后关闭窗口并刷新数据
 					var hdCall = function() {
 						win.close();
-						if (nodeid == 'sys_attach' || nodeid == 'project_attach' || attachField) {
+						if (nodeid == 'sys_attach' || nodeid == 'project_attach' || attachField || isAttach) {
 							self.grid.getStore().reload();
 						}
 					};
