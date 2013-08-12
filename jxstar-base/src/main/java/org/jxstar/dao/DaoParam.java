@@ -7,7 +7,7 @@
 package org.jxstar.dao;
 
 import java.util.List;
-
+import java.util.Map;
 
 import org.jxstar.dao.pool.DataSourceConfig;
 import org.jxstar.dao.util.SQLParseException;
@@ -30,6 +30,8 @@ public class DaoParam {
 	private boolean _useParse = false;
 	//是否支持公共事务
 	private boolean _useTransaction = true; 
+	//是否加载字段元数据
+	private boolean _useFieldData = false;
 	//执行SQL
 	private String _sql = "";
 	//参数类型
@@ -38,7 +40,9 @@ public class DaoParam {
 	private List<String> _lsValue = null;
 	//不显示值的字段名，不带表名
 	private List<String> _hideCols = null;
-
+	//读取字段元数据
+	private List<Map<String,String>> _fieldData = null;
+	
 	public DaoParam() {
 		_lsType = FactoryUtil.newList();
 		_lsValue = FactoryUtil.newList();
@@ -233,15 +237,23 @@ public class DaoParam {
 		if (_hideCols != null) {
 			_hideCols.clear();
 		}
+		if (_fieldData != null) {
+			_fieldData.clear();
+		}
 		
 		return this;
 	}
+	
+	/*****************************扩展参数用法********************************/
 	
 	/**
 	 * 取不显示数据的字段名，不带表名
 	 * @return
 	 */
 	public List<String> getHideCols() {
+		if (_hideCols == null) {
+			_hideCols = FactoryUtil.newList();
+		}
 		return _hideCols;
 	}
 
@@ -251,5 +263,41 @@ public class DaoParam {
 	 */
 	public void setHideCols(List<String> hideCols) {
 		this._hideCols = hideCols;
+	}
+	
+	/**
+	 * 是否需要读取字段元数据，在查询数据时需要用。
+	 * @return
+	 */
+	public boolean isUseFieldData() {
+		return _useFieldData;
+	}
+	
+	/**
+	 * 外部用户使用。
+	 * @param useFieldData
+	 */
+	public void setUseFieldData(boolean useFieldData) {
+		_useFieldData = useFieldData;
+	}
+	
+	/**
+	 * 获取结果集中的字段信息，Map中的字段有：fieldname, datatype, length, precision, scale
+	 * @return
+	 */
+	public List<Map<String,String>> getFieldData() {
+		if (_fieldData == null) {
+			_fieldData = FactoryUtil.newList();
+		}
+		return _fieldData;
+	}
+	
+	/**
+	 * 设置字段元数据
+	 * @param fieldData
+	 * @return
+	 */
+	public List<Map<String,String>> setFieldData(List<Map<String,String>> fieldData) {
+		return _fieldData = fieldData;
 	}
 }
