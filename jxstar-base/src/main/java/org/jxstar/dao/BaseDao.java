@@ -152,14 +152,17 @@ public class BaseDao {
 			
 			DaoUtil.showUpdateTime(curTime, sql);
 		} catch(TransactionException e) {
+			param.setError(e.getMessage());
 			DaoUtil.closeTranObj(tranObj);
 			DaoUtil.showException(e, sql);
 			return false;
 		} catch (SQLException e) {
+			param.setError(e.getMessage());
 			DaoUtil.closeTranObj(tranObj);
 			DaoUtil.showException(e, sql);
 			return false;
 		} catch (Exception e) {
+			param.setError(e.getMessage());
 			DaoUtil.closeTranObj(tranObj);
 			DaoUtil.showException(e, sql);
 			return false;
@@ -175,6 +178,7 @@ public class BaseDao {
 					con = null;
 				}
 			} catch (SQLException e) {
+				param.setError(e.getMessage());
 				_log.showError(e);
 			}
 			
@@ -277,10 +281,12 @@ public class BaseDao {
 				tranObj.commit();
 			}
 		} catch(SQLException e) {
+			param.setError(e.getMessage());
 			DaoUtil.closeTranObj(tranObj);
 			DaoUtil.showException(e, sql);
 			return lsRet;
 		} catch (Exception e) {
+			param.setError(e.getMessage());
 			DaoUtil.closeTranObj(tranObj);
 			DaoUtil.showException(e, sql);
 			return lsRet;
@@ -298,6 +304,7 @@ public class BaseDao {
 					con = null;
 				}
 			} catch (SQLException e) {
+				param.setError(e.getMessage());
 				_log.showError(e);
 			}
 		}

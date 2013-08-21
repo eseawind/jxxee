@@ -32,6 +32,8 @@ public class DaoParam {
 	private boolean _useTransaction = true; 
 	//是否加载字段元数据
 	private boolean _useFieldData = false;
+	//返还错误信息
+	private String _error = "";
 	//执行SQL
 	private String _sql = "";
 	//参数类型
@@ -234,6 +236,7 @@ public class DaoParam {
 		_lsType.clear();
 		_lsValue.clear();
 		_dsName = "";
+		_error = "";
 		if (_hideCols != null) {
 			_hideCols.clear();
 		}
@@ -299,5 +302,21 @@ public class DaoParam {
 	 */
 	public List<Map<String,String>> setFieldData(List<Map<String,String>> fieldData) {
 		return _fieldData = fieldData;
+	}
+	
+	/**
+	 * 返还DAO执行的异常信息
+	 * @return
+	 */
+	public String getError() {
+		return _error;
+	}
+
+	/**
+	 * 设置DAO执行的异常信息
+	 * @param errorMsg
+	 */
+	public void setError(String msg) {
+		this._error = msg;
 	}
 }
