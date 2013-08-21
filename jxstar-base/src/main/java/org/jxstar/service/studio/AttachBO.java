@@ -226,6 +226,9 @@ public class AttachBO extends BusinessObject {
 			}
 		}
 		
+		//保存附件类型
+		saveType(attachId, requestContext);
+		
 		return _returnSuccess;
 	}
 	
@@ -409,5 +412,18 @@ public class AttachBO extends BusinessObject {
 		param.addStringValue(userId);
 		
 		return _dao.queryMap(param);
+	}
+	
+	//保存附件类型；为了方便升级，此代码暂时不融入到insertRecord方法中
+	private boolean saveType(String attachId, RequestContext request) {
+		String typeData = request.getRequestValue("attach_type");
+		if (typeData.length() == 0) return true;
+		
+		String sql = "update sys_attach set attach_type = ? where attach_id = ?";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(typeData);
+		param.addStringValue(attachId);
+		
+		return _dao.update(param);
 	}
 }
