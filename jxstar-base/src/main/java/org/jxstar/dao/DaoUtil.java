@@ -19,7 +19,6 @@ import java.util.Map;
 
 import org.jxstar.dao.transaction.TransactionException;
 import org.jxstar.dao.transaction.TransactionObject;
-import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.StringUtil;
 import org.jxstar.util.config.SystemVar;
 import org.jxstar.util.factory.FactoryUtil;
@@ -378,9 +377,9 @@ public class DaoUtil {
 	 * 打印查询时间，并打印超长时间的SQL。
 	 * 
 	 * @param long			开始时间
-	 * @param String		执行的SQL
+	 * @param DaoParam		执行的SQL
 	 */
-	public static void showUpdateTime(long startTime, String sql) {
+	public static void showUpdateTime(long startTime, DaoParam param) {
 		long curQueryTime = System.currentTimeMillis() - startTime;
 		//是否显示所有查询时间
 		String isShow = SystemVar.getValue("db.show.querytime");
@@ -391,9 +390,13 @@ public class DaoUtil {
 		//查询超时提醒时间
 		String maxTime = SystemVar.getValue("db.max.querytime", "5000");
 		if (curQueryTime > Integer.parseInt(maxTime)) {
-			StringBuilder sbError = new StringBuilder();
-			sbError.append("update time = " + curQueryTime + "; update time out sql = " + sql);
-			_log.showWarn(sbError.toString());
+			StringBuilder sb = new StringBuilder();
+			sb.append("\nupdate time = ").append(curQueryTime);
+			sb.append("\nupdate time exe_sql = ").append(param.getSql());
+			sb.append("\nupdate time where_type = ").append(param.strType());
+			sb.append("\nupdate time where_value = ").append(param.strValue());
+			
+			_log.showError(sb.toString());
 		}
 	}
 	
@@ -401,9 +404,9 @@ public class DaoUtil {
 	 * 打印查询时间，并打印超长时间的SQL。
 	 * 
 	 * @param long			开始时间
-	 * @param String		执行的SQL
+	 * @param DaoParam		执行的SQL
 	 */
-	public static void showQueryTime(long startTime, String sql) {
+	public static void showQueryTime(long startTime, DaoParam param) {
 		long curQueryTime = System.currentTimeMillis() - startTime;
 		//是否显示所有查询时间
 		String isShow = SystemVar.getValue("db.show.querytime", "0");
@@ -414,9 +417,13 @@ public class DaoUtil {
 		//查询超时提醒时间
 		String maxTime = SystemVar.getValue("db.max.querytime", "5000");
 		if (curQueryTime > Integer.parseInt(maxTime)) {
-			StringBuilder sbError = new StringBuilder();
-			sbError.append("query time = " + curQueryTime + "; query time out sql = " + sql);
-			_log.showWarn(sbError.toString());
+			StringBuilder sb = new StringBuilder();
+			sb.append("\nquery time = ").append(curQueryTime);
+			sb.append("\nquery time exe_sql = ").append(param.getSql());
+			sb.append("\nquery time where_type = ").append(param.strType());
+			sb.append("\nquery time where_value = ").append(param.strValue());
+			
+			_log.showError(sb.toString());
 		}
 	}	
 	
@@ -436,13 +443,12 @@ public class DaoUtil {
 			 isShow.equals("2") && type.equals("2"));	//只显示更新SQL
 		if (!valid) return;
 		
-		String sql = param.getSql();
-		String[] vals = ArrayUtil.listToArray(param.getValue());
-		String value =  ArrayUtil.arrayToString(vals);
-		
 		StringBuilder sb = new StringBuilder();
-		sb.append("ThreadId=").append(Thread.currentThread().hashCode()).append(";\nSQL=");
-		sb.append(sql).append(";\nPARAM=").append(value).append("\n");
+		sb.append("\nthreadid = ").append(Thread.currentThread().hashCode());
+		sb.append("\nexe_sql = ").append(param.getSql());
+		sb.append("\nwhere_type = ").append(param.strType());
+		sb.append("\nwhere_value = ").append(param.strValue());
+		
 		_log.showError(sb.toString());
 	}
 	
@@ -450,12 +456,15 @@ public class DaoUtil {
 	 * 显示异常信息。
 	 * 
 	 * @param Exception		异常对象
-	 * @param String		执行的SQL
+	 * @param DaoParam		执行的SQL
 	 */
-	public static void showException(Exception e, String sql) {
-		StringBuilder sbError = new StringBuilder();
-		sbError.append("SQLException: Excute SQL = " + sql);
-		_log.showWarn(sbError.toString());
+	public static void showException(Exception e, DaoParam param) {
+		StringBuilder sb = new StringBuilder();
+		sb.append("\nexe_sql = ").append(param.getSql());
+		sb.append("\nwhere_type = ").append(param.strType());
+		sb.append("\nwhere_type = ").append(param.strValue());
+		
+		_log.showError(sb.toString());
 		_log.showError(e);
 	}
 	

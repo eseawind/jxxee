@@ -150,21 +150,21 @@ public class BaseDao {
 				}
 			}
 			
-			DaoUtil.showUpdateTime(curTime, sql);
+			DaoUtil.showUpdateTime(curTime, param);
 		} catch(TransactionException e) {
 			param.setError(e.getMessage());
 			DaoUtil.closeTranObj(tranObj);
-			DaoUtil.showException(e, sql);
+			DaoUtil.showException(e, param);
 			return false;
 		} catch (SQLException e) {
 			param.setError(e.getMessage());
 			DaoUtil.closeTranObj(tranObj);
-			DaoUtil.showException(e, sql);
+			DaoUtil.showException(e, param);
 			return false;
 		} catch (Exception e) {
 			param.setError(e.getMessage());
 			DaoUtil.closeTranObj(tranObj);
-			DaoUtil.showException(e, sql);
+			DaoUtil.showException(e, param);
 			return false;
 		} finally {
 			try {
@@ -265,7 +265,7 @@ public class BaseDao {
 
 			long curTime = System.currentTimeMillis();
 			rs = ps.executeQuery();
-			DaoUtil.showQueryTime(curTime, sql);
+			DaoUtil.showQueryTime(curTime, param);
 			
 			List<String> hcs = param.getHideCols();
 			//结果集转换为List对象
@@ -283,12 +283,12 @@ public class BaseDao {
 		} catch(SQLException e) {
 			param.setError(e.getMessage());
 			DaoUtil.closeTranObj(tranObj);
-			DaoUtil.showException(e, sql);
+			DaoUtil.showException(e, param);
 			return lsRet;
 		} catch (Exception e) {
 			param.setError(e.getMessage());
 			DaoUtil.closeTranObj(tranObj);
-			DaoUtil.showException(e, sql);
+			DaoUtil.showException(e, param);
 			return lsRet;
 		} finally {
 			try {

@@ -52,8 +52,10 @@ public class BaseDaoTest extends AbstractTest {
 	}
 	
 	public static void test2() {
-		DaoParam param1 = _dao.createParam("select table_title from dm_tablecfg where table_name = 'mat_app' ");
+		DaoParam param1 = _dao.createParam("select table_title from dm_tablecfg1 where table_name = ? or table_name = ?  ");
 		param1.setUseTransaction(false);
+		param1.addStringValue("mat_app");
+		param1.addDateValue("2013-09-10");
 		Map<String,String> mp = _dao.queryMap(param1);
 		System.out.println("table_title=" + mp.get("table_title"));
 	}

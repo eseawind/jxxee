@@ -147,18 +147,18 @@ public class CallDao {
 				tranObj.commit();
 			}
 			
-			DaoUtil.showUpdateTime(curTime, sql);
+			DaoUtil.showUpdateTime(curTime, param);
 		} catch(TransactionException e) {
 			DaoUtil.closeTranObj(tranObj);
-			DaoUtil.showException(e, sql);
+			DaoUtil.showException(e, param);
 			return false;
 		} catch (SQLException e) {
 			DaoUtil.closeTranObj(tranObj);
-			DaoUtil.showException(e, sql);
+			DaoUtil.showException(e, param);
 			return false;
 		} catch (Exception e) {
 			DaoUtil.closeTranObj(tranObj);
-			DaoUtil.showException(e, sql);
+			DaoUtil.showException(e, param);
 			return false;
 		} finally {
 			try {

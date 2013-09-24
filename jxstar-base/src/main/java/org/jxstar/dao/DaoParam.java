@@ -126,6 +126,40 @@ public class DaoParam {
 		return _lsValue;
 	}
 	
+	/**
+	 * 反馈参数数据类型，如：string;string;date
+	 * @return
+	 */
+	public String strType() {
+		if (_lsType == null || _lsType.isEmpty()) {
+			return "";
+		}
+		StringBuilder sb = new StringBuilder();
+		int cnt = _lsType.size();
+		for (int i = 0; i < cnt; i++) {
+			sb.append(_lsType.get(i));
+			if (i < cnt-1) sb.append(";");
+		}
+		return sb.toString();
+	}
+	
+	/**
+	 * 反馈参数数据值，如：1;abc;2013-09-10
+	 * @return
+	 */
+	public String strValue() {
+		if (_lsValue == null || _lsValue.isEmpty()) {
+			return "";
+		}
+		StringBuilder sb = new StringBuilder();
+		int cnt = _lsValue.size();
+		for (int i = 0; i < cnt; i++) {
+			sb.append(_lsValue.get(i));
+			if (i < cnt-1) sb.append(";");
+		}
+		return sb.toString();
+	}
+	
 	public DaoParam setDsName(String name) {
 		_dsName = name;
 		return this;
