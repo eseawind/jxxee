@@ -488,7 +488,7 @@ JxQuery = {};
 			//保存字段数据类型
 			editor.record.set('coltype', coltype);
 		};
-		fieldCombo.on('select', function(combo){selectField(combo, false);});
+		fieldCombo.on('select', function(combo){selectField(combo, true);});
 		
 		//创建列对象
 		var cm = new Ext.grid.ColumnModel([sm,
@@ -606,6 +606,7 @@ JxQuery = {};
 			}
 			
 			var query = self.getQuery(condStore);
+			if (query == null) return false;
 			condStore.commitChanges();
 			
 			//高级查询能查询到已提交记录，不处理归档
@@ -642,6 +643,11 @@ JxQuery = {};
 			buttons: buttons
 		});
 		
+		//点击一条记录时显示字段值控件，防止combo控件中直接输入值
+		condGrid.on('rowdblclick', function(g, row){
+			fieldCombo.fireEvent('select', fieldCombo);
+		});
+		
 		return condGrid;
 	},
 	
@@ -656,6 +662,7 @@ JxQuery = {};
 		
 		var query = new Array('','','');
 		
+		var lb = '', rb = '';//记录左括号长度与右括号长度，如果长度相等则说明括号匹配。
 		for (var i = 0; i < store.getCount(); i++) {
 			var data;
 			if (store.getAt) {
@@ -671,6 +678,9 @@ JxQuery = {};
 			var right_brack = data['right_brack'];
 			var andor = data['andor'];
 			var coltype = data['coltype'];
+			
+			lb += left_brack.trim();
+			rb += right_brack.trim();
 			
 			if (Ext.isEmpty(cond_value)) continue;
 			
@@ -707,6 +717,11 @@ JxQuery = {};
 				query[1] += values[0] + ";";
 				query[2] += values[1] + ";";
 			}
+		}
+		
+		if (lb.length != rb.length) {
+			JxHint.alert('左边与右边的括号不匹配，不能执行查询！');
+			return null;
 		}
 		
 		if (query[0].length > 0) {
