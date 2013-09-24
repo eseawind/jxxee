@@ -207,7 +207,7 @@ Jxstar.currentPage = function(define, pageParam) {
 			region:'west',
 			layout:'fit',
 			width:160,
-			minSize: 160,
+			minSize: 0,
 	        maxSize: 300,
 			split:true,
 			border:false,

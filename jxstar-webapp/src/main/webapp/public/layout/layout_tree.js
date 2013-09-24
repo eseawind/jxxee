@@ -34,7 +34,7 @@ Jxstar.currentPage = function(define, pageParam) {//pageType, parentNodeId
 			region:'west',
 			layout:'fit',
 			width:160,
-			minSize: 160,
+			minSize: 0,
 	        maxSize: 300,
 			split:true,
 			border:false,

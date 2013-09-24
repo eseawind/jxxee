@@ -1116,7 +1116,8 @@ Ext.ns('Jxstar');
 							}
 						} else {
 							var oldcmp = mc.editor;
-							Ext.apply(oldcmp.initialConfig, {allowBlank:true, editable:true, cls:''});
+							var r = (!oldcmp.isXType('combo'));
+							Ext.apply(oldcmp.initialConfig, {allowBlank:true, editable:r, cls:''});
 							field = new oldcmp.constructor(oldcmp.initialConfig);
 						}
 						break;

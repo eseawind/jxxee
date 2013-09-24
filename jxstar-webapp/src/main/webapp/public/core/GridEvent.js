@@ -1201,6 +1201,47 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			return;
 		}
 		
+		//表单参数
+		var formItems = [{
+			xtype: 'fileuploadfield',
+			useType: 'file',
+			maxLength: 50,
+			fieldLabel: jx.event.selfile,	//选择文件
+			name: attachField || 'attach_path',
+			labelSeparator:'*', 
+			buttonText: '',
+			buttonCfg: {
+				iconCls: 'upload_icon'
+			},
+			listeners:{
+				fileselected: function(f, path) {
+					var len = path.length;
+					if (len > 0) {
+						var pos = path.lastIndexOf('\\');
+						if (pos >= 0) {
+							path = path.substr(pos+1, len);
+						}
+					}
+					queryForm.getForm().findField('attach_name').setValue(path);
+				}
+			}
+		},{
+			xtype: 'textfield',
+			fieldLabel: jx.event.upname,	//附件名称
+			name: 'attach_name',
+			labelSeparator:'*', maxLength:50
+		}];
+		var formHeight = 160;
+		//自定义资料类型控件
+		var comboType = this.grid.attachTypeCombo;
+		if (comboType) {
+			if (typeof comboType == 'function') {
+				comboType = comboType();
+			}
+			formHeight = 190;
+			formItems.insert(0, comboType);
+		};
+		
 		var queryForm = new Ext.form.FormPanel({
 				layout:'form', 
 				labelAlign:'right',
@@ -1214,37 +1255,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 					allowBlank: false,
 					msgTarget: 'side'
 				},
-				items: [
-				{
-					xtype: 'fileuploadfield',
-					useType: 'file',
-					maxLength: 50,
-					fieldLabel: jx.event.selfile,	//选择文件
-					name: attachField || 'attach_path',
-					labelSeparator:'*', 
-					buttonText: '',
-					buttonCfg: {
-						iconCls: 'upload_icon'
-					},
-					listeners:{
-						fileselected: function(f, path) {
-							var len = path.length;
-							if (len > 0) {
-								var pos = path.lastIndexOf('\\');
-								if (pos >= 0) {
-									path = path.substr(pos+1, len);
-								}
-							}
-							queryForm.getForm().findField('attach_name').setValue(path);
-						}
-					}
-				},{
-					xtype: 'textfield',
-					fieldLabel: jx.event.upname,	//附件名称
-					name: 'attach_name',
-					labelSeparator:'*', maxLength:50
-				}
-				]
+				items: formItems
 			});
 
 		//创建对话框
@@ -1252,7 +1263,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 			title:jx.event.uptitle,	//上传附件
 			layout:'fit',
 			width:400,
-			height:160,
+			height:formHeight,
 			resizable: false,
 			modal: true,
 			closeAction:'close',
@@ -1272,6 +1283,11 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 						params += '&eventcode=fcreate&table_name=' + tableName;
 					} else {
 						params += '&eventcode=create';
+					}
+					//因为form发送post请求时取的显示值，所以要转换一下
+					var attach_type = form.get('attach_type_combo');
+					if (attach_type.length > 0) {
+						params += '&attach_type=' + attach_type;
 					}
 					
 					//上传成功后关闭窗口并刷新数据
@@ -1323,13 +1339,18 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		
 		//过滤条件，支持扩展方法（个人消息查看功能）
 		var options = {};
-		if (typeof this.uploadWhereParam == 'function') {
-			options = this.uploadWhereParam();
+		if (typeof self.uploadWhereParam == 'function') {
+			options = self.uploadWhereParam();
 		} else {
-			var tablename = this.define.tablename;
+			var tablename = self.define.tablename;
 			options.where_sql = 'sys_attach.data_id = ? and sys_attach.table_name = ?';
 			options.where_type = 'string;string';
 			options.where_value = keyid+';'+tablename;
+		}
+		//扩展资料类型控件
+		var comboType = null;
+		if (typeof self.grid.attachTypeCombo == 'function') {
+			comboType = self.grid.attachTypeCombo();
 		}
 		
 		//加载数据
@@ -1340,11 +1361,15 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 				grid.attachDataId = keyid;
 				grid.attachFunId = nodeid;
 				grid.attachDeled = deled;
+				if (comboType) {//如果有自定义类型，则覆盖
+					grid.attachTypeCombo = comboType;
+				}
 				//删除GRID的自定义参数
 				grid.on('beforedestroy', function(gp){
 					gp.attachDataId = null;		delete gp.attachDataId;
 					gp.attachFunId = null;		delete gp.attachFunId;
 					gp.attachDeled = null;		delete gp.attachDeled;
+					gp.attachTypeCombo = null;	delete gp.attachTypeCombo;
 					gp = null;
 					return true;
 				});

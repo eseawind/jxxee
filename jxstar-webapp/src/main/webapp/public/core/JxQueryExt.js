@@ -245,7 +245,8 @@ JxQueryExt = {};
 					}
 				} else {
 					var oldcmp = mc.editor;
-					Ext.apply(oldcmp.initialConfig, {allowBlank:true, editable:true, cls:'', xtype:oldcmp.getXType()});
+					var r = (!oldcmp.isXType('combo'));
+					Ext.apply(oldcmp.initialConfig, {allowBlank:true, editable:r, cls:'', xtype:oldcmp.getXType()});
 					field = oldcmp.initialConfig;
 					if (oldcmp.isXType('combo')) field.value = '';
 				}

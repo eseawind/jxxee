@@ -185,6 +185,30 @@ JxUtil = {};
 			return true;
 		},
 		
+		//添加附件类型控件
+		addAttachCombo: function(grid, combocode) {
+			grid.attachTypeCombo = function() {
+				var typedata = Jxstar.findComboData(combocode);
+				return {
+					anchor:'60%',
+					xtype:'combo',
+					name:'attach_type_combo',
+					fieldLabel:'资料类型',
+					store: new Ext.data.SimpleStore({
+						fields:['value','text'],
+						data: typedata
+					}),
+					emptyText: jx.star.select,
+					mode: 'local',
+					triggerAction: 'all',
+					valueField: 'value',
+					displayField: 'text',
+					editable:false,
+					value: typedata[0][0]
+				};
+			};
+		},
+		
 		//根据表格取表单对象
 		getMyForm: function(myGrid) {
 			var tabPanel = myGrid.findParentByType('tabpanel');

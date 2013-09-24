@@ -37,7 +37,7 @@
 			<sourcename memo="数据源名">default_sql</sourcename>
 			<schemaname memo="数据库名，构建数据表用">dbo</schemaname>
 			<driverclass memo="驱动类">com.microsoft.sqlserver.jdbc.SQLServerDriver</driverclass>
-			<jdbcurl memo="访问URL"><![CDATA[jdbc:sqlserver://localhost:1433;databaseName=jxstar]]></jdbcurl>
+			<jdbcurl memo="访问URL"><![CDATA[jdbc:sqlserver://localhost:1433;databaseName=jxstar;sendStringParametersAsUnicode=false]]></jdbcurl>
 			<username memo="数据库用户">sa</username>
 			<password memo="数据库密码">888</password>
 			<maxconnum memo="最大连接数">50</maxconnum>
