@@ -11,6 +11,9 @@ import java.util.Map;
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.service.define.FunDefineDao;
+import org.jxstar.service.define.FunctionDefine;
+import org.jxstar.service.define.FunctionDefineManger;
+import org.jxstar.util.StringUtil;
 
 /**
  * 工作流中的工具类。
@@ -37,12 +40,12 @@ public class ProcessUtil {
 	}
 	
 	/**
-	 * 取指定功能的一条数据。
+	 * 取指定功能的一条数据。直接根据表名取记录不能取到关联表中的值。
 	 * @param funId -- 功能ID
 	 * @param dataId -- 主键值
 	 * @return
 	 */
-	public static Map<String,String> queryFunData(String funId, String dataId) {
+	/*public static Map<String,String> queryFunData(String funId, String dataId) {
 		//取功能定义信息
 		Map<String,String> mpDefine = FunDefineDao.queryFun(funId);
 		//取主键字段名
@@ -52,6 +55,30 @@ public class ProcessUtil {
 		//构建SQL
 		StringBuilder sbsql = new StringBuilder();
 		sbsql.append("select * from ").append(tableName).append(" where ");
+		sbsql.append(keyField).append(" = ?");
+		
+		//查询数据
+		DaoParam param = _dao.createParam(sbsql.toString());
+		param.addStringValue(dataId);
+		return _dao.queryMap(param);
+	}*/
+	//需要开启系统变量：fun.define.usepool，提高查询性能
+	public static Map<String,String> queryFunData(String funId, String dataId) {
+		//取功能定义对象
+		FunctionDefine funObj = FunctionDefineManger.getInstance().getDefine(funId);
+		//取select语句
+		String select = funObj.getSelectSQL();
+		//取where语句
+		String where = funObj.getElement("where_sql");
+		//取主键字段
+		String keyField = funObj.getElement("pk_col");
+		
+		//构建SQL
+		StringBuilder sbsql = new StringBuilder();
+		sbsql.append(select).append(" where ");
+		if (where.length() > 0) {
+			sbsql.append(StringUtil.addkf(where)).append(" and ");
+		}
 		sbsql.append(keyField).append(" = ?");
 		
 		//查询数据
