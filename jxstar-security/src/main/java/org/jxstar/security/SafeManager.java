@@ -258,7 +258,6 @@ public class SafeManager {
 	 * 取出系统许可文件，生成License对象
 	 * @return
 	 */
-	@SuppressWarnings("resource")
 	public License readLicense(String path) {
 		if (path == null || path.length() == 0) {
 			path = LicenseVar.getValue(LicenseVar.REAL_PATH) + "/WEB-INF/classes/license.dat";
@@ -291,7 +290,6 @@ public class SafeManager {
 	 * @param lic -- 许可对象
 	 * @param path -- 文件路径
 	 */
-	@SuppressWarnings("resource")
 	private boolean writeLicense(License lic, String path) {
 		if (path == null || path.length() == 0) {
 			path = LicenseVar.getValue(LicenseVar.REAL_PATH) + "/WEB-INF/classes/license.dat";
