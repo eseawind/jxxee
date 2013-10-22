@@ -1056,11 +1056,15 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 	**/
 	imp : function() {
 		var self = this;
+		var tb = self.grid.getTopToolbar();
+		//如果没有导入按钮，则不执行；因为有时用导入数据窗口做自定义事件
+		if (!JxUtil.getButton(tb, 'import')) return;
+		
 		var records = JxUtil.getSelectRows(self.grid);
 		if (!JxUtil.selected(records)) return;
 
 		//按钮不可用
-		JxUtil.disableButton(self.grid.getTopToolbar(), true);
+		JxUtil.disableButton(tb, true);
 		
 		//取选择记录的主键值
 		var keys = '';

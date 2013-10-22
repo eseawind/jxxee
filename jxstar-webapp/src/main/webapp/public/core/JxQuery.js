@@ -460,18 +460,21 @@ JxQuery = {};
 			if (field == null) {
 				field = new Ext.form.TextField({allowBlank:false});
 			}
-			//取原字段的值
-			var rowIndex = editor.lastClickIndex;
-			var record = condStore.getAt(rowIndex);
-			var oldval ='';
-			if(record != null) oldval = record.get('cond_value');
+			//初始数据时才取原值
+			if (isInit) {
+				//取原字段的值
+				var rowIndex = editor.rowIndex;
+				var record = condStore.getAt(rowIndex);
 			
-			if (field.isXType('datefield')) {
-				oldval = Ext.isDate(oldval) ? oldval.dateFormat('Y-m-d') : oldval;
-				if (oldval.length > 0) oldval = oldval.split(' ')[0];
-				oldval = Date.parseDate(oldval, "Y-m-d");
-			}
-			if (isInit) {//初始数据加载时才取原值
+				var oldval ='';
+				if(record != null) oldval = record.get('cond_value');
+				
+				if (field.isXType('datefield')) {
+					oldval = Ext.isDate(oldval) ? oldval.dateFormat('Y-m-d') : oldval;
+					if (oldval.length > 0) oldval = oldval.split(' ')[0];
+					oldval = Date.parseDate(oldval, "Y-m-d");
+				}
+			
 				field.setValue(oldval);
 			}
 			
@@ -488,7 +491,7 @@ JxQuery = {};
 			//保存字段数据类型
 			editor.record.set('coltype', coltype);
 		};
-		fieldCombo.on('select', function(combo){selectField(combo, true);});
+		fieldCombo.on('select', function(combo){selectField(combo, false);});
 		
 		//创建列对象
 		var cm = new Ext.grid.ColumnModel([sm,
@@ -645,7 +648,7 @@ JxQuery = {};
 		
 		//点击一条记录时显示字段值控件，防止combo控件中直接输入值
 		condGrid.on('rowdblclick', function(g, row){
-			fieldCombo.fireEvent('select', fieldCombo);
+			selectField(fieldCombo, true);
 		});
 		
 		return condGrid;

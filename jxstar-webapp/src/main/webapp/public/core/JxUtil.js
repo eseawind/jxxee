@@ -1478,6 +1478,32 @@ JxUtil = {};
 			var ed = this.getNextMonth(smonth, 1) + '-01';
 
 			return [sd, ed];
+		},
+		
+		/**
+		* 保留f小数位，做四舍五入处理；JavaScript原生toFixed在有些浏览器中没有做四舍五入
+		*/
+		toFixed: function(v, f) {
+			with(Math) {
+				return round(v * pow(10, f)) / pow(10, f);
+			}
+		},
+		
+		/**
+		* 乘法运算，rec可以是record、form，a是参数1的字段名，b是参数2的字段名，c是结果的字段名，
+		* 如：a * b = c
+		*/
+		multiply: function(rec, a, b, c) {
+			var va = rec.get(a);
+			var vb = rec.get(b);
+			var vc = (parseFloat(va) * 100) * (parseFloat(vb) * 100);
+			vc = vc / 10000;//防止乘法结果本来是1.4，结果为1.39999999999992
+			if (isNaN(vc)) {
+				vc = 0;
+			} else {
+				vc = JxUtil.toFixed(vc, 2);
+			}
+			rec.set(c, vc);
 		}
 	});//Ext.apply
 

@@ -235,8 +235,8 @@ Jxstar.GridNode.prototype = {
 		var form = self.page.findParentByType('form');
 		if (form && (Ext.isEmpty(ah) || ah)) {
 			var cnt = store.getCount();
-			if (cnt < 6) cnt = 6;//最少显示6行的高度 230
-			var height = 26*5+cnt*21;//5行固定高度+21个像素每行的高度
+			if (cnt < 5) cnt = 5;//最少显示5行的高度 230
+			var height = 26*4+cnt*21;//5行固定高度+21个像素每行的高度
 			self.page.ownerCt.setHeight(height);
 			form.doLayout();//不加这行，当form出现滚动条时会挡住部分界面
 		}

@@ -34,6 +34,32 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 	 allowBlank : true,
 	 
 	 value : '',
+	 
+    // private
+    initComponent: function(){
+        Ext.ux.form.JxImageField.superclass.initComponent.call(this);
+
+        this.addEvents(
+		/**
+		* @param {Jxstar.GridEvent} this
+		**/
+		'beforesave', 
+		/**
+		* @param {Jxstar.GridEvent} this
+		**/
+		'aftersave',
+		/**
+		* @param {Jxstar.GridEvent} this
+		* @param {Ext.data.Record[]} records
+		**/
+		'beforedelete', 
+		/**
+		* @param {Jxstar.GridEvent} this
+		* @param {JSON[]} data
+		**/
+		'afterdelete'
+		);
+    },
 
     // private
     onRender : function(ct, position){
@@ -196,6 +222,9 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 		var hdcall = function() {
 			var param = JxAttach.attachParam(self, 'fdelete');
 			if (param == null) return;
+			//删除附件前事件
+			if (self.fireEvent('beforedelete', self, param) == false) return;
+			
 			//设置业务状态值
 			var audit0 = '0', audit6 = '6';
 			if (param.define.status) {
@@ -209,8 +238,12 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 				JxHint.alert('业务记录已提交，不能删除附件！');
 				return;
 			}
+			
 			//清除附件字段值
 			var hdcall = function() {
+				//删除附件后事件
+				self.fireEvent('afterdelete', self, param);
+				
 				self.setValue('');
 				self.loadImage();
 			};
@@ -314,12 +347,18 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 					
 					var param = JxAttach.attachParam(imageField, 'fcreate');
 					if (param == null) return;
+					//上传附件前事件
+					if (self.fireEvent('beforesave', self, param) == false) return;
+					
 					//上传参数
 					var params = param.params + '&attach_name='+ encodeURIComponent(imageValue);
 					
 					//上传成功后关闭窗口并显示图片
 					var hdCall = function() {
 						win.close();
+						//上传附件后事件
+						self.fireEvent('aftersave', self, param);
+						
 						imageField.loadImage();
 					};
 					//上传附件
