@@ -10,8 +10,6 @@ import java.io.File;
 import java.util.Map;
 
 import org.apache.commons.fileupload.FileItem;
-
-
 import org.jxstar.control.action.RequestContext;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.service.BoException;
@@ -19,6 +17,7 @@ import org.jxstar.service.BusinessObject;
 import org.jxstar.service.define.FunDefineDao;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.FileUtil;
+import org.jxstar.util.ImageResize;
 import org.jxstar.util.MapUtil;
 import org.jxstar.util.config.SystemVar;
 import org.jxstar.util.key.KeyCreator;
@@ -36,6 +35,8 @@ import org.jxstar.util.resource.JsMessage;
  */
 public class AttachBO extends BusinessObject {
 	private static final long serialVersionUID = 1L;
+	//高清附件图片文件名后缀
+	private static final String IMAGE_BIG = "_image_big";
 	
 	/**
 	 * 下载附件到本地
@@ -54,6 +55,10 @@ public class AttachBO extends BusinessObject {
 			_log.showDebug("not attach data id: " + attachId);
 			return _returnSuccess;
 		}
+		
+		//是否下载高清图片
+		String is_highimage = requestContext.getRequestValue("is_highimage", "0");
+		mpAttach.put("is_highimage", is_highimage);
 		
 		//附件信息返回到前台
 		try {
@@ -94,6 +99,16 @@ public class AttachBO extends BusinessObject {
 		String fileName = FileUtil.getFileName(attachPath);
 		attachPath = systemPath + "/" + tableName + "/" + fileName;
 		_log.showDebug("---------查看附件名称：" + attachPath);
+		
+		//取高清图片附件名
+		String is_highimage = MapUtil.getValue(mpAttach, "is_highimage", "0");
+		if (is_highimage.equals("1")) {
+			String[] orgNames = fileName.split("\\.");
+			fileName = orgNames[0] + IMAGE_BIG + fileName.substring(fileName.indexOf("."));
+			
+			attachPath = systemPath + "/" + tableName + "/" + fileName;
+			_log.showDebug("---------查看高清图片名称：" + attachPath);
+		}
 		
 		byte[] bytes = FileUtil.fileToBytes(attachPath);
 		if (bytes == null || bytes.length == 0) {
@@ -169,6 +184,16 @@ public class AttachBO extends BusinessObject {
 		//清除业务表中的附件字段的值，忽略错误信息
 		clearFieldValue(mpAttach);
 		
+		//处理缩略图，原文件名为：xxxx_image_big.xxx，缩略图文件保存为当前文件
+		String use_resize = SystemVar.getValue("sys.attach.use_resize", "0");
+		if (use_resize.equals("1")) {
+			File tofile = FileUtil.postfix(file, IMAGE_BIG);
+			if (tofile.exists()) {
+				_log.showDebug(".............删除缩略图：" + tofile.getName());
+				tofile.delete();
+			}
+		}
+		
 		return _returnSuccess;
 	}
 	
@@ -229,7 +254,50 @@ public class AttachBO extends BusinessObject {
 		//保存附件类型
 		saveType(attachId, requestContext);
 		
+		//处理缩略图，把原文件改名为：xxxx_image_big.xxx，缩略图文件保存为当前文件
+		String imageSize = requestContext.getRequestValue("imagesize");//缩略图的尺寸
+		String isImageResize = requestContext.getRequestValue("is_imageresize");//是否保存缩略图
+		if (isImageResize.equals("1")) {
+			saveImageResize(file, imageSize);
+		}
+		
 		return _returnSuccess;
+	}
+	
+	/**
+	 * 保存新的缩量图文件
+	 * @param file
+	 * @param requestContext
+	 * @return
+	 */
+	private boolean saveImageResize(File file, String imageSize) {
+		if (imageSize.length() == 0) {
+			imageSize = SystemVar.getValue("sys.attach.resize", "600");
+		}
+		float tosize = Float.parseFloat(imageSize);
+		//保留原文件名
+		String orgname = file.getName();
+		String orgpath = file.getParent();
+		
+		File tofile = FileUtil.postfix(file, "_image_big");
+		boolean b = file.renameTo(tofile);
+		if (b) {
+			_log.showDebug(".............修改原图片文件成功：" + tofile.getName());
+		} else {
+			_log.showDebug(".............修改原图片文件失败：" + tofile.getName());
+		}
+		
+		//生成缩略图
+		boolean ret = ImageResize.resizeImage(tofile, file, tosize);
+		_log.showDebug(".............保存缩略图结果：" + ret + ";" + tofile.getName());
+		if (!ret) {//生成缩略图失败，文件名还原
+			String orgstr = orgpath + "/" + orgname;
+			_log.showDebug(".............原文件名：" + orgstr);
+			File orgfile = new File(orgstr);
+			tofile.renameTo(orgfile);
+		}
+		
+		return true;
 	}
 	
 	/**

@@ -352,4 +352,28 @@ public class FileUtil {
 	    return Thread.currentThread().getContextClassLoader()
         .getResource("").getPath(); 
 	}
+	
+	/**
+	 * 文件名中添加后缀，返回新的文件对象
+	 * @param file -- 源文件对象
+	 * @param postfix -- 要添加的后缀字符串
+	 * @return
+	 */
+	public static File postfix(File file, String postfix) {
+		if (file == null) return file;
+		//取文件名
+		String orgName = file.getName();
+		String[] orgNames = orgName.split("\\.");
+		
+		//取文件路径
+		String filePath = file.getParent();
+		filePath = filePath.replace('\\', '/') + "/";
+		
+		String fileName = filePath + orgNames[0] + postfix;
+		if (orgNames.length > 1) {
+			fileName += orgName.substring(orgName.indexOf("."));
+		}
+		
+		return new File(fileName);
+	}
 }
