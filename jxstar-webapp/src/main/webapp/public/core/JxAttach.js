@@ -284,7 +284,9 @@ JxAttach = {};
 					var attach_id = data[i].attach_id;
 					var attach_name = data[i].attach_name;
 					var content_type = data[i].content_type;
+					var is_relat = data[i].is_relat;
 					
+					//如果不是同一条记录的附件，则新建菜单
 					if (rownum != row_num) {
 						mitems = [];
 					}
@@ -292,7 +294,7 @@ JxAttach = {};
 					//构建附件菜单
 					var cfg = {
 						id:attach_id,
-						text:attach_name, 
+						text:attach_name,
 						handler:function(){
 							var params = 'funid=sys_attach&keyid='+ this.id +'&pagetype=editgrid&eventcode=down';
 							//发送下载请求
@@ -304,12 +306,17 @@ JxAttach = {};
 							}
 						}
 					};
+					//如果是关联附件，则显示红色字体
+					if (is_relat == '1') {
+						cfg.style = {color: 'red'};
+					}
+					
 					//处理office文件与pdf文件的预览
 					var menu = JxAttach.previewMenu(data[i], tabPanel);
 					if (menu) cfg.menu = menu;
 					//添加附件菜单
 					mitems[mitems.length] = cfg;
-					
+					//如果不是同一条记录的附件，则新建菜单
 					if (rownum != row_num) {
 						rownum = row_num;
 						
@@ -332,9 +339,14 @@ JxAttach = {};
 				}
 			};
 			
+			//是否添加关联附件
+			var is_queryrelat = grid.isQueryRelat || '0';
+			var relat = Jxstar.systemVar.sys__attach__relat || '0';
+			if (relat != '1') is_queryrelat = '0';
+			
 			//从后台查询任务信息
 			var params = 'funid=queryevent&pagetype=grid&eventcode=query_attach';
-				params += '&tablename='+ define.tablename +'&keyids='+ pks;
+				params += '&tablename='+ define.tablename +'&keyids='+ pks + '&is_queryrelat=' + is_queryrelat;
 			Request.dataRequest(params, hdCall);
 		},
 	

@@ -244,7 +244,6 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 				//删除附件后事件
 				self.fireEvent('afterdelete', self, param);
 				
-				self.setValue('');
 				self.loadImage();
 			};
 			
@@ -343,7 +342,6 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 					var form = queryForm.getForm();
 					if (!form.isValid()) return;
 					var imageValue = form.get(imageName);
-					imageField.setValue(imageValue);
 					
 					var param = JxAttach.attachParam(imageField, 'fcreate');
 					if (param == null) return;
@@ -358,6 +356,9 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 						win.close();
 						//上传附件后事件
 						self.fireEvent('aftersave', self, param);
+						//设置文件名，并标记不修改
+						imageField.setValue(imageValue);
+						imageField.originalValue = imageValue;
 						
 						imageField.loadImage();
 					};
