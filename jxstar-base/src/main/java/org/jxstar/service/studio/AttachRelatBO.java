@@ -9,13 +9,12 @@ import java.util.Map;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.util.MapUtil;
-import org.jxstar.util.StringUtil;
 import org.jxstar.util.factory.FactoryUtil;
+import org.jxstar.util.factory.SystemFactory;
 
 /**
  * 查询关联附件处理类：
- * 1、在“sys_attach_main公共附件表”中定义有哪些基础数据的附件需要共享给其它功能；
- * 2、在“sys_attach_det关联功能表”中定义可以查看此共享附件的功能有哪些，需要根据哪个字段的值关联查询；
+ * 采用关联SQL或自定义类的方式取关联附件，容易定义与理解，而且关联附件更灵活。
  *
  * @author TonyTan
  * @version 1.0, 2013-10-21
@@ -100,36 +99,16 @@ public class AttachRelatBO extends BusinessObject {
 		List<Map<String,String>> lsRet = FactoryUtil.newList();
 		_log.showDebug("...........det relat in dataid:" + dataId);
 		
-		List<Map<String,String>> lsDet = queryDetRelat(tableName);
-		for (Map<String,String> mpDet : lsDet) {
-			String main_id = mpDet.get("main_id");
-			String det_pkcol = mpDet.get("det_pkcol");
-			String det_glcol = mpDet.get("det_glcol");
-			_log.showDebug("...........det relat define:" + tableName + ";" + det_pkcol + ";" + det_glcol);
+		List<Map<String,String>> lsSet = queryRelatSet(tableName);
+		for (Map<String,String> mpSet : lsSet) {
+			String tagTable = mpSet.get("target_table");
+			if (tagTable.length() == 0) continue;
 			
-			Map<String,String> mpMain = queryMainRelat(main_id);
-			if (mpMain.isEmpty()) continue;
-			//取当前表中的关联字段值
-			String detDataId = queryDataId(tableName, det_pkcol, det_glcol, dataId);
-			_log.showDebug("...........det relat dataid:" + detDataId);
-			if (detDataId.length() == 0) continue;
+			String[] tagIds = queryTargetIds(dataId, mpSet);
 			
-			String main_glcol = mpMain.get("main_glcol");
-			String main_pkcol = mpMain.get("main_pkcol");
-			String main_table = mpMain.get("main_table");
-			_log.showDebug("...........main relat define:" + main_table + ";" + main_pkcol + ";" + main_glcol);
-			if (main_glcol.length() == 0 || main_pkcol.length() == 0 || main_table.length() == 0) {
-				_log.showDebug("...........main relat define is error!!!");
-				continue;
+			for (String tagId : tagIds) {
+				lsRet.addAll(queryAttach(tagTable, tagId));
 			}
-			
-			//根据关联字段取基础表中的主键值
-			String mainDataId = queryDataId(main_table, main_glcol, main_pkcol, detDataId);
-			_log.showDebug("...........main relat dataid:" + mainDataId);
-			if (mainDataId.length() == 0) continue;
-			
-			List<Map<String,String>> lsAttach = queryAttach(main_table, mainDataId);
-			lsRet.addAll(lsAttach);
 		}
 		_log.showDebug("...........all relat size:" + lsRet.size());
 		
@@ -146,34 +125,60 @@ public class AttachRelatBO extends BusinessObject {
 		return _dao.query(param);
 	}
 	
-	//取关联字段数据值
-	private String queryDataId(String table, String pkcol, String glcol, String dataId) {
-		String sql = "select "+ glcol +" from "+ table +" where "+ pkcol +" = ?";
-		DaoParam param = _dao.createParam(sql);
-		param.addStringValue(dataId);
-		
-		Map<String,String> mp =  _dao.queryMap(param);
-		
-		String col = StringUtil.getNoTableCol(glcol);
-		return MapUtil.getValue(mp, col);
-	}
-	
-	//根据表名查询当前功能与哪些表做附件关联
-	private List<Map<String,String>> queryDetRelat(String tableName) {
-		String sql = "select det_glcol, det_pkcol, main_id from sys_attach_det where det_table = ?";
+	//根据表名查询当前功能的附件关联定义
+	private List<Map<String,String>> queryRelatSet(String tableName) {
+		String sql = "select table_name, target_table, use_class, relat_sql from sys_attach_relat where is_valid = '1' and table_name = ?";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(tableName);
 		
 		return  _dao.query(param);
 	}
 	
-	//查询关联的附件来源
-	private Map<String,String> queryMainRelat(String main_id) {
-		String sql = "select main_glcol, main_pkcol, main_table from sys_attach_main where main_id = ?";
-		DaoParam param = _dao.createParam(sql);
-		param.addStringValue(main_id);
+	//根据关联附件定义取目标表的附件
+	private String[] queryTargetIds(String dataId, Map<String,String> mpSet) {
+		String[] ret = new String[0];
+		String target_table = mpSet.get("target_table");
+		String use_class = MapUtil.getValue(mpSet, "use_class", "0");
+		String relat_sql = mpSet.get("relat_sql");
+		_log.showDebug("...........use_class=" + use_class + ";relat_sql=" + relat_sql + ";target_table=" + target_table);
 		
-		return  _dao.queryMap(param);
+		if (use_class.equals("0")) {
+			ret = queryTargetIds(relat_sql, dataId);
+		} else {
+			Object object = SystemFactory.createObject(relat_sql);
+			if (object != null) {
+				AttachRelatI custom = (AttachRelatI) object;
+				ret = custom.queryDataId(dataId);
+				if (ret == null) ret = new String[0];
+			}
+		}
+		
+		return ret;
+	}
+	
+	/**
+	 * 根据关联SQL查询目标表的主键值，SQL示列如：
+	 * select mat_id from base_mat_code where mat_id in 
+	 * (select mat_id from dev_task_mat where task_matid = ?)
+	 * 
+	 */
+	private String[] queryTargetIds(String sql, String dataId) {
+		String[] ret = new String[0];
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(dataId);
+		
+		List<Map<String,String>> ls = _dao.query(param);
+		if (ls.isEmpty()) {
+			return ret;
+		}
+		
+		ret = new String[ls.size()];
+		for (int i = 0, n = ls.size(); i < n; i++) {
+			Map<String,String> mp = ls.get(i);
+			
+			ret[i] = mp.values().iterator().next();
+		}
+		return ret;
 	}
 	
 	//取功能定义信息
