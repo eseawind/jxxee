@@ -52,6 +52,13 @@ public class ExportXlsBO extends BusinessObject {
 		String querytype = request.getRequestValue("query_type");
 		//String zerotonull = request.getParameter("zerotonull");
 		_log.showDebug("==========exp file param funid=" + funid + ";where_sql=" + where_sql+";where_value="+where_value+";where_type="+where_type);
+		//临时处理另存数据时，where_type尾部丢失一个字符的问题
+		String ch = addChar(where_type);
+		if (ch.length() > 0) {
+			_log.showError("............may ignore message: type=" + where_type + ";addchar=" + ch + 
+					";funid=" + funid + ";where_sql=" + where_sql + ";where_value=" + where_value);
+			where_type += ch;
+		}
 		
 		//取功能定义对象
 		Map<String,String> mpDefine = FunDefineDao.queryFun(funid);
@@ -384,5 +391,27 @@ public class ExportXlsBO extends BusinessObject {
 		}
 		
 		return mpCombo;
+	}
+	
+	//处理最后一个类型丢失一个字符的临时处理办法
+	private String addChar(String whereType) {
+		if (whereType == null || whereType.length() == 0) {
+			return "";
+		}
+		
+		String[] types = whereType.split(";");
+		String endtype = types[types.length-1];
+		String addchar = "";
+		
+		if (endtype.equals("strin")) {
+			addchar = "g";
+		} else if (endtype.equals("dat")) {
+			addchar = "e";
+		} else if (endtype.equals("in")) {
+			addchar = "t";
+		} else if (endtype.equals("doubl")) {
+			addchar = "e";
+		}
+		return addchar;
 	}
 }
