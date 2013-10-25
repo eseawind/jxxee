@@ -24,7 +24,7 @@ public class AbstractTest {
 	 * @param path
 	 */
 	public static void init(String... path) {
-		String realPath = "d:/works/jxstar/jxstar-webapp/src/main/webapp";
+		String realPath = "c:/d/works/jxstar/jxstar-webapp/src/main/webapp";
 		if (path.length > 0 && path[0] != null && path[0].length() > 0) {
 			realPath = path[0];
 		}

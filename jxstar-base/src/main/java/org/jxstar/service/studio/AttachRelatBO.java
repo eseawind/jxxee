@@ -30,8 +30,11 @@ public class AttachRelatBO extends BusinessObject {
 	 * @return
 	 */
 	public String onRelatAttach(String funId, String dataId) {
-		List<Map<String,String>> lsRet = queryRelatAttach(funId, dataId);
-			
+		//取表名
+		Map<String,String> mpFun = queryFun(funId);
+		String tableName = MapUtil.getValue(mpFun, "table_name");
+		List<Map<String,String>> lsRet = queryRelatAttach(tableName, dataId);
+		
 		StringBuilder sbJson = new StringBuilder();
 		for (int i = 0, n = lsRet.size(); i < n; i++) {
 			Map<String,String> mpData = lsRet.get(i);
@@ -56,36 +59,58 @@ public class AttachRelatBO extends BusinessObject {
 		
 		return _returnSuccess;
 	}
+	
+	/**
+	 * 取多条件记录的关联附件
+	 * @param tableName -- 数据表名
+	 * @param dataIds -- 多个记录ID，用,分隔
+	 * @return
+	 */
+	public List<Map<String,String>> queryRelatMore(String tableName, String dataIds) {
+		List<Map<String,String>> lsRet = FactoryUtil.newList();
+		if (tableName == null || tableName.length() == 0 || 
+				dataIds == null || dataIds.length() == 0) {
+			return lsRet;
+		}
+		
+		String[] keyIds = dataIds.split(",");
+		for (String keyId : keyIds) {
+			List<Map<String,String>> ls = queryRelatAttach(tableName, keyId);
+			//关联附件对应关系处理
+			for (Map<String,String> mp : ls) {
+				String data_id = MapUtil.getValue(mp, "data_id");
+				mp.put("data_id", keyId);		//识别此附件显示在哪行数据中
+				mp.put("is_relat", "1");		//标记是关联附件
+				mp.put("src_data_id", data_id);	//记录关联来源的数据ID
+			}
+			
+			lsRet.addAll(ls);
+		}
+		
+		return lsRet;
+	}
 
 	/**
 	 * 查询关联附件，附件列标志中可以调用。
-	 * @param funId
+	 * @param tableName
 	 * @param dataId
 	 * @return
 	 */
-	public List<Map<String,String>> queryRelatAttach(String funId, String dataId) {
+	public List<Map<String,String>> queryRelatAttach(String tableName, String dataId) {
 		List<Map<String,String>> lsRet = FactoryUtil.newList();
-		
-		Map<String,String> mpFun = queryFun(funId);
-		if (mpFun.isEmpty()) {
-			_log.showDebug("..............not find fun define!!");
-			return lsRet;
-		}
-		String table_name = mpFun.get("table_name");
 		_log.showDebug("...........det relat in dataid:" + dataId);
 		
-		
-		List<Map<String,String>> lsDet = queryDetRelat(table_name);
+		List<Map<String,String>> lsDet = queryDetRelat(tableName);
 		for (Map<String,String> mpDet : lsDet) {
 			String main_id = mpDet.get("main_id");
 			String det_pkcol = mpDet.get("det_pkcol");
 			String det_glcol = mpDet.get("det_glcol");
-			_log.showDebug("...........det relat define:" + table_name + ";" + det_pkcol + ";" + det_glcol);
+			_log.showDebug("...........det relat define:" + tableName + ";" + det_pkcol + ";" + det_glcol);
 			
 			Map<String,String> mpMain = queryMainRelat(main_id);
 			if (mpMain.isEmpty()) continue;
 			//取当前表中的关联字段值
-			String detDataId = queryDataId(table_name, det_pkcol, det_glcol, dataId);
+			String detDataId = queryDataId(tableName, det_pkcol, det_glcol, dataId);
 			_log.showDebug("...........det relat dataid:" + detDataId);
 			if (detDataId.length() == 0) continue;
 			

@@ -11,6 +11,8 @@ import java.util.Map;
 
 import org.jxstar.dao.DaoParam;
 import org.jxstar.service.BusinessObject;
+import org.jxstar.service.studio.AttachRelatBO;
+import org.jxstar.util.MapUtil;
 import org.jxstar.util.factory.FactoryUtil;
 
 /**
@@ -23,12 +25,22 @@ public class AttachQuery extends BusinessObject {
 	private static final long serialVersionUID = 1L;
 	
 	/**
-	 * 取某个表是附件标志
-	 * @param tableName -- 当前表
-	 * @param keyIds -- 当前显示的记录ID，格式如：key1,key2,key3...
+	 * 支持查询关联附件
+	 * @param requestContext
 	 * @return
 	 */
 	public String query(String tableName, String keyIds) {
+		return query(tableName, keyIds, "0");
+	}
+	
+	/**
+	 * 取某个表是附件标志
+	 * @param tableName -- 当前表
+	 * @param keyIds -- 当前显示的记录ID，格式如：key1,key2,key3...
+	 * @param qryRelat -- 是否支持关联查询
+	 * @return
+	 */
+	public String query(String tableName, String keyIds, String qryRelat) {
 		//_log.showDebug("------------query attach, tablename=" + tableName + ";keyids=" + keyIds);
 		
 		if (tableName == null || tableName.length() == 0) return _returnSuccess;
@@ -40,6 +52,15 @@ public class AttachQuery extends BusinessObject {
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(tableName);
 		List<Map<String,String>> lsData = _dao.query(param);
+		
+		//取关联附件
+		if (qryRelat.equals("1")) {
+			AttachRelatBO relatbo = new AttachRelatBO();
+			List<Map<String,String>> lsRelat = relatbo.queryRelatMore(tableName, keyIds);
+			//要根据原数据ID顺序插入相关附件记录，方便前台数据处理
+			lsData = insertRelat(lsData, lsRelat);
+		}
+		
 		if (lsData.isEmpty()) return _returnSuccess;
 		
 		Map<String,String> keyIndex = getMap(keyIds);
@@ -47,12 +68,15 @@ public class AttachQuery extends BusinessObject {
 		for (int i = 0, n = lsData.size(); i < n; i++) {
 			Map<String,String> mpData = lsData.get(i);
 			
+			//关联附件标记
+			String is_relat = MapUtil.getValue(mpData, "is_relat", "0");
 			String dataid = mpData.get("data_id");
 			String json = "{row_num:"+ keyIndex.get(dataid) +", " +
 					"data_id:'"+ dataid +"', " +
 					"attach_id:'"+ mpData.get("attach_id") +"', " +
 					"attach_name:'"+ mpData.get("attach_name") +"', " +
 					"fun_id:'"+ mpData.get("fun_id") +"', " +
+					"is_relat:'"+ is_relat +"', " +
 					"content_type:'"+ mpData.get("content_type") +"'},";
 			
 			sbJson.append(json);
@@ -80,5 +104,32 @@ public class AttachQuery extends BusinessObject {
 		String keyIns = keyIds.replaceAll(",", "','");
 		
 		return "('" + keyIns + "')";
+	}
+	
+	//按顺序添加关联附件
+	private List<Map<String,String>> insertRelat(
+			List<Map<String,String>> lsData, List<Map<String,String>> lsRelat) {
+		if (lsRelat.isEmpty()) return lsData;
+		if (lsData.isEmpty()) return lsRelat;
+		
+		for (Map<String,String> mp : lsRelat) {
+			String data_id = mp.get("data_id");
+			boolean has = false;//是否找到了相同的记录ID
+			
+			for (int n = lsData.size(), i = n-1; i >= 0; i--) {
+				Map<String,String> tomp = lsData.get(i);
+				//如果找到相同记录ID，则在旁边添加关联附件
+				if (data_id.equals(tomp.get("data_id"))) {
+					lsData.add(i, mp);
+					has = true;
+				}
+			}
+			//没有找到相同的记录ID，则直接添加
+			if (!has) {
+				lsData.add(mp);
+			}
+		}
+		
+		return lsData;
 	}
 }
