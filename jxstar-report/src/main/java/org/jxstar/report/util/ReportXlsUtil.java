@@ -36,7 +36,6 @@ import org.jxstar.util.MapUtil;
 import org.jxstar.util.StringUtil;
 import org.jxstar.util.config.SystemVar;
 import org.jxstar.util.factory.FactoryUtil;
-import org.jxstar.util.resource.JsMessage;
 
 /**
  * 输出excel报表的工具类。
@@ -358,13 +357,14 @@ public class ReportXlsUtil extends ReportUtil {
 			if (cell == null) cell = row.createCell(posi[1]);
 			//填充单元格内容
 			if (!strStyle.equals("image")) {
-				if (strStyle.equals("barcode")) {
+				if (strStyle.equals("barcode") && strValue.length() > 0) {
 					if (!printBarcode(strValue, cell)) {
-						cell.setCellValue(JsMessage.getValue("report.xlsutil.noimage"));
+						//cell.setCellValue(JsMessage.getValue("report.xlsutil.noimage"));
+						_log.showDebug("..........not barcode value!");
 					}
 				} else {
 					cell.setCellValue(strValue.trim());
-					//处理单元格类型，方便表格中的计算公式生效
+					//处理单元格类型，方便表格中的 计算公式生效
 					if (strStyle.equals("int") || strStyle.indexOf("num") == 0) {
 						if (strValue.length() == 0) strValue = "0";
 						cell.setCellValue(Double.parseDouble(strValue));
@@ -373,15 +373,60 @@ public class ReportXlsUtil extends ReportUtil {
 					}
 				}
 			} else {
+				//不输出图片的开关，方便扩展类通过custPrintImage方法输出图片
+				String donot_image = MapUtil.getValue(mpData, "donot_image");
 				//如果填充图片不成功能，则填写文字
-				if (!printCellImage(funId, strColCode, mpData, cell)) {
-					cell.setCellValue(JsMessage.getValue("report.xlsutil.noimage"));
+				if (!donot_image.equals("1") && !printCellImage(funId, strColCode, mpData, cell)) {
+					//cell.setCellValue(JsMessage.getValue("report.xlsutil.noimage"));
+					_log.showDebug("..........not image file!");
 				}
 			}
 		}
 		
 		return sheet;
 	}
+	
+	/**
+	 * 自定义输出指定的图片
+	 * @param areaId -- 区域ID
+	 * @param sheet -- 表单对象
+	 * @param mpData -- 保存图片内存数据，field -- bytes
+	 * @return
+	 */
+	public static HSSFSheet custPrintImage(String areaId, HSSFSheet sheet, Map<String,Object> mpData) {
+        //取图片字段定义信息
+        List<Map<String,String>> lsField = ReportDao.getImageCol(areaId);
+        if (lsField == null || lsField.isEmpty()) {
+            _log.showDebug("--------custPrintImage(): not find report detail image col.");
+            return sheet;
+        }
+        
+        for (int i = 0, n = lsField.size(); i < n; i++) {
+            Map<String,String> mpField = lsField.get(i);
+            
+            String colcode = mpField.get("col_code");
+            String colpos = mpField.get("col_pos");
+                        
+            int[] posi = getPosition(colpos);
+            if (posi.length != 2) {
+                _log.showWarn(colcode + " ["+posi+"] position is error!");
+                continue;
+            }
+
+            //获取指定的单元格
+            HSSFRow row = sheet.getRow(posi[0]);
+            if (row == null) row = sheet.createRow(posi[0]);
+            HSSFCell cell = row.getCell(posi[1]);
+            if (cell == null) cell = row.createCell(posi[1]);
+            //填充单元格内容
+            byte[] bytes = (byte[]) mpData.get(colcode);
+            if (bytes != null && bytes.length > 0) {
+            	addImageToSheet(cell, bytes);
+            }            
+        }
+        
+        return sheet;
+    }
 	
     /**
      * 先找该报表是否有审批信息报表输出定义，取定义信息；

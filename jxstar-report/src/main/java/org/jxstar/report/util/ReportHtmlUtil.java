@@ -178,7 +178,7 @@ public class ReportHtmlUtil extends ReportUtil {
             } else {
             //设置cell的显示值，如果是图片字段，则不用处理
                 if (!strStyle.equals("image")) {
-                	if (strStyle.equals("barcode")) {//显示条码图片
+                	if (strStyle.equals("barcode") && strValue.length() > 0) {//显示条码图片
                 		isImage = true;
                 		strValue = mpData.get(strColCode);
                 		strValue = printBarcode(strValue, userId);
@@ -194,13 +194,17 @@ public class ReportHtmlUtil extends ReportUtil {
 	                    if (isOutZero.equals("0")) strValue = getZeroOut(strValue, strStyle);
     				}
                 } else {
+                	//不输出图片的开关，方便扩展类通过custPrintImage方法输出图片
+    				String donot_image = MapUtil.getValue(mpData, "donot_image");                	
                 	//显示图片
-                	strValue = printCellImage(funId, strColCode, userId, mpData);
-                	if (strValue.length() > 0) {
-                		isImage = true;
-                	} else {
-                		strValue = mpData.get(strColCode);
-                	}
+    				if (!donot_image.equals("1")) {
+	                	strValue = printCellImage(funId, strColCode, userId, mpData);
+	                	if (strValue.length() > 0) {
+	                		isImage = true;
+	                	} else {
+	                		strValue = mpData.get(strColCode);
+	                	}
+    				}
                 }
             }
             
@@ -484,6 +488,50 @@ public class ReportHtmlUtil extends ReportUtil {
         }
         
         return sbRet.toString();
+    }
+    
+    /**
+     * 自定义输出指定的图片
+     * @param areaId -- 区域ID
+     * @param jsTblObj -- 报表对象
+     * @param mpData -- 保存图片内存数据，field -- bytes
+     * @return
+     */
+    public static String custPrintImage(String areaId, String jsTblObj, Map<String,String> mpData) {
+    	StringBuilder sbRet = new StringBuilder();
+        //取图片字段定义信息
+        List<Map<String,String>> lsField = ReportDao.getImageCol(areaId);
+        if (lsField == null || lsField.isEmpty()) {
+            _log.showDebug("--------custPrintImage(): not find report detail image col.");
+            return sbRet.toString();
+        }
+        
+        for (int i = 0, n = lsField.size(); i < n; i++) {
+            Map<String,String> mpField = lsField.get(i);
+            
+            String colcode = mpField.get("col_code");
+            String colpos = mpField.get("col_pos");
+            //如果没有图片信息，则不处理
+            String strValue = MapUtil.getValue(mpData, colcode);
+            if (strValue.length() == 0) {
+            	continue;
+            }
+                        
+            int[] posi = getPosition(colpos);
+            if (posi.length != 2) {
+                _log.showWarn(colcode + " ["+posi+"] position is error!");
+                continue;
+            }
+            //设置指定坐标位置
+            sbRet.append("posi[0] = " + posi[0] + ";\r\n");
+            sbRet.append("posi[1] = " + posi[1] + ";\r\n");
+            
+            //设置图片控件与显示路径
+            sbRet.append("cellValue = \"" + strValue + "\";\r\n");
+        	sbRet.append("f_setTdPic(2, 2, posi ,cellValue ,"+jsTblObj+");\r\n"); 
+        }
+        
+    	return sbRet.toString();
     }
     
     /**

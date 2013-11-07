@@ -26,48 +26,48 @@ import org.jxstar.util.resource.JsMessage;
  * @version 1.0, 2010-11-12
  */
 public abstract class ReportHtml implements Report {
-    protected static Log _log = Log.getInstance();
-    protected static BaseDao _dao = BaseDao.getInstance();
+    public static Log _log = Log.getInstance();
+    public static BaseDao _dao = BaseDao.getInstance();
 
     //主区域查询条件
-    protected String _sql = "";
-    protected String _sqlType = "";
-    protected String _sqlValue = "";
+    public String _sql = "";
+    public String _sqlType = "";
+    public String _sqlValue = "";
     
     //页面查询条件
-    protected String _pageSql = "";
-    protected String _pageSqlType = "";
-    protected String _pageSqlValue = "";
+    public String _pageSql = "";
+    public String _pageSqlType = "";
+    public String _pageSqlValue = "";
     
     //需要隐藏数据显示的字段
-    protected List<String> _hideCols = null;
+    public List<String> _hideCols = null;
     
-    protected String _reportId = "";
+    public String _reportId = "";
     //当前用户信息
-    protected Map<String,String> _mpUser = null;
+    public Map<String,String> _mpUser = null;
 
     //报表定义信息
-    protected Map<String,String> _mpReptInfo = null;            //报表列表信息
-    protected Map<String,String> _mpMainArea = null;            //主区域信息
-    protected List<Map<String,String>> _lsSubArea = null;       //子区域信息
-    protected List<Map<String,String>> _lsMainRecord = null;    //主区域记录信息
-    protected List<Map<String,String>> _lsHeadInfo = null;      //表头信息
+    public Map<String,String> _mpReptInfo = null;            //报表列表信息
+    public Map<String,String> _mpMainArea = null;            //主区域信息
+    public List<Map<String,String>> _lsSubArea = null;       //子区域信息
+    public List<Map<String,String>> _lsMainRecord = null;    //主区域记录信息
+    public List<Map<String,String>> _lsHeadInfo = null;      //表头信息
 
-    protected List<Map<String,String>> _lsMainCol = null;       //主区域字段列表
-    protected Map<String, List<Map<String,String>>> _mpSubCol = null;//子区域字段列表
+    public List<Map<String,String>> _lsMainCol = null;       //主区域字段列表
+    public Map<String, List<Map<String,String>>> _mpSubCol = null;//子区域字段列表
 
     //excel报表文件与报表对象
-    protected String _xlsFile = null;
-    protected HSSFWorkbook _hssfWB = null;
+    public String _xlsFile = null;
+    public HSSFWorkbook _hssfWB = null;
 
     //报表类型[grid][form][formgrid][label]
-    protected String _reportType = null;
+    public String _reportType = null;
     
     //输出报表格式[xls][html]
-    protected String _printType = null;
+    public String _printType = null;
     
     //最大页数限制
-    protected static int _imaxPage = 1000;
+    public static int _imaxPage = 1000;
     
     @SuppressWarnings("unchecked")
     public void initReport(Map<String, Object> mpParam) throws ReportException {

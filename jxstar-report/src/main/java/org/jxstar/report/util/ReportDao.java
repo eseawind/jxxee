@@ -283,6 +283,20 @@ public class ReportDao {
     }
 	
 	/**
+	 * 取图片定义字段
+	 * @param areaId -- 区域ID
+	 * @return List
+	 */
+	public static List<Map<String,String>> getImageCol(String areaId) {
+        String sql = "select col_code, col_pos from rpt_detail where format = 'image' and " +
+        		"is_show = '1' and area_id = ? order by col_index";
+        DaoParam param = _dao.createParam(sql);
+        param.addStringValue(areaId);
+
+        return _dao.query(param);
+    }			
+	
+	/**
 	 * 取当前输出记录的审批信息
      * @param funId -- 功能ID
      * @param dataId -- 数据ID
