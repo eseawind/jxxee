@@ -89,6 +89,8 @@ public class CameraBO extends BusinessObject {
 		String fileName = FileUtil.getFileName(srcFile);
 		String destFile = filePath + "/" + fileName;
 		_log.showDebug("srcfile=" + srcFile + ";destfile=" + destFile);
+		//创建目标文件路径
+		FileUtil.createPath(filePath);
 		//拷贝文件
 		boolean ret = FileUtil.moveFile(srcFile, destFile, true);
 		if (!ret) {

@@ -117,7 +117,7 @@ public class AttachRelatBO extends BusinessObject {
 	
 	//取附件记录
 	private List<Map<String,String>> queryAttach(String tableName, String dataId) {
-		String sql = "select data_id, attach_id, attach_name, content_type, fun_id from sys_attach " +
+		String sql = "select data_id, attach_id, attach_name, content_type, fun_id, attach_type from sys_attach " +
 				"where table_name = ? and data_id = ? order by data_id";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(tableName);

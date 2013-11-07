@@ -9,6 +9,7 @@ package org.jxstar.service.query;
 import java.util.List;
 import java.util.Map;
 
+import org.jxstar.control.action.RequestContext;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.service.studio.AttachRelatBO;
@@ -30,7 +31,19 @@ public class AttachQuery extends BusinessObject {
 	 * @return
 	 */
 	public String query(String tableName, String keyIds) {
-		return query(tableName, keyIds, "0");
+		return query(tableName, keyIds, "0", "");
+	}
+	public String query(String tableName, String keyIds, String qryRelat) {
+		return query(tableName, keyIds, qryRelat, "");
+	}
+	public String query(RequestContext request) {
+		String tableName = request.getRequestValue("tablename");
+		String keyIds = request.getRequestValue("keyids");
+		String qryRelat = request.getRequestValue("is_queryrelat");
+		String attachType = request.getRequestValue("attach_type");
+		query(tableName, keyIds, qryRelat, attachType);
+		
+		return _returnSuccess;
 	}
 	
 	/**
@@ -40,14 +53,14 @@ public class AttachQuery extends BusinessObject {
 	 * @param qryRelat -- 是否支持关联查询
 	 * @return
 	 */
-	public String query(String tableName, String keyIds, String qryRelat) {
+	public String query(String tableName, String keyIds, String qryRelat, String attachType) {
 		//_log.showDebug("------------query attach, tablename=" + tableName + ";keyids=" + keyIds);
 		
 		if (tableName == null || tableName.length() == 0) return _returnSuccess;
 		if (keyIds == null || keyIds.length() == 0) return _returnSuccess;
 		
 		//取附件记录
-		String sql = "select data_id, attach_id, attach_name, content_type, fun_id from sys_attach " +
+		String sql = "select data_id, attach_id, attach_name, content_type, fun_id, attach_type from sys_attach " +
 				"where table_name = ? and data_id in " + keyIns(keyIds) + " order by data_id";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(tableName);
@@ -67,6 +80,13 @@ public class AttachQuery extends BusinessObject {
 		StringBuilder sbJson = new StringBuilder();
 		for (int i = 0, n = lsData.size(); i < n; i++) {
 			Map<String,String> mpData = lsData.get(i);
+			//如果设置了附件类型过滤，不同类型的附件不显示
+			String attach_type = MapUtil.getValue(mpData, "attach_type");
+			if (attachType != null && attachType.length() > 0) {
+				if (!attachType.equals(attach_type)) {
+					continue;
+				}
+			}
 			
 			//关联附件标记
 			String is_relat = MapUtil.getValue(mpData, "is_relat", "0");
@@ -77,11 +97,15 @@ public class AttachQuery extends BusinessObject {
 					"attach_name:'"+ mpData.get("attach_name") +"', " +
 					"fun_id:'"+ mpData.get("fun_id") +"', " +
 					"is_relat:'"+ is_relat +"', " +
+					"attach_type:'"+ attach_type +"', " +
 					"content_type:'"+ mpData.get("content_type") +"'},";
 			
 			sbJson.append(json);
 		}
-		String jsdata = "[" + sbJson.substring(0, sbJson.length()-1) + "]";
+		String jsdata = "[]";
+		if (sbJson.length() > 0) {
+			jsdata = "[" + sbJson.substring(0, sbJson.length()-1) + "]";
+		}
 		//_log.showDebug("query attach json=" + jsdata);
 		
 		//返回查询数据
