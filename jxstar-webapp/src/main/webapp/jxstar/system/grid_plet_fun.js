@@ -7,10 +7,13 @@
 	{col:{header:'序号', width:79, sortable:true, defaultval:'10', align:'right',
 		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.NumberField({
-			maxLength:12
+			decimalPrecision:0, maxLength:22
 		}),renderer:JxUtil.formatInt()}, field:{name:'plet_fun__fun_no',type:'int'}},
-	{col:{header:'栏目ID', width:100, sortable:true, hidden:true}, field:{name:'plet_fun__portlet_id',type:'string'}},
-	{col:{header:'明细ID', width:100, sortable:true, hidden:true}, field:{name:'plet_fun__det_id',type:'string'}}
+	{col:{header:'栏目ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'plet_fun__portlet_id',type:'string'}},
+	{col:{header:'明细ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'plet_fun__det_id',type:'string'}},
+	{col:{header:'设置类型', width:100, sortable:true, hidden:true}, field:{name:'plet_fun__set_type',type:'string'}},
+	{col:{header:'个人ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'plet_fun__owner_user_id',type:'string'}},
+	{col:{header:'角色ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'plet_fun__role_id',type:'string'}}
 	];
 	
 	config.param = {
@@ -22,9 +25,8 @@
 		funid: 'plet_fun'
 	};
 	
-	config.eventcfg = {		
-		dataImportParam: function() {
-			var portletId = this.grid.fkValue;			var options = {				whereSql: 'fun_id not in (select fun_id from plet_fun where portlet_id = ?)',				whereValue: portletId,				whereType: 'string'			};			return options;		}		
+	
+	config.eventcfg = {		getfun: function() {			var self = this;			var pfunid = self.grid.fkFunId;			if (pfunid != 'sys_user') {				JxHint.alert('只有个人才可以读取角色的常用功能设置！');				return;			}						//设置请求的参数			var params = 'funid='+ self.define.nodeid;			params += '&pagetype=editgrid&eventcode=getfun';						var endcall = function(data) {				self.grid.getStore().reload();			};						//发送请求			Request.postRequest(params, endcall);		},				showfun: function() {			var self = this;			var pfunid = self.grid.fkFunId;			var dataId = self.grid.fkValue;						var wheresql = '';			if (pfunid == 'sys_role') {				wheresql = 'fun_id not in (select fun_id from plet_fun where role_id = ?)';			} else if (pfunid == 'sys_user') {				wheresql = 'fun_id not in (select fun_id from plet_fun where owner_user_id = ?)';			} else {				wheresql = 'fun_id not in (select fun_id from plet_fun where portlet_id = ?)';			}			var where_type = 'string';			var where_value = dataId;						//显示数据			var hdcall = function(grid) {				JxUtil.delay(500, function(){					//处理树形页面的情况					if (!grid.isXType('grid')) {						grid = grid.getComponent(1).getComponent(0);					}										grid.fkGrid = self.grid;					grid.fkFunId = pfunid;					grid.fkValue = dataId;					Jxstar.loadData(grid, {where_sql:wheresql, where_value:where_value, where_type:where_type});				});			};					var define = Jxstar.findNode('sel_fun');			//显示数据			Jxstar.showData({				filename: define.layout,				title: define.nodetitle, 				pagetype: 'addgrid',				nodedefine: define,				callback: hdcall			});		}
 	};
 		
 	return new Jxstar.GridNode(config);

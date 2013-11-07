@@ -24,7 +24,7 @@
 				this.menu.show(this.el);
 			}
 		})}, field:{name:'sys_role__dept_name',type:'string'}},
-	{col:{header:'角色ID', width:100, sortable:true, hidden:true}, field:{name:'sys_role__role_id',type:'string'}},
+	{col:{header:'角色ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'sys_role__role_id',type:'string'}},
 	{col:{header:'*模板名称', width:139, sortable:true, editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.TriggerField({
 			maxLength:50,
@@ -39,8 +39,8 @@
 				this.menu.show(this.el);
 			}
 		})}, field:{name:'sys_role__templet_name',type:'string'}},
-	{col:{header:'模板ID', width:100, sortable:true, hidden:true}, field:{name:'sys_role__templet_id',type:'string'}},
-	{col:{header:'部门ID', width:100, sortable:true, hidden:true}, field:{name:'sys_role__dept_id',type:'string'}}
+	{col:{header:'模板ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'sys_role__templet_id',type:'string'}},
+	{col:{header:'部门ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'sys_role__dept_id',type:'string'}}
 	];
 	
 	config.param = {
@@ -53,7 +53,7 @@
 	};
 	
 	
-	
+	config.eventcfg = {				setFun: function() {			var records = this.grid.getSelectionModel().getSelections();			if (!JxUtil.selectone(records)) return;						var role_id = records[0].get('sys_role__role_id');			//过滤条件			var where_sql = 'plet_fun.role_id = ?';			var where_type = 'string';			var where_value = role_id;						//显示数据			var hdcall = function(grid) {				JxUtil.delay(500, function(){					//处理树形页面的情况					if (!grid.isXType('grid')) {						grid = grid.getComponent(1).getComponent(0);					}					//设置外键值					grid.fkFunId = 'sys_role';					grid.fkValue = where_value;					Jxstar.loadData(grid, {where_sql:where_sql, where_value:where_value, where_type:where_type});				});			};					var define = Jxstar.findNode('plet_fun');			//显示数据			Jxstar.showData({				filename: define.gridpage,				title: define.nodetitle, 				pagetype: 'editgrid',				nodedefine: define,				callback: hdcall			});		}			};
 		
 	return new Jxstar.GridNode(config);
 }
