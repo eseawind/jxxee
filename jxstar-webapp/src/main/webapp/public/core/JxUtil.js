@@ -185,8 +185,9 @@ JxUtil = {};
 			return true;
 		},
 		
-		//添加附件类型控件
-		addAttachCombo: function(grid, combocode) {
+		//添加附件类型控件，增加index参数方便设置初始显示类型
+		addAttachCombo: function(grid, combocode, index) {
+			index = index || 0;
 			grid.attachTypeCombo = function() {
 				var typedata = Jxstar.findComboData(combocode);
 				return {
@@ -204,7 +205,7 @@ JxUtil = {};
 					valueField: 'value',
 					displayField: 'text',
 					editable:false,
-					value: typedata[0][0]
+					value: typedata[index][0]
 				};
 			};
 		},
@@ -226,10 +227,16 @@ JxUtil = {};
 		getParentGrid: function(childCmp) {
 			//取到tab控件，而后取第一个页面中的表格
 			var tabPanel = childCmp.findParentByType('tabpanel');
-			if (!tabPanel || tabPanel.isXType('tabpanel') == false) return null;
+			if (!tabPanel || tabPanel.isXType('tabpanel') == false) {
+				//增加参数parentGrid，方便在复杂布局中自定义父表格
+				return childCmp.parentGrid;
+			}
 			
 			var grid = tabPanel.getComponent(0).getComponent(0);
-			if (!grid || grid.isXType('grid') == false) return null;
+			if (!grid || grid.isXType('grid') == false) {
+				//增加参数parentGrid，方便在复杂布局中自定义父表格
+				return childCmp.parentGrid;
+			}
 			
 			return grid;
 		},

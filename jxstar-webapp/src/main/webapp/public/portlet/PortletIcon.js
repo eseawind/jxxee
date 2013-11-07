@@ -4,16 +4,16 @@
  */
  
 /**
- * 常用功能portlet控件。
+ * 常用功能图标portlet控件。
  * 
  * @author TonyTan
  * @version 1.0, 2010-01-01
  */
 
-PortletFun = {};
+PortletIcon = {};
 (function(){
 
-	Ext.apply(PortletFun, {
+	Ext.apply(PortletIcon, {
 	/**
 	 * public
 	 * 父对象
@@ -87,18 +87,18 @@ PortletFun = {};
 		}
 		
 		self.ownerCt = target;
-		//先清除内容
-		target.removeAll(target.getComponent(0), true);
-	
-		var hdcall = function(funJson) {
-			var funHtml = self.createPortlet(funJson);
+		
+		var view = target.getComponent(0);
+		if (view) {
+			var store = view.getStore();
+			store.reload();
+		} else {
+			var pletid = target.initialConfig.pletid;
+			var view = self.createPortlet(pletid);
 			
-			target.add({html:funHtml,border:false,autoScroll:true});
+			target.add(view);
 			target.doLayout();
-		};
-		var pletid = target.initialConfig.pletid;
-		var params = 'funid=queryevent&eventcode=query_pletfun&portletid='+pletid;
-		Request.dataRequest(params, hdcall);
+		}
 	},
 	
 	/**
@@ -106,39 +106,52 @@ PortletFun = {};
 	 * 创建常用功能列表
 	 * funJson参数是数组对象，每个成员的格式：funid -- 功能ID，funname -- 功能名称
 	 **/
-	createPortlet: function(funJson) {
-		if (funJson.length == 0) {
-			return '<div class="nav_msg_notip">'+ jx.plet.nofun +'</div>';	//没有定义常用功能！
-		}
-	
-		var tableTpl = new Ext.Template(
-			'<table width="100%" border="0" align="center" cellpadding="0" cellspacing="0" class="nav_msg_table">',
-				'{rows}',
-			'</table>'
-		);
+	createPortlet: function(portletId) {
+		var url = Jxstar.path + '/commonAction.do?funid=queryevent&eventcode=query_pletfun&portletid='+portletId+'&user_id=' + Jxstar.session['user_id'];
+		var store = new Ext.data.JsonStore({
+			url: url,
+			root: 'data',
+			fields: [
+				'funid', 'funname'
+			]
+		});
+		store.load();
 		
-		var rowTpl = new Ext.Template(
-			'<tr height="20" style="background-color:{bgcolor};"><td>',
-				'<li><a href="#" {chgcolor} onclick="Jxstar.createNode(\'{funid}\');">{funname}</a>',
-			'</td><tr>'
+		var tpl = new Ext.XTemplate(
+			'<ul>',
+                '<tpl for=".">',
+                    '<li class="phone">',
+                        '<img src="./resources/images/fun/{funid}.png" />',
+                        '<span>{funname}</span>',
+                    '</li>',
+                '</tpl>',
+            '</ul>'
 		);
-	
-		var cnt = 0, rows = [];
-		var len = funJson.length;
-		for (var i = 0; i < len; i++) {
-			//没有操作权限的不显示
-			if (Jxstar.validNode(funJson[i].funid) == false) continue;
-			
-			funJson[i].bgcolor = (cnt%2 == 1) ? '#ddffdd' : '';
-			funJson[i].chgcolor = 'onmouseover="this.style.color=\'#FF4400\';" onmouseout="this.style.color=\'#0080FF\';"';
-			
-			rows[i] = rowTpl.apply(funJson[i]);
-			//列表中只显示7条记录
-			cnt++;
-			//if (cnt > 6) break; 
-		}
+		tpl.compile();
 		
-		return tableTpl.apply({rows:rows.join('')});
+		var view = new Ext.DataView({
+			cls: 'fun-icon',
+			store: store,
+			tpl: tpl,
+			singleSelect: true,
+			autoHeight:true,
+			autoScroll: true,
+			itemSelector:'li.phone',
+			overClass:'phone-hover',
+			listeners: {
+				click: function(dv, index){
+					//打开功能
+					var rec = dv.getStore().getAt(index);
+					var funid = rec.get('funid');
+					Jxstar.createNode(funid);
+				},
+				containerclick: function(dv){
+					dv.clearSelections();
+				}
+			}
+		});
+		
+		return view;
 	}
 	
 	});//Ext.apply

@@ -459,7 +459,15 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 				var parentId = attr.id;
 				var levelCol = attr.node_level;
 				params += '&parentId=' + parentId + '&levelCol=' + levelCol;
+		
+				if (typeof(levelCol) == "undefined" || levelCol =="undefined") {	
+					if (this.define.regtype == "treemain") {
+						alert("请重新打开功能，等树型加载完后再操作！");
+						return;
+					}
+				}
 			}
+
 		}
 		
 		//取所有修改了值的字段，保存时用

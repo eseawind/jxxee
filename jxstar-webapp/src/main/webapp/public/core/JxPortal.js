@@ -30,7 +30,8 @@ JxPortal = {};
 		'portlet_board':PortletBoard, 
 		'portlet_result':PortletResult,
 		'portlet_resultg':PortletResultG,
-		'portlet_flow':PortletAssign
+		'portlet_flow':PortletAssign,
+		'portlet_icon':PortletIcon
 	},
 	
 	/**
@@ -209,6 +210,7 @@ JxPortal = {};
 				title: item.title,
 				iconCls: item.iconCls,
                 layout: 'fit',
+				autoScroll:true,
                 tools: JxPortal.tools,
                 height: parseInt(item.height),
                 collapsed: (item.collapse == '1'),
