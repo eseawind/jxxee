@@ -178,13 +178,13 @@ public class ReportHtmlUtil extends ReportUtil {
             } else {
             //设置cell的显示值，如果是图片字段，则不用处理
                 if (!strStyle.equals("image")) {
+                	//取字段值
+                	strValue = MapUtil.getValue(mpData, strColCode);
+                	
                 	if (strStyle.equals("barcode") && strValue.length() > 0) {//显示条码图片
                 		isImage = true;
-                		strValue = mpData.get(strColCode);
                 		strValue = printBarcode(strValue, userId);
     				} else {
-	                    strValue = mpData.get(strColCode);
-	                    strValue = (strValue != null)?strValue:"";
 	                    strValue = (strValue.equalsIgnoreCase("null"))?"":strValue;
 	                    
 	                    //取选项显示值
