@@ -172,8 +172,8 @@ public class PortletFunSetBO extends BusinessObject {
 	
 	//取当前用户的角色配置的常用功能
 	private List<Map<String,String>> queryRoleFun(String userId) {
-		String sql = "select fun_id, fun_name from plet_fun where set_type = '1' and role_id in " +
-				"(select role_id from sys_user_role where user_id = ?) order by fun_no";
+		String sql = "select distinct fun_id, fun_name from plet_fun where set_type = '1' and role_id in " +
+				"(select role_id from sys_user_role where user_id = ?)";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(userId);
 		

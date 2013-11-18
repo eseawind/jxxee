@@ -102,12 +102,21 @@ public class AttachBO extends BusinessObject {
 		
 		//取高清图片附件名
 		String is_highimage = MapUtil.getValue(mpAttach, "is_highimage", "0");
-		if (is_highimage.equals("1")) {
+		String content_type = MapUtil.getValue(mpAttach, "content_type");
+		if (is_highimage.equals("1") && content_type.indexOf("image") >= 0) {
 			String[] orgNames = fileName.split("\\.");
-			fileName = orgNames[0] + IMAGE_BIG + fileName.substring(fileName.indexOf("."));
+			String hFileName = orgNames[0] + IMAGE_BIG + fileName.substring(fileName.indexOf("."));
+			String hAttachPath = systemPath + "/" + tableName + "/" + hFileName;
+			_log.showDebug("---------查看高清图片名称：" + hAttachPath);
 			
-			attachPath = systemPath + "/" + tableName + "/" + fileName;
-			_log.showDebug("---------查看高清图片名称：" + attachPath);
+			//如果高清图片存在，则取高清图片文件
+			File ftmp = new File(hAttachPath);
+			boolean isexists = ftmp.exists();
+			if (isexists) {
+				attachPath = hAttachPath;
+			} else {
+				_log.showDebug("---------高清图片不存在，取原图！");
+			}
 		}
 		
 		byte[] bytes = FileUtil.fileToBytes(attachPath);

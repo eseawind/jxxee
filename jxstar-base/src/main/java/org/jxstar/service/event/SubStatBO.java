@@ -165,7 +165,7 @@ public class SubStatBO extends BusinessObject {
 		_log.showDebug("...........update stat sub data sql=" + sbsql.toString());
 		
 		DaoParam param = _dao.createParam(sbsql.toString());
-		param.addStringValue(statValue);
+		param.addDoubleValue(statValue);
 		param.addStringValue(fkValue);
 		
 		return _dao.update(param);
