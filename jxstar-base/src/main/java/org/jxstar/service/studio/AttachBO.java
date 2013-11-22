@@ -120,7 +120,7 @@ public class AttachBO extends BusinessObject {
 		}
 		
 		byte[] bytes = FileUtil.fileToBytes(attachPath);
-		if (bytes == null || bytes.length == 0) {
+		if (bytes == null) {//bytes.length == 0不判断，因为很多空文件的长度都是0
 			throw new BoException(JsMessage.getValue("systembo.attachbo.downerror"));
 		} else {
 			return bytes;
