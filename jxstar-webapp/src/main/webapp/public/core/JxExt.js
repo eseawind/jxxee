@@ -81,6 +81,13 @@ Ext.PagingToolbar.prototype.doLoad = function(start){
 
 /**
  * ext-3.3.1
+ * 修改方法：设置表格行号列的缺省宽度为40
+ **/
+Ext.grid.RowNumberer.prototype.width = 40;
+Ext.grid.RowNumberer.prototype.css = 'background:#f0f0f0 !important;';//通过GridView.getColumnStyle的方法会把样式添加到序号列中
+
+/**
+ * ext-3.3.1
  * 修改方法：支持设置表格头部的样式
  **/ 
 Ext.grid.GridView.prototype.getColumnStyle = function(colIndex, isHeader){
