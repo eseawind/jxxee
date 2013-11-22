@@ -291,16 +291,16 @@ JxQueryExt = {};
 			b = hps.findByType('button')[0];
 		}
 		var isarch = hps.findByType('checkbox')[0];//取含归档的checkbox
-		var query_type = 0;
+		var query_type = '0';
 		if (isarch && isarch.getValue() == '1') {//是否可以查询到已复核的记录
-			query_type = 1;
+			query_type = '1';
 		}
 		
 		var page = b.initialConfig.data;//取当前表格
 		var vfs = JxQueryExt.getQryField(hps);//取出所有有查询值的字段
 		
 		var query = JxQuery.getQuery(vfs);
-		Jxstar.myQuery(page, query, '1');
+		Jxstar.myQuery(page, query, query_type);
 	},
 	
 	/**
