@@ -253,11 +253,23 @@ public class ReportXlsUtil extends ReportUtil {
 		//填写每页小计
 		if (isStatCol == true) {
 			currRow ++;
+			//小计值输出位置：0 直接输出数据行的下一行、1 输出在当前页的最后一行
+			String sumstr = "小计";
+			String sumpos = SystemVar.getValue("sys.report.sumpos", "0");
+			if (sumpos.equals("1")) {
+				sumstr = "合计";
+				
+				int row_mod=0;
+				if(pageSize>0 ) row_mod = pageSize-(rowIndex % pageSize);
+				if(row_mod==pageSize) row_mod=0;
+				currRow=currRow+row_mod;
+			}
+			
 			row = sheet.getRow(currRow);
 			if (row == null) row = sheet.createRow(currRow);
 			cell = row.getCell(cntCol);
 			if (cell == null) cell = row.createCell(cntCol);
-			cell.setCellValue("小计");
+			cell.setCellValue(sumstr);
 			for (int i = 0, colNum = lsStatCol.size(); i < colNum; i ++){
 				mpField = lsStatCol.get(i);
 				posis = getPosition(mpField.get("col_pos"));
