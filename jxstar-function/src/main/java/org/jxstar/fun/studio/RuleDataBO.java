@@ -64,10 +64,10 @@ public class RuleDataBO extends BusinessObject {
 					sbItem = sbItem.delete(0, sbItem.length());//清除上一个功能的数据
 					
 					//开始下一个功能
-					curFunId = funId;
 					sbItem.append("'" + funId + "':[\r\n");
 					sbItem.append(jsonRoute(mpRule));
 				}
+				curFunId = funId;
 			}
 		}
 		if (sbItem.length() > 0) {
