@@ -8,11 +8,11 @@
 	var cols = [
 	{col:{header:'*字段代码', width:224, sortable:true, editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.TextField({
-			maxLength:50, allowBlank:false
+			maxLength:1000, allowBlank:false
 		})}, field:{name:'fun_col__col_code',type:'string'}},
 	{col:{header:'*字段名称', width:120, sortable:true, editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.TextField({
-			maxLength:50, allowBlank:false
+			maxLength:1000, allowBlank:false
 		})}, field:{name:'fun_col__col_name',type:'string'}},
 	{col:{header:'*数据类型', width:100, sortable:true, defaultval:'string', align:'center',
 		editable:true, hcss:'color:#0000ff;',
@@ -56,7 +56,7 @@
 	{col:{header:'序号', width:67, sortable:true, align:'right',
 		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.NumberField({
-			decimalPrecision:0, maxLength:12
+			decimalPrecision:0, maxLength:22
 		}),renderer:JxUtil.formatInt()}, field:{name:'fun_col__col_index',type:'int'}},
 	{col:{header:'*控件类型', width:84, sortable:true, defaultval:'text', align:'center',
 		editable:true, hcss:'color:#0000ff;',
@@ -81,7 +81,7 @@
 		}}, field:{name:'fun_col__col_control',type:'string'}},
 	{col:{header:'控件名称', width:100, sortable:true, editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.ComboBox({
-			maxLength:20, name:'fun_col__control_name', 
+			maxLength:1000, name:'fun_col__control_name', 
 			editable:true, hcss:'color:#3039b4;',
 			triggerClass:'x-form-search-trigger', 
 			listeners:{afterrender: function(combo) {
@@ -123,7 +123,7 @@
 		}}, field:{name:'fun_col__is_statcol',type:'string'}},
 	{col:{header:'缺省值', width:100, sortable:true, editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.TriggerField({
-			maxLength:50,
+			maxLength:1000,
 			editable:true,
 			triggerClass:'x-form-search-trigger', 
 			onTriggerClick: function() {

@@ -2,6 +2,10 @@
 	var config = {param:{},initpage:function(page, define){},eventcfg:{}};
 
 	var cols = [
+	{col:{header:'角色编号', width:89, sortable:true, editable:true, hcss:'color:#3039b4;',
+		editor:new Ext.form.TextField({
+			maxLength:20
+		})}, field:{name:'sys_role__role_no',type:'string'}},
 	{col:{header:'*角色名称', width:140, sortable:true, editable:true, hcss:'color:#0000ff;',
 		editor:new Ext.form.TextField({
 			maxLength:50, allowBlank:false
