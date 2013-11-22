@@ -1116,9 +1116,23 @@ Ext.ns('Jxstar');
 							}
 						} else {
 							var oldcmp = mc.editor;
-							var r = (!oldcmp.isXType('combo'));
-							Ext.apply(oldcmp.initialConfig, {allowBlank:true, editable:r, cls:''});
+							//combo控件不能编辑，但可以删除选项值；combosel、combowin控件可以编辑；
+							//由于db2数据库的查询值长度不能超过字段长度，才做这样的判断
+							var iscombo = false;
+							if (oldcmp.isXType('combo') && oldcmp.mode == 'local') {
+								iscombo = true;
+							}
+							Ext.apply(oldcmp.initialConfig, {allowBlank:true, editable:!iscombo, cls:''});
 							field = new oldcmp.constructor(oldcmp.initialConfig);
+							
+							if (iscombo) {//combo控件不能编辑，但可以删除选项值；高级查询设置不需要注册此事件
+								field.setValue('');
+								field.on('specialkey', function(field, e){
+									if (e.getKey() == e.DELETE || e.getKey() == e.BACKSPACE) {
+										field.setValue('');
+									}
+								});
+							}
 						}
 						break;
 					}

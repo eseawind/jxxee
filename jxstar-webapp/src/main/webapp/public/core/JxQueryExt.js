@@ -245,10 +245,26 @@ JxQueryExt = {};
 					}
 				} else {
 					var oldcmp = mc.editor;
-					var r = (!oldcmp.isXType('combo'));
-					Ext.apply(oldcmp.initialConfig, {allowBlank:true, editable:r, cls:'', xtype:oldcmp.getXType()});
+					//combo控件不能编辑，但可以删除选项值；combosel、combowin控件可以编辑；
+					//由于db2数据库的查询值长度不能超过字段长度，才做这样的判断
+					var iscombo = false;
+					if (oldcmp.isXType('combo') && oldcmp.mode == 'local') {
+						iscombo = true;
+					}
+					Ext.apply(oldcmp.initialConfig, {allowBlank:true, editable:!iscombo, cls:'', xtype:oldcmp.getXType()});
 					field = oldcmp.initialConfig;
-					if (oldcmp.isXType('combo')) field.value = '';
+					
+					if (iscombo) {//combo控件不能编辑，但可以删除选项值；高级查询设置不需要注册此事件
+						field.iscombo = iscombo;//标记是combo控件，下面的回车事件不重复注册
+						field.value = '';
+						field.listeners = Ext.apply(
+							field.listeners||{},
+							{specialkey: function(f, e){
+								if (e.getKey() == e.DELETE || e.getKey() == e.BACKSPACE) {f.setValue('');}
+								if (e.getKey() == e.ENTER) {self.exeQry(f);}
+							}}
+						);
+					}
 				}
 				
 				var str = qrycfg.colname;
@@ -268,10 +284,12 @@ JxQueryExt = {};
 					field.width = 100;
 					field.name = qrycfg.colcode;
 					//comsel控件定义时带listeners参数，所以采用apply方法
-					field.listeners = Ext.apply(
-						field.listeners||{},
-						{specialkey: function(f, e){if (e.getKey() == e.ENTER) {self.exeQry(f);}}}
-					);
+					if (!field.iscombo) {
+						field.listeners = Ext.apply(
+							field.listeners||{},
+							{specialkey: function(f, e){if (e.getKey() == e.ENTER) {self.exeQry(f);}}}
+						);
+					}
 					qryrow[len+1] = field;
 				}
 				
@@ -300,6 +318,7 @@ JxQueryExt = {};
 		var vfs = JxQueryExt.getQryField(hps);//取出所有有查询值的字段
 		
 		var query = JxQuery.getQuery(vfs);
+		if (query == null) return false;
 		Jxstar.myQuery(page, query, query_type);
 	},
 	
