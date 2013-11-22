@@ -181,21 +181,52 @@ JxAttach = {};
 				url = JxAttach.uploadUrl;
 			}
 			url += "/fileAction.do?funid=sys_attach&pagetype=editgrid&eventcode=down&nousercheck=1&dataType=byte&keyid="+attachId;
-			var html = '<img src="'+ url +'" title="'+ attachName +'">';
-			
+			var html = '<img src="'+ url +'">';
+			var imgbox = new Ext.BoxComponent({
+				border:false,
+				html: html
+			});
+
 			var cfg = {
 				id:tabid,
 				pagetype:'formpic',
 				title:'浏览-' + attachName,
 				layout:'fit',
-				border:false,
+				border:true,
 				closable:true,
 				autoScroll:true,
 				iconCls:'tab_form',
-				html:html
+				items:[imgbox]
 			};
 			tab = tabPanel.add(cfg);
 			tabPanel.activate(tab);
+			
+			//延时添加图片缩放功能
+			var delayFn = function(){
+				var imgel = imgbox.getEl().child('img');
+				var resiz = new Ext.Resizable(imgel, {
+					wrap:true,
+					pinned:true,
+					minWidth:200,
+					minHeight:100,
+					preserveRatio:true,
+					dynamic:true,
+					handles:'all',
+					draggable:true
+				});
+				/*取消鼠标滚轮事件
+				Ext.get(document.body).on('mousewheel',function(e){
+					var delta = e.getWheelDelta();
+					var width = imgel.getWidth();
+					width = width + delta*50;
+					if (width < 200) return;
+					var height = imgel.getHeight();
+					height = height + delta*50;
+					if (height < 100) return;
+					resiz.resizeTo(width, height);
+				});*/
+			};
+			JxUtil.delay(1000, delayFn);
 		},
 		
 		//添加在线预览菜单
@@ -347,6 +378,12 @@ JxAttach = {};
 			//从后台查询任务信息
 			var params = 'funid=queryevent&pagetype=grid&eventcode=query_attach';
 				params += '&tablename='+ define.tablename +'&keyids='+ pks + '&is_queryrelat=' + is_queryrelat;
+				
+			//是否只显示某类附件
+			var attachtype = grid.queryAttachType;
+			if (attachtype) {
+				params += '&attach_type=' + attachtype;
+			}
 			Request.dataRequest(params, hdCall);
 		},
 	

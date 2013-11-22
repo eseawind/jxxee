@@ -441,7 +441,7 @@ Jxstar.GridNode.prototype = {
 		
 		//如果显示查询方案，则添加查询工具栏，避免出现表格延时移动
 		if (self.state == '0' && (self.param.hasQuery == null || self.param.hasQuery==true)) {
-			if (Jxstar.systemVar.useCase == '1' || self.param.showQryCase) {
+			if ((Jxstar.systemVar.useCase == '1' || self.param.showQryCase) && !self.param.showNotQryCase) {
 				grid.on('render', function(g){
 					if (Ext.isEmpty(g.tbar)) return;
 					g.qryCt = new Ext.Container({
@@ -576,9 +576,13 @@ Jxstar.GridNode.prototype = {
 				tbar.add('->');
 				//判断是采用原公共查询还是采用新的查询模式
 				if (Jxstar.systemVar.useCase == '1') {
-					JxQueryExt.showCase(self);
-					if (self.param.showStat) {
-						JxGroupExt.showCase(self);
+					if (self.param.showNotQryCase) {
+						Jxstar.createSimpleQuery(self);
+					} else {
+						JxQueryExt.showCase(self);
+						if (self.param.showStat) {
+							JxGroupExt.showCase(self);
+						}
 					}
 				} else {
 				//支持部分功能采用查询方案，缺省采用通用查询
