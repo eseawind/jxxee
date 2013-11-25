@@ -9,7 +9,6 @@ package org.jxstar.task.load;
 
 import org.jxstar.fun.design.templet.ElementTemplet;
 import org.jxstar.fun.design.templet.PageTemplet;
-import org.jxstar.fun.studio.FunUserBO;
 import org.jxstar.security.LicenseVar;
 import org.jxstar.security.SafeManager;
 import org.jxstar.task.SystemLoader;
@@ -93,14 +92,14 @@ public class DesignTempletLoader extends SystemLoader {
 		_log.showDebug(logHead + fileName);
 		
 		//是否测试环境，在AbstractTest中设置值
-		String istest = SystemVar.getValue("sys.jxstar.istest", "0");
+		/*String istest = SystemVar.getValue("sys.jxstar.istest", "0");
 		if (!istest.equals("1")) {
-			//是否收集信息，备用系统变量，无设置值
+			//备用系统变量，无设置值
 			String info = SystemVar.getValue("sys.jxstar.info");
 			if (!info.equals("1")) {
 				FunUserBO.getInstance().start();
 			}
-		}
+		}*/
 	}
 
 }

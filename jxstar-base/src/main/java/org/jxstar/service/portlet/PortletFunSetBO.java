@@ -3,6 +3,7 @@
  */
 package org.jxstar.service.portlet;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,8 @@ import org.jxstar.dao.DaoParam;
 import org.jxstar.service.BusinessObject;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
+import org.jxstar.util.config.SystemVar;
+import org.jxstar.util.factory.FactoryUtil;
 import org.jxstar.util.key.KeyCreator;
 
 /**
@@ -100,9 +103,14 @@ public class PortletFunSetBO extends BusinessObject {
 		StringBuilder sbfuns = new StringBuilder();
 		for (int i = 0, n = lsFun.size(); i < n; i++) {
 			Map<String,String> mpFun = lsFun.get(i);
+			String funId = mpFun.get("fun_id");
+			String funIcon = funId;
+			boolean hasIcon = hasIcon(funId);
+			if (!hasIcon) funIcon = "default_icon";
 			
-			sbfuns.append("{funid:'"+ mpFun.get("fun_id") +"',");
-			sbfuns.append("funname:'"+ mpFun.get("fun_name") +"'}");
+			sbfuns.append("{funid:'"+ funId +"',");
+			sbfuns.append("funname:'"+ mpFun.get("fun_name") +"',");
+			sbfuns.append("funicon:'"+ funIcon +"'}");
 			sbfuns.append((i < n - 1) ? ",\n" : "\n");
 		}
 		
@@ -111,6 +119,13 @@ public class PortletFunSetBO extends BusinessObject {
 		setReturnData(funJson);
 		
 		return _returnSuccess;
+	}
+	
+	//判断功能图标文件是否存在
+	private boolean hasIcon(String funId) {
+		String fn = SystemVar.REALPATH + "/resources/images/fun/"+ funId +".png";
+		File file = new File(fn);
+		return file.exists();
 	}
 	
 	//新增一条常用功能记录。
@@ -172,12 +187,24 @@ public class PortletFunSetBO extends BusinessObject {
 	
 	//取当前用户的角色配置的常用功能
 	private List<Map<String,String>> queryRoleFun(String userId) {
-		String sql = "select distinct fun_id, fun_name from plet_fun where set_type = '1' and role_id in " +
-				"(select role_id from sys_user_role where user_id = ?)";
+		String sql = "select distinct fun_id, fun_name, fun_no from plet_fun where set_type = '1' and role_id in " +
+				"(select role_id from sys_user_role where user_id = ?) order by fun_no";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(userId);
 		
-		return _dao.query(param);
+		List<Map<String,String>> lsData = _dao.query(param);
+		//处理重复的功能ID
+		List<String> lsFun = FactoryUtil.newList();
+		List<Map<String,String>> lsRet = FactoryUtil.newList();
+		for (Map<String,String> mpData : lsData) {
+			String funid = mpData.get("fun_id");
+			if (!lsFun.contains(funid)) {
+				lsRet.add(mpData);
+				lsFun.add(funid);
+			}
+		}
+		
+		return lsRet;
 	}
 	
 	//取当前模板配置的常用功能
