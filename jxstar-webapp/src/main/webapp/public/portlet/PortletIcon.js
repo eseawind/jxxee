@@ -112,7 +112,7 @@ PortletIcon = {};
 			url: url,
 			root: 'data',
 			fields: [
-				'funid', 'funname'
+				'funid', 'funname', 'funicon'
 			]
 		});
 		store.load();
@@ -121,7 +121,7 @@ PortletIcon = {};
 			'<ul>',
                 '<tpl for=".">',
                     '<li class="phone">',
-                        '<img src="./resources/images/fun/{funid}.png" />',
+                        '<img src="./resources/images/fun/{funicon}.png" />',
                         '<span>{funname}</span>',
                     '</li>',
                 '</tpl>',
