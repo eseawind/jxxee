@@ -45,7 +45,9 @@ public class FunUserBO extends BusinessObject {
 	
 	//启动线程，收集服务器信息
 	public void start() {
-		(new JxstarThread()).start();
+		try {//捕获所有异常
+			(new JxstarThread()).start();
+		} catch(Exception e) {}
 	}
 	
 	//信息收集线程
@@ -63,7 +65,9 @@ public class FunUserBO extends BusinessObject {
 					sleep(_checkTime);
 				} catch (InterruptedException e) {}		
 				
-				_info.scanInfo();
+				try {//捕获所有异常
+					_info.scanInfo();
+				} catch(Exception e) {}
 			}
 		}
 	}
@@ -77,14 +81,18 @@ public class FunUserBO extends BusinessObject {
 			//_log.showDebug(".......uuid=" + uuid);
 			
 			if (uuid.length() == 0) {
-				uuid = insertUUID();
+				uuid = getUUID();
+				
 				if (uuid.length() == 0) {
-					return;
-				} else {
-					SystemVar.setValue("sys.jxstar.uuid", uuid);
-					
-					//新增服务器信息
-					insertInfo(uuid);
+					uuid = insertUUID();
+					if (uuid.length() == 0) {
+						return;
+					} else {
+						SystemVar.setValue("sys.jxstar.uuid", uuid);
+						
+						//新增服务器信息
+						insertInfo(uuid);
+					}
 				}
 			} else {
 				//取服务器信息
@@ -111,6 +119,8 @@ public class FunUserBO extends BusinessObject {
 				
 				//添加扫描日志
 				insertLog(uuid);
+				//删除多余的系统变量
+				delOtherUUID(uuid);
 			}
 		}
 		
@@ -119,6 +129,7 @@ public class FunUserBO extends BusinessObject {
 			String sql = "insert into jxstar_info_log(info_id, info_ip, add_date) values(?, ?, ?)";
 			DaoParam param = _dao.createParam(sql);
 			param.setDsName(DSNAME);
+			param.setCatchError(false);
 			param.setUseTransaction(false);
 			
 			param.addStringValue(uuid);
@@ -159,6 +170,7 @@ public class FunUserBO extends BusinessObject {
 					"info_ver, info_lic, add_date) values(?, ?, ?, ?, ?, ?, ?, ?)";
 			DaoParam param = _dao.createParam(sql);
 			param.setDsName(DSNAME);
+			param.setCatchError(false);
 			param.setUseTransaction(false);
 			
 			param.addStringValue(infoId);
@@ -179,6 +191,7 @@ public class FunUserBO extends BusinessObject {
 			String sql = "select disable_dev, disable_run from jxstar_info where info_id = ?";
 			DaoParam param = _dao.createParam(sql);
 			param.setDsName(DSNAME);
+			param.setCatchError(false);
 			param.setUseTransaction(false);
 			
 			param.addStringValue(uuid);
@@ -265,6 +278,29 @@ public class FunUserBO extends BusinessObject {
 			} else {
 				return "";
 			}
+		}
+		
+		//从系统变量中取系统识别ID
+		private String getUUID() {
+			String sql = "select var_value from sys_var where var_code = 'sys.jxstar.uuid'";
+			DaoParam param = _dao.createParam(sql);
+			Map<String,String> mp = _dao.queryMap(param);
+			String uuid = MapUtil.getValue(mp, "var_value");
+			if (uuid.length() == 0) {
+				return "";
+			} else {
+				delOtherUUID(uuid);				
+			}
+			
+			return uuid;
+		}
+		
+		//删除多余的识别ID记录
+		private boolean delOtherUUID(String uuid) {
+			String sql = "delete from sys_var where var_code = 'sys.jxstar.uuid' and var_value <> ?";
+			DaoParam param = _dao.createParam(sql);
+			param.addStringValue(uuid);
+			return _dao.update(param);
 		}
 	
 		//添加数据库信息
