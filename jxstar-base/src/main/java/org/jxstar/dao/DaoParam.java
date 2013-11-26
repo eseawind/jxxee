@@ -34,6 +34,8 @@ public class DaoParam {
 	private boolean _useFieldData = false;
 	//返还错误信息
 	private String _error = "";
+	//是否捕获异常
+	private boolean _catchError = true;
 	//执行SQL
 	private String _sql = "";
 	//参数类型
@@ -352,5 +354,21 @@ public class DaoParam {
 	 */
 	public void setError(String msg) {
 		this._error = msg;
+	}
+	
+	/**
+	 * 是否输出异常信息
+	 * @return
+	 */
+	public boolean isCatchError() {
+		return _catchError;
+	}
+
+	/**
+	 * 是否输出异常信息
+	 * @return
+	 */
+	public void setCatchError(boolean catchError) {
+		this._catchError = catchError;
 	}
 }

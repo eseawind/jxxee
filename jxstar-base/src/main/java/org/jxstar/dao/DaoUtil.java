@@ -459,6 +459,11 @@ public class DaoUtil {
 	 * @param DaoParam		执行的SQL
 	 */
 	public static void showException(Exception e, DaoParam param) {
+		//不输出异常信息
+		if (!param.isCatchError()) return;
+		
+		param.setError(e.getMessage());
+		
 		StringBuilder sb = new StringBuilder();
 		sb.append("\nexe_sql = ").append(param.getSql());
 		sb.append("\nwhere_type = ").append(param.strType());
