@@ -407,6 +407,9 @@ public class DaoUtil {
 	 * @param DaoParam		执行的SQL
 	 */
 	public static void showQueryTime(long startTime, DaoParam param) {
+		//不输出异常信息
+		if (!param.isCatchError()) return;
+		
 		long curQueryTime = System.currentTimeMillis() - startTime;
 		//是否显示所有查询时间
 		String isShow = SystemVar.getValue("db.show.querytime", "0");
