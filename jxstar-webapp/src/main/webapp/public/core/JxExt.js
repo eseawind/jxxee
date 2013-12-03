@@ -9,7 +9,7 @@
  * @author TonyTan
  * @version 1.0, 2010-01-01
  */
- 
+JxExt = {};
 /**
  * 新增方法：在数组中插入对象
  * index -- 指要插入的位置，从0开始，如果是负数，则从尾部开始
@@ -952,3 +952,141 @@ Ext.form.NumberField.prototype.beforeBlur = function() {
 		this.setValue(v);
 	}
 };
+
+JxExt.bbsurl = function(keyid) {
+	var imgurl = Jxstar.path;
+	if (Jxstar.systemVar.uploadType == '1') {
+		imgurl = Jxstar.systemVar.uploadUrl;
+	}
+	imgurl += "/fileAction.do?funid=sys_attach&pagetype=editgrid&eventcode=down&nousercheck=1&dataType=byte&keyid="+keyid;
+	return imgurl;
+};
+
+//不用超链接的href，则采用click是防止页面跳转，退出系统
+JxExt.bbsfile = function(a) {
+	var iframe = document.getElementById('frmhidden');
+	iframe.src = JxExt.bbsurl(a.id);
+};
+
+//给HtmlEditor控件添加图片的方法
+ImgHtmlEditor = Ext.extend(Ext.form.HtmlEditor, {
+	//fileType 文件类型：1 图片、0 文件
+	addImage : function(fileType) {
+		var editor = this;
+		var fileForm = editor.findParentByType('form');
+		if (Ext.isEmpty(fileForm)) {
+			return;
+		}
+		var form = fileForm.getForm();
+		var define = fileForm.formNode.define;
+		var dataFunId = define.nodeid;
+		var tableName = define.tablename;
+		var dataId = form.get(define.pkcol);
+		
+		var formItems = [{
+			xtype: 'fileuploadfield',
+			useType: 'file',
+			labelWidth: 50,
+			maxLength: 50,
+			fieldLabel: '选择文件',
+			name: 'attach_path',
+			labelSeparator:'*', 
+			buttonText: '',
+			buttonCfg: {
+				iconCls: 'upload_icon'
+			},
+			listeners:{
+				fileselected: function(f, path) {
+					var len = path.length;
+					if (len > 0) {
+						var pos = path.lastIndexOf('\\');
+						if (pos >= 0) {
+							path = path.substr(pos+1, len);
+						}
+					}
+					imgform.getForm().findField('attach_name').setValue(path);
+				}
+			}
+		},{
+			xtype: 'hidden',
+			fieldLabel: '附件名称',
+			name: 'attach_name',
+			labelSeparator:'*', maxLength:50
+		}];
+		var imgform = new Ext.FormPanel({
+			region : 'center',
+			frame : true,
+			bodyStyle : 'padding:5px 5px 0',
+			border : false,
+			items : formItems,
+			buttons : [{
+				text : '上传',
+				type : 'submit',
+				handler : function() {
+					var form = imgform.form;
+					//上传参数
+					var params = 'funid=sys_attach&pagetype=editgrid';
+						params += '&attach_field=&dataid='+ dataId +'&datafunid='+ dataFunId;
+						params += '&eventcode=create';
+					
+					//上传成功后关闭窗口并刷新数据
+					var hdCall = function(data) {
+						if (Ext.isEmpty(data)) {
+							JxHint.alert('文件上传失败！');
+							return;
+						}
+						var html;
+						if (fileType == '1') {//上传图片
+							html = '<img src="'+ JxExt.bbsurl(data.attachId) +'">';
+						} else {//上传文件
+							html = '<a href="#" id="'+ data.attachId +'" onclick="return JxExt.bbsfile(this);">'+ form.get('attach_name') +'</a>';
+						}
+						editor.insertAtCursor(html);
+						
+						win.close();
+					};
+					//上传附件
+					Request.fileRequest(form, params, hdCall);
+				}
+			}, {
+				text : '关闭',
+				type : 'submit',
+				handler : function() {
+					win.close(this);
+				}
+			}]
+		});
+
+		var win = new Ext.Window({
+					title : "上传文件",
+					width : 300,
+					height : 105,
+					modal : true,
+					border : false,
+					icon : "./resources/images/icons/button/upload.gif",
+					layout : "fit",
+					items : imgform
+
+				});
+		win.show();
+	},
+	
+	createToolbar : function(editor) {
+        ImgHtmlEditor.superclass.createToolbar.call(this, editor);
+        this.tb.insertButton(16, {
+                    cls : "x-btn-icon",
+					tooltip:'添加图片',
+                    icon : "./resources/images/icons/button/upload.gif",
+                    handler : function(){this.addImage('1');},
+                    scope : this
+                });
+		 this.tb.insertButton(17, {
+                    cls : "x-btn-icon",
+					tooltip:'添加文件',
+                    icon : "./resources/images/icons/button/change.gif",
+                    handler : function(){this.addImage('0');},
+                    scope : this
+                });
+    }
+});
+Ext.reg('imghtmleditor', ImgHtmlEditor);

@@ -181,12 +181,39 @@ JxAttach = {};
 				url = JxAttach.uploadUrl;
 			}
 			url += "/fileAction.do?funid=sys_attach&pagetype=editgrid&eventcode=down&nousercheck=1&dataType=byte&keyid="+attachId;
+			//支持查看高清图片
+			var ishigh = Jxstar.systemVar.sys__attach__use_resize;
+			if (ishigh == '1') {
+				url += "&is_highimage=1";
+			}
+		
 			var html = '<img src="'+ url +'">';
 			var imgbox = new Ext.BoxComponent({
 				border:false,
 				html: html
 			});
-
+			var resiz = null, oldw = 0, oldh = 0;//缩放对象
+			var tbar = new Ext.Toolbar({items:[{xtype:'tbtext', text:'缩放比例：'},{
+					value:100,
+					width:300,
+					increment:10,
+					minValue:10,
+					maxValue:300,
+					xtype:'slider',
+					plugins: new Ext.slider.Tip({
+						getText: function(thumb){
+							return String(thumb.value) + '%';
+						}
+					}),
+					listeners:{change:function(s){
+						if (!resiz || oldw == 0) return;
+						var v = s.getValue();
+						var w = parseInt(oldw) * parseInt(v) / 100;
+						var h = parseInt(oldh) * parseInt(v) / 100;
+						resiz.resizeTo(w, h);
+					}}
+				}]});
+			
 			var cfg = {
 				id:tabid,
 				pagetype:'formpic',
@@ -196,6 +223,7 @@ JxAttach = {};
 				closable:true,
 				autoScroll:true,
 				iconCls:'tab_form',
+				tbar:tbar,
 				items:[imgbox]
 			};
 			tab = tabPanel.add(cfg);
@@ -204,7 +232,7 @@ JxAttach = {};
 			//延时添加图片缩放功能
 			var delayFn = function(){
 				var imgel = imgbox.getEl().child('img');
-				var resiz = new Ext.Resizable(imgel, {
+				resiz = new Ext.Resizable(imgel, {
 					wrap:true,
 					pinned:true,
 					minWidth:200,
@@ -214,17 +242,9 @@ JxAttach = {};
 					handles:'all',
 					draggable:true
 				});
-				/*取消鼠标滚轮事件
-				Ext.get(document.body).on('mousewheel',function(e){
-					var delta = e.getWheelDelta();
-					var width = imgel.getWidth();
-					width = width + delta*50;
-					if (width < 200) return;
-					var height = imgel.getHeight();
-					height = height + delta*50;
-					if (height < 100) return;
-					resiz.resizeTo(width, height);
-				});*/
+				//注册缩放事件
+				oldw = resiz.getEl().getWidth();
+				oldh = resiz.getEl().getHeight();
 			};
 			JxUtil.delay(1000, delayFn);
 		},

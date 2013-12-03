@@ -15,6 +15,7 @@
 	{srcNodeId:'fun_tree',destNodeId:'fun_tree',layout:'',whereSql:'tree_id not in (select tree_id from fun_tree where fun_id = {FKEYID})',whereType:'',whereValue:''}
 ],
 'mat_appdet':[
+	{srcNodeId:'mat_base_sel',destNodeId:'mat_appdet',layout:'/public/layout/layout_tree.js',whereSql:'mat_id <> \'aaa\'',whereType:'',whereValue:''},
 	{srcNodeId:'mat_base',destNodeId:'mat_appdet',layout:'/public/layout/layout_tree.js',whereSql:'mat_id not in (select mat_id from mat_appdet where app_id = {FKEYID})',whereType:'',whereValue:''}
 ],
 'plet_fun':[
@@ -31,6 +32,10 @@
 ],
 'sys_fun_col':[
 	{srcNodeId:'sel_field',destNodeId:'sys_fun_col',layout:'/jxstar/studio/pub/layout_selfield.js',whereSql:'',whereType:'',whereValue:''}
+],
+'sys_news_obj':[
+	{srcNodeId:'sys_user',destNodeId:'sys_news_obj',layout:'/public/layout/layout_tree.js',whereSql:'not exists (select * from sys_news_obj where obj_type = \'1\' and obj_id = user_id and news_id = {FKEYID})',whereType:'',whereValue:''},
+	{srcNodeId:'sys_dept',destNodeId:'sys_news_obj',layout:'/public/layout/layout_tree.js',whereSql:'not exists (select * from sys_news_obj where obj_type = \'0\' and obj_id = dept_id and news_id = {FKEYID})',whereType:'',whereValue:''}
 ],
 'sys_qrydet':[
 	{srcNodeId:'sel_fun_col',destNodeId:'sys_qrydet',layout:'',whereSql:'fun_col.col_code not like \'%id\'',whereType:'',whereValue:''}

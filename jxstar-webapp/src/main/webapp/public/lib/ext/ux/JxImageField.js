@@ -359,6 +359,12 @@ Ext.ux.form.JxImageField = Ext.extend(Ext.form.DisplayField, {
 						//设置文件名，并标记不修改
 						imageField.setValue(imageValue);
 						imageField.originalValue = imageValue;
+						//把文件名写入记录对象，防止刷新界面时不加载图片
+						if (param.form && param.form.myRecord) {
+							var record = param.form.myRecord;
+							record.set(imageName, imageValue);
+							record.commit();
+						}
 						
 						imageField.loadImage();
 					};

@@ -26,7 +26,7 @@ Jxstar.currentPage = function(define, pageParam) {
 		items:[{
 			pagetype:'grid',
 			region:'north',
-			height:240,
+			height:280,
 			layout:'fit',
 			split:true,
 			border:false
@@ -50,10 +50,12 @@ Jxstar.currentPage = function(define, pageParam) {
 	//附加显示数据的事件
 	var hd = function() {
 		var gridm = funLayout.getComponent(0).getComponent(0);//主表
-		var grids = funLayout.getComponent(1).getComponent(0);//子表
 		
 		var selectRow = function(g){
-			g.getSelectionModel().selectFirstRow();
+			var selm = g.getSelectionModel();
+			if (!g || !selm || !selm.grid) return;//selm.grid可能会为null
+			selm.selectFirstRow();
+			
 			g.fireEvent('rowclick', g, 0);
 		};
 		gridm.getStore().on('load', function(s){
@@ -62,8 +64,14 @@ Jxstar.currentPage = function(define, pageParam) {
 		
 		//点击主表记录，显示明细表记录
 		gridm.on('rowclick', function(g, n, e){
+			var grids = funLayout.getComponent(1).getComponent(0);//子表
+			grids.parentGrid = gridm;//设置主表对象
+		
 			var record = g.getStore().getAt(n);
-			if (record == null) return false;
+			if (record == null) {//清除明细表中的数据
+				grids.getStore().removeAll();grids.fkValue = '';
+				return false;
+			}
 			
 			//外键值
 			var pkvalue = record.get(pkcol);

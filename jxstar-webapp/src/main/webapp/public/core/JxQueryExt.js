@@ -318,7 +318,7 @@ JxQueryExt = {};
 		var vfs = JxQueryExt.getQryField(hps);//取出所有有查询值的字段
 		
 		var query = JxQuery.getQuery(vfs);
-		if (query == null) return false;
+		//if (query == null) return false;//无查询条件时也可以查询
 		Jxstar.myQuery(page, query, query_type);
 	},
 	

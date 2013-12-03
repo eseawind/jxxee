@@ -31,7 +31,8 @@ JxPortal = {};
 		'portlet_result':PortletResult,
 		'portlet_resultg':PortletResultG,
 		'portlet_flow':PortletAssign,
-		'portlet_icon':PortletIcon
+		'portlet_icon':PortletIcon,
+		'portlet_news':PortletNews
 	},
 	
 	/**
