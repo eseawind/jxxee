@@ -12,6 +12,7 @@ import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.dao.transaction.TransactionException;
 import org.jxstar.dao.transaction.TransactionManager;
+import org.jxstar.dao.util.BigFieldUtil;
 import org.jxstar.test.AbstractTest;
 import org.jxstar.util.factory.SystemFactory;
 
@@ -52,11 +53,15 @@ public class BaseDaoTest extends AbstractTest {
 	}
 	
 	public static void test2() {
-		DaoParam param1 = _dao.createParam("select table_title from dm_tablecfg1 where table_name = ? or table_name = ?  ");
-		param1.setUseTransaction(false);
-		param1.addStringValue("mat_app");
-		param1.addDateValue("2013-09-10");
+		DaoParam param1 = _dao.createParam("select news_id, news_title, news_cont from sys_news  ");
 		Map<String,String> mp = _dao.queryMap(param1);
-		System.out.println("table_title=" + mp.get("table_title"));
+		System.out.println("news_title=" + mp.get("news_title"));
+		System.out.println("news_cont=" + mp.get("news_cont"));
+	}
+	
+	public static void test3() {
+		String sql = "select news_cont from sys_news where news_id = 'jxstar74451'";
+		String cont = BigFieldUtil.readStream(sql, "news_cont", "");
+		System.out.println("news_cont=" + cont);
 	}
 }

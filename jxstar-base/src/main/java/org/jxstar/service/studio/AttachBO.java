@@ -269,6 +269,8 @@ public class AttachBO extends BusinessObject {
 		if (isImageResize.equals("1")) {
 			saveImageResize(file, imageSize);
 		}
+		String json = "{attachId:'"+ attachId +"'}";
+		requestContext.setReturnData(json);
 		
 		return _returnSuccess;
 	}

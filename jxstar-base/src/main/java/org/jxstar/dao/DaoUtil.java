@@ -6,7 +6,10 @@
  */
 package org.jxstar.dao;
 
+import java.io.IOException;
+import java.io.Reader;
 import java.sql.CallableStatement;
+import java.sql.Clob;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -110,14 +113,16 @@ public class DaoUtil {
 				}
 				
 				//如果是日期类型的字段，转换为日期对象
-				if (rsmd.getColumnType(i) == java.sql.Types.DATE || 
-						rsmd.getColumnType(i) == java.sql.Types.TIMESTAMP) {
+				int type = rsmd.getColumnType(i);
+				if (type == java.sql.Types.DATE || type == java.sql.Types.TIMESTAMP) {
 					if (strVal.length() > 0) {
 						String strTmp[] = strVal.split("\\.");
 						if (strTmp.length == 2) {
 							strVal = strTmp[0];
 						}
 					}
+				} else if (type == java.sql.Types.CLOB) {
+					strVal = getClobValue(rs, strCol);
 				}
 				
 				map.put(strCol, strVal);
@@ -126,6 +131,35 @@ public class DaoUtil {
 		}
 
 		return lsRet;
+	}
+	
+	/**
+	 * 取文本大字段的数据
+	 * @param rs -- 结果集
+	 * @param colname -- 字段名
+	 * @return
+	 * @throws SQLException
+	 */
+	public static String getClobValue(ResultSet rs, String colname) throws SQLException {
+		String value = "";
+		
+		if (rs == null) return value;
+		Clob clob = rs.getClob(colname);
+		if (clob == null) return value;
+		
+		Reader reader = clob.getCharacterStream();
+		try {
+			int len = (int) clob.length();
+			if (len == 0) return value;
+			
+			char[] cbuf = new char[len];
+			reader.read(cbuf);
+			value = new String(cbuf);
+			reader.close();
+		} catch (IOException e) {
+			_log.showError(e);
+		}
+		return value;
 	}
 
 	/**
@@ -317,8 +351,8 @@ public class DaoUtil {
 				}
 				
 				//如果是日期类型的字段，转换为日期对象
-				if (rsmd.getColumnType(i) == java.sql.Types.DATE || 
-						rsmd.getColumnType(i) == java.sql.Types.TIMESTAMP) {
+				int type = rsmd.getColumnType(i);
+				if (type == java.sql.Types.DATE || type == java.sql.Types.TIMESTAMP) {
 					if (strVal.length() == 0) {
 						strVal = "''";
 					} else {
@@ -352,6 +386,12 @@ public class DaoUtil {
 					}
 					
 					sbJson.append("'"+cols[i-1]+"'").append(":").append(strVal).append(",");
+				} else if (type == java.sql.Types.CLOB) {
+					strCol = rsmd.getColumnLabel(i).toLowerCase();
+					strVal = getClobValue(rs, strCol);
+					strVal = StringUtil.strForJson(strVal);
+					
+					sbJson.append("'"+cols[i-1]+"'").append(":'").append(strVal).append("',");
 				} else {
 					strVal = StringUtil.strForJson(strVal);
 
