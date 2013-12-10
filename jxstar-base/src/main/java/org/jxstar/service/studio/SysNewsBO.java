@@ -176,6 +176,8 @@ public class SysNewsBO extends BusinessObject {
 	private boolean deleteAttach(String tableName, String dataId) {
 		String sql = "select attach_id from sys_attach where table_name = ? and data_id = ?";
 		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(tableName);
+		param.addStringValue(dataId);
 		
 		List<Map<String, String>> lsData = _dao.query(param);
 		if (lsData.isEmpty()) return true;
