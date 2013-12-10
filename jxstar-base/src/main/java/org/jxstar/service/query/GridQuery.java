@@ -107,6 +107,11 @@ public class GridQuery extends BusinessObject {
 		//组合页面SQL
 		StringBuilder sbpage = new StringBuilder(select);
 		if (where != null && where.length() > 0) {
+			//支持定义当前用户ID过滤
+			if (where.indexOf("{CURUSERID}") >= 0) {
+				where = where.replaceAll("\\{CURUSERID\\}", userid);
+			}
+			
 			sbpage.append(" where " + where);
 		}
 		
