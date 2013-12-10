@@ -34,7 +34,9 @@
 		}}, field:{name:'sys_news__edit_date',type:'date'}},
 	{col:{header:'发布人', width:74, sortable:true}, field:{name:'sys_news__edit_user',type:'string'}},
 	{col:{header:'发布人ID', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'sys_news__edit_userid',type:'string'}},
-	{col:{header:'主键', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'sys_news__news_id',type:'string'}}
+	{col:{header:'主键', width:100, sortable:true, colindex:10000, hidden:true}, field:{name:'sys_news__news_id',type:'string'}},
+	{col:{header:'允许回复？', width:100, sortable:true, hidden:true}, field:{name:'sys_news__allow_reply',type:'string'}},
+	{col:{header:'置顶？', width:100, sortable:true, hidden:true}, field:{name:'sys_news__is_top',type:'string'}}
 	];
 	
 	config.param = {

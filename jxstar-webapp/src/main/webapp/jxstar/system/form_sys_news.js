@@ -31,7 +31,8 @@
 						valueField: 'value',
 						displayField: 'text',
 						value: Dataaudit[0][0]},
-					{xtype:'textfield', fieldLabel:'编号', name:'sys_news__news_code', readOnly:true, anchor:'100%', maxLength:20},
+					{xtype:'textfield', fieldLabel:'发布人', name:'sys_news__edit_user', defaultval:'fun_getUserName()', readOnly:true, anchor:'100%', maxLength:20},
+					{xtype:'datefield', fieldLabel:'发布时间', name:'sys_news__edit_date', defaultval:'fun_getToday()', format:'Y-m-d H:i', anchor:'100%', readOnly:true},
 					{xtype:'hidden', fieldLabel:'主键', name:'sys_news__news_id', anchor:'100%'}
 				]
 			},{
@@ -40,8 +41,9 @@
 				layout:'form',
 				style: 'padding-left:10px;',
 				items:[
-					{xtype:'textfield', fieldLabel:'发布人', name:'sys_news__edit_user', defaultval:'fun_getUserName()', readOnly:true, anchor:'100%', maxLength:20},
-					{xtype:'datefield', fieldLabel:'发布时间', name:'sys_news__edit_date', defaultval:'fun_getToday()', format:'Y-m-d H:i', anchor:'100%', readOnly:true},
+					{xtype:'checkbox', fieldLabel:'置顶？', name:'sys_news__is_top', defaultval:'0', disabled:false, anchor:'100%'},
+					{xtype:'checkbox', fieldLabel:'允许回复？', name:'sys_news__allow_reply', defaultval:'0', disabled:false, anchor:'100%'},
+					{xtype:'textfield', fieldLabel:'编号', name:'sys_news__news_code', readOnly:true, anchor:'100%', maxLength:20},
 					{xtype:'hidden', fieldLabel:'发布人ID', name:'sys_news__edit_userid', defaultval:'fun_getUserId()', anchor:'100%'}
 				]
 			}

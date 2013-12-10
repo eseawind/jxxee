@@ -120,43 +120,22 @@ PortletNews = {};
 	 * public
 	 * 阅读公告，弹出对话框，显示当前公告内容。
 	 **/
-	readBoard: function(msgid) {
+	readBoard: function(newsId) {
 		var self = this;
-		
-		//构建新闻内容html
-		var createHtml = function(msgjson) {
-			var msgTpl = new Ext.Template(
-				'<div id="{news_id}">',
-				'<p style="margin:8px;background-color:#f0f0f0;padding:5px;">',
-					'<span>发布者：{edit_user}&nbsp;&nbsp;{edit_date}</span>',
-				'</p>',
-				'<p style="margin:8px;font-size:14px;font-weight:bold;">{news_title}</p>',
-				'<div style="margin:8px;">{news_cont}</div>',
-				'</div>'
-			);
-			
-			var sd = '';
-			var dt = msgjson.sys_news__edit_date;
-			if (!Ext.isEmpty(dt)) {
-				sd = dt.format('Y-m-d H:i');
-			}
-			
-			var msgVal = {};
-			msgVal.news_id = msgjson.sys_news__news_id;
-			msgVal.edit_user = msgjson.sys_news__edit_user;
-			msgVal.edit_date = sd;
-			msgVal.news_cont = msgjson.sys_news__news_cont;
-			msgVal.news_title = msgjson.sys_news__news_title;
-			
-			return msgTpl.apply(msgVal);
-		};
 
 		//显示新闻内容对话框
-		var showWin = function(msgjson) {
+		var showWin = function(data) {
 			//创建工具栏
-			var tbar = new Ext.Toolbar({deferHeight:true, items:[{iconCls:'eb_cancel', text:'关闭', handler:function(){win.close();}}]});
+			var tbar = new Ext.Toolbar({deferHeight:true, items:[
+				{iconCls:'eb_return', text:'回复', handler:function(){self.replyBoard(newsId, win);}},
+				{iconCls:'eb_refresh', text:'刷新', handler:function(){self.refreshCont(newsId, win);}}
+			]});
 			//创建新闻显示内容
-			var html = createHtml(msgjson);
+			var html = self.contHtml(data.cont);
+			var replys = data.reply;
+			for (var i = 0, n = replys.length; i < n; i++) {
+				html += self.replyHtml(i+1, replys[i]);
+			}
 			//创建先生新闻内容的panel
 			var page = new Ext.Panel({tbar: tbar, html: html, autoScroll:true});
 			
@@ -176,21 +155,168 @@ PortletNews = {};
 				items: [page]
 			});
 			win.show();
+			
+			//添加删除事件
+			self.addDelete(page);
 		};
-
-		var options = {
-			where_sql: 'sys_news.news_id = ?',
-			where_type: 'string',
-			where_value: msgid,
-			callback: function(data) {
-				if (data.length == 0) {
-					JxHint.alert(jx.plet.notboard);
-				} else {
-					showWin(data[0]);
-				}
+		
+		//返回的数据格式为：{cont:{...}, reply:[...]}，第一部分为新闻，第二部分为回复
+		var hdcall = function(data) {
+			if (Ext.isEmpty(data)) {
+				JxHint.alert(jx.plet.notboard);
+			} else {
+				showWin(data);
 			}
 		};
-		Jxstar.queryData('sys_news', options);
+		var params = 'funid=sys_news_reply&eventcode=fqury&pagetype=form&newsId='+newsId;
+		Request.dataRequest(params, hdcall);
+	},
+	
+	//构建新闻内容html
+	contHtml: function(msgjson) {
+		var msgTpl = new Ext.Template(
+			'<div flag="0" itemid="{news_id}">',
+			'<p style="margin:8px;background-color:#f0f0f0;padding:5px;">',
+				'<span>发布者：{edit_user}&nbsp;&nbsp;{edit_date}</span>',
+			'</p>',
+			'<p style="margin:8px;font-size:14px;font-weight:bold;">{news_title}</p>',
+			'<div style="margin:8px;">{news_cont}</div>',
+			'</div>'
+		);
+		
+		return msgTpl.apply(msgjson);
+	},
+		
+	//构建回复内容html
+	replyHtml: function(index, msgjson) {
+		var delhtml = '';
+		if (JxUtil.isAdminUser()) {//管理员可以直接删除回复信息
+			delhtml = '&nbsp;&nbsp;<a href="#" class="delete" itemid="{reply_id}" parentid="{news_id}">删除</a>';
+		}
+	
+		var msgTpl = new Ext.Template(
+			'<div flag="1" itemid="{reply_id}">',
+			'<p style="margin:8px;background-color:#f0f0f0;padding:5px;">',
+				'<span>楼{index}: {edit_user}&nbsp;&nbsp;{edit_date}'+ delhtml +'</span>',
+			'</p>',
+			'<div style="margin:8px;">{reply_cont}</div>',
+			'</div>'
+		);
+		
+		msgjson.index = index;
+		return msgTpl.apply(msgjson);
+	},
+	
+	//private 回复信息
+	replyBoard: function(newsId, newsWin) {
+		var self = this;
+		var rand = Math.round(Math.random()*100);
+		var reply_id = rand + (new Date()).getTime();
+		//创建回复信息界面
+		var page = new Ext.form.FormPanel({
+				layout:'fit', 
+				border: false,
+				items: [
+					{xtype:'imghtmleditor', name:'sys_news_reply__reply_cont', allowBlank:false, anchor:'100%', maxLength:20000},
+					{xtype:'hidden', name:'sys_news_reply__reply_id', value:reply_id},
+					]
+			});
+		//给系统定义信息，方便上传附件
+		page.formNode = {define: Jxstar.findNode('sys_news_reply')};
+		
+		//创建对话框
+		var	win = new Ext.Window({
+			title: '回复新闻公告',
+			layout: 'fit',
+			width: 650,
+			height: 400,
+			modal: true,
+			border: false,
+			closeAction: 'close',
+			style: 'padding: 5px;',
+			items: [page],
+			buttons: [{
+				text:jx.base.ok,		//确定
+				handler:function(){
+					var html = page.getForm().get('sys_news_reply__reply_cont');
+					html = encodeURIComponent(html);
+					
+					//设置请求的参数
+					var params = 'funid=sys_news_reply&keyid='+reply_id+'&pagetype=form&eventcode=fsave';
+					params += '&news_id='+newsId+'&reply_cont='+html;
+					
+					//保存后刷新记录
+					var endcall = function(data) {
+						self.refreshCont(newsId, newsWin);
+						win.close();
+					};
+
+					//发送请求
+					Request.postRequest(params, endcall);
+				}
+			},{
+				text:jx.base.cancel,	//取消
+				handler:function(){win.close();}
+			}]
+		});
+		win.show();
+	},
+	
+	//刷新新闻与回复信息
+	refreshCont: function(newsId, newsWin) {
+		var self = this;
+		var hdcall = function(data) {
+			if (Ext.isEmpty(data)) {
+				JxHint.alert(jx.plet.notboard);
+			} else {
+				//先删除原来的内容
+				var page = newsWin.getComponent(0);
+				page.removeAll();
+				
+				
+				//创建新闻显示内容
+				var html = self.contHtml(data.cont);
+				var replys = data.reply;
+				for (var i = 0, n = replys.length; i < n; i++) {
+					html += self.replyHtml(i+1, replys[i]);
+				}
+				
+				//显示新内容
+				page.update(html);
+				//添加删除事件
+				self.addDelete(page);
+			}
+		};
+		var params = 'funid=sys_news_reply&eventcode=fqury&pagetype=form&newsId='+newsId;
+		Request.dataRequest(params, hdcall);
+	},
+	
+	//给回复消息添加删除事件，只有管理员才有权限
+	addDelete: function(page) {
+		if (!JxUtil.isAdminUser()) return;
+		
+		var self = this;
+		//删除回复记录与相关附件
+		var delReply = function(replyId, newsId) {
+			//设置请求的参数
+			var params = 'funid=sys_news_reply&replyId='+replyId+'&pagetype=form&eventcode=fdelete';
+			
+			//保存后刷新记录
+			var endcall = function(data) {
+				self.refreshCont(newsId, page.ownerCt);
+			};
+
+			//发送请求
+			Request.postRequest(params, endcall);
+		};
+		
+		var dela = page.body.select('a.delete');
+		dela.on('click', function(e, t){
+			var el = Ext.get(t);
+			var itemid = el.getAttribute('itemid');
+			var parentid = el.getAttribute('parentid');
+			delReply(itemid, parentid);
+		});
 	},
 	
 	/**
