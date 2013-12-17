@@ -16,6 +16,16 @@ import javax.servlet.http.HttpServletRequest;
  * @version 1.0, 2012-12-29
  */
 public abstract class OneLoginProcess {
+	//返回到前台的错误信息
+	private String _message = "";
+
+	public String getMessage() {
+		return _message;
+	}
+
+	public void setMessage(String message) {
+		this._message = message;
+	}
 
 	/**
 	 * 输入的是外部系统账号，输出的是jxstar账号
@@ -27,12 +37,14 @@ public abstract class OneLoginProcess {
 	}
 	
 	/**
-	 * 对请求信息进一步检查，如果不合法，则返回非法的提示信息，否则返回true或空
+	 * 对请求信息进一步检查，如果合法返回true，否则返回false，
+	 * 非法的提示信息通过：request.getAttribute(OneLoginProcess.ERRORCODE);获取
 	 * @param request
 	 * @return
 	 */
-	protected String valid(HttpServletRequest request) {
-		return "true";
+	protected boolean valid(HttpServletRequest request) {
+		
+		return true;
 	}
 	
 	/**

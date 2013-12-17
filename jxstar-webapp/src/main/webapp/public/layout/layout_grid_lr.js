@@ -50,21 +50,10 @@ Jxstar.currentPage = function(define, pageParam) {
 	//附加显示数据的事件
 	var hd = function() {
 		var gridm = funLayout.getComponent(0).getComponent(0);//主表
-		
-		var selectRow = function(g){
-			var selm = g.getSelectionModel();
-			if (!g || !selm || !selm.grid) return;//selm.grid可能会为null
-			selm.selectFirstRow();
-			
-			g.fireEvent('rowclick', g, 0);
-		};
-		gridm.getStore().on('load', function(s){
-			selectRow(gridm);
-		});
-		
+		var grids = funLayout.getComponent(1).getComponent(0);//子表
+				
 		//点击主表记录，显示明细表记录
 		gridm.on('rowclick', function(g, n, e){
-			var grids = funLayout.getComponent(1).getComponent(0);//子表
 			var record = g.getStore().getAt(n);
 			if (record == null) return false;
 			
@@ -73,7 +62,6 @@ Jxstar.currentPage = function(define, pageParam) {
 			//加载子表数据
 			Jxstar.loadSubData(grids, pkvalue);
 		});
-		selectRow(gridm);
 	};
 	//保证附加事件成功
 	var callhd = function() {

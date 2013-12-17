@@ -71,9 +71,8 @@ public class OneLoginFilter implements Filter {
 			//对用户编码进行转换
 			userCode = processLogin.getUserCode(userCode);
 			//对请求进一步校验
-			String validMsg = processLogin.valid(req);
-			if (validMsg != null && validMsg.length() > 0 && !validMsg.equals("true")) {
-				resp.sendError(401, "单点访问失败："+ validMsg +"！");
+			if (!processLogin.valid(req)) {
+				resp.sendError(401, "单点访问失败："+ processLogin.getMessage() +"！");
 			}
 		}
 		

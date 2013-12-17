@@ -954,7 +954,7 @@ Ext.form.NumberField.prototype.beforeBlur = function() {
 };
 
 JxExt.bbsurl = function(keyid) {
-	var imgurl = Jxstar.path;
+	var imgurl = '.';
 	if (Jxstar.systemVar.uploadType == '1') {
 		imgurl = Jxstar.systemVar.uploadUrl;
 	}
