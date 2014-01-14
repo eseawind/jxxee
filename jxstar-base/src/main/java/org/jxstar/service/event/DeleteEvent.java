@@ -7,7 +7,6 @@
 package org.jxstar.service.event;
 
 
-import java.util.List;
 import java.util.Map;
 
 import org.jxstar.control.action.RequestContext;
@@ -15,7 +14,7 @@ import org.jxstar.dao.DaoParam;
 import org.jxstar.service.BoException;
 import org.jxstar.service.BusinessEvent;
 import org.jxstar.service.define.FunctionDefine;
-import org.jxstar.service.studio.AttachBO;
+import org.jxstar.service.util.ServiceUtil;
 import org.jxstar.util.StringUtil;
 import org.jxstar.util.resource.JsMessage;
 import org.jxstar.util.resource.JsParam;
@@ -80,7 +79,7 @@ public class DeleteEvent extends BusinessEvent {
 			
 			//删除相关附件
 			String tableName = _funObject.getElement("table_name");
-			deleteAttach(tableName, sKeyID);
+			ServiceUtil.deleteAttach(tableName, sKeyID);
 			
 			//删除主记录
 			if (!_dao.update(param)) {
@@ -164,33 +163,6 @@ public class DeleteEvent extends BusinessEvent {
 				return false;
 			}
 		}
-		
-		return true;
-	}
-	
-	/**
-	 * 删除当前表记录的附件
-	 * 
-	 * @param tableName -- 业务表名
-	 * @param dataId -- 记录ID
-	 * @return
-	 */
-	private boolean deleteAttach(String tableName, String dataId) {
-		String sql = "select attach_id from sys_attach where table_name = ? and data_id = ?";
-		DaoParam param = _dao.createParam(sql);
-		param.addStringValue(tableName).addStringValue(dataId).setDsName(_dsName);
-		
-		List<Map<String, String>> lsData = _dao.query(param);
-		if (lsData.isEmpty()) return true;
-		
-		String[] attachIds = new String[lsData.size()];
-		for (int i = 0; i < lsData.size(); i++) {
-			attachIds[i] = lsData.get(i).get("attach_id");
-		}
-		
-		//删除相关附件，不处理删除异常
-		AttachBO attach = new AttachBO();
-		attach.deleteAttach(attachIds);
 		
 		return true;
 	}

@@ -23,15 +23,51 @@ import org.jxstar.util.key.KeyCreator;
  */
 public class SysNewsBO extends BusinessObject {
 	private static final long serialVersionUID = 1L;
+	
+	/**
+	 * 标记公告是否置顶
+	 * @param keyids
+	 * @param istop -- 是否置顶：1 置顶、0 不置顶
+	 * @return
+	 */
+	public String istop(String[] keyids, String istop) {
+		if (keyids == null || keyids.length == 0) {
+			setMessage("没有选择记录！");
+			return _returnFaild;
+		}
+		if (istop == null || istop.length() == 0) {
+			istop = "0";
+		}
+		for (String keyid : keyids) {
+			if (!istop(keyid, istop)) {
+				setMessage("置顶更新失败！");
+				return _returnFaild;
+			}
+		}
+		
+		return _returnSuccess;
+	}
+	//更新是否置顶
+	private boolean istop(String keyid, String istop) {
+		String sql = "update sys_news set is_top = ? where news_id = ?";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(istop);
+		param.addStringValue(keyid);
+		return _dao.update(param);
+	}
 
 	/**
 	 * 新增的时候自动创建一条记录，方便保存附件、添加明细记录
 	 * @param mpUser
+	 * @param type -- 信息类型：0 消息、1 公告
 	 * @return
 	 */
-	public String createNews(Map<String,String> mpUser) {
-		String sql = "insert into sys_news(news_id, news_code, state, edit_date, edit_user, edit_userid, add_userid, add_date) " +
-			"values(?, ?, ?, ?, ?, ?, ?, ?)";
+	public String createNews(Map<String,String> mpUser, String type) {
+		if (type == null || type.length() == 0) type = "1";
+		
+		String sql = "insert into sys_news(news_id, news_code, state, cont_type, " +
+				"edit_date, edit_user, edit_userid, add_userid, add_date) " +
+			"values(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 		DaoParam param = _dao.createParam(sql);
 		
 		String news_id = KeyCreator.getInstance().createKey("sys_news");
@@ -42,6 +78,7 @@ public class SysNewsBO extends BusinessObject {
 		param.addStringValue(news_id);
 		param.addStringValue(news_code);
 		param.addStringValue("0");
+		param.addStringValue(type);
 		param.addDateValue(DateUtil.getTodaySec());
 		param.addStringValue(user_name);
 		param.addStringValue(user_id);
@@ -70,8 +107,8 @@ public class SysNewsBO extends BusinessObject {
 		}
 		
 		//f_isnews函数处理公告的数据权限
-		String sql = "select news_id, news_code, news_title, edit_date, edit_user, edit_userid " +
-				"from sys_news where f_isnews(news_id, ?) = '1' and state = '1' and " +
+		String sql = "select news_id, news_code, news_title, edit_date, edit_user, edit_userid, is_top " +
+				"from sys_news where f_isnews(news_id, ?) = '1' and cont_type = '1' and state = '1' and " +
 				"(edit_date >= ? or is_top = '1') order by is_top desc, edit_date desc";
 		DaoParam param = _dao.createParam(sql);
 		param.addStringValue(userId);

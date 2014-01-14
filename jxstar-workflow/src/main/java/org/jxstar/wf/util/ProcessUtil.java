@@ -72,6 +72,8 @@ public class ProcessUtil {
 		String where = funObj.getElement("where_sql");
 		//取主键字段
 		String keyField = funObj.getElement("pk_col");
+		//数据源名
+		String dsName = funObj.getElement("ds_name");
 		
 		//构建SQL
 		StringBuilder sbsql = new StringBuilder();
@@ -83,6 +85,7 @@ public class ProcessUtil {
 		
 		//查询数据
 		DaoParam param = _dao.createParam(sbsql.toString());
+		param.setDsName(dsName);
 		param.addStringValue(dataId);
 		return _dao.queryMap(param);
 	}
@@ -103,6 +106,8 @@ public class ProcessUtil {
 		String tableName = mpDefine.get("table_name");
 		//取记录状态字段
 		String auditField = mpDefine.get("audit_col");
+		//数据源名
+		String dsName = mpDefine.get("ds_name");
 		
 		//构建SQL
 		StringBuilder sbsql = new StringBuilder();
@@ -110,6 +115,7 @@ public class ProcessUtil {
 		sbsql.append(" = ? where ").append(keyField).append(" = ?");
 		
 		DaoParam param = _dao.createParam(sbsql.toString());
+		param.setDsName(dsName);
 		param.addStringValue(audit);
 		param.addStringValue(dataId);
 		return _dao.update(param);

@@ -12,7 +12,7 @@ import java.io.FileInputStream;
  * @version 1.0, 2012-3-24
  */
 public class JavaVersionUtil {
-	private static final String str = "D:/SjWarningBO.class";
+	private static final String str = "c:/CometAppListener.class";
 
 	 // 版本号对应：
 	 // 5.0

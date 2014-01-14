@@ -98,13 +98,23 @@ public class DesignUpdateBO extends BusinessObject {
 			String fileName = toPath + "/" + name;
 			String content = FileUtil.readFile(fileName, "UTF-8");
 			
-			String[] names = name.split("\\.")[0].split(FILE_FLAG);
-			if (names.length < 2) continue;
-			
-			if (!hasDesign(dsName, names[0], names[1])) {
-				insertDesign(dsName, names[0], names[1]);
+			//支持另一种文件命名规范
+			if (name.indexOf("fun_design") >= 0) {
+				String[] names = name.split("\\.");
+				if (names.length < 3) continue;
+				
+				_log.showDebug("更新的设计文件ID：" + names[1]);
+				writeDesignById(dsName, names[1], content);
+			} else {
+				String[] names = name.split("\\.")[0].split(FILE_FLAG);
+				if (names.length < 2) continue;
+				
+				_log.showDebug("更新的设计文件功能ID与页面类型：" + names[0]+";"+names[1]);
+				if (!hasDesign(dsName, names[0], names[1])) {
+					insertDesign(dsName, names[0], names[1]);
+				}
+				writeDesign(dsName, names[0], names[1], content);
 			}
-			writeDesign(dsName, names[0], names[1], content);
 		}
 		
 		return _returnSuccess;
@@ -190,5 +200,16 @@ public class DesignUpdateBO extends BusinessObject {
 		return BigFieldUtil.updateStream(sql, content, dsName);
 	}
 	
-
+	/**
+	 * 根据设计ID更新设计文件
+	 * @param dsName
+	 * @param designId
+	 * @param content
+	 * @return
+	 */
+	public boolean writeDesignById(String dsName, String designId, String content) {
+		String sql = "update fun_design set page_content = ? where design_id = '"+ designId +"'";
+		
+		return BigFieldUtil.updateStream(sql, content, dsName);
+	}
 }

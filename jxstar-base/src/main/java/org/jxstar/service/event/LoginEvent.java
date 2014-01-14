@@ -181,53 +181,70 @@ public class LoginEvent extends BusinessObject {
 	 * @return
 	 */
 	private boolean userCheck(int logNum) {
-		//判断在线用户数，值加密
-		String sysNum = SystemVar.getValue("license.user.num");
-		if (sysNum.length() > 0) {
-			sysNum = Password.decodeNum(sysNum);
-		}
-		if (sysNum.length() == 0) sysNum = "1";
-		_log.showDebug(".............user.num=" + sysNum);
+		String sysNum = "0";
 		try {
+			//判断在线用户数，值加密
+			sysNum = SystemVar.getValue("license.user.num");
+			if (sysNum.length() > 0) {
+				sysNum = Password.decodeNum(sysNum);
+			}
+			if (sysNum.length() == 0) sysNum = "1";
+			//_log.showDebug(".............user.num=" + sysNum);
+		
 			if (logNum > Integer.parseInt(sysNum)) {
 				setMessage(JsMessage.getValue("loginbm.limituser", sysNum));
 				return false;
 			}
 		} catch(Exception e) {
-			_log.showError(e);
+			//_log.showError(e);
 			setMessage(JsMessage.getValue("loginbm.limiterror", sysNum));
 			return false;
 		}
 		
-		//判断序列号是否合法，值加密
+		String endTime = DateUtil.getToday();
+		try {
+			//判断试用期，值加密
+			Date curDate = new Date();
+			endTime = SystemVar.getValue("license.user.endtime");
+			if (endTime.length() == 0) {
+				endTime = DateUtil.getToday();
+			} else {
+				//值解密
+				endTime = Password.decrypt(endTime);
+			}
+			//_log.showDebug(".............end.time=" + endTime);
+			
+			Date endDate = DateUtil.strToCalendar(endTime).getTime();
+			if (curDate.compareTo(endDate) > 0) {
+				//判断序列号是否合法
+				if (!checkSerial()) {
+					setMessage(JsMessage.getValue("loginbm.limittime", endTime));
+					return false;
+				}
+			}
+		} catch(Exception e) {
+			//_log.showError(e);
+			setMessage(JsMessage.getValue("loginbm.limittime", endTime));
+			return false;
+		}
+		
+		return true;
+	}
+	
+	//判断序列号是否合法
+	private boolean checkSerial() {
 		String serialNo = SystemVar.getValue("license.user.serial");
 		if (serialNo.length() > 0) {
 			//取到机器序列号
 			String key = LicenseInfo.readKey();
 			//值加密
 			key = Password.encrypt(key);
-			_log.showDebug(".............serial.key=" + key);
+			//_log.showDebug(".............serial.key=" + key);
 			if (serialNo.equals(key)) {
 				return true;
 			}
 		}
 		
-		//判断试用期，值加密
-		Date curDate = new Date();
-		String endTime = SystemVar.getValue("license.user.endtime");
-		if (endTime.length() == 0) {
-			endTime = DateUtil.getToday();
-		} else {
-			//值解密
-			endTime = Password.decrypt(endTime);
-		}
-		_log.showDebug(".............end.time=" + endTime);
-		Date endDate = DateUtil.strToCalendar(endTime).getTime();
-		if (curDate.compareTo(endDate) > 0) {
-			setMessage(JsMessage.getValue("loginbm.limittime", endTime));
-			return false;
-		}
-		
-		return true;
+		return false;
 	}
 }

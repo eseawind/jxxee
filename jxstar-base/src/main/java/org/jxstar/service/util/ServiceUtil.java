@@ -20,6 +20,7 @@ import org.jxstar.service.define.DefineDataManger;
 import org.jxstar.service.define.FunDefineDao;
 import org.jxstar.service.define.FunctionDefine;
 import org.jxstar.service.define.FunctionDefineManger;
+import org.jxstar.service.studio.AttachBO;
 import org.jxstar.util.ArrayUtil;
 import org.jxstar.util.DateUtil;
 import org.jxstar.util.MapUtil;
@@ -40,6 +41,34 @@ public class ServiceUtil {
 	private static Log _log = Log.getInstance();	
 	//DAO对象
 	private static BaseDao _dao = BaseDao.getInstance();
+	
+	/**
+	 * 删除当前表记录的附件
+	 * 
+	 * @param tableName -- 业务表名
+	 * @param dataId -- 记录ID
+	 * @return
+	 */
+	public static boolean deleteAttach(String tableName, String dataId) {
+		String sql = "select attach_id from sys_attach where table_name = ? and data_id = ?";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(tableName);
+		param.addStringValue(dataId);
+		
+		List<Map<String, String>> lsData = _dao.query(param);
+		if (lsData.isEmpty()) return true;
+		
+		String[] attachIds = new String[lsData.size()];
+		for (int i = 0; i < lsData.size(); i++) {
+			attachIds[i] = lsData.get(i).get("attach_id");
+		}
+		
+		//删除相关附件，不处理删除异常
+		AttachBO attach = new AttachBO();
+		attach.deleteAttach(attachIds);
+		
+		return true;
+	}
 	
 	/**
 	 * 把请求对象中的值取到map中，字段名为键值.
