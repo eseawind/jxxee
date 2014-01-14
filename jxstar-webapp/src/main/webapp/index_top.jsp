@@ -109,6 +109,7 @@
 		<script type="text/javascript" src="public/portlet/PortletAssign.js?verno=<%=svnNum%>"></script>
 		<script type="text/javascript" src="public/portlet/PortletIcon.js?verno=<%=svnNum%>"></script>
 		<script type="text/javascript" src="public/portlet/PortletNews.js?verno=<%=svnNum%>"></script>
+		<script type="text/javascript" src="public/portlet/PortletSend.js?verno=<%=svnNum%>"></script>
 		<script type="text/javascript" src="public/core/JxMenu.js?verno=<%=svnNum%>"></script>
 		<script type="text/javascript" src="public/core/JxPortal.js?verno=<%=svnNum%>"></script>
 
