@@ -442,7 +442,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		}
 		if (eventcode == 'save' && !this.form.isDirty()) {
 			//JxHint.alert(jx.event.nomodify);	//'记录没有被修改，不需要保存！'
-			self.fireEvent('aftersave', self, {});
+			//self.fireEvent('aftersave', self, {});
 			return;
 		}
 		

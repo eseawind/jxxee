@@ -704,7 +704,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		var store = this.grid.getStore();
 		var mrow = store.getModifiedRecords();
 		if (mrow.length == 0) {
-			JxHint.alert(jx.event.nomodify);	//没有修改记录，不需要保存！
+			//JxHint.alert(jx.event.nomodify);	//没有修改记录，不需要保存！
 			return;
 		}
 		if (this.fireEvent('beforesave', this) == false) return;

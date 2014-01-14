@@ -128,6 +128,29 @@ JxUtil = {};
 			}
 		},
 		
+		/**
+		 * 动态加载css文件
+		 * url --  css文件路径
+		 * nocache -- 是否不使用缓存
+		 **/
+		loadCss: function(url, nocache) {
+			//第1一个字符应该是/
+			if (url.charAt(0) != '/') url = '/' + url;
+			url = Jxstar.path + url;
+			
+			//不使用缓存时，加唯一标志
+			if (nocache === true) {
+				var dc = '?dc=' + (new Date()).getTime();
+				url += dc;
+			}
+			
+			var element = document.createElement("link");   
+			element.setAttribute('rel','stylesheet');   
+			element.setAttribute('type','text/css');   
+			element.setAttribute('href',url);   
+			document.getElementsByTagName('head')[0].appendChild(element);   
+		},
+		
 		//当前用户是否管理员
 		isAdminUser: function(){
 			var roleId = Jxstar.session['role_id'];
@@ -225,17 +248,19 @@ JxUtil = {};
 		
 		//在功能区域的表单或子表中取得父功能的表格
 		getParentGrid: function(childCmp) {
+			//增加参数parentGrid，方便在复杂布局中自定义父表格
+			var pg = childCmp.parentGrid;
+			if (pg && pg.isXType('grid')) return pg;
+			
 			//取到tab控件，而后取第一个页面中的表格
 			var tabPanel = childCmp.findParentByType('tabpanel');
 			if (!tabPanel || tabPanel.isXType('tabpanel') == false) {
-				//增加参数parentGrid，方便在复杂布局中自定义父表格
-				return childCmp.parentGrid;
+				return;
 			}
 			
 			var grid = tabPanel.getComponent(0).getComponent(0);
 			if (!grid || grid.isXType('grid') == false) {
-				//增加参数parentGrid，方便在复杂布局中自定义父表格
-				return childCmp.parentGrid;
+				return;
 			}
 			
 			return grid;

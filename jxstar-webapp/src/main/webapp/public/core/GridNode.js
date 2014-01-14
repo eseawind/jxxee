@@ -497,7 +497,8 @@ Jxstar.GridNode.prototype = {
 				if (!Ext.isEmpty(hk)) {
 					items[i].text = items[i].text+'('+ hk.toUpperCase() +')';
 					items[i].keyBinding = {key:hk, ctrl:true, alt:true};
-					items[i].tooltip = {text:'Ctrl+Alt+' + hk.toUpperCase()};
+					//添加提示会造成one_page.jsp中打开功能时出现样式错误
+					//items[i].tooltip = {text:'Ctrl+Alt+' + hk.toUpperCase()};
 				}
 				
 				//按钮显示类型[tool|menu]

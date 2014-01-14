@@ -132,6 +132,9 @@
 .x-tree-node-ct-ext{
     border-bottom:1px solid #8DB2E3;
 }
+.x-user .x-tree-node-icon{
+    background-image:url(../images/icons/fam/msg_man.gif) !important;
+}
 .myhidden {display:none !important;}
 .one-menu .x-tree-node-icon {display:none;}
 .two-menu .x-tree-node-icon {display:none;}

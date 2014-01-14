@@ -115,9 +115,8 @@ Ext.ns('Jxstar');
 			
 			if (funTab == null) {
 				var index = mainTab.items.length;
-				if (index > 8) {
-					JxHint.alert(jx.star.morefun);	//'打开的功能数量过多,请关闭不必要的功能标签页！'
-					return false;
+				if (index > 5) {//打开5个功能后就关闭第一个功能
+					mainTab.remove(mainTab.get(1));
 				}
 				
 				//异步加载功能对象后再显示
@@ -336,7 +335,8 @@ Ext.ns('Jxstar');
 					var grid = tabPanel;
 					//有些左右表格布局，不能用tabpanel判断
 					if (!tabPanel.isXType('grid')) {
-						grid = tabPanel.getComponent(0).getComponent(0);
+						var tp = tabPanel.getComponent(0);
+						if (tp) grid = tp.getComponent(0);
 					}
 					var root = tree.getRootNode();
 					//展开根节点，根节点不显示
@@ -467,7 +467,8 @@ Ext.ns('Jxstar');
 					
 					var grid = tabPanel;
 					if (!tabPanel.isXType('grid')) {
-						grid = tabPanel.getComponent(0).getComponent(0);
+						var tp = tabPanel.getComponent(0);
+						if (tp) grid = tp.getComponent(0);
 					}
 					return grid;
 				};

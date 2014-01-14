@@ -4,16 +4,16 @@
  */
  
 /**
- * 新闻公告栏portlet控件。
+ * 发送消息portlet控件。
  * 
  * @author TonyTan
  * @version 1.0, 2010-01-01
  */
 
-PortletNews = {};
+PortletSend = {};
 (function(){
 
-	Ext.apply(PortletNews, {
+	Ext.apply(PortletSend, {
 	/**
 	 * public
 	 * 父对象
@@ -32,14 +32,14 @@ PortletNews = {};
 	
 	/**
 	 * public
-	 * 显示新闻公告列表
+	 * 显示消息列表
 	 **/
 	showPortlet: function(target) {
 		if (!Jxstar.jxsender) {
 			var url = '/jxstar/system/pub/JxSender.js';
 			JxUtil.loadJS(url, true);
 		}
-		
+	
 		var self = this;
 		if (target == null) {
 			JxHint.alert(jx.plet.noparent);	//'显示PORTLET的容器对象为空！'
@@ -49,10 +49,28 @@ PortletNews = {};
 		//先清除内容
 		target.removeAll(target.getComponent(0), true);
 		
+		//绑定按钮事件
+		var fsend = function(){
+			var send = target.getComponent(0).body.select('a.send');
+			send.on('click', function(){JxSender.send(self);});
+		};
+		var fquery = function(){
+			var send = target.getComponent(0).body.select('a.query');
+			send.on('click', function(){JxSender.queryMsg();});
+		};
+		var ftitle = function(cls){
+			var title = target.getComponent(0).body.select('a.title');
+			title.on('click', function(e, t){
+				var el = Ext.get(t);
+				var itemid = el.getAttribute('itemid');
+				JxSender.readBoard(itemid, self);
+			});
+		};
+		
 		var hdcall = function(msgJson) {
 			var msgHtml = '';
 			if (msgJson.length == 0) {
-				msgHtml = '<div class="nav_msg_notip">没有新闻公告！</div>';
+				msgHtml = '<div class="nav_msg_notip">没有消息！</div>';
 			} else {
 				msgHtml = self.createPortlet(msgJson);
 			}
@@ -60,8 +78,12 @@ PortletNews = {};
 			
 			target.add({html:panelHtml,autoScroll:true});
 			target.doLayout();
+			
+			fsend();
+			fquery();
+			ftitle();
 		};
-		var params = 'funid=sys_news&eventcode=qrycont&pagetype=grid&premonth=1';
+		var params = 'funid=sys_msg&eventcode=qrycont&pagetype=grid';
 		Request.dataRequest(params, hdcall);
 	},
 	
@@ -72,7 +94,8 @@ PortletNews = {};
 	createHtml: function(msgHtml) {
 		var chgcolor = 'onmouseover="this.style.color=\'#FF4400\';" onmouseout="this.style.color=\'#444\';"';
 		var btnHtml = 
-		'<a href="#" '+ chgcolor +' style="padding-right:8px;color:#444" onclick="JxSender.queryBoard();">'+ jx.plet.all +'</a>';	//所有...
+		'<a href="#" '+ chgcolor +' class="send" style="padding-right:8px;color:#444">'+ jx.plet.sendmsg +'</a>' +
+		'<a href="#" '+ chgcolor +' class="query" style="padding-right:8px;color:#444">'+ jx.plet.all +'</a>';	//所有...
 		
 		var toolHtml = 
 		'<table width="100%" border="0" align="center" cellpadding="1" cellspacing="1" style="bottom:4px;" class="nav_msg_table">' +
@@ -90,8 +113,8 @@ PortletNews = {};
 	
 	/**
 	 * private
-	 * 创建公告列表
-	 * msgJson参数是数组对象: news_id -- 消息ID, news_title -- 消息标题
+	 * 创建消息列表
+	 * msgJson参数是数组对象: news_id -- 消息ID, news_cont -- 消息内容
 	 **/
 	createPortlet: function(msgJson) {
 		var tableTpl = new Ext.Template(
@@ -102,16 +125,18 @@ PortletNews = {};
 		
 		var rowTpl = new Ext.Template(
 			'<tr height="20" style="background-color:{bgcolor};"><td>',
-				'<li><a href="#" {chgcolor} onclick="JxSender.readBoard(\'{msgid}\');">{msgtitle}</a>',
+				'<li><a href="#" class="title" itemid="{msgid}" {chgcolor}>{news_cont}</a>',
 			'</td><tr>'
-		);
+		);//onclick="JxSender.readBoard(\'{msgid}\');"
 	
 		var rows = [];
 		for (var i = 0; i < msgJson.length; i++) {
 			var msgVal = {};
 			msgVal.msgid = msgJson[i].news_id;
-			var msgtitle = msgJson[i].news_title;
-			msgVal.msgtitle = Ext.util.Format.ellipsis(msgtitle, 40);
+			var news_cont = msgJson[i].news_cont;
+			news_cont = JxSender.htmlToText(news_cont);
+			
+			msgVal.news_cont = Ext.util.Format.ellipsis(news_cont, 40);
 			msgVal.bgcolor = (i%2 == 1) ? '#ddffdd' : '';
 			msgVal.chgcolor = 'onmouseover="this.style.color=\'#FF4400\';" onmouseout="this.style.color=\'#0080FF\';"';
 			if (msgJson[i].is_top == '1') {
