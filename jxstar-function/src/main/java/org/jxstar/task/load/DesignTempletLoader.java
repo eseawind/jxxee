@@ -86,7 +86,7 @@ public class DesignTempletLoader extends SystemLoader {
 		ElementTemplet element = ElementTemplet.getInstance();
 		fileName = filePath+"grid-element-tpl.xml";
 		element.read(fileName, "grid");
-		_log.showDebug(logHead + fileName);;
+		_log.showDebug(logHead + fileName);
 		
 		fileName = filePath+"form-element-tpl.xml";
 		element.read(fileName, "form");
