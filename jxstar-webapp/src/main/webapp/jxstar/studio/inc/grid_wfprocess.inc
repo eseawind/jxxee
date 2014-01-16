@@ -191,7 +191,7 @@
 			var state = r.get('wf_process__process_state');
 			//非定义状态记录不能修改
 			if (state != '1') {
-				return false;
+				//return false;
 			}
 			
 			return true;

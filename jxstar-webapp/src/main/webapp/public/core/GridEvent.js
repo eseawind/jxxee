@@ -1360,7 +1360,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 		//加载数据
 		var hdcall = function(grid) {
 			//显示数据
-			JxUtil.delay(500, function(){
+			//JxUtil.delay(500, function(){//加延时后，在网络慢时attachDataId没赋值
 				//设置目标功能信息
 				grid.attachDataId = keyid;
 				grid.attachFunId = nodeid;
@@ -1378,7 +1378,7 @@ Ext.extend(Jxstar.GridEvent, Ext.util.Observable, {
 					return true;
 				});
 				Jxstar.loadData(grid, options);
-			});
+			//});
 		};
 
 		var srcDefine = Jxstar.findNode('sys_attach');

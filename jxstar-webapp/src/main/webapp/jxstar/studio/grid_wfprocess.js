@@ -6,7 +6,7 @@
 
 	var cols = [
 	{col:{header:'状态', width:73, sortable:true, defaultval:'1', align:'center',
-		editable:false,
+		editable:true, hcss:'color:#3039b4;',
 		editor:new Ext.form.ComboBox({
 			store: new Ext.data.SimpleStore({
 				fields:['value','text'],
@@ -301,7 +301,7 @@
 			var state = r.get('wf_process__process_state');
 			//非定义状态记录不能修改
 			if (state != '1') {
-				return false;
+				//return false;
 			}
 			
 			return true;

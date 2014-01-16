@@ -473,15 +473,16 @@ Ext.ns('Jxstar');
 					return grid;
 				};
 				
-				//延时执行该方法，有些浏览器执行比较慢，所以最大支持2秒
-				JxUtil.delay(1000, function(){
+				//延时执行该方法
+				var callhd = function() {
 					var grid = getTreeGrid(dataPanel);
 					if (Ext.isEmpty(grid)) {
-						JxUtil.delay(1000, delayFun);
+						JxUtil.delay(500, callhd);
 					} else {
 						delayFun();
 					}
-				});
+				};
+				JxUtil.delay(1000, callhd);
 				
 				return tree;
 			};
