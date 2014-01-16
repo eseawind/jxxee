@@ -12,6 +12,7 @@ import java.util.Map;
 import org.jxstar.dao.BaseDao;
 import org.jxstar.dao.DaoParam;
 import org.jxstar.service.define.FunDefineDao;
+import org.jxstar.util.MapUtil;
 import org.jxstar.util.StringFormat;
 import org.jxstar.util.StringUtil;
 import org.jxstar.util.factory.FactoryUtil;
@@ -189,4 +190,55 @@ public class ReportUtil {
 		
 		return pos[0];
 	}
+    
+    /**
+     * 拼接同一节点多人的审批意见。
+     * @param lsCheck
+     * @param flag -- 意见分割符，html报表用<br>，xls报表用\r\n
+     * @return
+     */
+    public static String getCheckDesc(List<Map<String,String>> lsCheck, String flag) {
+    	if (lsCheck == null || lsCheck.isEmpty()) return "";
+    	
+    	StringBuilder sbdes = new StringBuilder();
+    	for (int i = 0, n = lsCheck.size(); i < n; i++) {
+    		Map<String,String> mpCheck = lsCheck.get(i);
+    		
+    		String check_user = mpCheck.get("check_user");
+    		String check_date = mpCheck.get("check_date");
+    		String check_desc = mpCheck.get("check_desc");
+    		//只取审批日期
+    		if (check_date.length() > 0) {
+    			check_date = check_date.split(" ")[0];
+    		}
+    		
+    		if (i == 0 && n == 1) {
+    			sbdes.append(check_desc);
+    		} else {
+    			sbdes.append(flag + check_date + " " + check_user + " 【" + check_desc + "】");
+    		}
+    	}
+    	
+    	return sbdes.toString();
+    }
+    
+    /**
+     * 多人审批时，取领导的信息
+     * @param lsCheck
+     * @return
+     */
+    public static Map<String,String> getCheckUser(List<Map<String,String>> lsCheck) {
+    	if (lsCheck == null || lsCheck.isEmpty()) return null;
+    	
+    	for (Map<String,String> mpCheck : lsCheck) {
+    		String userid = MapUtil.getValue(mpCheck, "check_userid");
+    		boolean isLeader = ReportDao.isLeader(userid);
+    		if (isLeader) {
+    			return mpCheck;
+    		}
+    	}
+    	return lsCheck.get(0);
+    }
+    
+
 }

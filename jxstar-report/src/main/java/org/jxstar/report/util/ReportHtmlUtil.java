@@ -432,10 +432,10 @@ public class ReportHtmlUtil extends ReportUtil {
             if (!preNodeId.equals(nodeId)) {
             	mpSign = ReportDao.getNodeAttr(processId, nodeId);
             	lsCheck = ReportDao.getCheckInfo(funId, dataId, processId, nodeId);
-            	allCheckDesc = getCheckDesc(lsCheck);
+            	mpCheck = getCheckUser(lsCheck);
+            	allCheckDesc = getCheckDesc(lsCheck, "<br>");
             }
-            if (lsCheck == null || lsCheck.isEmpty()) continue;
-            mpCheck = lsCheck.get(0);
+            if (mpCheck == null || mpCheck.isEmpty()) continue;
             
             int[] posi = getPosition(colPos);
             if (posi.length != 2) {
@@ -532,36 +532,6 @@ public class ReportHtmlUtil extends ReportUtil {
         }
         
     	return sbRet.toString();
-    }
-    
-    /**
-     * 取一个审批环节的重新分配人的审批消息，第一个审批人的时间、人、部门印章输出到其它指定位置
-     * @param lsCheck
-     * @return
-     */
-    private static String getCheckDesc(List<Map<String,String>> lsCheck) {
-    	if (lsCheck == null || lsCheck.isEmpty()) return "";
-    	
-    	StringBuilder sbdes = new StringBuilder();
-    	for (int i = 0, n = lsCheck.size(); i < n; i++) {
-    		Map<String,String> mpCheck = lsCheck.get(i);
-    		
-    		String check_user = mpCheck.get("check_user");
-    		String check_date = mpCheck.get("check_date");
-    		String check_desc = mpCheck.get("check_desc");
-    		//只取审批日期
-    		if (check_date.length() > 0) {
-    			check_date = check_date.split(" ")[0];
-    		}
-    		
-    		if (i == 0 && n == 1) {
-    			sbdes.append(check_desc);
-    		} else {
-    			sbdes.append("<br>" + check_date + " " + check_user + " 【" + check_desc + "】");
-    		}
-    	}
-    	
-    	return sbdes.toString();
     }
     
     /**

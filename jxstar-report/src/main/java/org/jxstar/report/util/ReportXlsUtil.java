@@ -464,6 +464,8 @@ public class ReportXlsUtil extends ReportUtil {
         String preNodeId = "";
         //保存取出的审批信息
         Map<String,String> mpCheck = null;
+        //同一审批节点中的其它人的审批意见
+        String allCheckDesc = "";
         for (int i = 0, n = lsField.size(); i < n; i++) {
             Map<String,String> mpField = lsField.get(i);
             
@@ -477,7 +479,8 @@ public class ReportXlsUtil extends ReportUtil {
             //因为一个节点有三个字段的信息要输出到报表中：check_user, check_date, check_desc
             if (!preNodeId.equals(nodeId)) {
             	List<Map<String,String>> lsCheck = ReportDao.getCheckInfo(funId, dataId, processId, nodeId);
-            	if (!lsCheck.isEmpty()) mpCheck = lsCheck.get(0);
+            	mpCheck = getCheckUser(lsCheck);
+            	allCheckDesc = getCheckDesc(lsCheck, "\r\n");
             }
             if (mpCheck == null || mpCheck.isEmpty()) continue;
             
@@ -500,7 +503,11 @@ public class ReportXlsUtil extends ReportUtil {
             HSSFCell cell = row.getCell(posi[1]);
             if (cell == null) cell = row.createCell(posi[1]);
             //填充单元格内容
-            cell.setCellValue(strValue.trim());
+            if (!colCode.equals("check_desc")) {
+            	cell.setCellValue(strValue.trim());
+            } else {
+            	cell.setCellValue(allCheckDesc);
+            }
         }
         
         return sheet;

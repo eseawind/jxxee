@@ -305,17 +305,23 @@ public class ReportDao {
      * @return Map
 	 */
 	public static List<Map<String,String>> getCheckInfo(String funId, String dataId, String processId, String nodeId) {
-		//取多人审批节点中的当前审批消息
-        List<Map<String,String>> lsData = checkInfo(funId, dataId, processId, nodeId, false);
-        //取审批历史消息
-        lsData.addAll(checkInfo(funId, dataId, processId, nodeId, true));
+		List<Map<String,String>> lsData;
+		//取子流程中的所有审批意见合并显示
+		String subid = subProcessId(processId, nodeId);
+		if (subid.length() > 0) {
+			lsData = checkInfo(funId, dataId, subid, null, false);
+	        lsData.addAll(checkInfo(funId, dataId, subid, null, true));
+		} else {
+			//取多人审批节点中的当前审批消息
+			lsData = checkInfo(funId, dataId, processId, nodeId, false);
+			//取审批历史消息
+			lsData.addAll(checkInfo(funId, dataId, processId, nodeId, true));
+		}
         
         return lsData;
 	}
 	private static List<Map<String,String>> checkInfo(String funId, String dataId, String processId, String nodeId, boolean isHis) {
-	    //String sql = "select check_userid, check_user, check_date, check_desc from wf_taskhis " +
-	    //		"where fun_id = ? and data_id = ? and process_id = ? and node_id = ? order by check_date";
-		String t1 = "wf_assign", t2 = "wf_task";
+	    String t1 = "wf_assign", t2 = "wf_task";
 		if (isHis) {
 			t1 = "wf_assignhis"; t2 = "wf_taskhis";
 		}
@@ -323,16 +329,35 @@ public class ReportDao {
 		StringBuilder sbsql = new StringBuilder();
 		sbsql.append("select ").append(t1).append(".check_userid, ").append(t1).append(".check_user, ").append(t1).append(".check_date, ").append(t1).append(".check_desc "); 
 		sbsql.append("from ").append(t1).append(", ").append(t2).append(" where ").append(t1).append(".task_id = ").append(t2).append(".task_id and ").append(t1).append(".run_state = '1' and "); 
-		sbsql.append(t1).append(".fun_id = ? and ").append(t1).append(".data_id = ? and ").append(t2).append(".process_id = ? and ").append(t2).append(".node_id = ? ");
+		sbsql.append(t1).append(".fun_id = ? and ").append(t1).append(".data_id = ? and ").append(t2).append(".process_id = ? ");
+		//如果nodeId=null，则说明是取子流程所有节点的审批意见
+		if (nodeId != null) {
+			sbsql.append(" and ").append(t2).append(".node_id = ? ");
+		}
 		sbsql.append("order by ").append(t1).append(".check_date");
 		
         DaoParam param = _dao.createParam(sbsql.toString());
         param.addStringValue(funId);
         param.addStringValue(dataId);
         param.addStringValue(processId);
-        param.addStringValue(nodeId);
-
+        if (nodeId != null) {
+        	param.addStringValue(nodeId);
+        }
+        
         return _dao.query(param);
+	}
+	
+	//取子流程节点对应的子流程ID
+	private static String subProcessId(String processId, String nodeId) {
+		String sql = "select sub_processid from wf_subprocess where process_id = ? and node_id = ?";
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(processId);
+		param.addStringValue(nodeId);
+		
+		Map<String,String> mpData = _dao.queryMap(param);
+		if (mpData.isEmpty()) return "";
+		
+		return MapUtil.getValue(mpData, "sub_processid");
 	}
 	
 	/**
@@ -443,4 +468,20 @@ public class ReportDao {
 
 		return _dao.query(param);
 	}
+	
+	/**
+	 * 是否为领导
+	 * @param userId
+	 * @return
+	 */
+	public static boolean isLeader(String userId) {
+    	String sql = "select is_leader from sys_user where user_id = ?";
+    	DaoParam param = _dao.createParam(sql);
+		param.addStringValue(userId);
+
+		Map<String,String> mp = _dao.queryMap(param);
+		String isleader = MapUtil.getValue(mp, "is_leader", "0");
+		
+		return isleader.equals("1");
+    }
 }
