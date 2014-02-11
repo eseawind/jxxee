@@ -88,7 +88,12 @@ public class SignPicUtil {
      */
 	public static String getDeptSign(String userId, String curUserId, String markDate) {
 		String url = "";
-    	String deptId = ReportDao.getDeptId(userId);
+		//检查用户是否有历史所在部门，防止因部门调整后造成历史审批单中的部门印章都变了。
+		String deptId = queryHisDept(userId, markDate);
+		if (deptId.length() == 0) {
+			deptId = ReportDao.getDeptId(userId);
+		}
+    	
     	//是否有指定版本的部门印章
     	String signetId = querySignetId("0", deptId, markDate, false);
 		if (signetId.length() == 0) {
@@ -193,5 +198,21 @@ public class SignPicUtil {
 		
 		Map<String, String> mpData = _dao.queryMap(param);
 		return MapUtil.getValue(mpData, "signet_id");
+	}
+	
+	//取当前用户是否有历史所在部门
+	private static String queryHisDept(String userId, String markDate) {
+		String sql = "select data_id from wf_signet where state in ('1', '7') and " +
+				"data_diff = '2' and up_userid = ? and version_date < ? ";
+		sql += " order by version_date desc";
+		_log.showDebug(".......query sign sql=" + sql + "; markdate=" + markDate);
+		_log.showDebug(".......query sign param userId={0}, markDate={1}", userId, markDate);
+		
+		DaoParam param = _dao.createParam(sql);
+		param.addStringValue(userId);
+		param.addDateValue(markDate);
+		
+		Map<String, String> mpData = _dao.queryMap(param);
+		return MapUtil.getValue(mpData, "data_id");
 	}
 }
