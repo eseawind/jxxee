@@ -13,7 +13,7 @@
  * pageType -- 页面类型
  * isShow -- 是否初始显示数据
  * selectKeyId -- 选择的单条记录ID，用于识别当前选择的记录
- *
+ * 
  * cmpTree      -- 添加了树形控件，该属性必须延时1s才能取到
  * treeNodeAttr -- 点击的树形节点的属性
  *              -- 常见属性名称有：id, text, node_level, tree_no, table_name, 附加属性等
@@ -24,7 +24,7 @@
  * jxstarParam.tree_wsql -- 树型查询语句，在通用查询时用到
  * jxstarParam.tree_wtype -- 树型查询参数类型
  * jxstarParam.tree_wvalue -- 树型查询参数值
- *
+ * 
  * 还有Grid.Event.dataImport、upload方法中有使用自定义参数，在方法中消除
  * 
  * 扩展表单Form对象的属性：
@@ -850,6 +850,7 @@ Ext.ns('Jxstar');
 						options.where_type = old_wtype;
 					}
 				}
+				
 				if (old_wvalue && old_wvalue.length > 0) {
 					if (options.where_value && options.where_value.length > 0) {
 						options.where_value = old_wvalue + ';' + options.where_value;

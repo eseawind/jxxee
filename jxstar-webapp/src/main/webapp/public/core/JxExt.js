@@ -669,14 +669,15 @@ Ext.form.TextField.prototype.getErrors = function(value) {
  * ext-3.3.1
  * 增加方法：增加一种不检查必填项的校验方法，暂时未使用
  **/
-Ext.form.BasicForm.prototype.isValidBlank = function(){
+Ext.form.BasicForm.prototype.isValid = function(noBlank){
 	var valid = true;
 	this.items.each(function(f){
-		f.isBlankCheck = true; //add by tony.tan
-	   if(!f.validate()){
-		   valid = false;
-	   }
-	   delete f.isBlankCheck; //add by tony.tan
+	    var a = f.allowBlank;				//add by tony.tan
+		if (noBlank) f.allowBlank = true;	//add by tony.tan
+		if(!f.validate()){
+			valid = false;
+		}
+		if (noBlank) f.allowBlank = a;		//add by tony.tan
 	});
 	return valid;
 };

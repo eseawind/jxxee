@@ -383,17 +383,17 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 	* 删除事件
 	**/
 	del : function() {
-		var keyid = this.getPkField().getValue();
+		var self = this;		
+		var keyid = self.getPkField().getValue();
 		if (keyid == null || keyid.length == 0) {
 			JxHint.alert(jx.event.nokey);	//当前记录没有主键值，不能操作！
 			return;
 		}
 	
-		if (this.checkAudit(this.audit1, 'del')) return;
+		if (this.checkAudit(self.audit1, 'del')) return;
 		if (this.fireEvent('beforedelete', this) == false) return;
 
 		//删除提交
-		var self = this;
 		var hdcall = function() {
 			//设置请求的参数
 			var params = 'funid='+ self.define.nodeid +'&keyid=' + keyid;
@@ -431,7 +431,7 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 	save : function() {
 		var self = this;
 
-		if (this.checkAudit()) return;
+		if (this.checkAudit(self.audit1, 'save')) return;
 		if (this.fireEvent('beforesave', this) == false) return;
 		
 		//取主键值，如果有主键值是保存，否则为新增
@@ -549,9 +549,17 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 		if (Ext.isEmpty(srctype)) srctype = 'audit';
 
 		//数据校验，删除时不用检查
-		if (srctype != 'del' && !self.form.isValid()) {
-			JxHint.alert(jx.event.datavalid);	//'请确保输入的数据正确完整！'
-			return true;
+		if (srctype != 'del') {
+			//form.isValid添加true参数，不检查数据的必填项
+			if (srctype == 'save' && !self.form.isValid(true)) {
+				JxHint.alert(jx.event.datavalid);
+				return true;
+			}
+			//提交时检查：请确保输入的数据正确完整！
+			if (srctype == 'audit' && !self.form.isValid()) {
+				JxHint.alert(jx.event.datavalid);
+				return true;
+			}
 		}
 		
 		var auditcol = self.define.auditcol;
@@ -566,7 +574,8 @@ Ext.extend(Jxstar.FormEvent, Ext.util.Observable, {
 				return true;
 			}
 		} else if (auditval == self.audit1) {
-			if (state != self.audit0 && state != self.audit2 && state != self.audit6){//暂时调整为审批中的记录可以保存修改
+			//调整为审批中的记录可以保存修改
+			if (state != self.audit0 && state != self.audit2 && state != self.audit6){
 				JxHint.alert(jx.event.curaudit1);	//'当前记录已复核，不能操作！'
 				return true;
 			}
